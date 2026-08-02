@@ -75,7 +75,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--laiton);text-transform:uppercase;margin-top:5px;padding-left:2px}
 .entete{align-items:flex-start}
 .entete{display:flex;align-items:flex-start;gap:11px}
-.logo{width:38px;height:38px;flex-shrink:0;margin-top:2px}
 .defile{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
 .bloc{margin-top:15px}
 .rang{display:flex;align-items:center;gap:10px;padding:8px 0;
@@ -111,8 +110,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .depuis{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gris)}
 
 /* ─── bandeaux ─── */
-.bandeau{display:none;border:1px solid var(--trait);border-radius:2px;
-  padding:11px 13px;margin-top:11px}
+.bandeau{display:none;border:1px solid var(--trait);border-radius:12px;
+  padding:11px 13px;margin-top:11px;flex-shrink:0}
 .bandeau.on{display:block}
 .bandeau .t{font-size:21px;font-weight:700;letter-spacing:.08em;
   text-transform:uppercase;line-height:1.1;display:flex;align-items:center;gap:9px}
@@ -307,12 +306,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .rang .monter[disabled]{opacity:.2}
 
 /* ─── interface fluide ─── */
-.f-nom{font-size:clamp(30px,9.5vw,46px)}
-.f-obj{text-align:center;margin-top:11px;font-family:var(--mono)}
+/* Tout ce qui entoure le chiffre a une hauteur figée : le chrono ne doit
+   jamais bouger d'un tour à l'autre, sinon le joueur perd son repère. */
+.f-tete-j{margin-top:10px;flex-shrink:0}
+.f-nom-l{height:46px;display:flex;align-items:center;justify-content:center}
+.f-badges{min-height:31px;display:flex;align-items:center;justify-content:center;
+  gap:6px;flex-wrap:wrap;overflow:hidden}
+.f-badges .bouclier{margin-left:0}
+.f-nom{font-size:clamp(26px,8vw,38px);max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.f-obj{text-align:center;margin-top:9px;font-family:var(--mono);
+  height:74px;flex-shrink:0}
 .f-obj b{font-size:30px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
 .f-obj em{display:block;font-style:normal;font-size:12px;letter-spacing:.15em;
   color:var(--gris);text-transform:uppercase;margin-top:4px}
-.f-obj em.f-realise{font-size:15px;font-weight:600;letter-spacing:.1em;margin-top:6px;visibility:hidden}
+.f-obj em.f-realise{font-size:15px;font-weight:600;letter-spacing:.1em;margin-top:5px;visibility:hidden}
 .f-obj em.f-realise.on{visibility:visible}
 /* durée réellement tenue, rappelée sur la fiche de détails */
 .duree{width:100%;display:flex;justify-content:center;gap:10px;margin-top:9px;
@@ -320,18 +328,24 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--gris)}
 .duree:empty{display:none}
 .duree b{font-weight:600}
-.f-centre{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.f-centre{flex:1;min-height:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px}
 .f-chrono{font-family:var(--mono);font-weight:500;font-size:clamp(62px,22vw,108px);
   letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
 .f-chrono.repos{color:var(--gris)}
 .f-chrono.attente{color:var(--trait);animation:respire 1.4s ease-in-out infinite}
 @keyframes respire{0%,100%{opacity:.5}50%{opacity:1}}
-.f-ecart{font-family:var(--mono);font-size:16px;letter-spacing:.06em;color:var(--gris);min-height:20px}
-.f-verdict{min-height:56px;text-align:center;padding:0 6px}
+.f-ecart{font-family:var(--mono);font-size:16px;letter-spacing:.06em;
+  color:var(--gris);height:22px;display:flex;align-items:center}
+.f-verdict{height:112px;flex-shrink:0;text-align:center;padding:0 6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;overflow:hidden}
 .f-verdict .titre{font-size:22px;font-weight:700;letter-spacing:.05em;
-  text-transform:uppercase;line-height:1.12}
+  text-transform:uppercase;line-height:1.12;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f-verdict .sous{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-  color:var(--gris);margin-top:5px;text-transform:uppercase;line-height:1.5}
+  color:var(--gris);margin-top:0;text-transform:uppercase;line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f-boutons{display:flex;justify-content:center;gap:26px;align-items:center;
   padding:12px 0 4px;flex-shrink:0}
 .f-quitter{display:block;width:100%;padding:11px;flex-shrink:0;
@@ -362,8 +376,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .blague{font-family:var(--cond);font-size:16px;font-weight:600;letter-spacing:.02em;
   line-height:1.35;color:var(--laiton);margin-top:9px;font-style:italic}
 .blague:empty{display:none}
-.f-blague{min-height:0;text-align:center;padding:0 12px;margin-top:4px;
-  font-size:15px;visibility:hidden}
+.f-blague{text-align:center;padding:0 8px;margin-top:0;font-size:14.5px;
+  line-height:1.3;visibility:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f-blague.on{visibility:visible}
 /* ─── scores d'entraînement ─── */
 .sc-conf{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
@@ -460,7 +475,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ═══ RÉGLAGES ═══ -->
 <section class="ecran actif" id="reglages">
   <div class="entete">
-    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#EDE6D6" stroke-width="10.5" stroke-linecap="round" fill="none"><line x1="30" y1="22" x2="30" y2="78"/><line x1="30" y1="50" x2="66" y2="22"/><line x1="30" y1="50" x2="66" y2="78"/></g></svg>
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
     <div class="nav">
       <button id="go-panth">Panthéon</button>
@@ -698,12 +712,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="tete" style="justify-content:center">
     <span class="eyebrow" id="f-tour">Tour 1</span>
   </div>
-  <div class="centre-h" style="margin-top:10px">
-    <span class="pilule f-nom" id="f-nom">Joueur</span>
-    <span class="bouclier" id="f-bouclier">Bouclier</span>
-    <span class="bouclier or" id="f-enchere"></span>
-    <span class="bouclier vies" id="f-vies"></span>
-    <span class="bouclier or" id="f-minute">La minute pile</span>
+  <div class="f-tete-j">
+    <div class="f-nom-l"><span class="pilule f-nom" id="f-nom">Joueur</span></div>
+    <div class="f-badges">
+      <span class="bouclier" id="f-bouclier">Bouclier</span>
+      <span class="bouclier or" id="f-enchere"></span>
+      <span class="bouclier vies" id="f-vies"></span>
+      <span class="bouclier or" id="f-minute">La minute pile</span>
+    </div>
   </div>
   <div class="f-obj"><b id="f-obj-cible">1,00</b><em id="f-obj-tenir">—</em>
     <em class="f-realise" id="f-realise"></em></div>
