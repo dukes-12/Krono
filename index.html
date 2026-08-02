@@ -74,7 +74,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .marque span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
   color:var(--laiton);text-transform:uppercase;margin-top:5px;padding-left:2px}
 .entete{align-items:flex-start}
-.entete{display:flex;align-items:flex-start;gap:12px}
+.entete{display:flex;align-items:flex-start;gap:11px}
+.logo{width:38px;height:38px;flex-shrink:0;margin-top:2px}
 .defile{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
 .bloc{margin-top:15px}
 .rang{display:flex;align-items:center;gap:10px;padding:8px 0;
@@ -272,7 +273,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .bouclier.or{color:var(--laiton);border-color:var(--laiton)}
 .bouclier.vies{color:var(--signal);border-color:var(--signal)}
 .bouclier.serie{color:var(--s100);border-color:var(--s100)}
-.bouclier.salon{color:var(--gris);border-color:var(--bordDoux)}
 .code-salon{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:.3em;
   color:var(--laiton);text-align:center;padding:14px 0 4px}
 #fluide{position:relative}
@@ -378,6 +378,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .lat-val{font-family:var(--mono);font-size:44px;font-weight:500;letter-spacing:-.02em;
   line-height:1;color:var(--laiton)}
 .lat-txt{font-family:var(--mono);font-size:11px;line-height:1.65;color:var(--gris);margin-top:9px}
+.lat-liste{display:flex;flex-direction:column;gap:4px;margin-top:13px}
+.lat-liste:empty{display:none}
+.lat-l{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px}
+.lat-l .no{color:var(--gris);opacity:.5;width:18px;text-align:right}
+.lat-l .bar{flex:1;height:8px;border-radius:999px;background:var(--ardoise);overflow:hidden}
+.lat-l .bar i{display:block;height:100%;border-radius:999px;background:var(--laiton)}
+.lat-l .ms{width:46px;text-align:right;color:var(--ivoire)}
+.lat-l.recent .ms{color:var(--laiton)}
 #test-mdp{text-transform:uppercase;letter-spacing:.2em}
 
 /* ─── trophées ─── */
@@ -452,6 +460,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ═══ RÉGLAGES ═══ -->
 <section class="ecran actif" id="reglages">
   <div class="entete">
+    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#EDE6D6" stroke-width="10.5" stroke-linecap="round" fill="none"><line x1="30" y1="22" x2="30" y2="78"/><line x1="30" y1="50" x2="66" y2="22"/><line x1="30" y1="50" x2="66" y2="78"/></g></svg>
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
     <div class="nav">
       <button id="go-panth">Panthéon</button>
@@ -663,6 +672,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="lat-bloc">
       <div class="lat-val" id="lat-moy">—</div>
       <div class="lat-txt" id="lat-txt">Aucune mesure pour l'instant.</div>
+      <div class="lat-liste" id="lat-liste"></div>
     </div>
 
     <div class="seg" id="seg-horo">
@@ -694,7 +704,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="bouclier or" id="f-enchere"></span>
     <span class="bouclier vies" id="f-vies"></span>
     <span class="bouclier or" id="f-minute">La minute pile</span>
-    <span class="bouclier salon" id="f-salon"></span>
   </div>
   <div class="f-obj"><b id="f-obj-cible">1,00</b><em id="f-obj-tenir">—</em>
     <em class="f-realise" id="f-realise"></em></div>
@@ -835,6 +844,8 @@ function couleurLibre(){
 
 /* ════════ MODES DE JEU ════════ */
 const MODES = [
+  {id:'solo', n:'Solo classique',
+   d:"Un seul joueur, dix cibles, aucune gorgée. Des points, un multiplicateur qui monte à chaque pile enchaîné, un biais à corriger."},
   {id:'classique', n:'Classique',
    d:"Le barème habituel, chacun pour soi, fin au nombre de tours choisi."},
   {id:'enchere', n:"L'enchère",
@@ -2653,8 +2664,6 @@ function majEtatSalon(){
   const dispo = EN_LIGNE();
   $('bloc-salon').style.display = dispo ? 'block' : 'none';
   $('b-global').style.display = dispo && S.salon ? 'flex' : 'none';
-  $('f-salon').classList.toggle('on', !!S.salon);
-  $('f-salon').textContent = S.salon || '';
   if(!dispo) return;
   const enAttente = lireFile().length;
   $('salon-etat').textContent = S.salon
@@ -2927,6 +2936,7 @@ function majLatence(){
     $('lat-moy').textContent = '—';
     $('test-lat').textContent = '';
     $('lat-txt').textContent = "Aucune mesure pour l'instant. Jouez quelques tours et revenez.";
+    $('lat-liste').innerHTML = '';
     return;
   }
   const moy = Math.round(L.reduce((a,b) => a+b, 0) / L.length);
@@ -2937,6 +2947,12 @@ function majLatence(){
     + ' · de ' + mini + ' à ' + maxi + ' ms.'
     + (CFG.horo ? ' Ce délai est retranché du chrono.'
                 : ' Ce délai n\'est PAS retranché : mode heure de traitement.');
+  // le détail compte autant que la moyenne : c'est la dispersion qui gêne le joueur
+  const ech = Math.max(maxi, 1);
+  $('lat-liste').innerHTML = L.slice().reverse().map((v,i) =>
+    `<span class="lat-l${i===0?' recent':''}"><span class="no">${L.length-i}</span>
+     <span class="bar"><i style="width:${Math.round(v/ech*100)}%"></i></span>
+     <span class="ms">${v} ms</span></span>`).join('');
 }
 
 /* ════════ CONFORT MOBILE ════════ */
