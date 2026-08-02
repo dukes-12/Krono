@@ -1,0 +1,2664 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0E1116">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Krono">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icone-180.png">
+<title>Krono</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --nuit:#0E1116;--ardoise:#171D26;--trait:#2A3340;--ivoire:#EDE6D6;
+  --gris:#7C8797;--laiton:#C9A227;--signal:#DC3B2A;--vert:#3E8E68;
+  --alerte:#9B6BF0;
+  --s100:#B98CFF;--s50:#6BE39A;--s20:#E6C544;
+  --surface:#1B2331;--bordDoux:rgba(237,230,214,.09);--r:16px;
+  --cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  overscroll-behavior:none;overflow:hidden}
+#app{height:100%;max-width:480px;margin:0 auto;position:relative;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.ecran{display:none;flex-direction:column;height:100%;padding:18px 20px}
+.ecran.actif{display:flex}
+
+.eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gris)}
+.hairline{height:1px;background:var(--laiton);opacity:.5;margin:11px 0}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.bouton{display:block;width:100%;padding:16px;background:var(--ivoire);color:var(--nuit);
+  font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:12px}
+.bouton:active{transform:translateY(1px)}
+.bouton.fantome{background:none;color:var(--gris);border:1px solid var(--bordDoux);
+  font-size:14px;letter-spacing:.14em;padding:12px;border-radius:12px}
+.bouton.or{background:var(--laiton);color:var(--nuit)}
+
+.nav{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.nav button{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gris);border:1px solid var(--bordDoux);
+  border-radius:999px;padding:7px 12px}
+.nav button:active{background:var(--ardoise)}
+
+.seg{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.seg button{flex:1;min-width:70px;padding:11px 5px;border:1px solid var(--bordDoux);
+  border-radius:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  color:var(--gris);text-transform:uppercase}
+.seg button[aria-pressed="true"]{background:var(--ivoire);color:var(--nuit);border-color:var(--ivoire)}
+
+.marque{flex:1;min-width:0}
+.marque h1{font-size:36px;font-weight:700;letter-spacing:.14em;line-height:1}
+.marque span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  color:var(--laiton);text-transform:uppercase;margin-top:5px;padding-left:2px}
+.entete{align-items:flex-start}
+.entete{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;flex-shrink:0}
+.defile{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
+.bloc{margin-top:15px}
+.rang{display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--trait);flex-wrap:wrap}
+.puce{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.rang b{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--gris);width:14px}
+.rang input{flex:1;background:none;border:none;outline:none;
+  font-family:var(--cond);font-size:22px;font-weight:600;letter-spacing:.03em;padding:2px 0;
+  -webkit-user-select:text;user-select:text}
+.rang input::placeholder{color:#3D4756}
+.rang .retirer{color:var(--gris);font-size:22px;padding:4px 8px;line-height:1}
+.hist{display:block;width:100%;padding-left:33px;font-family:var(--mono);
+  font-size:10px;letter-spacing:.07em;color:var(--gris);margin-top:-2px}
+.hist:empty{display:none}
+.ajouter{margin-top:12px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;
+  color:var(--laiton);text-transform:uppercase;padding:6px 0}
+.note{font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--gris);margin-top:7px}
+.regles{margin-top:13px;font-family:var(--mono);font-size:11.5px;line-height:1.95;color:var(--gris)}
+.regles div{display:flex;gap:10px;align-items:center}
+.regles i{font-style:normal;width:82px;flex-shrink:0;color:var(--ivoire)}
+.pastille{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ─── écran prêt ─── */
+.tete{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.joueur{font-size:clamp(38px,13vw,58px);font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;line-height:1;margin-top:14px;text-align:center}
+.centre{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px}
+.cible{font-family:var(--mono);font-weight:500;font-size:clamp(56px,20vw,92px);
+  letter-spacing:-.04em;line-height:1;color:var(--laiton)}
+.cible small{font-size:.28em;letter-spacing:.2em;color:var(--gris);vertical-align:.9em;margin-left:6px}
+.tenir{font-family:var(--mono);font-size:14px;letter-spacing:.1em;margin-top:9px}
+.tenir b{font-weight:600;color:var(--laiton)}
+.depuis{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gris)}
+
+/* ─── bandeaux ─── */
+.bandeau{display:none;border:1px solid var(--trait);border-radius:2px;
+  padding:11px 13px;margin-top:11px}
+.bandeau.on{display:block}
+.bandeau .t{font-size:21px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;line-height:1.1;display:flex;align-items:center;gap:9px}
+.bandeau .s{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  color:var(--gris);margin-top:7px;line-height:1.6}
+.bandeau.rouge{border-color:var(--signal);background:rgba(220,59,42,.1)}
+.bandeau.rouge .t{color:var(--signal)}
+.bandeau.violet{border-color:var(--alerte);background:rgba(155,107,240,.13);
+  animation:pulse 1.7s ease-in-out infinite}
+.bandeau.violet .t{color:var(--alerte)}
+.bandeau.or{border-color:var(--laiton);background:rgba(201,162,39,.1)}
+.bandeau.or .t{color:var(--laiton)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(155,107,240,0)}
+                 50%{box-shadow:0 0 0 3px rgba(155,107,240,.22)}}
+
+/* panneau d'alerte triangulaire, dessiné en CSS (pas d'emoji) */
+.badge{position:relative;display:inline-flex;align-items:flex-end;
+  justify-content:center;width:24px;height:21px;flex-shrink:0}
+.badge::before{content:"";position:absolute;inset:0;
+  border-left:12px solid transparent;border-right:12px solid transparent;
+  border-bottom:21px solid var(--alerte)}
+.badge i{position:relative;font-style:normal;font-weight:700;font-size:13px;
+  line-height:1;color:var(--nuit);padding-bottom:1px}
+.badge.rouge::before{border-bottom-color:var(--signal)}
+
+
+/* ─── course ─── */
+.masque{display:none!important}
+
+/* ─── résultat ─── */
+.score{font-family:var(--mono);font-size:clamp(48px,17vw,80px);font-weight:500;
+  letter-spacing:-.04em;line-height:1;margin-top:5px}
+.ecart{font-family:var(--mono);font-size:15px;letter-spacing:.06em;color:var(--gris);margin-top:2px}
+#resultat{background:linear-gradient(180deg,#101520 0%,var(--nuit) 42%)}
+/* toute la fiche défile, pas seulement l'historique */
+#resultat.actif{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#resultat .film{flex:none;overflow:visible;min-height:0}
+#resultat .verdict{padding-bottom:6px}
+.bande{position:relative;height:52px;border:1px solid var(--bordDoux);border-radius:14px;
+  overflow:hidden;background:var(--surface);margin-top:10px}
+.z{position:absolute;top:0;bottom:0}
+.z-rouge{left:0;right:0;background:rgba(226,116,100,.13)}
+.z-vert{background:rgba(90,178,138,.2);border-radius:10px}
+.z-laiton{left:47%;right:47%;background:rgba(214,180,86,.42)}
+.z-axe{left:calc(50% - .5px);width:1px;background:var(--laiton)}
+.marqueur{position:absolute;top:0;bottom:0;width:2px;background:var(--ivoire);
+  box-shadow:0 0 12px rgba(237,230,214,.8);transition:left .45s cubic-bezier(.16,.8,.3,1)}
+.marqueur::after{content:"";position:absolute;top:-1px;left:-4px;
+  border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--ivoire)}
+.bande.pile{animation:flash .5s ease-out 3}
+@keyframes flash{0%,100%{background:var(--ardoise)}50%{background:rgba(201,162,39,.55)}}
+.echelle{display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:10px;color:var(--gris);margin-top:4px;letter-spacing:.08em}
+.film{flex:1;overflow-y:auto;margin-top:10px;-webkit-overflow-scrolling:touch;min-height:0}
+.frame{display:flex;align-items:center;gap:9px;padding:3px 0}
+.frame .nom{font-family:var(--mono);font-size:10px;width:52px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
+.frame .val{font-family:var(--mono);font-size:11px;width:46px;text-align:right}
+.mini{position:relative;flex:1;height:12px;background:var(--ardoise);border-radius:1px;overflow:hidden}
+.mini .z-vert{background:rgba(62,142,104,.22)}
+.mini .z-laiton{background:rgba(201,162,39,.45)}
+.mini .m{position:absolute;top:0;bottom:0;width:2px;background:var(--ivoire)}
+.verdict{padding-top:10px}
+.verdict .titre{font-size:26px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;line-height:1.08}
+.verdict .sous{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;
+  color:var(--gris);margin-top:6px;text-transform:uppercase;line-height:1.55}
+.t-signal{color:var(--signal)}.t-laiton{color:var(--laiton)}.t-vert{color:var(--vert)}
+.t-alerte{color:var(--alerte)}
+.t-s100{color:var(--s100)}.t-s50{color:var(--s50)}.t-s20{color:var(--s20)}.t-s0{color:var(--signal)}
+
+.choix{display:none;margin-top:10px}
+.choix.on{display:block}
+.choix .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  color:var(--alerte);text-transform:uppercase}
+.choix .opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.choix .opts button{border:1px solid currentColor;border-radius:2px;padding:9px 13px;
+  font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+/* ─── classement, panthéon, test ─── */
+.classement{flex:1;overflow-y:auto;margin-top:9px;min-height:0}
+.ligne{display:flex;flex-wrap:wrap;align-items:baseline;gap:11px;
+  padding:11px 0;border-bottom:1px solid var(--trait)}
+.ligne .pos{font-family:var(--mono);font-size:12px;color:var(--laiton);width:18px}
+.ligne .qui{flex:1;font-size:21px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.ligne .moy{font-family:var(--mono);font-size:13px}
+.ligne .bu{font-family:var(--mono);font-size:10px;color:var(--gris);width:100%;
+  padding-left:29px;margin-top:-4px;letter-spacing:.08em}
+.detail{display:block;width:100%;padding-left:29px;margin-top:7px}
+.jauge{display:block;position:relative;height:14px;background:var(--ardoise);
+  border-radius:1px;overflow:hidden}
+.jauge .disp{position:absolute;top:0;bottom:0;background:rgba(62,142,104,.26)}
+.jauge .axe{position:absolute;top:0;bottom:0;left:calc(50% - .5px);width:1px;background:var(--laiton)}
+.jauge .m{position:absolute;top:0;bottom:0;width:2px;background:var(--ivoire)}
+.conseil{display:block;font-family:var(--mono);font-size:10.5px;line-height:1.6;
+  color:var(--gris);margin-top:5px;letter-spacing:.05em}
+.revelation{display:none;border:1px solid rgba(201,162,39,.5);border-radius:var(--r);
+  padding:14px 15px;margin-top:11px;background:rgba(201,162,39,.08)}
+.revelation .t{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--laiton)}
+.revelation .s{font-size:17px;font-weight:600;letter-spacing:.02em;
+  line-height:1.35;margin-top:6px}
+.records{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}
+.rec{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:12px 13px}
+.rec .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gris)}
+.rec .v{font-size:19px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;margin-top:4px;line-height:1.1}
+.rec .d{font-family:var(--mono);font-size:10px;color:var(--laiton);margin-top:2px}
+.vide{font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--gris);
+  margin-top:26px;text-align:center;padding:0 20px}
+.titre-sec{font-family:var(--mono);font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--laiton);margin-top:16px;opacity:.85}
+.evt{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:14px 15px;margin-top:9px}
+.evt.actif{border-color:var(--laiton);background:rgba(201,162,39,.06)}
+.evt.choisir{cursor:pointer;position:relative}
+.evt.choisir .coche{position:absolute;top:14px;right:15px;font-family:var(--mono);
+  font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--laiton);
+  border:1px solid var(--laiton);border-radius:999px;padding:3px 9px;display:none}
+.evt.choisir.actif .coche{display:block}
+.evt.choisir .n{padding-right:76px}
+.evt .n{font-size:21px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;line-height:1;display:flex;align-items:center;gap:8px}
+.evt .d{font-family:var(--mono);font-size:11px;line-height:1.65;color:var(--gris);margin-top:6px}
+.evt .b{margin-top:9px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.evt .b button{border:1px solid var(--laiton);color:var(--laiton);border-radius:999px;
+  padding:9px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+.evt .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--gris);border:1px solid var(--bordDoux);
+  border-radius:999px;padding:4px 9px}
+.evt .tag.on{color:var(--laiton);border-color:var(--laiton)}
+
+/* ─── modale de confirmation (confirm() est bloqué dans les iframes) ─── */
+.modale{display:none;position:fixed;inset:0;background:rgba(10,12,17,.9);
+  z-index:50;align-items:center;justify-content:center;padding:24px}
+.modale.on{display:flex}
+.mb{background:var(--surface);border:1px solid var(--bordDoux);border-radius:20px;
+  padding:22px;max-width:340px;width:100%}
+.mb .b{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.mb .b button{flex:1 1 130px}
+.mb .t{font-size:24px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.1}
+.mb .s{font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--gris);margin-top:9px}
+.mb .b{display:flex;gap:8px;margin-top:16px}
+.mb .b button{flex:1}
+
+/* ─── nom surligné à la couleur du joueur ─── */
+.pilule{display:inline-block;padding:7px 18px 8px;border-radius:999px;
+  font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1;
+  border:1px solid transparent}
+.pilule.st-souligne{background:none;border-color:transparent;border-radius:4px;
+  padding:4px 8px 11px}
+.pilule.st-cartouche{border-radius:12px;padding:7px 15px 8px}
+.apercu{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.centre-h{text-align:center}
+.bouclier{display:none;font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--alerte);border:1px solid var(--alerte);
+  border-radius:999px;padding:5px 12px;vertical-align:middle;margin-left:8px}
+.bouclier.on{display:inline-block}
+.bouclier.or{color:var(--laiton);border-color:var(--laiton)}
+.bouclier.vies{color:var(--signal);border-color:var(--signal)}
+.bouclier.serie{color:var(--s100);border-color:var(--s100)}
+.bouclier.salon{color:var(--gris);border-color:var(--bordDoux)}
+.code-salon{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:.3em;
+  color:var(--laiton);text-align:center;padding:14px 0 4px}
+#fluide{position:relative}
+.solo-actions{display:none;position:absolute;top:14px;left:18px;right:18px;
+  justify-content:space-between;gap:6px;z-index:5;pointer-events:none}
+.solo-actions.on{display:flex}
+.solo-actions button{pointer-events:auto}
+.ja-cote{display:flex;gap:6px}
+.solo-actions button{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--gris);border:1px solid var(--bordDoux);
+  border-radius:999px;padding:6px 11px}
+.solo-actions button:active{background:var(--surface)}
+
+/* sélecteur de prénom */
+.mod-saisie{display:none;gap:8px;margin-top:15px}
+.mod-saisie input{flex:1;min-width:0;background:var(--nuit);border:1px solid var(--bordDoux);
+  border-radius:12px;color:var(--ivoire);font-family:var(--cond);font-size:20px;
+  font-weight:600;letter-spacing:.03em;padding:10px 14px;outline:none;
+  -webkit-user-select:text;user-select:text}
+.mod-saisie input::placeholder{color:#3D4756}
+.mod-saisie input:focus{border-color:var(--laiton)}
+.mod-saisie button{border:1px solid var(--ivoire);color:var(--ivoire);border-radius:12px;
+  padding:10px 17px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase}
+.mod-noms{display:none;flex-wrap:wrap;gap:6px;margin-top:12px}
+.nom-pill{border:1px solid currentColor;border-radius:999px;padding:8px 14px;
+  font-size:17px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.nom-pill:active{opacity:.6}
+.rang .derouler,.rang .monter{color:var(--gris);font-size:13px;padding:8px 5px;
+  line-height:1;font-family:var(--mono)}
+.rang .monter{font-size:12px}
+.rang .monter[disabled]{opacity:.2}
+
+/* ─── interface fluide ─── */
+.f-nom{font-size:clamp(30px,9.5vw,46px)}
+.f-obj{text-align:center;margin-top:11px;font-family:var(--mono)}
+.f-obj b{font-size:30px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
+.f-obj em{display:block;font-style:normal;font-size:12px;letter-spacing:.15em;
+  color:var(--gris);text-transform:uppercase;margin-top:4px}
+.f-obj em.f-realise{font-size:15px;font-weight:600;letter-spacing:.1em;margin-top:6px;visibility:hidden}
+.f-obj em.f-realise.on{visibility:visible}
+/* durée réellement tenue, rappelée sur la fiche de détails */
+.duree{width:100%;display:flex;justify-content:center;gap:10px;margin-top:9px;
+  padding-top:9px;border-top:1px solid var(--bordDoux);
+  font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--gris)}
+.duree:empty{display:none}
+.duree b{font-weight:600}
+.f-centre{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.f-chrono{font-family:var(--mono);font-weight:500;font-size:clamp(62px,22vw,108px);
+  letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
+.f-chrono.repos{color:var(--gris)}
+.f-chrono.attente{color:var(--trait);animation:respire 1.4s ease-in-out infinite}
+@keyframes respire{0%,100%{opacity:.5}50%{opacity:1}}
+.f-ecart{font-family:var(--mono);font-size:16px;letter-spacing:.06em;color:var(--gris);min-height:20px}
+.f-verdict{min-height:56px;text-align:center;padding:0 6px}
+.f-verdict .titre{font-size:22px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;line-height:1.12}
+.f-verdict .sous{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  color:var(--gris);margin-top:5px;text-transform:uppercase;line-height:1.5}
+.f-boutons{display:flex;justify-content:center;gap:26px;align-items:center;
+  padding:12px 0 4px;flex-shrink:0}
+.f-quitter{display:block;width:100%;padding:11px;flex-shrink:0;
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--gris)}
+.rond{position:relative;width:104px;height:104px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  border:2px solid currentColor;color:var(--gris);flex-shrink:0}
+.rond::after{content:"";position:absolute;inset:4px;border-radius:50%;
+  background:currentColor;opacity:.13;transition:opacity .12s}
+.rond:active::after{opacity:.3}
+.rond span{position:relative;z-index:1}
+.rond.vert{color:#35C46B}
+.rond.rouge{color:var(--signal)}
+.rond.clair{color:var(--ivoire)}
+.rond[disabled]{opacity:.22}
+
+/* ─── récapitulatif de fin, intégré aux réglages ─── */
+#fin.actif{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#fin .classement{flex:none;overflow:visible;min-height:0;max-height:none}
+.recap-titre{font-size:28px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;line-height:1.1;margin-top:7px}
+.recap-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.recap-b button{flex:1 1 120px;margin:0}
+
+/* ─── blagues ─── */
+.blague{font-family:var(--cond);font-size:16px;font-weight:600;letter-spacing:.02em;
+  line-height:1.35;color:var(--laiton);margin-top:9px;font-style:italic}
+.blague:empty{display:none}
+.f-blague{min-height:0;text-align:center;padding:0 12px;margin-top:4px;
+  font-size:15px;visibility:hidden}
+.f-blague.on{visibility:visible}
+/* ─── scores d'entraînement ─── */
+.sc-conf{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--gris);width:100%;padding-left:29px;margin-top:-2px}
+.depasse{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--laiton);margin-top:5px}
+.depasse:empty{display:none}
+
+/* ─── trophées ─── */
+.tro{display:flex;gap:13px;align-items:flex-start;padding:13px 14px;margin-top:8px;
+  border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface)}
+.tro.verrou{background:none}
+.tro.verrou .n{color:var(--gris)}
+.tro .myst{font-style:italic;opacity:.75}
+.medaille{width:38px;height:38px;flex-shrink:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  border:2px solid var(--trait);color:var(--gris)}
+.medaille.bronze{border-color:#B87333;color:#D9915A;background:rgba(184,115,51,.12)}
+.medaille.argent{border-color:#AAB4BE;color:#CBD3DA;background:rgba(170,180,190,.12)}
+.medaille.or{border-color:var(--laiton);color:var(--laiton);background:rgba(201,162,39,.14)}
+.tro .txt{flex:1;min-width:0}
+.tro .n{font-size:20px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.tro .d{font-family:var(--mono);font-size:11px;line-height:1.55;color:var(--gris);margin-top:5px}
+.tro .prog{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  color:var(--laiton);margin-top:6px}
+.barre{height:4px;border-radius:999px;background:var(--ardoise);margin-top:6px;overflow:hidden}
+.barre i{display:block;height:100%;background:var(--laiton);border-radius:999px}
+.compte{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.compte span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;border:1px solid var(--bordDoux);border-radius:999px;
+  padding:6px 12px;color:var(--gris)}
+
+/* ─── page de détails ─── */
+.res-chiffres{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;
+  gap:4px 14px;margin-top:10px}
+.res-chiffres .score{margin-top:0}
+.legende{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.legende > span{display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--gris);
+  text-transform:uppercase;background:var(--surface);border:1px solid var(--bordDoux);
+  border-radius:999px;padding:5px 11px}
+.legende i{width:8px;height:8px;border-radius:50%;display:block}
+.res-chiffres{background:var(--surface);border:1px solid var(--bordDoux);
+  border-radius:var(--r);padding:14px 18px}
+.carte-verdict{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:15px 16px;margin-top:8px;
+  border-left:4px solid var(--trait)}
+.carte-verdict.t-signal{border-left-color:var(--signal)}
+.carte-verdict.t-laiton{border-left-color:var(--laiton)}
+.carte-verdict.t-vert{border-left-color:var(--vert)}
+.carte-verdict.t-alerte{border-left-color:var(--alerte)}
+.carte-verdict.t-s100{border-left-color:var(--s100)}
+.carte-verdict.t-s50{border-left-color:var(--s50)}
+.carte-verdict.t-s20{border-left-color:var(--s20)}
+.carte-verdict.t-s0{border-left-color:var(--signal)}
+.carte-verdict .titre{font-size:23px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;line-height:1.12}
+.carte-verdict .sous{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  color:var(--gris);margin-top:6px;text-transform:uppercase;line-height:1.55}
+.frame .no{font-family:var(--mono);font-size:9.5px;color:var(--gris);opacity:.55;
+  width:18px;text-align:right}
+.frame{padding:7px 11px;margin-top:5px;border-radius:12px;background:var(--surface);
+  border:1px solid transparent}
+.frame:first-child{border-color:var(--bordDoux)}
+.mini{border-radius:999px}
+.mini .z-vert{background:rgba(90,178,138,.24);border-radius:999px}
+.mini .z-laiton{background:rgba(214,180,86,.48)}
+.actions{padding-top:11px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--laiton);outline-offset:3px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══ RÉGLAGES ═══ -->
+<section class="ecran actif" id="reglages">
+  <div class="entete">
+    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="43" fill="none" stroke="#C9A227" stroke-width="3"/><line x1="50.0" y1="7.0" x2="50.0" y2="16.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="63.3" y1="9.1" x2="61.9" y2="13.4" stroke="#7C8797" stroke-width="1.2"/><line x1="75.3" y1="15.2" x2="72.6" y2="18.9" stroke="#7C8797" stroke-width="1.2"/><line x1="84.8" y1="24.7" x2="81.1" y2="27.4" stroke="#7C8797" stroke-width="1.2"/><line x1="90.9" y1="36.7" x2="86.6" y2="38.1" stroke="#7C8797" stroke-width="1.2"/><line x1="93.0" y1="50.0" x2="84.0" y2="50.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="90.9" y1="63.3" x2="86.6" y2="61.9" stroke="#7C8797" stroke-width="1.2"/><line x1="84.8" y1="75.3" x2="81.1" y2="72.6" stroke="#7C8797" stroke-width="1.2"/><line x1="75.3" y1="84.8" x2="72.6" y2="81.1" stroke="#7C8797" stroke-width="1.2"/><line x1="63.3" y1="90.9" x2="61.9" y2="86.6" stroke="#7C8797" stroke-width="1.2"/><line x1="50.0" y1="93.0" x2="50.0" y2="84.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="36.7" y1="90.9" x2="38.1" y2="86.6" stroke="#7C8797" stroke-width="1.2"/><line x1="24.7" y1="84.8" x2="27.4" y2="81.1" stroke="#7C8797" stroke-width="1.2"/><line x1="15.2" y1="75.3" x2="18.9" y2="72.6" stroke="#7C8797" stroke-width="1.2"/><line x1="9.1" y1="63.3" x2="13.4" y2="61.9" stroke="#7C8797" stroke-width="1.2"/><line x1="7.0" y1="50.0" x2="16.0" y2="50.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="9.1" y1="36.7" x2="13.4" y2="38.1" stroke="#7C8797" stroke-width="1.2"/><line x1="15.2" y1="24.7" x2="18.9" y2="27.4" stroke="#7C8797" stroke-width="1.2"/><line x1="24.7" y1="15.2" x2="27.4" y2="18.9" stroke="#7C8797" stroke-width="1.2"/><line x1="36.7" y1="9.1" x2="38.1" y2="13.4" stroke="#7C8797" stroke-width="1.2"/><line x1="50" y1="2" x2="50" y2="15" stroke="#DC3B2A" stroke-width="4.2"/><line x1="49" y1="56" x2="58" y2="15" stroke="#EDE6D6" stroke-width="3.4" stroke-linecap="round"/><circle cx="50" cy="50" r="4.2" fill="#EDE6D6"/></svg>
+    <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
+    <div class="nav">
+      <button id="go-panth">Panthéon</button>
+      <button id="go-test">Test</button>
+    </div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="eyebrow">Joueurs · ordre de passage · ▲ remonte</div>
+    <div id="liste"></div>
+    <button class="ajouter" id="ajouter">+ ajouter un joueur</button>
+    <div class="note" id="note-joueurs"></div>
+
+    <div class="bloc">
+      <div class="eyebrow">Mode de jeu</div>
+      <div id="modes-menu"></div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Affichage</div>
+      <div class="seg" id="seg-aff">
+        <button data-v="visible" aria-pressed="false">Visible</button>
+        <button data-v="aveugle" aria-pressed="true">À l'aveugle</button>
+      </div>
+      <div class="note" id="note-aff">—</div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Difficulté</div>
+      <div class="seg" id="seg-diff">
+        <button data-v="simple" aria-pressed="false">Simple</button>
+        <button data-v="hard" aria-pressed="true">Hard</button>
+      </div>
+      <div class="note" id="note-diff">—</div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Gorgées</div>
+      <div class="seg" id="seg-gor">
+        <button data-v="classique" aria-pressed="true">Classique</button>
+        <button data-v="gros" aria-pressed="false">Gros buveur</button>
+      </div>
+      <div class="note" id="note-gor">—</div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Événements aléatoires</div>
+      <div class="seg" id="seg-evt">
+        <button data-v="aucun" aria-pressed="true">Aucun</button>
+        <button data-v="rares" aria-pressed="false">Rares</button>
+        <button data-v="frequents" aria-pressed="false">Fréquents</button>
+      </div>
+      <div class="note" id="note-evt">—</div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Fin de partie</div>
+      <div class="seg" id="seg-fin">
+        <button data-v="10" aria-pressed="false">10 tours</button>
+        <button data-v="20" aria-pressed="true">20 tours</button>
+        <button data-v="40" aria-pressed="false">40 tours</button>
+        <button data-v="0" aria-pressed="false">∞</button>
+      </div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Barème</div>
+      <div class="regles" id="tableau"></div>
+      <div class="note">Sur un pile, le suivant peut annuler son cul sec en faisant pile
+        lui aussi : la mise passe alors au joueur d'après, à 2 culs secs. La riposte
+        s'enchaîne sans limite. Pendant une riposte, seul le pile compte.</div>
+    </div>
+
+    <div class="bloc" id="bloc-salon">
+      <div class="eyebrow">Salon en ligne</div>
+      <div class="note" id="salon-etat">—</div>
+      <div class="recap-b" id="salon-b">
+        <button class="bouton fantome" id="salon-creer">Créer un salon</button>
+        <button class="bouton fantome" id="salon-rejoindre">Rejoindre</button>
+      </div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Mémoire</div>
+      <div class="note" id="note-mem">—</div>
+      <div class="recap-b">
+        <button class="bouton fantome" id="exporter">Exporter la sauvegarde</button>
+        <button class="bouton fantome" id="importer">Importer</button>
+      </div>
+      <div style="margin-top:8px"><button class="bouton fantome" id="oublier">Effacer les profils</button></div>
+      <input type="file" id="fichier" accept="application/json,.json" style="display:none">
+    </div>
+  </div>
+  <div style="margin-top:12px"><button class="bouton" id="commencer">Nouvelle partie</button></div>
+</section>
+
+<!-- ═══ FIN DE PARTIE ═══ -->
+<section class="ecran" id="fin">
+  <div class="entete">
+    <div class="marque"><h1>FIN</h1><span id="fin-chrono">—</span></div>
+    <div class="nav"><button id="fin-menu">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="recap-titre" id="fin-titre">Le plus précis</div>
+  <div class="note" id="fin-resume">—</div>
+  <div class="revelation" id="revelation">
+    <div class="t">Ce que dit le chrono</div>
+    <div class="s" id="rev-texte">—</div>
+  </div>
+  <div class="classement" id="classement"></div>
+  <div class="recap-b">
+    <button class="bouton" id="rejouer">Rejouer</button>
+  </div>
+  <div class="recap-b">
+    <button class="bouton fantome" id="recap-panth">Panthéon</button>
+    <button class="bouton fantome" id="recap-fermer">Retour au menu</button>
+  </div>
+</section>
+
+<!-- ═══ PANTHÉON ═══ -->
+<section class="ecran" id="pantheon">
+  <div class="entete">
+    <div class="marque"><h1>PANTHÉON</h1></div>
+    <div class="nav"><button id="panth-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="records" id="records"></div>
+  <div class="classement" id="palmares"></div>
+  <div class="recap-b">
+    <button class="bouton fantome" id="go-trophees">Trophées</button>
+    <button class="bouton fantome" id="go-scores">Meilleurs scores</button>
+  </div>
+  <div class="recap-b" id="b-global" style="display:none">
+    <button class="bouton fantome" id="go-global">Panthéon du salon</button>
+  </div>
+  <div class="note" id="panth-note">—</div>
+  <div class="note">Sauvegarde, import et effacement : menu → Mémoire.</div>
+</section>
+
+<!-- ═══ PANTHÉON GLOBAL ═══ -->
+<section class="ecran" id="global">
+  <div class="entete">
+    <div class="marque"><h1>SALON</h1><span id="gl-code">—</span></div>
+    <div class="nav"><button id="gl-retour">Panthéon</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="seg" id="seg-gl">
+    <button data-v="config" aria-pressed="true">Ces réglages</button>
+    <button data-v="tous" aria-pressed="false">Tout le salon</button>
+  </div>
+  <div class="classement" id="gl-liste"></div>
+  <div class="note" id="gl-note">—</div>
+</section>
+
+<!-- ═══ TROPHÉES ═══ -->
+<section class="ecran" id="trophees">
+  <div class="entete">
+    <div class="marque"><h1>TROPHÉES</h1><span id="tr-qui">—</span></div>
+    <div class="nav"><button id="tr-retour">Panthéon</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="seg" id="seg-tr"></div>
+  <div class="classement" id="tr-liste"></div>
+  <div class="note" id="tr-note">—</div>
+</section>
+
+<!-- ═══ SCORES D'ENTRAÎNEMENT ═══ -->
+<section class="ecran" id="scores">
+  <div class="entete">
+    <div class="marque"><h1>SCORES</h1><span id="sc-config">—</span></div>
+    <div class="nav"><button id="sc-retour">Panthéon</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="seg" id="seg-sc">
+    <button data-v="config" aria-pressed="true">Ces réglages</button>
+    <button data-v="tous" aria-pressed="false">Toutes configurations</button>
+  </div>
+  <div class="classement" id="sc-liste"></div>
+  <div class="note" id="sc-note">—</div>
+</section>
+
+<!-- ═══ TEST ═══ -->
+<section class="ecran" id="test">
+  <div class="entete">
+    <div class="marque"><h1>TEST</h1></div>
+    <div class="nav"><button id="test-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="titre-sec">Style des noms</div>
+    <div class="seg" id="seg-nom">
+      <button data-v="pilule" aria-pressed="true">Surligné</button>
+      <button data-v="souligne" aria-pressed="false">Souligné</button>
+      <button data-v="cartouche" aria-pressed="false">Cartouche</button>
+      <button data-v="plein" aria-pressed="false">Plein</button>
+    </div>
+    <div class="apercu" id="apercu-noms"></div>
+
+    <div class="titre-sec">Chronomètre</div>
+    <div class="seg" id="seg-horo">
+      <button data-v="1" aria-pressed="true">Horodatage matériel</button>
+      <button data-v="0" aria-pressed="false">Heure de traitement</button>
+    </div>
+    <div class="note" id="note-horo">—</div>
+    <div class="note" id="note-latence">Latence du dernier appui : pas encore mesurée.</div>
+
+    <div class="titre-sec">Événements</div>
+    <div class="note">« Lancer » force l'événement sur le tour suivant. Si aucune partie
+      n'est en cours, une partie démarre avec les joueurs enregistrés.</div>
+    <div id="liste-evts"></div>
+  </div>
+</section>
+
+<!-- ═══ JEU ═══ -->
+<section class="ecran" id="fluide">
+  <div class="tete" style="justify-content:center">
+    <span class="eyebrow" id="f-tour">Tour 1</span>
+  </div>
+  <div class="centre-h" style="margin-top:10px">
+    <span class="pilule f-nom" id="f-nom">Joueur</span>
+    <span class="bouclier" id="f-bouclier">Bouclier</span>
+    <span class="bouclier or" id="f-enchere"></span>
+    <span class="bouclier vies" id="f-vies"></span>
+    <span class="bouclier or" id="f-minute">La minute pile</span>
+    <span class="bouclier salon" id="f-salon"></span>
+  </div>
+  <div class="f-obj"><b id="f-obj-cible">1,00</b><em id="f-obj-tenir">—</em>
+    <em class="f-realise" id="f-realise"></em></div>
+  <div class="bandeau rouge" id="f-riposte">
+    <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
+    <div class="s" id="f-rip-sous">—</div>
+  </div>
+  <div class="bandeau violet" id="f-evt">
+    <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
+    <div class="s" id="f-evt-sous">—</div>
+  </div>
+  <div class="f-centre">
+    <div class="f-chrono repos" id="f-chrono">0,00</div>
+    <div class="f-ecart" id="f-ecart"></div>
+  </div>
+  <div class="f-verdict" id="f-verdict">
+    <div class="titre" id="f-ver-titre"></div>
+    <div class="sous" id="f-ver-sous"></div>
+    <div class="blague f-blague" id="f-blague"></div>
+  </div>
+  <div class="f-boutons">
+    <button class="rond" id="f-gauche"><span>Détails</span></button>
+    <button class="rond vert" id="f-droite"><span>Démarrer</span></button>
+  </div>
+  <button class="f-quitter" id="f-quitter">Quitter la partie</button>
+  <div class="solo-actions" id="f-solo-actions">
+    <span class="ja-cote"><button id="f-sol-recommencer">Recommencer</button></span>
+    <span class="ja-cote">
+      <button id="f-ajouter">+ Joueur</button>
+      <button id="f-sol-changer">Changer</button>
+    </span>
+  </div>
+</section>
+
+<!-- ═══ RÉSULTAT ═══ -->
+<section class="ecran" id="resultat">
+  <div class="tete">
+    <span class="pilule" id="res-nom" style="font-size:19px">Joueur</span>
+    <span class="eyebrow" id="res-cible">Objectif 1,00</span>
+  </div>
+  <div class="res-chiffres">
+    <span class="score" id="res-score">0,00</span>
+    <span class="ecart" id="res-ecart">±0,00</span>
+    <span class="duree" id="res-duree"></span>
+  </div>
+  <div class="titre-sec" style="margin-top:14px">Photo-finish</div>
+  <div class="bande" id="bande">
+    <div class="z z-rouge"></div><div class="z z-vert" id="zv"></div>
+    <div class="z z-laiton"></div><div class="z z-axe"></div>
+    <div class="marqueur" id="marqueur" style="left:50%"></div>
+  </div>
+  <div class="echelle"><span>−0,50</span><span id="ech-axe">0,00</span><span>+0,50</span></div>
+  <div class="legende">
+    <span><i style="background:var(--laiton)"></i>pile</span>
+    <span><i style="background:rgba(201,162,39,.5)"></i>± 0,03</span>
+    <span><i style="background:var(--vert)"></i><span id="leg-zone">zone sûre</span></span>
+    <span><i style="background:var(--signal)"></i>hors zone</span>
+  </div>
+  <div class="titre-sec">Tours précédents</div>
+  <div class="film" id="film"></div>
+  <div class="choix" id="choix">
+    <div class="lab">Tu choisis qui joue après toi</div>
+    <div class="opts" id="choix-opts"></div>
+  </div>
+  <div class="verdict" id="verdict">
+    <div class="carte-verdict">
+      <div class="titre" id="ver-titre">—</div>
+      <div class="sous" id="ver-sous">—</div>
+      <div class="blague" id="ver-blague"></div>
+    </div>
+    <div class="actions">
+      <button class="bouton" id="fermer">Fermer les détails</button>
+      <div style="margin-top:8px"><button class="bouton fantome" id="stop">Terminer la partie</button></div>
+    </div>
+  </div>
+</section>
+
+<datalist id="prenoms"></datalist>
+<div class="modale" id="modale">
+  <div class="mb">
+    <div class="t" id="mod-titre">—</div>
+    <div class="s" id="mod-sous">—</div>
+    <div class="mod-saisie" id="mod-saisie">
+      <input id="mod-champ" maxlength="14" placeholder="Nouveau prénom"
+             autocomplete="off" autocapitalize="words" list="prenoms">
+      <button id="mod-ok">OK</button>
+    </div>
+    <div class="mod-noms" id="mod-noms"></div>
+    <div class="b" id="mod-b"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE EN LIGNE — à remplir pour activer le salon et le panthéon
+   global. Tant que ces deux valeurs restent vides, l'application
+   fonctionne exactement comme avant, entièrement hors ligne.
+   Voir LISEZMOI-EN-LIGNE.md pour la marche à suivre.
+   ═══════════════════════════════════════════════════════════════ */
+const SUPABASE_URL = '';   // ex. https://abcdefgh.supabase.co
+const SUPABASE_KEY = '';   // la clé « anon public », pas la clé service
+
+/* ════════ RÉGLAGES ════════ */
+const CFG = { aff:'visible', diff:'simple', gor:'classique',
+              evts:'aucun', maxTours:20, horo:true,
+              mode:'classique', nom:'pilule' };
+const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
+const RATE = { classique:3, gros:4 };
+const PRES = 3, RANGE = 50, JB = 25;
+const zoneBase = () => SAUF[CFG.aff][CFG.diff];
+const zone = () => S.zoneTour || zoneBase();
+
+/* couleur propre à chaque joueur, stable toute la partie */
+const COULEURS = ['#E8C15A','#E8735A','#6BC49A','#7FA8E8','#C88AE8','#E8A0C0',
+                  '#9BD45A','#5AC8D8','#E8945A','#A0A8E8','#D8CDB0','#8FD8C8'];
+const coul = i => COULEURS[((i % COULEURS.length) + COULEURS.length) % COULEURS.length];
+const hexA = (hex, a) => { const n = parseInt(hex.slice(1),16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
+// quatre habillages possibles, choisis dans l'onglet test
+function surligner(el, c){
+  const s = CFG.nom || 'pilule';
+  el.classList.add('pilule');
+  el.classList.remove('st-pilule','st-souligne','st-cartouche','st-plein');
+  el.classList.add('st-' + s);
+  el.style.background = ''; el.style.borderColor = ''; el.style.boxShadow = '';
+  el.style.color = c;
+  if(s === 'pilule')   el.style.background = hexA(c, .16);
+  if(s === 'souligne') el.style.boxShadow = 'inset 0 -7px 0 ' + hexA(c, .5);
+  if(s === 'cartouche'){ el.style.borderColor = c; el.style.background = hexA(c, .07); }
+  if(s === 'plein'){ el.style.background = c; el.style.color = '#0E1116'; }
+}
+// la couleur est attribuée une fois pour toutes : insérer un joueur en cours
+// de partie ne doit pas repeindre toute la table
+const coulNom = n => (S.couleurs && S.couleurs[n]) || coul(Math.max(0, S.joueurs.indexOf(n)));
+function couleurLibre(){
+  const prises = new Set(Object.values(S.couleurs || {}));
+  for(let i = 0; i < COULEURS.length; i++) if(!prises.has(coul(i))) return coul(i);
+  return coul(Object.keys(S.couleurs || {}).length);
+}
+
+/* ════════ MODES DE JEU ════════ */
+const MODES = [
+  {id:'classique', n:'Classique',
+   d:"Le barème habituel, chacun pour soi, fin au nombre de tours choisi."},
+  {id:'enchere', n:"L'enchère",
+   d:"Avant chaque lancer, le joueur annonce la précision qu'il vise. Tenu, c'est le suivant qui boit ; manqué, il boit le double. Le seul mode où l'on décide quelque chose."},
+  {id:'elimination', n:'Élimination',
+   d:"Trois sorties de zone et le joueur quitte la table. La partie se termine sur un dernier survivant, pas sur un compteur de tours."},
+  {id:'handicap', n:'Handicap',
+   d:"La zone sûre se resserre pour les joueurs les plus précis du panthéon, et s'élargit pour les autres. Rééquilibre les tables inégales."},
+  {id:'solo', n:'Entraînement solo',
+   d:"Un seul joueur, dix cibles, aucune gorgée. Un score de précision et un biais à corriger. Le mode pour progresser."},
+  {id:'coop', n:'Coopératif',
+   d:"La table partage trois vies et doit amener le chrono à 30,00 s. Chaque sortie de zone coûte une vie, et tout le monde boit une gorgée."},
+  {id:'compte', n:'Le compte est bon',
+   d:"Atteindre exactement 20,00 s en exactement dix tours. Chaque cible est recalculée pour rester sur la trajectoire : si vous dérivez, les suivants paient."}
+];
+const MODE = () => MODES.find(m => m.id === CFG.mode) || MODES[0];
+const ENCHERES = [
+  {seuil:20, n:2, label:'Prudent · ± 0,20'},
+  {seuil:10, n:3, label:'Normal · ± 0,10'},
+  {seuil:5,  n:5, label:'Audacieux · ± 0,05'}
+];
+
+/* ════════ ÉVÉNEMENTS ════════ */
+// « fausse » : le tour est exclu du profil, la mesure n'est pas comparable
+const EVTS = [
+  {id:'demi',    n:'Demi-seconde',   d:"La cible tombe sur un X,50 au lieu d'un X,00. Le repère mental saute.", fausse:1},
+  {id:'sprint',  n:'Sprint',         d:"La règle des 0,50 s est suspendue : la cible est à 0,25 s. Réflexe pur.", fausse:1},
+  {id:'longue',  n:'Longue',         d:"La cible saute une seconde plus loin. Une seconde de plus à tenir, c'est une seconde de dérive en plus.", fausse:1},
+  {id:'double',  n:'Double ou rien', d:"Toutes les gorgées du tour comptent double. Le cul sec reste un cul sec."},
+  {id:'bord',    n:'Effet de bord',  d:"Hors zone, ce n'est plus le joueur qui boit : c'est toute la table, une gorgée chacun."},
+  {id:'bouclier',n:'Bouclier',       d:"Rester dans la zone donne un jeton. Il annulera automatiquement la prochaine peine du joueur."},
+  {id:'yeux',    n:'Yeux fermés',    d:"L'écran reste noir pendant le tour, même en mode visible.", fausse:1},
+  {id:'demitour',n:'Demi-tour',      d:"Le sens de rotation s'inverse : le téléphone repart dans l'autre sens."},
+  {id:'choix',   n:'Tu choisis',     d:"Le joueur découvre son score, puis désigne qui joue après lui. Les peines suivent le désigné."},
+  {id:'duel',    n:'Duel',           d:"Le joueur suivant refait exactement la même cible depuis le même départ. Le moins précis boit 3 gorgées.", fausse:1}
+];
+const EVT = id => EVTS.find(e => e.id === id);
+
+/* ════════ BLAGUES ════════ */
+const BLAGUES = {
+  parfait:  ["Pile. Il y a un quartz quelque part dans cette tête.",
+             "Pile. La daronne de Jean encadre déjà la capture d'écran.",
+             "Pile. Jean n'a jamais fait ça. Jean ne fera jamais ça.",
+             "Pile. Même la pendule de la tante de Jean s'incline.",
+             "Pile. L'arbre généalogique de Jean vient de perdre une branche d'un coup.",
+             "Pile. Appelez la sœur de Jean, elle voudra vérifier elle-même.",
+             "Pile. La table a le droit de réclamer un contrôle antidopage.",
+             "Pile. Personne ne te croira demain matin, et c'est bien dommage."],
+  excellent:["À trois centièmes. Les Suisses recrutent.",
+             "Photo-finish. Il faudrait un juge de touche et deux témoins.",
+             "Trois centièmes. Jean appellerait ça un exploit. Jean n'a jamais rien réussi.",
+             "Si près. La sœur de Jean aurait applaudi, mais elle chronomètre au four.",
+             "À ce niveau de précision, ça commence à devenir louche.",
+             "Encore un centième et on convoquait un notaire.",
+             "La tante de Jean vise moins bien, et elle a eu quarante ans pour s'entraîner.",
+             "Presque. Mais « presque » ne fait boire personne."],
+  mauvais:  ["Le chrono a eu le temps de s'ennuyer.",
+             "La daronne de Jean fait le café plus vite. Et elle le fait mal.",
+             "Il y avait une seconde à tenir, pas une sieste à faire.",
+             "La tante de Jean a un coucou plus précis. Le coucou est mort en 1994.",
+             "Techniquement, c'est encore du chronométrage. Techniquement.",
+             "Jean aurait fait pareil. Prends une seconde pour digérer ça.",
+             "La sœur de Jean compte les moutons plus régulièrement.",
+             "On visait une seconde pleine, pas une estimation au jugé."],
+  desastre: ["Ce n'est plus un écart, c'est un trajet.",
+             "L'arbre généalogique de Jean est moins tordu que cette courbe.",
+             "On a eu le temps de refaire l'arbre généalogique de Jean. Il y a des trous.",
+             "La daronne de Jean a rappelé : même elle trouve ça long.",
+             "Le chrono demande officiellement à changer de joueur.",
+             "Quelqu'un peut vérifier que le téléphone n'est pas tombé quelque part ?",
+             "À ce rythme, la prochaine cible tombera l'année prochaine.",
+             "Jean vient d'être promu deuxième plus mauvais. Il te remercie."]
+};
+// séries de piles en entraînement, indexées à partir de deux d'affilée
+const MOTS_SERIE = [
+  "Deux d'affilée. Jean commence à transpirer.",
+  "Trois d'affilée. La tante de Jean parle ouvertement de sorcellerie.",
+  "Quatre. On a prévenu la sœur de Jean, elle est en route.",
+  "Cinq. L'arbre généalogique de Jean demande l'asile politique.",
+  "Toujours en série. La daronne de Jean a coupé son téléphone."
+];
+const MOTS_MINUTE = [
+  "La minute pile. Ça se raconte pendant des années.",
+  "Soixante secondes rondes. La daronne de Jean l'apprendra par la rumeur.",
+  "Une minute au centième près. Il n'y a plus rien à ajouter.",
+  "La minute. Toute la famille de Jean boit, par pure solidarité.",
+  "La minute pile. Même la pendule de la tante de Jean s'est arrêtée de respect."
+];
+// barème v2 : le pile vaut 100, multiplié par la longueur de la série en cours
+const PTS = {pile:100, frole:50, zone:20, rate:0};
+const MULT_MAX = 5;
+const BILAN = [
+  [2500, "Range le téléphone, il n'a plus rien à t'apprendre."],
+  [1400, "Solide. Le genre de score dont Jean parle en soirée sans y avoir été."],
+  [700,  "Correct. Il reste de la marge, mais on sent le métier."],
+  [300,  "Passable. Le chrono, lui, s'est bien amusé."],
+  [0,    "Bonne nouvelle : tu bats Jean. Mauvaise nouvelle : de peu."]
+];
+const bilan = p => (BILAN.find(b => p >= b[0]) || BILAN[BILAN.length-1])[1];
+
+// une blague seulement sur les extrêmes, et jamais deux fois la même catégorie
+function blague(ecart){
+  const z = zone();
+  let cat = null;
+  if(ecart === 0)          cat = 'parfait';
+  else if(ecart <= PRES)   cat = 'excellent';
+  else if(ecart > z * 4)   cat = 'desastre';
+  else if(ecart > z * 2)   cat = 'mauvais';
+  if(!cat || cat === S.derniereBlague){ S.derniereBlague = cat; return ''; }
+  S.derniereBlague = cat;
+  const L = BLAGUES[cat];
+  return L[Math.floor(Math.random() * L.length)];
+}
+
+/* ════════ RÉSEAU ════════ */
+// Aucune bibliothèque externe : l'API REST de Supabase se pilote au fetch.
+// Tout échec est silencieux et non bloquant — le jeu doit rester jouable
+// dans une cave sans réseau.
+const EN_LIGNE = () => !!(SUPABASE_URL && SUPABASE_KEY);
+const CLE_FILE = 'krono.file';
+
+async function api(chemin, options){
+  if(!EN_LIGNE()) throw new Error('hors ligne');
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + chemin, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation',
+      ...(options && options.headers)
+    }
+  });
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' ' + await r.text());
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+// code de salon lisible à voix haute : ni O ni I, qu'on confond avec 0 et 1
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const nouveauCode = () => Array.from({length:5},
+  () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join('');
+
+async function creerSalon(){
+  for(let essai = 0; essai < 5; essai++){
+    const code = nouveauCode();
+    try{
+      await api('salons', {method:'POST', body:JSON.stringify({code})});
+      return code;
+    }catch(e){
+      if(!/409|duplicate/i.test(e.message)) throw e;   // sinon on retire au sort
+    }
+  }
+  throw new Error('impossible de générer un code');
+}
+async function salonExiste(code){
+  const r = await api('salons?code=eq.' + encodeURIComponent(code) + '&select=code');
+  return Array.isArray(r) && r.length > 0;
+}
+
+// file d'attente : ce qui n'a pas pu partir repart au prochain lancement
+function lireFile(){
+  try{ return JSON.parse(localStorage.getItem(CLE_FILE) || '[]'); }catch(e){ return []; }
+}
+function ecrireFile(f){
+  try{ localStorage.setItem(CLE_FILE, JSON.stringify(f.slice(-50))); }catch(e){}
+}
+async function envoyer(lignes){
+  if(!EN_LIGNE() || !lignes.length) return false;
+  await api('resultats', {method:'POST', body:JSON.stringify(lignes)});
+  return true;
+}
+async function viderFile(){
+  const f = lireFile();
+  if(!f.length) return;
+  try{ await envoyer(f); ecrireFile([]); majEtatSalon(); }catch(e){}
+}
+
+// résultats d'une partie, agrégés par joueur — aucun tour individuel n'est envoyé
+function resultatsPartie(){
+  if(!S.salon) return [];
+  return S.joueurs.filter(n => S.stats[n] && S.stats[n].tours > 0).map(n => {
+    const s = S.stats[n];
+    return {
+      salon: S.salon, pseudo: n, mode: CFG.mode,
+      config: sigCourante(), tours: s.tours, somme: s.ecart, biais: s.biais,
+      carres: s.carres, piles: s.piles, gorgees: s.gorgees, culs: s.culs,
+      points: CFG.mode === 'solo' && n === S.joueurs[0] ? S.points : 0
+    };
+  });
+}
+async function publierPartie(){
+  const lignes = resultatsPartie();
+  if(!lignes.length) return;
+  try{ await envoyer(lignes); }
+  catch(e){ ecrireFile([...lireFile(), ...lignes]); }   // on réessaiera plus tard
+  majEtatSalon();
+}
+
+/* ════════ TROPHÉES ════════ */
+// Chaque trophée lit un profil cumulé et renvoie soit null, soit un état.
+// « seuils » permet les paliers : bronze, argent, or.
+const TROPHEES = [
+  {id:'premier', n:'Baptême', d:"Terminer une première partie.",
+   m:"Il faut bien commencer quelque part.",
+   test:p => p.parties >= 1},
+  {id:'pile', n:'Le pile', d:"Tomber exactement sur la seconde.",
+   m:"Une seconde entière, pas un centième de plus.",
+   test:p => p.piles >= 1},
+  {id:'piles', n:'Horloger', d:"Cumuler des piles.", seuils:[3, 10, 25],
+   m:"Une fois, c'est de la chance. Plusieurs fois, c'est autre chose.",
+   valeur:p => p.piles},
+  {id:'regulier', n:'Métronome', d:"Descendre sous un écart-type de régularité.",
+   seuils:[15, 10, 6], inverse:true, minTours:15,
+   m:"Se tromper est humain. Se tromper toujours pareil est une compétence.",
+   valeur:p => Math.round(analyse(p).disp)},
+  {id:'precis', n:'Chirurgien', d:"Descendre sous une précision moyenne.",
+   seuils:[20, 12, 7], inverse:true, minTours:15,
+   m:"La main ne tremble pas.",
+   valeur:p => Math.round(analyse(p).precision)},
+  {id:'centre', n:'Bien calibré', d:"Ramener son biais sous 2 centièmes.",
+   minTours:20, m:"Ni trop tôt, ni trop tard. Juste au milieu.",
+   test:p => Math.abs(analyse(p).moy) < 2},
+  {id:'assidu', n:'Habitué', d:"Enchaîner les parties.", seuils:[5, 20, 50],
+   m:"On te voit souvent par ici.",
+   valeur:p => p.parties},
+  {id:'marathon', n:'Marathonien', d:"Accumuler les tours joués.", seuils:[100, 500, 1500],
+   m:"Le chrono a tourné longtemps entre tes mains.",
+   valeur:p => p.tours},
+  {id:'serie', n:'En série', d:"Enchaîner des piles en entraînement.", seuils:[2, 3, 5],
+   m:"Deux fois de suite, ça commence à faire beaucoup.",
+   valeur:p => p.serie || 0},
+  {id:'score', n:'Grand score', d:"Marquer en entraînement.", seuils:[500, 1500, 3000],
+   m:"Seul face au chrono, sans personne pour trinquer.",
+   valeur:p => p.meilleurScore || 0},
+  {id:'minute', n:'La minute', d:"Tomber pile sur une minute ronde.",
+   m:"Quelque part, très loin, une minute entière est tombée juste.",
+   test:p => (p.minutes || 0) >= 1},
+  {id:'arrose', n:'Bon public', d:"Encaisser les gorgées sans broncher.", seuils:[50, 200, 500],
+   m:"Tu n'as pas beaucoup de chance, mais tu as de la constance.",
+   valeur:p => p.gorgees}
+];
+const RANGS = ['bronze','argent','or'];
+
+// renvoie {rang, valeur, seuil, suivant} ou null si non débloqué
+function etatTrophee(tr, p){
+  if(!p || !p.tours) return null;
+  if(tr.minTours && p.tours < tr.minTours) return null;
+  if(tr.test) return tr.test(p) ? {rang:2, valeur:null} : null;
+  const v = tr.valeur(p);
+  let rang = -1;
+  tr.seuils.forEach((s, i) => { if(tr.inverse ? v <= s : v >= s) rang = i; });
+  if(rang < 0) return null;
+  return {rang, valeur:v, seuil:tr.seuils[rang], suivant:tr.seuils[rang+1]};
+}
+function trophees(nom){
+  const p = MEM.profils[nom];
+  return TROPHEES.map(tr => ({tr, e:etatTrophee(tr, p)})).filter(x => x.e);
+}
+
+/* ════════ ÉTAT ════════ */
+const S = { joueurs:[], idx:0, sens:1, total:0, cible:100, cibleBase:100, tour:1,
+            contre:0, t0:0, encours:false, historique:[], stats:{}, jetons:{},
+            evt:null, force:null, dernierEvt:-9, duel:null, prochain:null,
+            partie:false, enregistre:false, enAttente:100, minuteries:[], latence:null,
+            fautes:{}, elimines:[], vies:3, points:0, chaine:0, meilleureChaine:0,
+            zoneTour:0, enchere:null,
+            derniereBlague:null, tableauDepart:[], nbSous:0, couleurs:{}, salon:null };
+
+const $ = id => document.getElementById(id);
+const fmt = c => (c/100).toFixed(2).replace('.',',');
+const esc = s => { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; };
+const gorg = n => n + (n>1 ? ' gorgées' : ' gorgée');
+const culs = n => n + (n>1 ? ' culs secs' : ' cul sec');
+const x2   = n => CFG.gor === 'gros' ? n*2 : n;
+const ecranJeu = () => 'fluide';
+// filet de sécurité : un identifiant inconnu masquerait tous les écrans
+function montrer(id){
+  const ecrans = document.querySelectorAll('.ecran');
+  if(![...ecrans].some(e => e.id === id)) id = S.partie ? ecranJeu() : 'reglages';
+  ecrans.forEach(e => e.classList.toggle('actif', e.id === id));
+}
+
+// horodatage matériel de l'événement quand il est fiable : supprime le délai
+// que la boucle JavaScript ajoute entre le doigt et le traitement
+function tempsEvt(ev){
+  const now = performance.now();
+  const fiable = ev && typeof ev.timeStamp === 'number' && ev.timeStamp > 0
+                 && Math.abs(ev.timeStamp - now) < 3000;
+  if(fiable) S.latence = Math.max(0, Math.round(now - ev.timeStamp));
+  // CFG.horo à false : on mesure la latence mais on ne la retranche pas
+  return (fiable && CFG.horo) ? ev.timeStamp : now;
+}
+
+/* ════════ CONFIRMATION ════════ */
+// confirm() est bloqué dans une iframe sandboxée : on gère la modale nous-mêmes
+// La modale couvre tout l'écran : elle DOIT toujours avoir une sortie.
+// On peut taper le fond ou presser Échap, et elle ignore les 260 premières
+// millisecondes pour ne pas être traversée par le clic fantôme du doigt
+// qui vient de l'ouvrir.
+function choisir(titre, sous, opts){
+  return new Promise(res => {
+    const M = $('modale'), ouvertA = performance.now();
+    $('mod-titre').textContent = titre;
+    $('mod-sous').textContent = sous;
+    const b = $('mod-b'); b.innerHTML = '';
+    let clos = false;
+    const fin = v => {
+      if(clos) return;
+      clos = true;
+      M.classList.remove('on');
+      M.onclick = null; M.onpointerdown = null;
+      document.removeEventListener('keydown', clavier);
+      res(v);
+    };
+    const tropTot = () => performance.now() - ouvertA < 260;
+    function clavier(e){ if(e.key === 'Escape' && !tropTot()) fin(null); }
+    opts.forEach(o => {
+      const el = document.createElement('button');
+      el.className = 'bouton' + (o.doux ? ' fantome' : '');
+      el.textContent = o.label;
+      el.dataset.val = String(o.val);
+      el.onclick = () => { if(!tropTot()) fin(o.val); };
+      b.appendChild(el);
+    });
+    M.onclick = e => { if(e.target === M && !tropTot()) fin(null); };
+    document.addEventListener('keydown', clavier);
+    M.classList.add('on');
+    // filet ultime : la modale ne peut pas rester bloquée indéfiniment
+    S.minuteries.push(setTimeout(() => { if(!clos && M.classList.contains('on')) fin(null); }, 45000));
+  });
+}
+const demander = (titre, sous, oui) => choisir(titre, sous,
+  [{label:'Annuler', val:false, doux:true}, {label:oui||'Confirmer', val:true}]);
+
+/* ════════ RÈGLES ════════ */
+function evaluer(ecart){
+  if(ecart === 0)     return {code:'pile',  couleur:'t-laiton', n:0};
+  if(ecart <= PRES)   return {code:'frole', couleur:'t-laiton', n:x2(PRES + 1 - ecart)};
+  if(ecart <= zone()) return {code:'sauf',  couleur:'t-vert',   n:0};
+  return                     {code:'rate',  couleur:'t-signal', n:RATE[CFG.gor]};
+}
+function prochaineCible(total){
+  let c = (Math.floor(total/100) + 1) * 100;
+  while(c - total <= 50) c += 100;
+  return c;
+}
+const vivant = n => !S.elimines.includes(n);
+const actifs = () => S.joueurs.filter(vivant);
+function idxSuivant(){
+  if(S.prochain !== null) return S.prochain;
+  const n = S.joueurs.length;
+  let i = S.idx;
+  for(let k = 0; k < n; k++){
+    i = ((i + S.sens) % n + n) % n;
+    if(vivant(S.joueurs[i])) return i;
+  }
+  return S.idx;
+}
+
+// cible : trajectoire imposée en « compte est bon », seconde pleine sinon
+function cibleSuivante(total){
+  if(CFG.mode === 'compte'){
+    const reste = Math.max(1, (CFG.maxTours || 10) - S.tour);
+    const ecart = Math.max(20, Math.round((2000 - total) / reste));
+    return total + ecart;
+  }
+  return prochaineCible(total);
+}
+
+// handicap : plus on est précis au panthéon, plus la zone se resserre
+function zoneDe(nom){
+  if(CFG.mode !== 'handicap') return zoneBase();
+  const a = analyse(MEM.profils[nom]);
+  if(!a || a.tours < 5) return zoneBase();
+  const prec = Math.max(2, Math.min(40, a.precision));
+  const f = 0.6 + 0.4 * ((prec - 2) / 38);      // 0,6 pour les meilleurs, 1,0 pour les autres
+  return Math.round(zoneBase() * f);
+}
+
+function partieFinie(){
+  if(CFG.mode === 'elimination') return actifs().length <= 1;
+  if(CFG.mode === 'coop')        return S.vies <= 0 || S.total >= 3000;
+  return !!(CFG.maxTours && S.tour >= CFG.maxTours);
+}
+
+/* ════════ MÉMOIRE PERSISTANTE ════════ */
+const CLE = 'krono.v1';
+const NEUF = () => ({joueurs:['Léo','Sam','Ines'], cfg:null, profils:{}, scores:[], connus:[], salon:null});
+let MEM = NEUF();
+
+async function lireMem(){
+  try{ if(window.storage){ const r = await window.storage.get(CLE, false);
+       if(r && r.value) return JSON.parse(r.value); } }catch(e){}
+  try{ const v = localStorage.getItem(CLE); if(v) return JSON.parse(v); }catch(e){}
+  return null;
+}
+async function ecrireMem(){
+  const s = JSON.stringify(MEM);
+  try{ if(window.storage){ await window.storage.set(CLE, s, false); return; } }catch(e){}
+  try{ localStorage.setItem(CLE, s); }catch(e){}
+}
+async function effacerMem(){
+  try{ if(window.storage) await window.storage.delete(CLE, false); }catch(e){}
+  try{ localStorage.removeItem(CLE); }catch(e){}
+  MEM = NEUF();
+}
+// un score d'entraînement n'est comparable qu'à réglages identiques
+const signature = e => e.aff + '·' + e.diff + '·' + e.tours + '·' + (e.bareme || 'v1');
+const sigCourante = () => CFG.aff + '·' + CFG.diff + '·' + (CFG.maxTours || 10) + '·v2';
+const libelleSig = s => {
+  const [a,d,t,b] = s.split('·');
+  return (a === 'aveugle' ? "À l'aveugle" : 'Visible') + ' · '
+       + (d === 'hard' ? 'Hard' : 'Simple') + ' · ' + t + ' tours'
+       + (b === 'v1' ? ' · ancien barème' : '');
+};
+const MAX_SCORES = 30;
+// on garde les 30 meilleurs de chaque configuration, pas les 30 derniers :
+// un panthéon doit récompenser la performance, pas la récence
+function elaguerScores(){
+  const paquets = {};
+  (MEM.scores || []).forEach(e => (paquets[signature(e)] ||= []).push(e));
+  MEM.scores = Object.values(paquets)
+    .flatMap(l => l.sort((a,b) => b.p - a.p).slice(0, MAX_SCORES));
+}
+const scoresDe = sig => (MEM.scores || []).filter(e => signature(e) === sig)
+                                          .sort((a,b) => b.p - a.p);
+const coulHash = n => coul([...String(n)].reduce((a,c) => a + c.charCodeAt(0), 0));
+
+const profilVide = () => ({tours:0, somme:0, biais:0, carres:0,
+                           piles:0, gorgees:0, culs:0, parties:0,
+                           serie:0, meilleurScore:0, minutes:0});
+function analyse(p){
+  if(!p || !p.tours) return null;
+  const moy = p.biais / p.tours;
+  return { tours:p.tours, moy, parties:p.parties||0, piles:p.piles||0,
+           gorgees:p.gorgees||0, culs:p.culs||0,
+           disp: Math.sqrt(Math.max(0, p.carres/p.tours - moy*moy)),
+           precision: p.somme / p.tours };
+}
+function phraseBiais(a){
+  if(!a) return '';
+  if(Math.abs(a.moy) < 1.5) return 'bien centré';
+  return 'part ' + fmt(Math.round(Math.abs(a.moy))) + ' s trop ' + (a.moy < 0 ? 'tôt' : 'tard');
+}
+function jaugeHTML(a){
+  const pos  = Math.max(1, Math.min(99, 50 + (a.moy/JB)*50));
+  const larg = Math.min(49, (a.disp/JB)*50);
+  return `<span class="jauge">
+      <span class="disp" style="left:${Math.max(0,pos-larg)}%;width:${larg*2}%"></span>
+      <span class="axe"></span><span class="m" style="left:${pos}%"></span></span>`;
+}
+
+/* ════════ PRÉNOMS CONNUS ════════ */
+// tout prénom saisi une fois reste proposé, même si aucune partie n'a été terminée
+function memoriser(noms){
+  MEM.connus = MEM.connus || [];
+  (Array.isArray(noms) ? noms : [noms])
+    .map(n => (n || '').trim())
+    .filter(n => n && !/^Joueur \d+$/.test(n))
+    .forEach(n => { if(!MEM.connus.includes(n)) MEM.connus.push(n); });
+  if(MEM.connus.length > 40) MEM.connus = MEM.connus.slice(-40);
+}
+// les habitués d'abord, puis le reste par ordre alphabétique
+function tousLesNoms(){
+  const s = new Set([...(MEM.connus || []), ...(MEM.joueurs || []),
+                     ...Object.keys(MEM.profils || {})]);
+  return [...s].filter(n => n && !/^Joueur \d+$/.test(n))
+    .sort((a,b) => {
+      const ta = (MEM.profils[a] || {}).tours || 0, tb = (MEM.profils[b] || {}).tours || 0;
+      return tb - ta || a.localeCompare(b, 'fr');
+    });
+}
+function majDatalist(){
+  $('prenoms').innerHTML = tousLesNoms()
+    .map(n => `<option value="${esc(n)}"></option>`).join('');
+}
+
+// sélecteur : on tape un prénom, ou on en reprend un déjà utilisé
+function demanderNom(titre, sous, exclure){
+  return new Promise(res => {
+    const M = $('modale'), ouvertA = performance.now();
+    $('mod-titre').textContent = titre;
+    $('mod-sous').textContent = sous || '';
+    $('mod-saisie').style.display = 'flex';
+    const champ = $('mod-champ');
+    champ.value = '';
+    let clos = false;
+    const tropTot = () => performance.now() - ouvertA < 260;
+    const fin = v => {
+      if(clos) return;
+      clos = true;
+      M.classList.remove('on'); M.onclick = null;
+      $('mod-saisie').style.display = 'none';
+      $('mod-noms').style.display = 'none';
+      document.removeEventListener('keydown', clavier);
+      res(v);
+    };
+    function clavier(e){
+      if(e.key === 'Escape' && !tropTot()) fin(null);
+      if(e.key === 'Enter' && champ.value.trim() && !tropTot()) fin(champ.value.trim());
+    }
+    const N = $('mod-noms'); N.innerHTML = '';
+    const hors = (Array.isArray(exclure) ? exclure : [exclure]).filter(Boolean);
+    const liste = tousLesNoms().filter(n => !hors.includes(n)).slice(0, 12);
+    liste.forEach(n => {
+      const b = document.createElement('button');
+      b.className = 'nom-pill';
+      b.textContent = n;
+      b.style.color = coulHash(n);
+      b.onclick = () => { if(!tropTot()) fin(n); };
+      N.appendChild(b);
+    });
+    N.style.display = liste.length ? 'flex' : 'none';
+    $('mod-ok').onclick = () => {
+      const v = champ.value.trim();
+      if(v && !tropTot()) fin(v);
+    };
+    const b = $('mod-b'); b.innerHTML = '';
+    const a = document.createElement('button');
+    a.className = 'bouton fantome'; a.textContent = 'Annuler'; a.dataset.val = 'null';
+    a.onclick = () => { if(!tropTot()) fin(null); };
+    b.appendChild(a);
+    M.onclick = e => { if(e.target === M && !tropTot()) fin(null); };
+    document.addEventListener('keydown', clavier);
+    M.classList.add('on');
+    S.minuteries.push(setTimeout(() => { if(!clos && M.classList.contains('on')) fin(null); }, 45000));
+  });
+}
+
+/* ════════ ÉCRAN RÉGLAGES ════════ */
+function rang(v,n){
+  const d = document.createElement('div');
+  d.className = 'rang';
+  d.innerHTML = `<span class="puce" style="background:${coul(n-1)}"></span><b>${n}</b>
+    <input maxlength="14" placeholder="Prénom" list="prenoms" autocomplete="off" autocapitalize="words">
+    <button class="monter" aria-label="Remonter ce joueur">▲</button>
+    <button class="derouler" aria-label="Choisir un prénom déjà utilisé">▾</button>
+    <button class="retirer" aria-label="Retirer">×</button>
+    <span class="hist"></span>`;
+  const inp = d.querySelector('input');
+  inp.value = v || '';
+  inp.style.color = coul(n-1);
+  inp.addEventListener('input', () => majHist(d));
+  inp.addEventListener('change', enregistrerListe);
+  inp.addEventListener('blur', enregistrerListe);
+  // une seule flèche : pour descendre un joueur, on remonte celui d'en dessous.
+  // Deux flèches par ligne donneraient des cibles trop petites au doigt.
+  d.querySelector('.monter').onclick = () => {
+    const l = $('liste'), i = [...l.children].indexOf(d);
+    if(i <= 0) return;
+    l.insertBefore(d, l.children[i-1]);
+    renumeroter(); enregistrerListe();
+  };
+  d.querySelector('.derouler').onclick = async () => {
+    const autres = [...$('liste').querySelectorAll('input')]
+      .filter(x => x !== inp).map(x => x.value.trim());   // pas deux fois le même à table
+    const n2 = await demanderNom('Qui joue ?',
+      'Reprenez un prénom déjà utilisé, ou saisissez-en un nouveau.', autres);
+    if(!n2) return;
+    inp.value = n2; majHist(d); enregistrerListe();
+  };
+  d.querySelector('.retirer').onclick = () => { d.remove(); renumeroter(); enregistrerListe(); };
+  majHist(d);
+  return d;
+}
+function renumeroter(){
+  const seul = $('liste').children.length <= 1;
+  [...$('liste').children].forEach((r,i) => {
+    r.querySelector('.retirer').style.visibility = seul ? 'hidden' : 'visible';
+    r.querySelector('.monter').disabled = (i === 0);
+    r.querySelector('b').textContent = i+1;
+    r.querySelector('.puce').style.background = coul(i);
+    r.querySelector('input').style.color = coul(i);
+  });
+}
+function majHist(d){
+  const a = analyse(MEM.profils[d.querySelector('input').value.trim()]);
+  d.querySelector('.hist').textContent = a
+    ? a.tours + ' tours · ' + phraseBiais(a) + ' · précision ±' + fmt(Math.round(a.precision))
+    : '';
+}
+// En entraînement, un seul joueur est affiché : les autres restent en mémoire
+// et reviennent dès qu'on quitte le mode.
+// la liste du menu est sauvegardée dès qu'elle change, sans attendre une partie
+function enregistrerListe(){
+  const j = lireListe();
+  MEM.joueurs = j;
+  memoriser(j);
+  majDatalist();
+  ecrireMem();
+}
+function peupler(){
+  const solo = CFG.mode === 'solo';
+  const liste = solo ? MEM.joueurs.slice(0,1) : MEM.joueurs;
+  $('liste').innerHTML = '';
+  liste.forEach((n,i) => $('liste').appendChild(rang(n, i+1)));
+  $('ajouter').style.display = solo ? 'none' : 'block';
+  $('note-joueurs').textContent = solo
+    ? "L'entraînement se joue seul : un seul joueur, dix cibles, aucune gorgée."
+    : '';
+  renumeroter();
+}
+function lireListe(){
+  const vus = [...$('liste').querySelectorAll('input')]
+    .map((i,k) => i.value.trim() || 'Joueur ' + (k+1));
+  if(CFG.mode !== 'solo') return vus;
+  const gardes = (MEM.joueurs || []).slice();
+  if(!gardes.length) return vus;
+  gardes[0] = vus[0] || gardes[0];
+  return gardes;
+}
+$('ajouter').onclick = () => {
+  const l = $('liste');
+  if(l.children.length < 12){ l.appendChild(rang('', l.children.length+1)); enregistrerListe(); }
+};
+
+function segmente(id, cb){
+  $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
+    $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b));
+    cb(b.dataset.v); rafraichir();
+  });
+}
+segmente('seg-aff',  v => CFG.aff = v);
+segmente('seg-diff', v => CFG.diff = v);
+segmente('seg-gor',  v => CFG.gor = v);
+segmente('seg-evt',  v => CFG.evts = v);
+segmente('seg-nom',  v => { CFG.nom = v; MEM.cfg = {...CFG}; ecrireMem(); apercuNoms(); });
+segmente('seg-horo', v => { CFG.horo = v === '1'; MEM.cfg = {...CFG}; ecrireMem(); });
+segmente('seg-fin',  v => CFG.maxTours = +v);
+
+function rafraichir(){
+  $('note-aff').textContent = CFG.aff === 'aveugle'
+    ? "Aucun chiffre pendant le tour. Zone sûre élargie pour compenser."
+    : "Le chrono défile à l'écran. Zone sûre resserrée.";
+  $('note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
+    + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
+  $('note-gor').textContent = CFG.gor === 'gros'
+    ? 'Gorgées doublées près du pile, 4 hors zone. Les culs secs ne doublent jamais.'
+    : 'Barème normal. Les culs secs ne doublent jamais.';
+  $('note-evt').textContent = {
+    aucun: "Aucun événement. Le jeu se joue au barème seul.",
+    rares: "Environ un tour sur huit. Jamais deux fois de suite, jamais pendant une riposte.",
+    frequents: "Environ un tour sur trois. La partie devient franchement bordélique."
+  }[CFG.evts];
+  $('note-horo').textContent = CFG.horo
+    ? "Le chrono part de l'horodatage matériel de l'appui : le délai de traitement est retranché."
+    : "Le chrono part de l'heure au moment du traitement JavaScript : la latence reste dans la mesure.";
+  tableau();
+}
+function tableau(){
+  const L = [
+    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, cul sec'],
+    ['var(--laiton)', 'pile', 'le suivant fait cul sec — ou riposte'],
+    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(x2(3))],
+    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(x2(2))],
+    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(x2(1))],
+    ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
+    ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
+  ];
+  $('tableau').innerHTML = L.map(([c,k,t],i) =>
+    `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
+     <i>${k}</i>${t}</div>`).join('');
+}
+function majMem(){
+  const ns = Object.keys(MEM.profils);
+  const t = ns.reduce((s,n) => s + MEM.profils[n].tours, 0);
+  $('note-mem').textContent = ns.length
+    ? ns.length + ' profil' + (ns.length>1?'s':'') + ' · ' + t + ' tours enregistrés'
+    : "Rien d'enregistré. Les profils se créent à la fin d'une partie.";
+}
+function appliquerCfg(){
+  const m = {'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
+             'seg-evt':CFG.evts, 'seg-fin':String(CFG.maxTours),
+             'seg-horo':CFG.horo ? '1' : '0', 'seg-nom':CFG.nom};
+  for(const id in m) $(id).querySelectorAll('button')
+    .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[id]));
+}
+$('oublier').onclick = async () => {
+  if(!await demander('Effacer les profils ?',
+      'Toutes les statistiques cumulées seront perdues. Irréversible.', 'Effacer')) return;
+  await effacerMem(); peupler(); majMem(); construirePantheon();
+};
+
+/* ════════ ENTRAÎNEMENT : ACTIONS RAPIDES ════════ */
+async function changerJoueur(){
+  const n = await demanderNom('Qui joue ?',
+    'Le score en cours est abandonné. Reprenez un prénom déjà utilisé, '
+    + 'ou saisissez-en un nouveau.', S.joueurs[0]);
+  if(!n) return;
+  memoriser(n); majDatalist();
+  MEM.joueurs = [n, ...MEM.joueurs.filter(x => x !== n)];
+  await ecrireMem();
+  peupler();
+  demarrerPartie();
+}
+$('f-sol-changer').onclick = changerJoueur;
+$('f-sol-recommencer').onclick = () => demarrerPartie();
+
+/* ════════ AJOUT D'UN JOUEUR EN COURS ════════ */
+async function ajouterJoueurEnCours(){
+  if(!S.partie || S.joueurs.length >= 12) return;
+  const n = await demanderNom('Ajouter un joueur',
+    'Il prend sa place juste derrière le joueur en cours : il jouera '
+    + 'au bout d\'un tour complet.', S.joueurs);
+  if(!n) return;
+  S.joueurs.splice(S.idx, 0, n);   // devant le joueur courant dans le tableau…
+  S.idx++;                         // …qui garde donc la main
+  S.stats[n] = {gorgees:0, culs:0, ecart:0, tours:0, piles:0, biais:0, carres:0, minutes:0};
+  S.jetons[n] = 0; S.fautes[n] = 0;
+  S.couleurs[n] = couleurLibre();
+  memoriser(n);
+  MEM.joueurs = S.joueurs.slice();
+  await ecrireMem();
+  peupler(); majDatalist();
+  fluidePret();
+}
+$('f-ajouter').onclick = ajouterJoueurEnCours;
+
+/* ════════ SAUVEGARDE ════════ */
+// Le panthéon ne vit que dans le navigateur. Un fichier exportable est la seule
+// protection contre un changement d'adresse, un effacement des données du site
+// ou la purge automatique de stockage d'iOS.
+function contenuSauvegarde(){
+  return JSON.stringify({
+    app:'krono', version:1, date:new Date().toISOString(),
+    joueurs:MEM.joueurs, cfg:MEM.cfg, profils:MEM.profils, scores:MEM.scores || []
+  }, null, 1);
+}
+function resumeSauvegarde(d){
+  const np = Object.keys(d.profils || {}).length;
+  const nt = Object.values(d.profils || {}).reduce((s,p) => s + (p.tours||0), 0);
+  return np + ' profil' + (np>1?'s':'') + ' · ' + nt + ' tours · '
+       + ((d.scores||[]).length) + ' score' + ((d.scores||[]).length>1?'s':'');
+}
+
+$('exporter').onclick = async () => {
+  const texte = contenuSauvegarde();
+  const nom = 'krono-sauvegarde-' + new Date().toISOString().slice(0,10) + '.json';
+  let telecharge = false, copie = false;
+  try{
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([texte], {type:'application/json'}));
+    a.download = nom;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    telecharge = true;
+  }catch(e){}
+  try{ await navigator.clipboard.writeText(texte); copie = true; }catch(e){}
+  choisir('Sauvegarde exportée',
+    resumeSauvegarde(JSON.parse(texte)) + '.'
+    + (telecharge ? ' Fichier ' + nom + ' enregistré.' : '')
+    + (copie ? ' Le contenu est aussi dans le presse-papier.' : '')
+    + ' Gardez-le hors du téléphone : mail, notes, cloud.',
+    [{label:'Compris', val:true}]);
+};
+
+$('importer').onclick = () => $('fichier').click();
+$('fichier').onchange = ev => {
+  const f = ev.target.files && ev.target.files[0];
+  ev.target.value = '';
+  if(!f) return;
+  const lec = new FileReader();
+  lec.onload = async () => {
+    let d;
+    try{ d = JSON.parse(lec.result); }catch(e){
+      return choisir('Fichier illisible',
+        "Ce n'est pas une sauvegarde Krono valide.", [{label:'Fermer', val:true}]);
+    }
+    if(!d || typeof d.profils !== 'object')
+      return choisir('Fichier inattendu',
+        "Aucun profil trouvé dans ce fichier.", [{label:'Fermer', val:true}]);
+    const quoi = await choisir('Importer cette sauvegarde ?',
+      resumeSauvegarde(d) + '. Fusionner additionne les statistiques ; '
+      + 'remplacer efface ce qui est enregistré ici.',
+      [{label:'Annuler', val:'non', doux:true},
+       {label:'Fusionner', val:'fusion'},
+       {label:'Remplacer', val:'remplace'}]);
+    if(quoi === 'non' || quoi === null) return;
+    if(quoi === 'remplace'){
+      MEM = Object.assign(NEUF(), {joueurs:d.joueurs || NEUF().joueurs,
+        cfg:d.cfg || null, profils:d.profils || {}, scores:d.scores || []});
+      if(MEM.cfg){ Object.assign(CFG, MEM.cfg); appliquerCfg(); }
+    } else {
+      MEM.scores = MEM.scores || [];
+      for(const n in d.profils){
+        const p = d.profils[n], q = MEM.profils[n] || (MEM.profils[n] = profilVide());
+        ['tours','somme','biais','carres','piles','gorgees','culs','parties']
+          .forEach(k => q[k] = (q[k]||0) + (p[k]||0));
+      }
+      const vus = new Set(MEM.scores.map(e => e.n+'|'+e.p+'|'+e.d));
+      (d.scores || []).forEach(e => {
+        const k = e.n+'|'+e.p+'|'+e.d;
+        if(!vus.has(k)){ vus.add(k); MEM.scores.push(e); }
+      });
+    }
+    await ecrireMem();
+    peupler(); majMem(); rafraichir(); construirePantheon();
+    choisir('Sauvegarde importée', resumeSauvegarde({profils:MEM.profils, scores:MEM.scores})
+      + ' en mémoire.', [{label:'Parfait', val:true}]);
+  };
+  lec.readAsText(f);
+};
+
+/* ════════ NAVIGATION ════════ */
+// les réglages sont fermés pendant une partie : on en sort par « Quitter »
+$('go-panth').onclick     = () => { construirePantheon(); montrer('pantheon'); };
+$('go-test').onclick      = () => { majLatence(); montrer('test'); };
+$('panth-retour').onclick = () => montrer('reglages');
+$('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
+$('recap-panth').onclick  = () => { construirePantheon(); montrer('pantheon'); };
+$('recap-fermer').onclick = () => montrer('reglages');
+$('fin-menu').onclick     = () => montrer('reglages');
+async function quitterPartie(){
+  if(await demander('Quitter la partie ?',
+      'Le classement et les profils seront enregistrés avant de sortir.', 'Quitter'))
+    afficherFin();
+}
+$('f-quitter').onclick = quitterPartie;
+
+/* ════════ PARTIE ════════ */
+$('commencer').onclick = () => demarrerPartie();
+function demarrerPartie(){
+  const j = lireListe();
+  if(CFG.mode !== 'solo' && j.length < 2){
+    demander('Il faut au moins deux joueurs',
+      'Ajoutez quelqu\'un, ou passez en mode Entraînement solo.', 'Compris');
+    return false;
+  }
+  S.joueurs = j; S.stats = {}; S.jetons = {}; S.couleurs = {};
+  j.forEach((n,i) => S.couleurs[n] = coul(i));
+  j.forEach(n => { S.stats[n] = {gorgees:0, culs:0, ecart:0, tours:0,
+                                 piles:0, biais:0, carres:0, minutes:0}; S.jetons[n] = 0; });
+  S.idx = 0; S.sens = 1; S.total = 0; S.tour = 1; S.contre = 0;
+  S.historique = []; S.enregistre = false; S.partie = true;
+  S.evt = null; S.force = null; S.dernierEvt = -9; S.duel = null; S.prochain = null;
+  S.fautes = {}; S.elimines = []; S.vies = 3;
+  S.points = 0; S.chaine = 0; S.meilleureChaine = 0;
+  S.dernier = null; S.finDeTour = null;   // sinon l'écran garde le tour d'avant
+  S.tropheesAvant = {}; S.gagnes = [];
+  j.forEach(n => S.tropheesAvant[n] = trophees(n).map(x => x.tr.id + ':' + x.e.rang));
+  S.zoneTour = 0; S.enchere = null;
+  if(CFG.mode === 'solo'){
+    S.joueurs = [j[0]];
+    S.tableauDepart = scoresDe(sigCourante()).map(e => ({n:e.n, p:e.p}));
+    S.nbSous = 0;
+  }
+  S.derniereBlague = null;
+  if(CFG.mode === 'solo' || CFG.mode === 'compte') CFG.maxTours = 10;
+  S.cible = S.cibleBase = cibleSuivante(0);
+  MEM.joueurs = j; MEM.cfg = {...CFG};
+  memoriser(j); majDatalist(); ecrireMem();
+  garderEcranAllume();
+  afficherPret();
+  return true;
+}
+
+function tirerEvenement(){
+  S.evt = null;
+  // invariant : la cible reste toujours à plus de 0,50 s devant le chrono
+  if(S.cibleBase - S.total <= (CFG.mode === 'compte' ? 5 : 50))
+    S.cibleBase = cibleSuivante(S.total);
+  S.cible = S.cibleBase;
+  if(S.force){ S.evt = S.force; S.force = null; }
+  else {
+    if(S.contre > 0) return;
+    if(S.tour - S.dernierEvt < 2) return;
+    const p = {aucun:0, rares:0.12, frequents:0.30}[CFG.evts];
+    if(Math.random() >= p) return;
+    S.evt = EVTS[Math.floor(Math.random()*EVTS.length)].id;
+  }
+  S.dernierEvt = S.tour;
+  if(S.evt === 'demi')   S.cible = S.cibleBase + 50;
+  if(S.evt === 'sprint') S.cible = S.total + 25;
+  if(S.evt === 'longue') S.cible = S.cibleBase + 100;
+}
+
+async function afficherPret(){
+  purgerMinuteries();
+  S.zoneTour = zoneDe(S.joueurs[S.idx]);
+  S.enchere = null;
+  fluidePret();
+  if(CFG.mode === 'enchere' && S.contre === 0){
+    S.enchere = await choisir('Ton enchère, ' + S.joueurs[S.idx],
+      'Tenu, c\'est le suivant qui boit. Manqué, tu bois le double.',
+      ENCHERES.map(e => ({label:e.label, val:e.seuil})));
+    if(S.enchere === null) S.enchere = ENCHERES[0].seuil;   // fond tapé : mise prudente
+    majEnchere();
+  }
+}
+const estMinute = c => c > 0 && c % 6000 === 0;
+
+function compteursMode(p){
+  $(p+'minute').classList.toggle('on', estMinute(S.cible));
+  const v = $(p+'vies'), nom = S.joueurs[S.idx];
+  let t = '';
+  if(CFG.mode === 'coop')        t = S.vies + ' vie' + (S.vies>1?'s':'');
+  if(CFG.mode === 'elimination') t = (3 - (S.fautes[nom]||0)) + ' faute'
+    + (3-(S.fautes[nom]||0)>1?'s':'') + ' restante' + (3-(S.fautes[nom]||0)>1?'s':'');
+  if(CFG.mode === 'solo') t = S.points + ' pts'
+    + (S.chaine > 1 ? ' · série ×' + Math.min(MULT_MAX, S.chaine) : '');
+  v.className = 'bouclier ' + (CFG.mode === 'solo'
+    ? (S.chaine > 1 ? 'serie' : 'or') : 'vies') + (t ? ' on' : '');
+  v.textContent = t;
+  const solo = CFG.mode === 'solo';
+  $('f-solo-actions').classList.add('on');
+  $('f-sol-recommencer').style.display = solo ? 'block' : 'none';
+  $('f-sol-changer').style.display = solo ? 'block' : 'none';
+  $('f-ajouter').style.display = solo ? 'none' : 'block';
+  $(p+'enchere').classList.remove('on');
+}
+function majEnchere(){
+  const e = ENCHERES.find(x => x.seuil === S.enchere);
+  const txt = e ? 'Enchère ' + e.label.split(' · ')[1] : '';
+  $('f-enchere').classList.toggle('on', !!e);
+  $('f-enchere').textContent = txt;
+}
+
+/* ════════ CHRONO ════════ */
+let verrou = 0;
+function purgerMinuteries(){ S.minuteries.forEach(clearTimeout); S.minuteries = []; }
+const attendre = (ms, f) => S.minuteries.push(setTimeout(f, ms));
+
+
+function demarrer(ev){
+  if(ev) ev.preventDefault();
+  const t = tempsEvt(ev);
+  if(t - verrou < 120) return;
+  verrou = t;
+  purgerMinuteries();
+  S.t0 = t; S.encours = true;
+  fluidePhase('course');
+  if(CFG.aff === 'visible' && S.evt !== 'yeux') boucleChiffres();
+}
+function boucleChiffres(){
+  if(!S.encours) return;
+  const v = fmt(S.total + Math.round((performance.now() - S.t0)/10));
+  $('f-chrono').textContent = v;
+  requestAnimationFrame(boucleChiffres);
+}
+function arreter(ev){
+  if(!S.encours) return;
+  if(ev) ev.preventDefault();
+  const t = tempsEvt(ev);
+  if(t - verrou < 120) return;
+  verrou = t; S.encours = false;
+  purgerMinuteries(); vibrer(18);
+  afficherResultat(S.total + Math.round((t - S.t0)/10));
+}
+addEventListener('keydown', ev => {
+  if(ev.code !== 'Space' && ev.code !== 'Enter') return;
+  if(!$('fluide').classList.contains('actif')) return;
+  ev.preventDefault();
+  if(S.encours) arreter(); else if(S.fPhase === 'repos') demarrer();
+});
+
+/* ════════ RÉSULTAT ════════ */
+// qui vient-on de doubler au classement d'entraînement ?
+function depassements(){
+  const L = S.tableauDepart;
+  if(!L.length) return '';
+  const sous = L.filter(e => e.p < S.points).length;
+  if(sous <= S.nbSous) return '';
+  const neufs = L.slice(L.length - sous, L.length - S.nbSous);
+  S.nbSous = sous;
+  if(sous === L.length) return 'meilleur score de cette configuration';
+  if(neufs.length === 1) return 'tu passes devant ' + neufs[0].n;
+  return 'tu passes devant ' + neufs[0].n + ' et ' + (neufs.length - 1) + ' autre'
+    + (neufs.length > 2 ? 's' : '');
+}
+
+function peine(nom, n){
+  if(S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
+  S.stats[nom].gorgees += n; return n;
+}
+
+function afficherResultat(valeur){
+  if(S.evt === 'demitour') S.sens *= -1;
+
+  const delta = valeur - S.cible, ecart = Math.abs(delta);
+  const joueur = S.joueurs[S.idx];
+  const st = S.stats[joueur];
+
+  if(!(S.evt && EVT(S.evt).fausse)){
+    st.ecart += ecart; st.tours++; st.biais += delta; st.carres += delta*delta;
+  }
+  if(ecart === 0) st.piles++;
+
+  $('res-nom').textContent = joueur + (S.contre > 0 ? ' · riposte'
+    : S.evt ? ' · ' + EVT(S.evt).n.toLowerCase() : '');
+  surligner($('res-nom'), coulNom(joueur));
+  $('leg-zone').textContent = 'zone sûre ± ' + fmt(zone());
+  $('res-cible').textContent = 'Objectif ' + fmt(S.cible);
+  $('res-score').textContent = fmt(valeur);
+  $('res-ecart').textContent = (delta>0?'+':delta<0?'−':'±') + fmt(ecart);
+  $('ech-axe').textContent = fmt(S.cible);
+  $('zv').style.left = $('zv').style.right = (50 - zone()) + '%';
+  $('marqueur').style.left = Math.max(0, Math.min(100, 50 + (delta/RANGE)*50)) + '%';
+  $('bande').classList.toggle('pile', ecart === 0);
+
+  if(S.evt === 'choix' && S.prochain === null){
+    $('res-score').className = 'score t-alerte';
+    $('verdict').style.display = 'none';
+    const o = $('choix-opts'); o.innerHTML = '';
+    S.joueurs.forEach((n,i) => {
+      if(i === S.idx) return;
+      const b = document.createElement('button');
+      b.textContent = n; b.style.color = coul(i);
+      b.onclick = () => { S.prochain = i; $('choix').classList.remove('on');
+                          $('verdict').style.display = 'block'; resoudre(valeur, delta, ecart); };
+      o.appendChild(b);
+    });
+    $('choix').classList.add('on');
+    montrer('resultat');
+    return;
+  }
+  $('choix').classList.remove('on');
+  $('verdict').style.display = 'block';
+  resoudre(valeur, delta, ecart);
+}
+
+function resoudre(valeur, delta, ecart){
+  const dureeVoulue = S.cible - S.total;      // ce qu'il fallait tenir
+  const dureeTenue  = valeur - S.total;       // ce qui a réellement été tenu
+  const joueur = S.joueurs[S.idx];
+  const suiv   = S.joueurs[idxSuivant()];
+  const st = S.stats[joueur];
+  const T = $('ver-titre'), U = $('ver-sous');
+  const mult = S.evt === 'double' ? 2 : 1;
+  const minutePile = estMinute(valeur);
+  let couleur = 't-vert', avance = true;
+
+  /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
+  if(minutePile){
+    couleur = 't-laiton';
+    st.minutes = (st.minutes || 0) + 1;
+    const autres = S.joueurs.filter(n => n !== joueur && vivant(n));
+    autres.forEach(n => S.stats[n].culs += 1);
+    T.textContent = 'La minute pile';
+    U.textContent = autres.length
+      ? 'tout le monde sauf ' + joueur + ' : cul sec'
+      : 'personne d\'autre à table, personne ne boit';
+    S.contre = 0; S.duel = null;          // le jackpot dissout riposte et duel
+    vibrer([0,90,60,90,60,90,60,260]);
+  }
+  else if(S.evt === 'duel' && !S.duel){
+    S.duel = {nom:joueur, val:valeur, ecart};
+    couleur = 't-alerte'; avance = false;
+    T.textContent = 'Duel · à ' + suiv;
+    U.textContent = 'même cible, même départ · ' + fmt(ecart) + ' à battre';
+  }
+  else if(S.evt === 'duel' && S.duel){
+    const a = S.duel, gagne = ecart < a.ecart;
+    const perdant = gagne ? a.nom : joueur;
+    couleur = 't-signal';
+    const n = peine(perdant, 3*mult);
+    T.textContent = perdant + (n ? ' boit ' + gorg(n) : ' : bouclier consommé');
+    U.textContent = a.nom + ' ±' + fmt(a.ecart) + ' · ' + joueur + ' ±' + fmt(ecart);
+    valeur = gagne ? a.val : valeur;
+    S.duel = null;
+  }
+  else if(S.contre > 0){
+    if(ecart === 0){
+      S.contre++; couleur = 't-laiton';
+      T.textContent = 'Contré';
+      U.textContent = suiv + ' doit ' + culs(S.contre) + ' — ou riposte à son tour';
+      vibrer([0,60,50,60,50,180]);
+    } else {
+      couleur = 't-signal';
+      T.textContent = joueur + ' : ' + culs(S.contre);
+      U.textContent = 'riposte manquée · il fallait pile';
+      st.culs += S.contre; S.contre = 0;
+    }
+  }
+  /* ─── entraînement solo : aucune gorgée, un score ─── */
+  else if(CFG.mode === 'solo'){
+    let pts;
+    if(ecart === 0){
+      S.chaine++;
+      S.meilleureChaine = Math.max(S.meilleureChaine, S.chaine);
+      const m = Math.min(MULT_MAX, S.chaine);
+      pts = PTS.pile * m; couleur = 't-s100';
+      T.textContent = '+' + pts + ' points' + (m > 1 ? '  ×' + m : '');
+      U.textContent = 'pile · série de ' + S.chaine
+        + (S.chaine >= MULT_MAX ? ' · multiplicateur au plafond' : '');
+    } else {
+      if(S.chaine > 1) vibrer(30);
+      S.chaine = 0;
+      if(ecart <= PRES){      pts = PTS.frole; couleur = 't-s50';  }
+      else if(ecart <= zone()){ pts = PTS.zone;  couleur = 't-s20'; }
+      else {                    pts = PTS.rate;  couleur = 't-s0';  }
+      T.textContent = pts ? '+' + pts + ' points' : 'Aucun point';
+      U.textContent = 'écart ±' + fmt(ecart) + ' · zone ± ' + fmt(zone());
+    }
+    S.points += pts;
+    U.textContent += ' · total ' + S.points;
+    const dep = depassements();
+    if(dep) U.textContent += ' — ' + dep;
+  }
+  /* ─── coopératif : trois vies partagées, cap sur 30,00 s ─── */
+  else if(CFG.mode === 'coop'){
+    const v = evaluer(ecart);
+    couleur = v.couleur;
+    if(v.code === 'rate'){
+      S.vies--;
+      S.joueurs.forEach(n => S.stats[n].gorgees += 1);
+      couleur = 't-signal';
+      T.textContent = 'Une vie en moins';
+      U.textContent = S.vies + ' vie' + (S.vies>1?'s':'') + ' restante'
+        + (S.vies>1?'s':'') + ' · toute la table boit une gorgée';
+    } else {
+      T.textContent = 'Chrono à ' + fmt(valeur);
+      U.textContent = 'objectif 30,00 · ' + fmt(Math.max(0, 3000 - valeur)) + ' s à parcourir';
+    }
+  }
+  /* ─── enchère : le joueur a annoncé sa précision ─── */
+  else if(CFG.mode === 'enchere' && S.enchere){
+    const e = ENCHERES.find(x => x.seuil === S.enchere);
+    if(ecart === 0){
+      S.contre = 1; couleur = 't-laiton';
+      T.textContent = suiv + ' : cul sec';
+      U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+      vibrer([0,60,50,60,50,140]);
+    } else if(ecart <= e.seuil){
+      couleur = 't-vert';
+      const n = peine(suiv, e.n * mult);
+      T.textContent = n ? suiv + ' boit ' + gorg(n) : suiv + ' : bouclier consommé';
+      U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
+    } else {
+      couleur = 't-signal';
+      const n = peine(joueur, e.n * 2 * mult);
+      T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
+      U.textContent = 'enchère manquée · annoncé ±' + fmt(e.seuil)
+        + ', réalisé ±' + fmt(ecart);
+    }
+  }
+  else {
+    const v = evaluer(ecart);
+    couleur = v.couleur;
+    if(CFG.mode === 'elimination' && v.code === 'rate'){
+      S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
+      if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
+    }
+    if(v.code === 'pile'){
+      S.contre = 1;
+      T.textContent = suiv + ' : cul sec';
+      U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+      vibrer([0,60,50,60,50,140]);
+    }
+    else if(v.code === 'frole'){
+      const n = peine(suiv, v.n * mult);
+      T.textContent = n ? suiv + ' boit ' + gorg(n) : suiv + ' : bouclier consommé';
+      U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
+        + (mult>1 ? ' · doublé' : '');
+    }
+    else if(v.code === 'sauf'){
+      if(S.evt === 'bouclier'){
+        S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
+        couleur = 't-alerte';
+        T.textContent = 'Bouclier pour ' + joueur;
+        U.textContent = 'annulera automatiquement sa prochaine peine';
+      } else {
+        T.textContent = 'Personne ne boit';
+        U.textContent = 'dans la marge';
+      }
+    }
+    else {
+      if(S.evt === 'bord'){
+        S.joueurs.forEach(n => S.stats[n].gorgees += mult);
+        T.textContent = 'Toute la table boit ' + gorg(mult);
+        U.textContent = joueur + ' est sorti de la zone';
+      } else {
+        const n = peine(joueur, RATE[CFG.gor] * mult);
+        T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
+        U.textContent = 'hors marge' + (mult>1 ? ' · doublé' : '');
+      }
+    }
+  }
+
+  if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
+    couleur = 't-signal';
+    T.textContent = joueur + ' est éliminé';
+    U.textContent = 'trois sorties de zone · il reste ' + actifs().length
+      + ' joueur' + (actifs().length>1?'s':'') + ' en lice';
+  }
+  T.className = 'titre ' + couleur;
+  T.parentElement.className = 'carte-verdict ' + couleur;
+  $('res-score').className = 'score ' + couleur;
+  S.historique.unshift({nom:joueur, cible:S.cible, val:valeur, couleur, tour:S.tour});
+  dessinerFilm();
+
+  if(avance){ S.total = valeur; S.enAttente = cibleSuivante(valeur); }
+  else       { S.enAttente = S.cible; }
+  S.finDeTour = {avance};
+  const pioche = L => L[Math.floor(Math.random() * L.length)];
+  let mot;
+  if(minutePile)                                    mot = pioche(MOTS_MINUTE);
+  else if(CFG.mode === 'solo' && S.chaine >= 2)     mot = MOTS_SERIE[Math.min(S.chaine, 6) - 2];
+  else                                              mot = blague(ecart);
+  if(CFG.mode === 'solo' && S.chaine >= 2) S.derniereBlague = 'serie';
+  $('ver-blague').textContent = mot;
+  S.dernier = {titre:T.textContent, sous:U.textContent, couleur, valeur, delta, ecart,
+               dureeVoulue, dureeTenue, blague:mot};
+  $('res-duree').innerHTML = 'à tenir <b>' + fmt(dureeVoulue) + '</b>'
+    + ' · tenu <b class="' + couleur + '">' + fmt(dureeTenue) + '</b>';
+  fluideResultat();
+}
+
+/* ════════ INTERFACE FLUIDE ════════ */
+// un seul écran : le grand chiffre au centre est le chrono, puis le résultat.
+// Les statistiques passent derrière un bouton « Détails ».
+function bandeaux(pfx){
+  const r = $(pfx+'riposte');
+  r.classList.toggle('on', S.contre > 0);
+  if(S.contre > 0){
+    $(pfx+'rip-titre').textContent = 'Riposte · ' + culs(S.contre);
+    $(pfx+'rip-sous').textContent = 'Fais pile pour renvoyer la mise à '
+      + culs(S.contre+1) + '. Tout le reste : tu bois.';
+  }
+  const e = $(pfx+'evt');
+  e.classList.toggle('on', !!S.evt);
+  if(S.evt){
+    const d = EVT(S.evt);
+    $(pfx+'evt-titre').textContent = S.duel ? d.n + ' · manche 2' : d.n;
+    $(pfx+'evt-sous').textContent = d.d;
+  }
+}
+
+function fluidePret(){
+  const nom = S.joueurs[S.idx];
+  $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}` : 'Tour ' + S.tour;
+  $('f-nom').textContent = nom;
+  surligner($('f-nom'), coulNom(nom));
+  $('f-obj-cible').textContent = fmt(S.cible);
+  $('f-obj-tenir').textContent = fmt(S.cible - S.total) + ' s à tenir'
+    + (CFG.mode === 'compte' ? ' · viser 20,00 au bout' : '');
+  const jc = S.jetons[nom] || 0;
+  $('f-bouclier').classList.toggle('on', jc > 0);
+  $('f-bouclier').textContent = jc > 1 ? 'Bouclier ×' + jc : 'Bouclier';
+  compteursMode('f-');
+  bandeaux('f-');
+  fluidePhase('repos');
+  montrer('fluide');
+}
+
+function fluidePhase(ph){
+  S.fPhase = ph; S.fPhaseAt = performance.now();
+  montrer('fluide');
+  const C = $('f-chrono'), G = $('f-gauche'), D = $('f-droite'), R = $('f-realise');
+  C.className = 'f-chrono';
+  G.className = 'rond'; D.className = 'rond';
+  G.disabled = false; D.disabled = false;
+  R.classList.remove('on');
+  $('f-blague').classList.remove('on');
+  $('f-quitter').style.visibility = 'visible';
+
+  if(ph === 'course'){
+    if(CFG.aff === 'visible' && S.evt !== 'yeux'){ C.textContent = fmt(S.total); }
+    else { C.classList.add('attente'); C.textContent = '—,——'; }
+    $('f-ecart').textContent = '';
+    $('f-verdict').style.visibility = 'hidden';
+    G.disabled = true;
+    G.querySelector('span').textContent = 'Détails';
+    D.classList.add('rouge');
+    D.querySelector('span').textContent = 'Arrêter';
+    $('f-quitter').style.visibility = 'hidden';
+    $('f-solo-actions').classList.remove('on');   // rien ne distrait pendant le chrono
+    return;
+  }
+
+  // repos : le tour précédent est encore lisible, le suivant est déjà prêt.
+  // Un seul appui sur Démarrer relance — plus besoin de passer par un écran.
+  const d = S.dernier;
+  if(d){
+    C.classList.add(d.couleur);
+    C.textContent = fmt(d.valeur);
+    R.className = 'f-realise on ' + d.couleur;
+    R.textContent = 'tenu ' + fmt(d.dureeTenue) + ' s';
+    $('f-blague').textContent = d.blague || '';
+    $('f-blague').classList.toggle('on', !!d.blague);
+    $('f-ecart').textContent = (d.delta>0?'+':d.delta<0?'−':'±') + fmt(d.ecart);
+    $('f-ver-titre').textContent = d.titre;
+    $('f-ver-titre').className = 'titre ' + d.couleur;
+    $('f-ver-sous').textContent = d.sous;
+    $('f-verdict').style.visibility = 'visible';
+  } else {
+    C.classList.add('repos');
+    C.textContent = fmt(S.total);
+    $('f-ecart').textContent = '';
+    $('f-verdict').style.visibility = 'hidden';
+  }
+  G.disabled = !d;
+  G.querySelector('span').textContent = 'Détails';
+  if(ph === 'fin'){
+    D.classList.add('clair');
+    D.querySelector('span').textContent = 'Classement';
+  } else {
+    D.classList.add('vert');
+    D.querySelector('span').textContent = 'Démarrer';
+  }
+}
+
+// prépare le tour suivant sans rien afficher
+function avancerTour(){
+  const ft = S.finDeTour || {avance:true};
+  S.idx = idxSuivant();
+  S.prochain = null;
+  if(ft.avance){
+    S.tour++;
+    S.cible = S.cibleBase = S.enAttente;
+    tirerEvenement();
+  }
+}
+
+function fluideResultat(){
+  const ft = S.finDeTour || {avance:true};
+  if(partieFinie() && S.contre === 0 && ft.avance){
+    bandeaux('f-');
+    fluidePhase('fin');
+    return;
+  }
+  avancerTour();
+  fluidePret();          // affiche le résultat ET l'objectif suivant
+}
+
+// Seuls départ et arrêt passent par pointerdown : la précision du chrono en
+// dépend. Les autres actions attendent le clic, sinon le doigt qui déclenche
+// traverse la modale qui vient d'apparaître et la referme aussitôt.
+$('fluide').addEventListener('pointerdown', ev => {
+  if(S.fPhase === 'course'){ arreter(ev); return; }   // tout l'écran arrête
+  const b = ev.target.closest && ev.target.closest('.rond');
+  if(!b || b.disabled || b.id !== 'f-droite' || S.fPhase !== 'repos') return;
+  if(performance.now() - S.fPhaseAt < 220) return;
+  demarrer(ev);
+});
+$('fluide').addEventListener('click', ev => {
+  if(performance.now() - S.fPhaseAt < 220) return;    // anti double-appui
+  if(ev.target.closest && ev.target.closest('#f-quitter')){ quitterPartie(); return; }
+  const b = ev.target.closest && ev.target.closest('.rond');
+  if(!b || b.disabled) return;
+  if(b.id === 'f-gauche' && S.dernier) montrer('resultat');
+  else if(b.id === 'f-droite' && S.fPhase === 'fin') afficherFin();
+});
+$('fermer').onclick = () => montrer('fluide');
+
+function dessinerFilm(){
+  const f = $('film'); f.innerHTML = '';
+  const bord = 50 - zone();
+  S.historique.slice(0,30).forEach(h => {
+    const pos = Math.max(0, Math.min(100, 50 + ((h.val - h.cible)/RANGE)*50));
+    const d = document.createElement('div');
+    d.className = 'frame';
+    d.innerHTML = `<span class="no">${h.tour||''}</span>
+      <span class="nom" style="color:${coulNom(h.nom)}">${esc(h.nom)}</span>
+      <span class="mini"><span class="z z-vert" style="left:${bord}%;right:${bord}%"></span>
+      <span class="z z-laiton"></span><span class="m" style="left:${pos}%"></span></span>
+      <span class="val ${h.couleur}">${fmt(h.val)}</span>`;
+    f.appendChild(d);
+  });
+}
+
+$('stop').onclick = afficherFin;
+
+/* ════════ FIN ════════ */
+function afficherFin(){
+  purgerMinuteries();
+  S.partie = false; S.encours = false;
+  if(!S.enregistre){
+    S.enregistre = true;
+    S.joueurs.forEach(n => {
+      const s = S.stats[n];
+      if(!s || !s.tours) return;
+      const p = MEM.profils[n] || (MEM.profils[n] = profilVide());
+      p.tours += s.tours;   p.somme  += s.ecart;  p.biais   += s.biais;
+      p.carres += s.carres; p.piles  += s.piles;  p.gorgees += s.gorgees;
+      p.culs += s.culs;     p.parties++;
+      p.minutes = (p.minutes || 0) + (s.minutes || 0);
+      if(CFG.mode === 'solo' && n === S.joueurs[0]){
+        p.serie = Math.max(p.serie || 0, S.meilleureChaine);
+        p.meilleurScore = Math.max(p.meilleurScore || 0, S.points);
+      }
+    });
+    ecrireMem(); majMem();
+    publierPartie();          // envoi au salon, sans bloquer l'affichage
+  }
+  const R = $('fin-resume'), TI = $('fin-titre');
+  TI.textContent = 'Le plus précis'; R.textContent = MODE().n;
+  if(CFG.mode === 'elimination'){
+    const v = actifs();
+    TI.textContent = v.length === 1 ? v[0] + ' survit' : 'Élimination';
+    R.textContent = 'Élimination · ' + S.elimines.length + ' joueur'
+      + (S.elimines.length>1?'s':'') + ' hors jeu';
+  }
+  if(CFG.mode === 'coop'){
+    const gagne = S.total >= 3000;
+    TI.textContent = gagne ? 'Objectif atteint' : 'Plus de vies';
+    R.textContent = 'Coopératif · chrono ' + fmt(S.total) + ' / 30,00 · '
+      + S.vies + ' vie' + (S.vies>1?'s':'') + ' restante' + (S.vies>1?'s':'');
+  }
+  if(CFG.mode === 'compte'){
+    const d = Math.abs(S.total - 2000);
+    TI.textContent = d === 0 ? 'Le compte est bon' : 'À ' + fmt(d) + ' du compte';
+    R.textContent = 'Le compte est bon · arrivé à ' + fmt(S.total) + ' pour 20,00 visé';
+  }
+  const gagnes = [];
+  S.joueurs.forEach(n => {
+    const avant = S.tropheesAvant[n] || [];
+    trophees(n).forEach(({tr, e}) => {
+      const cle = tr.id + ':' + e.rang;
+      if(!avant.includes(cle)) gagnes.push({n, nom:tr.n, rang:RANGS[e.rang]});
+    });
+  });
+  S.gagnes = gagnes;
+
+  const c = $('classement'); c.innerHTML = '';
+  const rangs = S.joueurs.map(n => ({n, ...S.stats[n]}))
+    .filter(p => p.tours > 0)
+    .sort((a,b) => a.ecart/a.tours - b.ecart/b.tours);
+  if(!rangs.length){
+    TI.textContent = 'Partie quittée';
+    c.innerHTML = '<div class="vide">Aucun tour joué, rien à classer.<br>'
+      + 'Relancez une partie quand vous voulez.</div>';
+  }
+
+  rangs.forEach((p,i) => {
+    const tot = analyse(MEM.profils[p.n]) ||
+                analyse({tours:p.tours, somme:p.ecart, biais:p.biais, carres:p.carres});
+    const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
+                 p.culs ? culs(p.culs) : null,
+                 p.gorgees ? gorg(p.gorgees) : null ]
+               .filter(Boolean).join(' · ') || 'rien bu';
+    const d = document.createElement('div');
+    d.className = 'ligne';
+    d.innerHTML = `<span class="pos">${i+1}</span>
+      <span class="qui" style="color:${coulNom(p.n)}">${esc(p.n)}</span>
+      <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(p.ecart/p.tours))}</span>
+      <span class="bu">${bu}</span>
+      <span class="detail">${jaugeHTML(tot)}
+        <span class="conseil">${tot.tours} tours cumulés · ${phraseBiais(tot)}
+          · régularité ±${fmt(Math.round(tot.disp))}</span></span>`;
+    c.appendChild(d);
+  });
+
+  const cible = rangs.map(p => ({n:p.n, a:analyse(MEM.profils[p.n])}))
+    .filter(x => x.a && x.a.tours >= 6 && Math.abs(x.a.moy) >= 3
+                 && x.a.disp < x.a.precision - 1)
+    .sort((a,b) => Math.abs(b.a.moy) - Math.abs(a.a.moy))[0];
+  const rev = $('revelation');
+  if(CFG.mode === 'solo'){
+    // score enregistré, place au classement, et le mot de la fin
+    const nom = S.joueurs[0], sig = sigCourante();
+    const avant = scoresDe(sig);
+    const meilleurAvant = avant.length ? avant[0].p : null;
+    const doubles = avant.filter(e => e.p < S.points);
+    MEM.scores = MEM.scores || [];
+    MEM.scores.push({n:nom, p:S.points, aff:CFG.aff, diff:CFG.diff,
+                     tours:CFG.maxTours || 10, bareme:'v2', serie:S.meilleureChaine,
+                     prec:Math.round((S.stats[nom] ? S.stats[nom].ecart : 0) /
+                          Math.max(1, S.stats[nom] ? S.stats[nom].tours : 1)),
+                     d:Date.now()});
+    elaguerScores();
+    ecrireMem();
+    const apres = scoresDe(sig);
+    const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
+    TI.textContent = S.points + ' points';
+    let l = 'Entraînement · ' + libelleSig(sig) + ' · '
+          + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
+    if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
+    else if(doubles.length) l += ' — devant ' + doubles.slice(0,2).map(e => e.n).join(', ')
+      + (doubles.length > 2 ? ' et ' + (doubles.length-2) + ' autre'
+         + (doubles.length > 3 ? 's' : '') : '');
+    if(S.meilleureChaine > 1) l += ' · meilleure série ' + S.meilleureChaine + ' piles';
+    R.textContent = l;
+    rev.style.display = 'block';
+    rev.querySelector('.t').textContent = 'Le mot de la fin';
+    $('rev-texte').textContent = bilan(S.points);
+  }
+  else if(cible){
+    rev.querySelector('.t').textContent = 'Ce que dit le chrono';
+    rev.style.display = 'block';
+    $('rev-texte').textContent = cible.n + ' ' + phraseBiais(cible.a)
+      + ', presque à chaque tour. En corrigeant ce décalage, sa précision passerait de ±'
+      + fmt(Math.round(cible.a.precision)) + ' à ±' + fmt(Math.round(cible.a.disp)) + '.';
+  } else rev.style.display = 'none';
+
+  if(S.gagnes && S.gagnes.length){
+    const t = S.gagnes.slice(0, 4)
+      .map(g => g.n + ' · ' + g.nom + ' ' + g.rang).join('  —  ');
+    R.textContent += (R.textContent ? ' · ' : '') + 'Trophées : ' + t
+      + (S.gagnes.length > 4 ? ' et ' + (S.gagnes.length-4) + ' autre'
+         + (S.gagnes.length > 5 ? 's' : '') : '');
+  }
+
+  // toutes les sorties de partie ramènent ici, sur un écran connu
+  montrer('fin');
+}
+$('rejouer').onclick = () => demarrerPartie();
+
+/* ════════ PANTHÉON ════════ */
+function construirePantheon(){
+  const noms = Object.keys(MEM.profils);
+  const P = $('palmares'), R = $('records');
+  P.innerHTML = ''; R.innerHTML = '';
+  if(!noms.length){
+    $('panth-note').textContent = '';
+    P.innerHTML = '<div class="vide">Aucune performance enregistrée.<br>'
+      + 'Terminez une partie et les profils apparaîtront ici.</div>';
+    return;
+  }
+  const tous = noms.map(n => ({n, a:analyse(MEM.profils[n])})).filter(x => x.a);
+  const fiables = tous.filter(x => x.a.tours >= 5);
+  const base = fiables.length ? fiables : tous;
+  const min = (arr,f) => arr.slice().sort((a,b) => f(a)-f(b))[0];
+  const max = (arr,f) => arr.slice().sort((a,b) => f(b)-f(a))[0];
+  const recs = [
+    ['Le plus précis',   min(base, x => x.a.precision), x => '±' + fmt(Math.round(x.a.precision))],
+    ['Le plus régulier', min(base, x => x.a.disp),      x => '±' + fmt(Math.round(x.a.disp))],
+    ['Le plus de piles', max(tous, x => x.a.piles),     x => x.a.piles + ' pile' + (x.a.piles>1?'s':'')],
+    ['Le plus arrosé',   max(tous, x => x.a.gorgees + x.a.culs*8), x => gorg(x.a.gorgees)]
+  ];
+  R.innerHTML = recs.map(([k,x,f]) => x
+    ? `<div class="rec"><div class="k">${k}</div><div class="v">${esc(x.n)}</div>
+       <div class="d">${f(x)}</div></div>` : '').join('');
+
+  tous.sort((a,b) => a.a.precision - b.a.precision).forEach((x,i) => {
+    const a = x.a;
+    const bu = [ a.piles ? a.piles + ' pile' + (a.piles>1?'s':'') : null,
+                 a.culs ? culs(a.culs) : null,
+                 a.gorgees ? gorg(a.gorgees) : null ].filter(Boolean).join(' · ') || 'rien bu';
+    const d = document.createElement('div');
+    d.className = 'ligne';
+    d.innerHTML = `<span class="pos">${i+1}</span><span class="qui">${esc(x.n)}</span>
+      <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(a.precision))}</span>
+      <span class="bu">${a.parties} partie${a.parties>1?'s':''} · ${a.tours} tours · ${bu}</span>
+      <span class="detail">${jaugeHTML(a)}
+        <span class="conseil">${phraseBiais(a)} · régularité ±${fmt(Math.round(a.disp))}</span></span>`;
+    P.appendChild(d);
+  });
+  $('panth-note').textContent = "Classement par précision. Les tours à événement qui "
+    + "faussent la mesure (cible déplacée, écran masqué, duel) sont exclus du calcul.";
+}
+
+/* ════════ TROPHÉES ════════ */
+let trQui = null;
+$('go-trophees').onclick = () => { construireTrophees(); montrer('trophees'); };
+$('tr-retour').onclick   = () => { construirePantheon(); montrer('pantheon'); };
+
+function construireTrophees(){
+  const noms = Object.keys(MEM.profils).filter(n => MEM.profils[n].tours > 0);
+  if(!noms.includes(trQui)) trQui = noms[0] || null;
+  $('seg-tr').innerHTML = noms.slice(0, 6).map(n =>
+    `<button data-v="${esc(n)}" aria-pressed="${n === trQui}">${esc(n)}</button>`).join('');
+  $('seg-tr').querySelectorAll('button').forEach(b => b.onclick = () => {
+    trQui = b.dataset.v; construireTrophees();
+  });
+
+  const L = $('tr-liste'); L.innerHTML = '';
+  if(!trQui){
+    $('tr-qui').textContent = '';
+    L.innerHTML = '<div class="vide">Aucun profil enregistré.<br>'
+      + 'Terminez une partie pour débloquer vos premiers trophées.</div>';
+    $('tr-note').textContent = '';
+    return;
+  }
+  $('tr-qui').textContent = trQui;
+  const p = MEM.profils[trQui];
+  let acquis = 0, or = 0;
+
+  TROPHEES.forEach(tr => {
+    const e = etatTrophee(tr, p);
+    if(e){ acquis++; if(e.rang === 2) or++; }
+    const d = document.createElement('div');
+    d.className = 'tro' + (e ? '' : ' verrou');
+    const med = e ? RANGS[e.rang] : '';
+    const chiffre = e ? (e.valeur !== null ? e.valeur : '✓') : '?';
+    // Verrouillé : on montre le nom et une phrase d'ambiance, jamais la condition.
+    // Le chemin ne se révèle qu'une fois le premier palier atteint.
+    let prog = '', barre = '', texte;
+    if(!e){
+      texte = `<span class="d myst">${tr.m}</span>`;
+    } else {
+      texte = `<span class="d">${tr.d}</span>`;
+      if(e.suivant !== undefined && tr.seuils){
+        const but = e.suivant;
+        prog = tr.inverse ? 'prochain palier sous ' + but : but + ' pour le palier suivant';
+        const pc = tr.inverse
+          ? Math.min(100, Math.round(but / Math.max(but, e.valeur) * 100))
+          : Math.min(100, Math.round(e.valeur / but * 100));
+        barre = `<span class="barre"><i style="width:${pc}%"></i></span>`;
+      } else if(tr.seuils){
+        prog = 'palier maximal atteint';
+      }
+    }
+    d.innerHTML = `<span class="medaille ${med}">${chiffre}</span>
+      <span class="txt"><span class="n">${tr.n}</span>
+      ${texte}${prog ? `<span class="prog">${prog}</span>` : ''}${barre}</span>`;
+    L.appendChild(d);
+  });
+
+  $('tr-note').innerHTML = `<span class="compte">
+    <span>${acquis} / ${TROPHEES.length} débloqués</span>
+    <span>${or} en or</span>
+    <span>${p.tours} tours · ${p.parties} partie${p.parties>1?'s':''}</span></span>`;
+}
+
+/* ════════ SALON ════════ */
+function majEtatSalon(){
+  const dispo = EN_LIGNE();
+  $('bloc-salon').style.display = dispo ? 'block' : 'none';
+  $('b-global').style.display = dispo && S.salon ? 'flex' : 'none';
+  $('f-salon').classList.toggle('on', !!S.salon);
+  $('f-salon').textContent = S.salon || '';
+  if(!dispo) return;
+  const enAttente = lireFile().length;
+  $('salon-etat').textContent = S.salon
+    ? 'Salon ' + S.salon + ' · les résultats sont publiés à la fin de chaque partie.'
+      + (enAttente ? ' ' + enAttente + ' en attente de réseau.' : '')
+    : "Aucun salon. Créez-en un et donnez le code aux autres téléphones "
+      + "pour partager un classement commun.";
+  $('salon-creer').textContent = S.salon ? 'Quitter le salon' : 'Créer un salon';
+}
+
+$('salon-creer').onclick = async () => {
+  if(S.salon){
+    if(!await demander('Quitter le salon ?',
+        'Les prochaines parties ne seront plus publiées.', 'Quitter')) return;
+    S.salon = null; MEM.salon = null; await ecrireMem(); majEtatSalon(); return;
+  }
+  $('salon-creer').disabled = true;
+  try{
+    const code = await creerSalon();
+    S.salon = code; MEM.salon = code; await ecrireMem();
+    majEtatSalon();
+    await choisir('Salon créé',
+      'Donnez ce code aux autres téléphones. Ils le saisissent une fois dans '
+      + '« Rejoindre » et partagent le même classement.',
+      [{label:'Compris', val:true}]);
+    $('mod-titre').textContent = 'Salon ' + code;
+  }catch(e){
+    choisir('Création impossible',
+      "Le serveur n'a pas répondu. Vérifiez la connexion et les clés Supabase.",
+      [{label:'Fermer', val:true}]);
+  }
+  $('salon-creer').disabled = false;
+};
+
+$('salon-rejoindre').onclick = async () => {
+  const code = (await demanderNom('Rejoindre un salon',
+    'Saisissez le code à cinq lettres affiché sur le téléphone qui a créé le salon.',
+    []) || '').toUpperCase().trim();
+  if(!code) return;
+  if(!/^[A-Z]{5}$/.test(code))
+    return choisir('Code invalide', 'Un code de salon fait cinq lettres.',
+      [{label:'Fermer', val:true}]);
+  try{
+    if(!await salonExiste(code))
+      return choisir('Salon introuvable',
+        'Aucun salon ne porte ce code. Vérifiez la saisie.', [{label:'Fermer', val:true}]);
+    S.salon = code; MEM.salon = code; await ecrireMem();
+    majEtatSalon();
+    choisir('Salon rejoint',
+      'Les parties jouées sur ce téléphone alimentent maintenant le classement de '
+      + code + '.', [{label:'Parfait', val:true}]);
+  }catch(e){
+    choisir('Connexion impossible',
+      "Le serveur n'a pas répondu.", [{label:'Fermer', val:true}]);
+  }
+};
+
+/* ════════ PANTHÉON GLOBAL ════════ */
+let glFiltre = 'config';
+$('go-global').onclick = () => { construireGlobal(); montrer('global'); };
+$('gl-retour').onclick = () => { construirePantheon(); montrer('pantheon'); };
+segmente('seg-gl', v => { glFiltre = v; construireGlobal(); });
+
+async function construireGlobal(){
+  $('gl-code').textContent = S.salon || '';
+  const L = $('gl-liste');
+  L.innerHTML = '<div class="vide">Chargement…</div>';
+  $('gl-note').textContent = '';
+  if(!S.salon || !EN_LIGNE()){
+    L.innerHTML = '<div class="vide">Aucun salon rejoint.</div>';
+    return;
+  }
+  let lignes;
+  try{
+    const q = 'resultats?salon=eq.' + encodeURIComponent(S.salon)
+      + (glFiltre === 'config' ? '&config=eq.' + encodeURIComponent(sigCourante()) : '')
+      + '&select=pseudo,tours,somme,biais,carres,piles,gorgees,culs&limit=2000';
+    lignes = await api(q);
+  }catch(e){
+    L.innerHTML = '<div class="vide">Impossible de joindre le serveur.<br>'
+      + 'Réessayez quand la connexion revient.</div>';
+    return;
+  }
+  // agrégation par pseudo : la base renvoie une ligne par partie
+  const par = {};
+  (lignes || []).forEach(r => {
+    const p = par[r.pseudo] || (par[r.pseudo] = profilVide());
+    ['tours','somme','biais','carres','piles','gorgees','culs']
+      .forEach(k => p[k] += (r[k] || 0));
+    p.parties++;
+  });
+  const tous = Object.keys(par).map(n => ({n, a:analyse(par[n])}))
+    .filter(x => x.a).sort((a,b) => a.a.precision - b.a.precision).slice(0, 30);
+  L.innerHTML = '';
+  if(!tous.length){
+    L.innerHTML = '<div class="vide">Aucune partie publiée pour ces réglages.</div>';
+    return;
+  }
+  tous.forEach((x,i) => {
+    const a = x.a;
+    const d = document.createElement('div');
+    d.className = 'ligne';
+    d.innerHTML = `<span class="pos">${i+1}</span>
+      <span class="qui" style="color:${coulHash(x.n)}">${esc(x.n)}</span>
+      <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(a.precision))}</span>
+      <span class="bu">${a.parties} partie${a.parties>1?'s':''} · ${a.tours} tours ·
+        ${a.piles} pile${a.piles>1?'s':''}</span>
+      <span class="detail">${jaugeHTML(a)}
+        <span class="conseil">${phraseBiais(a)} · régularité ±${fmt(Math.round(a.disp))}</span></span>`;
+    L.appendChild(d);
+  });
+  $('gl-note').textContent = tous.length + ' joueur' + (tous.length>1?'s':'')
+    + ' · classement par précision, 30 premiers'
+    + (glFiltre === 'config' ? ' · ' + libelleSig(sigCourante()) : ' · toutes configurations');
+}
+
+/* ════════ SCORES D'ENTRAÎNEMENT ════════ */
+let scFiltre = 'config';
+$('go-scores').onclick = () => { construireScores(); montrer('scores'); };
+$('sc-retour').onclick = () => { construirePantheon(); montrer('pantheon'); };
+segmente('seg-sc', v => { scFiltre = v; construireScores(); });
+
+function construireScores(){
+  const sig = sigCourante();
+  $('sc-config').textContent = libelleSig(sig);
+  const L = $('sc-liste'); L.innerHTML = '';
+  const tous = (MEM.scores || []).slice();
+  const liste = (scFiltre === 'config' ? tous.filter(e => signature(e) === sig) : tous)
+                .sort((a,b) => b.p - a.p);
+
+  if(!liste.length){
+    L.innerHTML = '<div class="vide">Aucun score enregistré'
+      + (scFiltre === 'config' ? ' pour ces réglages.' : '.') + '<br>'
+      + 'Jouez une partie en mode Entraînement solo.</div>';
+    $('sc-note').textContent = "Les scores ne se comparent qu'à réglages identiques : "
+      + "l'affichage et la difficulté changent complètement la donne.";
+    return;
+  }
+  liste.slice(0, 60).forEach((e,i) => {
+    const d = new Date(e.d);
+    const jour = d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'});
+    const el = document.createElement('div');
+    el.className = 'ligne';
+    el.innerHTML = `<span class="pos">${i+1}</span>
+      <span class="qui" style="color:${coulHash(e.n)}">${esc(e.n)}</span>
+      <span class="moy ${i===0?'t-laiton':''}">${e.p} pts</span>
+      <span class="bu">précision ±${fmt(e.prec)} · ${jour}</span>
+      ${scFiltre === 'tous' ? `<span class="sc-conf">${libelleSig(signature(e))}</span>` : ''}`;
+    L.appendChild(el);
+  });
+  $('sc-note').textContent = liste.length + ' score' + (liste.length>1?'s':'')
+    + (scFiltre === 'config' ? ' pour ces réglages. ' : ' au total. ')
+    + "Un score n'est comparable qu'à réglages identiques.";
+}
+
+/* ════════ ONGLET TEST ════════ */
+function apercuNoms(){
+  const a = $('apercu-noms'); a.innerHTML = '';
+  ['Léo','Sam','Ines'].forEach((n,i) => {
+    const s = document.createElement('span');
+    s.className = 'pilule';
+    s.style.fontSize = '21px';
+    s.textContent = n;
+    surligner(s, coul(i));
+    a.appendChild(s);
+  });
+}
+
+// les modes sont des réglages à part entière : on les choisit, on ne les lance pas
+function construireModes(){
+  const M = $('modes-menu'); M.innerHTML = '';
+  MODES.forEach(m => {
+    const d = document.createElement('div');
+    d.className = 'evt choisir' + (CFG.mode === m.id ? ' actif' : '');
+    d.dataset.mode = m.id;
+    d.innerHTML = `<span class="coche">choisi</span>
+      <div class="n">${m.n}</div><div class="d">${m.d}</div>`;
+    d.onclick = () => {
+      MEM.joueurs = lireListe();          // lu avec le mode encore en cours
+      CFG.mode = m.id;
+      if(m.id === 'solo' || m.id === 'compte') CFG.maxTours = 10;
+      MEM.cfg = {...CFG}; ecrireMem();
+      construireModes(); peupler(); appliquerCfg(); rafraichir();
+    };
+    M.appendChild(d);
+  });
+}
+
+function construireTest(){
+  construireModes(); apercuNoms();
+  const L = $('liste-evts'); L.innerHTML = '';
+  EVTS.forEach(e => {
+    const d = document.createElement('div');
+    d.className = 'evt';
+    d.innerHTML = `<div class="n"><span class="badge"><i>!</i></span>${e.n}</div>
+      <div class="d">${e.d}</div>
+      <div class="b"><button>Lancer</button>
+      ${e.fausse ? '<span class="tag">hors stats</span>' : ''}</div>`;
+    d.querySelector('button').onclick = () => {
+      if(!S.partie && !demarrerPartie()) return;
+      S.force = e.id; S.duel = null; S.prochain = null;
+      tirerEvenement();
+      afficherPret();
+    };
+    L.appendChild(d);
+  });
+}
+function majLatence(){
+  $('note-latence').textContent = S.latence === null
+    ? "Latence non mesurée pour l'instant. Jouez un tour et revenez."
+    : "Dernier appui : " + S.latence + " ms entre le doigt et le traitement JavaScript. "
+      + "Ce délai est déjà retranché du chrono grâce à l'horodatage matériel de l'événement.";
+}
+
+/* ════════ CONFORT MOBILE ════════ */
+function vibrer(m){ if(navigator.vibrate) try{ navigator.vibrate(m); }catch(e){} }
+async function garderEcranAllume(){
+  try{ if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); }catch(e){}
+}
+document.addEventListener('gesturestart', e => e.preventDefault());
+addEventListener('error', () => {
+  S.encours = false;
+  if(!document.querySelector('.ecran.actif'))
+    montrer(S.partie ? ecranJeu() : 'reglages');
+});
+// service worker : rend l'app utilisable hors ligne une fois installée
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+/* ════════ DÉMARRAGE ════════ */
+(async function init(){
+  const m = await lireMem();
+  if(m){
+    MEM = Object.assign(NEUF(), m);
+    if(m.cfg){ Object.assign(CFG, m.cfg); appliquerCfg(); }
+  }
+  memoriser([...(MEM.joueurs || []), ...Object.keys(MEM.profils || {})]);
+  majDatalist();
+  S.salon = MEM.salon || null;
+  peupler(); majMem(); construireTest(); rafraichir(); majEtatSalon();
+  viderFile();
+})();
+</script>
+</body>
+</html>
