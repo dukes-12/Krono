@@ -51,10 +51,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-size:14px;letter-spacing:.14em;padding:12px;border-radius:12px}
 .bouton.or{background:var(--laiton);color:var(--nuit)}
 
-.nav{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
-.nav button{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+.nav{display:flex;gap:5px;align-items:center;justify-content:flex-end;
+  flex-wrap:wrap;flex-shrink:0}
+.nav button{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--gris);border:1px solid var(--bordDoux);
-  border-radius:999px;padding:7px 12px}
+  border-radius:999px;padding:7px 10px;white-space:nowrap}
+@media (max-width:380px){
+  .nav button{font-size:9px;letter-spacing:.06em;padding:6px 8px}
+  .marque h1{font-size:30px}
+}
 .nav button:active{background:var(--ardoise)}
 
 .seg{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
@@ -64,12 +69,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--ivoire);color:var(--nuit);border-color:var(--ivoire)}
 
 .marque{flex:1;min-width:0}
+.marque h1{white-space:nowrap}
 .marque h1{font-size:36px;font-weight:700;letter-spacing:.14em;line-height:1}
 .marque span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
   color:var(--laiton);text-transform:uppercase;margin-top:5px;padding-left:2px}
 .entete{align-items:flex-start}
-.entete{display:flex;align-items:center;gap:12px}
-.logo{width:46px;height:46px;flex-shrink:0}
+.entete{display:flex;align-items:flex-start;gap:12px}
 .defile{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
 .bloc{margin-top:15px}
 .rang{display:flex;align-items:center;gap:10px;padding:8px 0;
@@ -255,12 +260,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .mb .b button{flex:1}
 
 /* ─── nom surligné à la couleur du joueur ─── */
-.pilule{display:inline-block;padding:7px 18px 8px;border-radius:999px;
+.pilule{display:inline-block;padding:7px 15px 8px;border-radius:12px;
   font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1;
   border:1px solid transparent}
-.pilule.st-souligne{background:none;border-color:transparent;border-radius:4px;
-  padding:4px 8px 11px}
-.pilule.st-cartouche{border-radius:12px;padding:7px 15px 8px}
 .apercu{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
 .centre-h{text-align:center}
 .bouclier{display:none;font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;
@@ -370,6 +372,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   text-transform:uppercase;color:var(--laiton);margin-top:5px}
 .depasse:empty{display:none}
 
+/* ─── latence ─── */
+.lat-bloc{border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface);
+  padding:16px 17px;margin-top:10px;text-align:center}
+.lat-val{font-family:var(--mono);font-size:44px;font-weight:500;letter-spacing:-.02em;
+  line-height:1;color:var(--laiton)}
+.lat-txt{font-family:var(--mono);font-size:11px;line-height:1.65;color:var(--gris);margin-top:9px}
+#test-mdp{text-transform:uppercase;letter-spacing:.2em}
+
 /* ─── trophées ─── */
 .tro{display:flex;gap:13px;align-items:flex-start;padding:13px 14px;margin-top:8px;
   border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface)}
@@ -442,10 +452,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ═══ RÉGLAGES ═══ -->
 <section class="ecran actif" id="reglages">
   <div class="entete">
-    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="43" fill="none" stroke="#C9A227" stroke-width="3"/><line x1="50.0" y1="7.0" x2="50.0" y2="16.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="63.3" y1="9.1" x2="61.9" y2="13.4" stroke="#7C8797" stroke-width="1.2"/><line x1="75.3" y1="15.2" x2="72.6" y2="18.9" stroke="#7C8797" stroke-width="1.2"/><line x1="84.8" y1="24.7" x2="81.1" y2="27.4" stroke="#7C8797" stroke-width="1.2"/><line x1="90.9" y1="36.7" x2="86.6" y2="38.1" stroke="#7C8797" stroke-width="1.2"/><line x1="93.0" y1="50.0" x2="84.0" y2="50.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="90.9" y1="63.3" x2="86.6" y2="61.9" stroke="#7C8797" stroke-width="1.2"/><line x1="84.8" y1="75.3" x2="81.1" y2="72.6" stroke="#7C8797" stroke-width="1.2"/><line x1="75.3" y1="84.8" x2="72.6" y2="81.1" stroke="#7C8797" stroke-width="1.2"/><line x1="63.3" y1="90.9" x2="61.9" y2="86.6" stroke="#7C8797" stroke-width="1.2"/><line x1="50.0" y1="93.0" x2="50.0" y2="84.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="36.7" y1="90.9" x2="38.1" y2="86.6" stroke="#7C8797" stroke-width="1.2"/><line x1="24.7" y1="84.8" x2="27.4" y2="81.1" stroke="#7C8797" stroke-width="1.2"/><line x1="15.2" y1="75.3" x2="18.9" y2="72.6" stroke="#7C8797" stroke-width="1.2"/><line x1="9.1" y1="63.3" x2="13.4" y2="61.9" stroke="#7C8797" stroke-width="1.2"/><line x1="7.0" y1="50.0" x2="16.0" y2="50.0" stroke="#EDE6D6" stroke-width="2.2"/><line x1="9.1" y1="36.7" x2="13.4" y2="38.1" stroke="#7C8797" stroke-width="1.2"/><line x1="15.2" y1="24.7" x2="18.9" y2="27.4" stroke="#7C8797" stroke-width="1.2"/><line x1="24.7" y1="15.2" x2="27.4" y2="18.9" stroke="#7C8797" stroke-width="1.2"/><line x1="36.7" y1="9.1" x2="38.1" y2="13.4" stroke="#7C8797" stroke-width="1.2"/><line x1="50" y1="2" x2="50" y2="15" stroke="#DC3B2A" stroke-width="4.2"/><line x1="49" y1="56" x2="58" y2="15" stroke="#EDE6D6" stroke-width="3.4" stroke-linecap="round"/><circle cx="50" cy="50" r="4.2" fill="#EDE6D6"/></svg>
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
     <div class="nav">
       <button id="go-panth">Panthéon</button>
+      <button id="go-trophees">Trophées</button>
       <button id="go-test">Test</button>
     </div>
   </div>
@@ -457,7 +467,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="note" id="note-joueurs"></div>
 
     <div class="bloc">
-      <div class="eyebrow">Mode de jeu</div>
+      <div class="eyebrow">Modes de jeu</div>
       <div id="modes-menu"></div>
     </div>
 
@@ -565,15 +575,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ═══ PANTHÉON ═══ -->
 <section class="ecran" id="pantheon">
   <div class="entete">
-    <div class="marque"><h1>PANTHÉON</h1></div>
+    <div class="marque"><h1>LOCAL</h1><span>ce téléphone</span></div>
     <div class="nav"><button id="panth-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
   <div class="records" id="records"></div>
   <div class="classement" id="palmares"></div>
   <div class="recap-b">
-    <button class="bouton fantome" id="go-trophees">Trophées</button>
-    <button class="bouton fantome" id="go-scores">Meilleurs scores</button>
+    <button class="bouton fantome" id="go-scores">Scores solo · ce téléphone</button>
   </div>
   <div class="recap-b" id="b-global" style="display:none">
     <button class="bouton fantome" id="go-global">Panthéon du salon</button>
@@ -585,23 +594,26 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ═══ PANTHÉON GLOBAL ═══ -->
 <section class="ecran" id="global">
   <div class="entete">
-    <div class="marque"><h1>SALON</h1><span id="gl-code">—</span></div>
-    <div class="nav"><button id="gl-retour">Panthéon</button></div>
+    <div class="marque"><h1>PANTHÉON</h1><span id="gl-code">—</span></div>
+    <div class="nav"><button id="gl-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
   <div class="seg" id="seg-gl">
-    <button data-v="collectif" aria-pressed="true">Précision</button>
-    <button data-v="solo" aria-pressed="false">Meilleurs scores solo</button>
+    <button data-v="solo" aria-pressed="true">Scores solo</button>
+    <button data-v="collectif" aria-pressed="false">Précision</button>
   </div>
   <div class="classement" id="gl-liste"></div>
   <div class="note" id="gl-note">—</div>
+  <div class="recap-b">
+    <button class="bouton fantome" id="gl-local">Panthéon local</button>
+  </div>
 </section>
 
 <!-- ═══ TROPHÉES ═══ -->
 <section class="ecran" id="trophees">
   <div class="entete">
     <div class="marque"><h1>TROPHÉES</h1><span id="tr-qui">—</span></div>
-    <div class="nav"><button id="tr-retour">Panthéon</button></div>
+    <div class="nav"><button id="tr-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
   <div class="seg" id="seg-tr"></div>
@@ -613,7 +625,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran" id="scores">
   <div class="entete">
     <div class="marque"><h1>SCORES</h1><span id="sc-config">—</span></div>
-    <div class="nav"><button id="sc-retour">Panthéon</button></div>
+    <div class="nav"><button id="sc-retour">Local</button></div>
   </div>
   <div class="hairline"></div>
   <div class="seg" id="seg-sc">
@@ -627,27 +639,42 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <!-- ═══ TEST ═══ -->
 <section class="ecran" id="test">
   <div class="entete">
-    <div class="marque"><h1>TEST</h1></div>
+    <div class="marque"><h1>TEST</h1><span id="test-lat">—</span></div>
     <div class="nav"><button id="test-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
-  <div class="defile">
-    <div class="titre-sec">Style des noms</div>
-    <div class="seg" id="seg-nom">
-      <button data-v="pilule" aria-pressed="true">Surligné</button>
-      <button data-v="souligne" aria-pressed="false">Souligné</button>
-      <button data-v="cartouche" aria-pressed="false">Cartouche</button>
-      <button data-v="plein" aria-pressed="false">Plein</button>
-    </div>
-    <div class="apercu" id="apercu-noms"></div>
 
-    <div class="titre-sec">Chronomètre</div>
+  <div id="test-verrou">
+    <div class="carte-verdict" style="margin-top:20px">
+      <div class="titre">Réservé au réglage</div>
+      <div class="sous">Cet onglet contient des options expérimentales.
+        Saisissez le mot de passe pour y accéder.</div>
+    </div>
+    <div class="mod-saisie" style="display:flex;margin-top:16px">
+      <input id="test-mdp" type="password" placeholder="Mot de passe"
+             autocomplete="off" autocapitalize="characters">
+      <button id="test-ok">Entrer</button>
+    </div>
+    <div class="note" id="test-err"></div>
+  </div>
+
+  <div class="defile" id="test-contenu" style="display:none">
+    <div class="titre-sec">Latence du chronomètre</div>
+    <div class="lat-bloc">
+      <div class="lat-val" id="lat-moy">—</div>
+      <div class="lat-txt" id="lat-txt">Aucune mesure pour l'instant.</div>
+    </div>
+
     <div class="seg" id="seg-horo">
       <button data-v="1" aria-pressed="true">Horodatage matériel</button>
       <button data-v="0" aria-pressed="false">Heure de traitement</button>
     </div>
     <div class="note" id="note-horo">—</div>
-    <div class="note" id="note-latence">Latence du dernier appui : pas encore mesurée.</div>
+
+    <div class="titre-sec">Modes solo</div>
+    <div class="note">Huit modes, chacun mesure une compétence différente.
+      « Lancer » démarre immédiatement une partie.</div>
+    <div id="liste-solos"></div>
 
     <div class="titre-sec">Événements</div>
     <div class="note">« Lancer » force l'événement sur le tour suivant. Si aucune partie
@@ -776,7 +803,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'classique',
               evts:'aucun', maxTours:20, horo:true,
-              mode:'classique', nom:'pilule' };
+              mode:'classique' };
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
 const RATE = { classique:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
@@ -790,17 +817,12 @@ const coul = i => COULEURS[((i % COULEURS.length) + COULEURS.length) % COULEURS.
 const hexA = (hex, a) => { const n = parseInt(hex.slice(1),16);
   return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
 // quatre habillages possibles, choisis dans l'onglet test
+// cartouche : contour à la couleur du joueur, fond très légèrement teinté
 function surligner(el, c){
-  const s = CFG.nom || 'pilule';
   el.classList.add('pilule');
-  el.classList.remove('st-pilule','st-souligne','st-cartouche','st-plein');
-  el.classList.add('st-' + s);
-  el.style.background = ''; el.style.borderColor = ''; el.style.boxShadow = '';
   el.style.color = c;
-  if(s === 'pilule')   el.style.background = hexA(c, .16);
-  if(s === 'souligne') el.style.boxShadow = 'inset 0 -7px 0 ' + hexA(c, .5);
-  if(s === 'cartouche'){ el.style.borderColor = c; el.style.background = hexA(c, .07); }
-  if(s === 'plein'){ el.style.background = c; el.style.color = '#0E1116'; }
+  el.style.borderColor = c;
+  el.style.background = hexA(c, .07);
 }
 // la couleur est attribuée une fois pour toutes : insérer un joueur en cours
 // de partie ne doit pas repeindre toute la table
@@ -813,8 +835,6 @@ function couleurLibre(){
 
 /* ════════ MODES DE JEU ════════ */
 const MODES = [
-  {id:'solo', n:'Mode Solo',
-   d:"Un seul joueur, dix cibles, aucune gorgée. Un score, une série de piles à enchaîner et un biais à corriger. Le mode pour progresser."},
   {id:'classique', n:'Classique',
    d:"Le barème habituel, chacun pour soi, fin au nombre de tours choisi."},
   {id:'enchere', n:"L'enchère",
@@ -834,6 +854,39 @@ const ENCHERES = [
   {seuil:10, n:3, label:'Normal · ± 0,10'},
   {seuil:5,  n:5, label:'Audacieux · ± 0,05'}
 ];
+
+/* ════════ MODES SOLO ════════ */
+// Chaque mode solo décrit sa cible, sa condition de fin et son barème.
+// « seul » les distingue des modes de soirée dans l'interface.
+const SOLOS = [
+  {id:'solo', n:'Solo classique', tours:10,
+   d:"Dix cibles, des points, un multiplicateur qui monte à chaque pile enchaîné."},
+  {id:'defi', n:'Défi du jour', tours:10,
+   d:"La même séquence de cibles pour tout le monde, générée à partir de la date. Une seule tentative par jour."},
+  {id:'survie', n:'Survie', tours:0,
+   d:"La zone sûre rétrécit d'un centième à chaque tour. Une sortie et la partie s'arrête."},
+  {id:'escalier', n:"L'escalier", tours:0,
+   d:"Une seconde, puis deux, puis trois. Rester dans la zone fait monter d'une marche, la rater fait redescendre."},
+  {id:'fantome', n:'Le fantôme', tours:10,
+   d:"Rejouer les cibles de sa meilleure partie, avec son propre score d'alors annoncé à chaque tour."},
+  {id:'sprint', n:'Contre-la-montre', tours:0,
+   d:"Soixante secondes de jeu, des cibles courtes qui s'enchaînent. Viser juste ou aller vite, il faut choisir."},
+  {id:'calibrage', n:'Calibrage', tours:15,
+   d:"Trois phases : on mesure le biais, on l'annonce, on essaie de le corriger. Aucun score, un progrès."},
+  {id:'nues', n:'Cibles nues', tours:10,
+   d:"Les cibles ne tombent plus sur des secondes rondes. Le comptage mental devient inutilisable. Points doublés."}
+];
+const estSolo = id => SOLOS.some(s => s.id === id);
+const SOLO = () => SOLOS.find(s => s.id === CFG.mode);
+
+// générateur déterministe : la même date produit partout la même séquence
+function graine(n){
+  let x = n >>> 0;
+  return () => { x ^= x << 13; x >>>= 0; x ^= x >> 17; x ^= x << 5; x >>>= 0;
+                 return x / 4294967296; };
+}
+const jourCourant = () => { const d = new Date();
+  return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); };
 
 /* ════════ ÉVÉNEMENTS ════════ */
 // « fausse » : le tour est exclu du profil, la mesure n'est pas comparable
@@ -1000,7 +1053,7 @@ function resultatsPartie(){
       salon: S.salon, pseudo: n, mode: CFG.mode,
       config: sigCourante(), tours: s.tours, somme: s.ecart, biais: s.biais,
       carres: s.carres, piles: s.piles, gorgees: s.gorgees, culs: s.culs,
-      points: CFG.mode === 'solo' && n === S.joueurs[0] ? S.points : 0
+      points: estSolo(CFG.mode) && n === S.joueurs[0] ? S.points : 0
     };
   });
 }
@@ -1080,7 +1133,9 @@ const S = { joueurs:[], idx:0, sens:1, total:0, cible:100, cibleBase:100, tour:1
             partie:false, enregistre:false, enAttente:100, minuteries:[], latence:null,
             fautes:{}, elimines:[], vies:3, points:0, chaine:0, meilleureChaine:0,
             zoneTour:0, enchere:null,
-            derniereBlague:null, tableauDepart:[], nbSous:0, couleurs:{}, salon:null };
+            derniereBlague:null, tableauDepart:[], nbSous:0, couleurs:{}, salon:null,
+            marche:1, zoneSolo:0, sequence:[], fantome:null, finSprint:0,
+            phase:1, biaisPhase:0, latences:[] };
 
 const $ = id => document.getElementById(id);
 const fmt = c => (c/100).toFixed(2).replace('.',',');
@@ -1102,7 +1157,10 @@ function tempsEvt(ev){
   const now = performance.now();
   const fiable = ev && typeof ev.timeStamp === 'number' && ev.timeStamp > 0
                  && Math.abs(ev.timeStamp - now) < 3000;
-  if(fiable) S.latence = Math.max(0, Math.round(now - ev.timeStamp));
+  if(fiable){
+    S.latence = Math.max(0, Math.round(now - ev.timeStamp));
+    noterLatence(S.latence);
+  }
   // CFG.horo à false : on mesure la latence mais on ne la retranche pas
   return (fiable && CFG.horo) ? ev.timeStamp : now;
 }
@@ -1175,7 +1233,16 @@ function idxSuivant(){
 
 // cible : trajectoire imposée en « compte est bon », seconde pleine sinon
 function cibleSuivante(total){
-  if(CFG.mode === 'compte'){
+  const m = CFG.mode;
+  // séquence figée : défi du jour, fantôme, cibles nues
+  if(S.sequence.length){
+    const d = S.sequence[Math.min(S.tour - 1, S.sequence.length - 1)];
+    return total + d;
+  }
+  if(m === 'escalier') return total + S.marche * 100;
+  if(m === 'sprint')   return total + 50;
+  if(m === 'survie' || m === 'calibrage') return prochaineCible(total);
+  if(m === 'compte'){
     const reste = Math.max(1, (CFG.maxTours || 10) - S.tour);
     const ecart = Math.max(20, Math.round((2000 - total) / reste));
     return total + ecart;
@@ -1185,6 +1252,8 @@ function cibleSuivante(total){
 
 // handicap : plus on est précis au panthéon, plus la zone se resserre
 function zoneDe(nom){
+  if(CFG.mode === 'survie') return Math.max(1, 40 - (S.tour - 1));
+  if(CFG.mode === 'nues')   return zoneBase();
   if(CFG.mode !== 'handicap') return zoneBase();
   const a = analyse(MEM.profils[nom]);
   if(!a || a.tours < 5) return zoneBase();
@@ -1194,6 +1263,10 @@ function zoneDe(nom){
 }
 
 function partieFinie(){
+  const m = CFG.mode;
+  if(m === 'survie')   return S.mort === true;
+  if(m === 'escalier') return S.mort === true;
+  if(m === 'sprint')   return S.finSprint > 0 && S.total >= S.finSprint;
   if(CFG.mode === 'elimination') return actifs().length <= 1;
   if(CFG.mode === 'coop')        return S.vies <= 0 || S.total >= 3000;
   return !!(CFG.maxTours && S.tour >= CFG.maxTours);
@@ -1201,7 +1274,7 @@ function partieFinie(){
 
 /* ════════ MÉMOIRE PERSISTANTE ════════ */
 const CLE = 'krono.v1';
-const NEUF = () => ({joueurs:['Léo','Sam','Ines'], cfg:null, profils:{}, scores:[], connus:[], salon:null});
+const NEUF = () => ({joueurs:['Alexandre','Charles','Jean','Hugo'], cfg:null, profils:{}, scores:[], connus:[], salon:null});
 let MEM = NEUF();
 
 async function lireMem(){
@@ -1210,10 +1283,17 @@ async function lireMem(){
   try{ const v = localStorage.getItem(CLE); if(v) return JSON.parse(v); }catch(e){}
   return null;
 }
+// Les écritures sont sérialisées : deux sauvegardes concurrentes pouvaient se
+// chevaucher et la plus lente écrasait la plus récente — le salon disparaissait.
+let ecritureEnCours = Promise.resolve();
 async function ecrireMem(){
-  const s = JSON.stringify(MEM);
-  try{ if(window.storage){ await window.storage.set(CLE, s, false); return; } }catch(e){}
-  try{ localStorage.setItem(CLE, s); }catch(e){}
+  ecritureEnCours = ecritureEnCours.then(async () => {
+    if(S.salon) MEM.salon = S.salon;        // le salon vivant fait toujours foi
+    const s = JSON.stringify(MEM);
+    try{ if(window.storage){ await window.storage.set(CLE, s, false); return; } }catch(e){}
+    try{ localStorage.setItem(CLE, s); }catch(e){}
+  }).catch(() => {});
+  return ecritureEnCours;
 }
 async function effacerMem(){
   try{ if(window.storage) await window.storage.delete(CLE, false); }catch(e){}
@@ -1222,12 +1302,16 @@ async function effacerMem(){
 }
 // un score d'entraînement n'est comparable qu'à réglages identiques
 const signature = e => e.aff + '·' + e.diff + '·' + e.tours + '·' + (e.bareme || 'v1');
-const sigCourante = () => CFG.aff + '·' + CFG.diff + '·' + (CFG.maxTours || 10) + '·v2';
+const sigCourante = () => CFG.aff + '·' + CFG.diff + '·' + (CFG.maxTours || 10)
+  + '·' + (estSolo(CFG.mode) ? CFG.mode : 'v2');
 const libelleSig = s => {
   if(!s) return 'réglages inconnus';
   const [a,d,t,b] = s.split('·');
-  return (a === 'aveugle' ? "À l'aveugle" : 'Visible') + ' · '
-       + (d === 'hard' ? 'Hard' : 'Simple') + ' · ' + t + ' tours'
+  const mode = (SOLOS.find(x => x.id === b) || {}).n;
+  return (mode ? mode + ' · ' : '')
+       + (a === 'aveugle' ? "À l'aveugle" : 'Visible') + ' · '
+       + (d === 'hard' ? 'Hard' : 'Simple')
+       + (mode ? '' : ' · ' + t + ' tours')
        + (b === 'v1' ? ' · ancien barème' : '');
 };
 const MAX_SCORES = 30;
@@ -1293,7 +1377,7 @@ function majDatalist(){
 }
 
 // sélecteur : on tape un prénom, ou on en reprend un déjà utilisé
-function demanderNom(titre, sous, exclure){
+function demanderNom(titre, sous, exclure, sansSuggestions){
   return new Promise(res => {
     const M = $('modale'), ouvertA = performance.now();
     $('mod-titre').textContent = titre;
@@ -1318,7 +1402,13 @@ function demanderNom(titre, sous, exclure){
     }
     const N = $('mod-noms'); N.innerHTML = '';
     const hors = (Array.isArray(exclure) ? exclure : [exclure]).filter(Boolean);
-    const liste = tousLesNoms().filter(n => !hors.includes(n)).slice(0, 12);
+    const liste = sansSuggestions ? []
+                : tousLesNoms().filter(n => !hors.includes(n)).slice(0, 12);
+    champ.removeAttribute('list');
+    if(!sansSuggestions) champ.setAttribute('list', 'prenoms');
+    champ.placeholder = sansSuggestions ? 'ABCDE' : 'Nouveau prénom';
+    champ.style.textTransform = sansSuggestions ? 'uppercase' : 'none';
+    champ.style.letterSpacing = sansSuggestions ? '.24em' : '.03em';
     liste.forEach(n => {
       const b = document.createElement('button');
       b.className = 'nom-pill';
@@ -1407,7 +1497,7 @@ function enregistrerListe(){
   ecrireMem();
 }
 function peupler(){
-  const solo = CFG.mode === 'solo';
+  const solo = estSolo(CFG.mode);
   const liste = solo ? MEM.joueurs.slice(0,1) : MEM.joueurs;
   $('liste').innerHTML = '';
   liste.forEach((n,i) => $('liste').appendChild(rang(n, i+1)));
@@ -1420,7 +1510,7 @@ function peupler(){
 function lireListe(){
   const vus = [...$('liste').querySelectorAll('input')]
     .map((i,k) => i.value.trim() || 'Joueur ' + (k+1));
-  if(CFG.mode !== 'solo') return vus;
+  if(!estSolo(CFG.mode)) return vus;
   const gardes = (MEM.joueurs || []).slice();
   if(!gardes.length) return vus;
   gardes[0] = vus[0] || gardes[0];
@@ -1441,7 +1531,6 @@ segmente('seg-aff',  v => CFG.aff = v);
 segmente('seg-diff', v => CFG.diff = v);
 segmente('seg-gor',  v => CFG.gor = v);
 segmente('seg-evt',  v => CFG.evts = v);
-segmente('seg-nom',  v => { CFG.nom = v; MEM.cfg = {...CFG}; ecrireMem(); apercuNoms(); });
 segmente('seg-horo', v => { CFG.horo = v === '1'; MEM.cfg = {...CFG}; ecrireMem(); });
 segmente('seg-fin',  v => CFG.maxTours = +v);
 
@@ -1488,7 +1577,7 @@ function majMem(){
 function appliquerCfg(){
   const m = {'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
              'seg-evt':CFG.evts, 'seg-fin':String(CFG.maxTours),
-             'seg-horo':CFG.horo ? '1' : '0', 'seg-nom':CFG.nom};
+             'seg-horo':CFG.horo ? '1' : '0'};
   for(const id in m) $(id).querySelectorAll('button')
     .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[id]));
 }
@@ -1540,7 +1629,8 @@ $('f-ajouter').onclick = ajouterJoueurEnCours;
 function contenuSauvegarde(){
   return JSON.stringify({
     app:'krono', version:1, date:new Date().toISOString(),
-    joueurs:MEM.joueurs, cfg:MEM.cfg, profils:MEM.profils, scores:MEM.scores || []
+    joueurs:MEM.joueurs, cfg:MEM.cfg, profils:MEM.profils, scores:MEM.scores || [],
+    salon:MEM.salon || null
   }, null, 1);
 }
 function resumeSauvegarde(d){
@@ -1595,7 +1685,8 @@ $('fichier').onchange = ev => {
     if(quoi === 'non' || quoi === null) return;
     if(quoi === 'remplace'){
       MEM = Object.assign(NEUF(), {joueurs:d.joueurs || NEUF().joueurs,
-        cfg:d.cfg || null, profils:d.profils || {}, scores:d.scores || []});
+        cfg:d.cfg || null, profils:d.profils || {}, scores:d.scores || [],
+        salon:S.salon || null});   // le salon rejoint survit à un import
       if(MEM.cfg){ Object.assign(CFG, MEM.cfg); appliquerCfg(); }
     } else {
       MEM.scores = MEM.scores || [];
@@ -1620,17 +1711,27 @@ $('fichier').onchange = ev => {
 
 /* ════════ NAVIGATION ════════ */
 // les réglages sont fermés pendant une partie : on en sort par « Quitter »
-$('go-panth').onclick     = () => { construirePantheon(); montrer('pantheon'); };
-$('go-test').onclick      = () => { majLatence(); montrer('test'); };
+// « Panthéon » ouvre le salon s'il y en a un, le local sinon
+$('go-panth').onclick = () => {
+  if(S.salon && EN_LIGNE()){ construireGlobal(); montrer('global'); }
+  else { construirePantheon(); montrer('pantheon'); }
+};
+$('go-test').onclick      = () => { verrouTest(); majLatence(); montrer('test'); };
 $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
-$('recap-panth').onclick  = () => { construirePantheon(); montrer('pantheon'); };
+$('recap-panth').onclick  = () => $('go-panth').onclick();
 $('recap-fermer').onclick = () => montrer('reglages');
 $('fin-menu').onclick     = () => montrer('reglages');
 async function quitterPartie(){
-  if(await demander('Quitter la partie ?',
-      'Le classement et les profils seront enregistrés avant de sortir.', 'Quitter'))
-    afficherFin();
+  const solo = estSolo(CFG.mode);
+  const ok = await demander('Quitter la partie ?',
+    solo ? 'Une partie solo abandonnée ne compte pas : ni score, ni précision, '
+           + 'ni trophée ne seront enregistrés.'
+         : 'Le classement et les profils seront enregistrés avant de sortir.',
+    'Quitter');
+  if(!ok) return;
+  if(solo){ S.abandon = true; }
+  afficherFin();
 }
 $('f-quitter').onclick = quitterPartie;
 
@@ -1638,7 +1739,7 @@ $('f-quitter').onclick = quitterPartie;
 $('commencer').onclick = () => demarrerPartie();
 function demarrerPartie(){
   const j = lireListe();
-  if(CFG.mode !== 'solo' && j.length < 2){
+  if(!estSolo(CFG.mode) && j.length < 2){
     demander('Il faut au moins deux joueurs',
       'Ajoutez quelqu\'un, ou passez en Mode Solo.', 'Compris');
     return false;
@@ -1653,22 +1754,52 @@ function demarrerPartie(){
   S.fautes = {}; S.elimines = []; S.vies = 3;
   S.points = 0; S.chaine = 0; S.meilleureChaine = 0;
   S.dernier = null; S.finDeTour = null;   // sinon l'écran garde le tour d'avant
-  S.tropheesAvant = {}; S.gagnes = [];
+  S.tropheesAvant = {}; S.gagnes = []; S.abandon = false; S.ecarts = [];
   j.forEach(n => S.tropheesAvant[n] = trophees(n).map(x => x.tr.id + ':' + x.e.rang));
   S.zoneTour = 0; S.enchere = null;
-  if(CFG.mode === 'solo'){
+  if(estSolo(CFG.mode)){
     S.joueurs = [j[0]];
     S.tableauDepart = scoresDe(sigCourante()).map(e => ({n:e.n, p:e.p}));
     S.nbSous = 0;
+    preparerSolo();
   }
   S.derniereBlague = null;
-  if(CFG.mode === 'solo' || CFG.mode === 'compte') CFG.maxTours = 10;
+  if(CFG.mode === 'compte') CFG.maxTours = 10;
   S.cible = S.cibleBase = cibleSuivante(0);
   MEM.joueurs = j; MEM.cfg = {...CFG};
   memoriser(j); majDatalist(); ecrireMem();
   garderEcranAllume();
   afficherPret();
   return true;
+}
+
+// construit la séquence de cibles et l'état propre au mode solo choisi
+function preparerSolo(){
+  const m = CFG.mode;
+  S.sequence = []; S.marche = 1; S.mort = false; S.finSprint = 0;
+  S.phase = 1; S.biaisPhase = 0; S.fantome = null;
+  const s = SOLO();
+  if(s && s.tours) CFG.maxTours = s.tours;
+
+  if(m === 'defi'){
+    const r = graine(jourCourant());
+    for(let i = 0; i < 10; i++) S.sequence.push(100 + Math.floor(r() * 4) * 100);
+  }
+  if(m === 'nues'){
+    const r = graine(Date.now() & 0xffffff);
+    for(let i = 0; i < 10; i++) S.sequence.push(80 + Math.floor(r() * 320));
+  }
+  if(m === 'fantome'){
+    const ref = (MEM.fantomes || {})[S.joueurs[0]];
+    if(ref && ref.sequence && ref.sequence.length){
+      S.sequence = ref.sequence.slice();
+      S.fantome = ref;
+    } else {
+      const r = graine(Date.now() & 0xffffff);
+      for(let i = 0; i < 10; i++) S.sequence.push(100 + Math.floor(r() * 3) * 100);
+    }
+  }
+  if(m === 'sprint') S.finSprint = 6000;   // 60 s de chrono cumulé
 }
 
 function tirerEvenement(){
@@ -1713,12 +1844,12 @@ function compteursMode(p){
   if(CFG.mode === 'coop')        t = S.vies + ' vie' + (S.vies>1?'s':'');
   if(CFG.mode === 'elimination') t = (3 - (S.fautes[nom]||0)) + ' faute'
     + (3-(S.fautes[nom]||0)>1?'s':'') + ' restante' + (3-(S.fautes[nom]||0)>1?'s':'');
-  if(CFG.mode === 'solo') t = S.points + ' pts'
+  if(estSolo(CFG.mode)) t = S.points + ' pts'
     + (S.chaine > 1 ? ' · série ×' + Math.min(MULT_MAX, S.chaine) : '');
-  v.className = 'bouclier ' + (CFG.mode === 'solo'
+  v.className = 'bouclier ' + (estSolo(CFG.mode)
     ? (S.chaine > 1 ? 'serie' : 'or') : 'vies') + (t ? ' on' : '');
   v.textContent = t;
-  const solo = CFG.mode === 'solo';
+  const solo = estSolo(CFG.mode);
   $('f-solo-actions').classList.add('on');
   $('f-sol-recommencer').style.display = solo ? 'block' : 'none';
   $('f-sol-changer').style.display = solo ? 'block' : 'none';
@@ -1801,6 +1932,7 @@ function afficherResultat(valeur){
     st.ecart += ecart; st.tours++; st.biais += delta; st.carres += delta*delta;
   }
   if(ecart === 0) st.piles++;
+  (S.ecarts = S.ecarts || []).push(ecart);
 
   $('res-nom').textContent = joueur + (S.contre > 0 ? ' · riposte'
     : S.evt ? ' · ' + EVT(S.evt).n.toLowerCase() : '');
@@ -1889,29 +2021,100 @@ function resoudre(valeur, delta, ecart){
     }
   }
   /* ─── entraînement solo : aucune gorgée, un score ─── */
-  else if(CFG.mode === 'solo'){
+  else if(CFG.mode === 'survie'){
+    const v = evaluer(ecart);
+    if(v.code === 'rate'){
+      S.mort = true; couleur = 't-s0';
+      T.textContent = 'Éliminé au tour ' + S.tour;
+      U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
+    } else {
+      S.points = S.tour; couleur = ecart === 0 ? 't-s100' : 't-s50';
+      T.textContent = 'Survécu · tour ' + S.tour;
+      U.textContent = 'la zone passe à ± ' + fmt(Math.max(1, zone() - 1));
+    }
+  }
+  else if(CFG.mode === 'escalier'){
+    const v = evaluer(ecart);
+    if(v.code === 'rate'){
+      if(S.marche <= 1){
+        S.mort = true; couleur = 't-s0';
+        T.textContent = 'Chute';
+        U.textContent = 'meilleure marche atteinte : ' + S.points + ' s';
+      } else {
+        S.marche--; couleur = 't-s20';
+        T.textContent = 'Redescendu';
+        U.textContent = 'retour à la marche ' + S.marche + ' s';
+      }
+    } else {
+      S.points = Math.max(S.points, S.marche);
+      S.marche++; couleur = ecart === 0 ? 't-s100' : 't-s50';
+      T.textContent = 'Marche ' + (S.marche - 1) + ' franchie';
+      U.textContent = 'prochaine marche : ' + S.marche + ',00 s';
+    }
+  }
+  else if(CFG.mode === 'sprint'){
+    const v = evaluer(ecart);
+    const pts = ecart === 0 ? 100 : ecart <= PRES ? 50 : ecart <= zone() ? 20 : 0;
+    S.points += pts; couleur = pts === 100 ? 't-s100' : pts === 50 ? 't-s50'
+      : pts === 20 ? 't-s20' : 't-s0';
+    T.textContent = pts ? '+' + pts + ' points' : 'Aucun point';
+    U.textContent = fmt(Math.max(0, S.finSprint - valeur)) + ' s restantes · total ' + S.points;
+  }
+  else if(CFG.mode === 'calibrage'){
+    const parPhase = 5;
+    S.biaisPhase += delta;
+    const finPhase = S.tour % parPhase === 0;
+    const moy = Math.round(S.biaisPhase / parPhase);
+    couleur = Math.abs(delta) <= zone() ? 't-s50' : 't-s20';
+    if(finPhase){
+      S.phase = Math.min(3, S.phase + 1);
+      couleur = 't-laiton';
+      T.textContent = Math.abs(moy) < 2 ? 'Bien centré'
+        : 'Tu pars ' + fmt(Math.abs(moy)) + ' s trop ' + (moy < 0 ? 'tôt' : 'tard');
+      U.textContent = Math.abs(moy) < 2
+        ? 'phase ' + S.phase + ' · continue comme ça'
+        : 'phase ' + S.phase + ' · ' + (moy < 0 ? 'attends un souffle de plus'
+                                                : 'relâche un peu plus tôt');
+      S.points = Math.max(0, 100 - Math.abs(moy) * 4);
+      S.biaisPhase = 0;
+    } else {
+      T.textContent = delta === 0 ? 'Pile'
+        : fmt(Math.abs(delta)) + ' s trop ' + (delta < 0 ? 'tôt' : 'tard');
+      U.textContent = 'phase ' + S.phase + ' · tour ' + (S.tour % parPhase) + ' sur ' + parPhase;
+    }
+  }
+  else if(estSolo(CFG.mode)){
+    const doubles = CFG.mode === 'nues' ? 2 : 1;
     let pts;
     if(ecart === 0){
       S.chaine++;
       S.meilleureChaine = Math.max(S.meilleureChaine, S.chaine);
       const m = Math.min(MULT_MAX, S.chaine);
-      pts = PTS.pile * m; couleur = 't-s100';
+      pts = PTS.pile * m * doubles; couleur = 't-s100';
       T.textContent = '+' + pts + ' points' + (m > 1 ? '  ×' + m : '');
       U.textContent = 'pile · série de ' + S.chaine
         + (S.chaine >= MULT_MAX ? ' · multiplicateur au plafond' : '');
     } else {
       if(S.chaine > 1) vibrer(30);
       S.chaine = 0;
-      if(ecart <= PRES){      pts = PTS.frole; couleur = 't-s50';  }
-      else if(ecart <= zone()){ pts = PTS.zone;  couleur = 't-s20'; }
-      else {                    pts = PTS.rate;  couleur = 't-s0';  }
+      if(ecart <= PRES){      pts = PTS.frole * doubles; couleur = 't-s50';  }
+      else if(ecart <= zone()){ pts = PTS.zone * doubles;  couleur = 't-s20'; }
+      else {                    pts = PTS.rate;            couleur = 't-s0';  }
       T.textContent = pts ? '+' + pts + ' points' : 'Aucun point';
       U.textContent = 'écart ±' + fmt(ecart) + ' · zone ± ' + fmt(zone());
     }
     S.points += pts;
     U.textContent += ' · total ' + S.points;
-    const dep = depassements();
-    if(dep) U.textContent += ' — ' + dep;
+    if(CFG.mode === 'fantome' && S.fantome && S.fantome.ecarts){
+      const e = S.fantome.ecarts[S.tour - 1];
+      if(e !== undefined) U.textContent += ' · le fantôme avait fait ±' + fmt(e);
+    }
+    // on ne révèle qui l'on dépasse qu'au tout dernier tour : l'annoncer avant
+    // gâche le suspense et parasite la lecture du score
+    if(S.tour >= (CFG.maxTours || 10)){
+      const dep = depassements();
+      if(dep) U.textContent += ' — ' + dep;
+    }
   }
   /* ─── coopératif : trois vies partagées, cap sur 30,00 s ─── */
   else if(CFG.mode === 'coop'){
@@ -2011,9 +2214,9 @@ function resoudre(valeur, delta, ecart){
   const pioche = L => L[Math.floor(Math.random() * L.length)];
   let mot;
   if(minutePile)                                    mot = pioche(MOTS_MINUTE);
-  else if(CFG.mode === 'solo' && S.chaine >= 2)     mot = MOTS_SERIE[Math.min(S.chaine, 6) - 2];
+  else if(estSolo(CFG.mode) && S.chaine >= 2)     mot = MOTS_SERIE[Math.min(S.chaine, 6) - 2];
   else                                              mot = blague(ecart);
-  if(CFG.mode === 'solo' && S.chaine >= 2) S.derniereBlague = 'serie';
+  if(estSolo(CFG.mode) && S.chaine >= 2) S.derniereBlague = 'serie';
   $('ver-blague').textContent = mot;
   S.dernier = {titre:T.textContent, sous:U.textContent, couleur, valeur, delta, ecart,
                dureeVoulue, dureeTenue, blague:mot};
@@ -2044,6 +2247,7 @@ function bandeaux(pfx){
 
 function fluidePret(){
   const nom = S.joueurs[S.idx];
+  S.zoneTour = zoneDe(nom);   // recalculée à chaque tour : survie et handicap en dépendent
   $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}` : 'Tour ' + S.tour;
   $('f-nom').textContent = nom;
   surligner($('f-nom'), coulNom(nom));
@@ -2175,13 +2379,17 @@ function dessinerFilm(){
   });
 }
 
-$('stop').onclick = afficherFin;
+$('stop').onclick = async () => {
+  if(estSolo(CFG.mode)){ await quitterPartie(); return; }
+  afficherFin();
+};
 
 /* ════════ FIN ════════ */
 function afficherFin(){
   purgerMinuteries();
   S.partie = false; S.encours = false;
-  if(!S.enregistre){
+  const abandonSolo = estSolo(CFG.mode) && S.abandon;
+  if(!S.enregistre && !abandonSolo){
     S.enregistre = true;
     S.joueurs.forEach(n => {
       const s = S.stats[n];
@@ -2191,7 +2399,7 @@ function afficherFin(){
       p.carres += s.carres; p.piles  += s.piles;  p.gorgees += s.gorgees;
       p.culs += s.culs;     p.parties++;
       p.minutes = (p.minutes || 0) + (s.minutes || 0);
-      if(CFG.mode === 'solo' && n === S.joueurs[0]){
+      if(estSolo(CFG.mode) && n === S.joueurs[0]){
         p.serie = Math.max(p.serie || 0, S.meilleureChaine);
         p.meilleurScore = Math.max(p.meilleurScore || 0, S.points);
       }
@@ -2262,7 +2470,17 @@ function afficherFin(){
                  && x.a.disp < x.a.precision - 1)
     .sort((a,b) => Math.abs(b.a.moy) - Math.abs(a.a.moy))[0];
   const rev = $('revelation');
-  if(CFG.mode === 'solo'){
+  if(abandonSolo){
+    TI.textContent = 'Partie abandonnée';
+    R.textContent = (SOLO() || {n:'Solo'}).n + ' · rien n\'a été enregistré. '
+      + 'Une partie solo ne compte que si elle va jusqu\'au bout.';
+    rev.style.display = 'none';
+    $('classement').innerHTML = '<div class="vide">Aucun score retenu.<br>'
+      + 'Relancez une partie et terminez les ' + (CFG.maxTours || 10) + ' cibles.</div>';
+    montrer('fin');
+    return;
+  }
+  if(estSolo(CFG.mode)){
     // score enregistré, place au classement, et le mot de la fin
     const nom = S.joueurs[0], sig = sigCourante();
     const avant = scoresDe(sig);
@@ -2270,7 +2488,8 @@ function afficherFin(){
     const doubles = avant.filter(e => e.p < S.points);
     MEM.scores = MEM.scores || [];
     MEM.scores.push({n:nom, p:S.points, aff:CFG.aff, diff:CFG.diff,
-                     tours:CFG.maxTours || 10, bareme:'v2', serie:S.meilleureChaine,
+                     tours:CFG.maxTours || 10, bareme:CFG.mode,
+                     serie:S.meilleureChaine,
                      prec:Math.round((S.stats[nom] ? S.stats[nom].ecart : 0) /
                           Math.max(1, S.stats[nom] ? S.stats[nom].tours : 1)),
                      d:Date.now()});
@@ -2279,13 +2498,21 @@ function afficherFin(){
     const apres = scoresDe(sig);
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
     TI.textContent = S.points + ' points';
-    let l = 'Mode Solo · ' + libelleSig(sig) + ' · '
+    let l = libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
     else if(doubles.length) l += ' — devant ' + doubles.slice(0,2).map(e => e.n).join(', ')
       + (doubles.length > 2 ? ' et ' + (doubles.length-2) + ' autre'
          + (doubles.length > 3 ? 's' : '') : '');
     if(S.meilleureChaine > 1) l += ' · meilleure série ' + S.meilleureChaine + ' piles';
+    // on garde la meilleure partie comme fantôme rejouable
+    if(S.sequence.length && CFG.mode !== 'fantome'){
+      MEM.fantomes = MEM.fantomes || {};
+      const anc = MEM.fantomes[nom];
+      if(!anc || S.points > anc.points)
+        MEM.fantomes[nom] = {points:S.points, mode:CFG.mode, d:Date.now(),
+                             sequence:S.sequence.slice(), ecarts:S.ecarts || []};
+    }
     R.textContent = l;
     rev.style.display = 'block';
     rev.querySelector('.t').textContent = 'Le mot de la fin';
@@ -2352,14 +2579,15 @@ function construirePantheon(){
         <span class="conseil">${phraseBiais(a)} · régularité ±${fmt(Math.round(a.disp))}</span></span>`;
     P.appendChild(d);
   });
-  $('panth-note').textContent = "Classement par précision. Les tours à événement qui "
-    + "faussent la mesure (cible déplacée, écran masqué, duel) sont exclus du calcul.";
+  $('panth-note').textContent = "Profils enregistrés sur ce téléphone uniquement. "
+    + "Les tours à événement qui faussent la mesure (cible déplacée, écran masqué, "
+    + "duel) sont exclus du calcul.";
 }
 
 /* ════════ TROPHÉES ════════ */
 let trQui = null;
 $('go-trophees').onclick = () => { construireTrophees(); montrer('trophees'); };
-$('tr-retour').onclick   = () => { construirePantheon(); montrer('pantheon'); };
+$('tr-retour').onclick   = () => montrer('reglages');
 
 function construireTrophees(){
   const noms = Object.keys(MEM.profils).filter(n => MEM.profils[n].tours > 0);
@@ -2421,6 +2649,7 @@ function construireTrophees(){
 
 /* ════════ SALON ════════ */
 function majEtatSalon(){
+  if(!S.salon && MEM.salon) S.salon = MEM.salon;   // filet de rattrapage
   const dispo = EN_LIGNE();
   $('bloc-salon').style.display = dispo ? 'block' : 'none';
   $('b-global').style.display = dispo && S.salon ? 'flex' : 'none';
@@ -2463,7 +2692,7 @@ $('salon-creer').onclick = async () => {
 $('salon-rejoindre').onclick = async () => {
   const code = (await demanderNom('Rejoindre un salon',
     'Saisissez le code à cinq lettres affiché sur le téléphone qui a créé le salon.',
-    []) || '').toUpperCase().trim();
+    [], true) || '').toUpperCase().trim();
   if(!code) return;
   if(!/^[A-Z]{5}$/.test(code))
     return choisir('Code invalide', 'Un code de salon fait cinq lettres.',
@@ -2484,9 +2713,9 @@ $('salon-rejoindre').onclick = async () => {
 };
 
 /* ════════ PANTHÉON GLOBAL ════════ */
-let glFiltre = 'collectif';
+let glFiltre = 'solo';
 $('go-global').onclick = () => { construireGlobal(); montrer('global'); };
-$('gl-retour').onclick = () => { construirePantheon(); montrer('pantheon'); };
+$('gl-retour').onclick = () => montrer('reglages');
 segmente('seg-gl', v => { glFiltre = v; construireGlobal(); });
 
 async function construireGlobal(){
@@ -2548,7 +2777,7 @@ function classementCollectif(L, lignes){
 
 // Scores solo : une ligne par performance, pas une moyenne. Dix meilleures.
 function classementSolo(L, lignes){
-  const perfs = (lignes || []).filter(r => r.mode === 'solo' && r.points > 0)
+  const perfs = (lignes || []).filter(r => r.points > 0)
     .sort((a,b) => b.points - a.points).slice(0, 10);
   if(!perfs.length){
     L.innerHTML = '<div class="vide">Aucun score solo publié dans ce salon.</div>';
@@ -2573,6 +2802,7 @@ function classementSolo(L, lignes){
 let scFiltre = 'config';
 $('go-scores').onclick = () => { construireScores(); montrer('scores'); };
 $('sc-retour').onclick = () => { construirePantheon(); montrer('pantheon'); };
+$('gl-local').onclick  = () => { construirePantheon(); montrer('pantheon'); };
 segmente('seg-sc', v => { scFiltre = v; construireScores(); });
 
 function construireScores(){
@@ -2609,18 +2839,6 @@ function construireScores(){
 }
 
 /* ════════ ONGLET TEST ════════ */
-function apercuNoms(){
-  const a = $('apercu-noms'); a.innerHTML = '';
-  ['Léo','Sam','Ines'].forEach((n,i) => {
-    const s = document.createElement('span');
-    s.className = 'pilule';
-    s.style.fontSize = '21px';
-    s.textContent = n;
-    surligner(s, coul(i));
-    a.appendChild(s);
-  });
-}
-
 // les modes sont des réglages à part entière : on les choisit, on ne les lance pas
 function construireModes(){
   const M = $('modes-menu'); M.innerHTML = '';
@@ -2642,7 +2860,26 @@ function construireModes(){
 }
 
 function construireTest(){
-  construireModes(); apercuNoms();
+  construireModes();
+  const M = $('liste-solos');
+  if(M){
+    M.innerHTML = '';
+    SOLOS.forEach(s => {
+      const d = document.createElement('div');
+      d.className = 'evt choisir' + (CFG.mode === s.id ? ' actif' : '');
+      d.innerHTML = `<span class="coche">choisi</span>
+        <div class="n">${s.n}</div><div class="d">${s.d}</div>
+        <div class="b"><button>Lancer</button></div>`;
+      d.querySelector('button').onclick = () => {
+        CFG.mode = s.id;
+        MEM.cfg = {...CFG}; ecrireMem();
+        construireModes(); construireTest(); appliquerCfg(); rafraichir();
+        peupler();
+        demarrerPartie();
+      };
+      M.appendChild(d);
+    });
+  }
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
     const d = document.createElement('div');
@@ -2660,11 +2897,46 @@ function construireTest(){
     L.appendChild(d);
   });
 }
+const MDP_TEST = 'TEST12';
+let testOuvert = false;
+
+function verrouTest(){
+  $('test-verrou').style.display = testOuvert ? 'none' : 'block';
+  $('test-contenu').style.display = testOuvert ? 'block' : 'none';
+  if(!testOuvert){ $('test-mdp').value = ''; $('test-err').textContent = ''; }
+}
+function tenterMdp(){
+  if($('test-mdp').value.trim().toUpperCase() === MDP_TEST){
+    testOuvert = true; verrouTest(); majLatence(); construireTest();
+  } else {
+    $('test-err').textContent = 'Mot de passe incorrect.';
+    $('test-mdp').value = '';
+  }
+}
+$('test-ok').onclick = tenterMdp;
+$('test-mdp').addEventListener('keydown', e => { if(e.key === 'Enter') tenterMdp(); });
+
+// moyenne sur les dix derniers appuis : une mesure isolée ne dit rien
+function noterLatence(ms){
+  S.latences.push(ms);
+  if(S.latences.length > 10) S.latences.shift();
+}
 function majLatence(){
-  $('note-latence').textContent = S.latence === null
-    ? "Latence non mesurée pour l'instant. Jouez un tour et revenez."
-    : "Dernier appui : " + S.latence + " ms entre le doigt et le traitement JavaScript. "
-      + "Ce délai est déjà retranché du chrono grâce à l'horodatage matériel de l'événement.";
+  const L = S.latences;
+  if(!L.length){
+    $('lat-moy').textContent = '—';
+    $('test-lat').textContent = '';
+    $('lat-txt').textContent = "Aucune mesure pour l'instant. Jouez quelques tours et revenez.";
+    return;
+  }
+  const moy = Math.round(L.reduce((a,b) => a+b, 0) / L.length);
+  const mini = Math.min(...L), maxi = Math.max(...L);
+  $('lat-moy').textContent = moy + ' ms';
+  $('test-lat').textContent = moy + ' ms retranchés';
+  $('lat-txt').textContent = 'Moyenne retranchée sur les ' + L.length + ' derniers lancers'
+    + ' · de ' + mini + ' à ' + maxi + ' ms.'
+    + (CFG.horo ? ' Ce délai est retranché du chrono.'
+                : ' Ce délai n\'est PAS retranché : mode heure de traitement.');
 }
 
 /* ════════ CONFORT MOBILE ════════ */
