@@ -35,6 +35,13 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 
 .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;
   letter-spacing:.22em;text-transform:uppercase;color:var(--gris)}
+/* intitulés de réglage : ils structuraient mal le menu en gris fin */
+.bloc > .eyebrow,#reglages .defile > .eyebrow{font-family:var(--cond);font-size:20px;
+  font-weight:700;letter-spacing:.09em;color:var(--ivoire);
+  display:flex;align-items:center;gap:10px}
+.bloc > .eyebrow::after,#reglages .defile > .eyebrow::after{content:"";flex:1;height:1px;
+  background:var(--bordDoux)}
+.bloc{margin-top:26px}
 .hairline{height:1px;background:var(--laiton);opacity:.5;margin:11px 0}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .bouton{display:block;width:100%;padding:16px;background:var(--ivoire);color:var(--nuit);
@@ -583,8 +590,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="hairline"></div>
   <div class="seg" id="seg-gl">
-    <button data-v="config" aria-pressed="true">Ces réglages</button>
-    <button data-v="tous" aria-pressed="false">Tout le salon</button>
+    <button data-v="collectif" aria-pressed="true">Précision</button>
+    <button data-v="solo" aria-pressed="false">Meilleurs scores solo</button>
   </div>
   <div class="classement" id="gl-liste"></div>
   <div class="note" id="gl-note">—</div>
@@ -757,13 +764,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════════
-   MODE EN LIGNE — à remplir pour activer le salon et le panthéon
-   global. Tant que ces deux valeurs restent vides, l'application
-   fonctionne exactement comme avant, entièrement hors ligne.
-   Voir LISEZMOI-EN-LIGNE.md pour la marche à suivre.
+   MODE EN LIGNE — clés du projet Supabase.
+   La clé ci-dessous est la clé « anon public » : elle est destinée à
+   figurer dans le code visible, ce sont les règles RLS de la base qui
+   protègent les données. Ne jamais y mettre la clé « service_role ».
+   Vider ces deux valeurs désactive entièrement le mode en ligne.
    ═══════════════════════════════════════════════════════════════ */
-const SUPABASE_URL = 'https://qnjcufneugvggrtcgmzw.supabase.co';   // ex. https://abcdefgh.supabase.co
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuamN1Zm5ldWd2Z2dydGNnbXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE1MTcsImV4cCI6MjEwMTI1NzUxN30.Tjj_l-JJJ__VoLM-kVn6Z21RmdMCw9wbmi4fON5qS7g';   // la clé « anon public », pas la clé service
+const SUPABASE_URL = 'https://qnjcufneugvggrtcgmzw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuamN1Zm5ldWd2Z2dydGNnbXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE1MTcsImV4cCI6MjEwMTI1NzUxN30.Tjj_l-JJJ__VoLM-kVn6Z21RmdMCw9wbmi4fON5qS7g';
 
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'classique',
@@ -805,6 +813,8 @@ function couleurLibre(){
 
 /* ════════ MODES DE JEU ════════ */
 const MODES = [
+  {id:'solo', n:'Mode Solo',
+   d:"Un seul joueur, dix cibles, aucune gorgée. Un score, une série de piles à enchaîner et un biais à corriger. Le mode pour progresser."},
   {id:'classique', n:'Classique',
    d:"Le barème habituel, chacun pour soi, fin au nombre de tours choisi."},
   {id:'enchere', n:"L'enchère",
@@ -813,8 +823,6 @@ const MODES = [
    d:"Trois sorties de zone et le joueur quitte la table. La partie se termine sur un dernier survivant, pas sur un compteur de tours."},
   {id:'handicap', n:'Handicap',
    d:"La zone sûre se resserre pour les joueurs les plus précis du panthéon, et s'élargit pour les autres. Rééquilibre les tables inégales."},
-  {id:'solo', n:'Entraînement solo',
-   d:"Un seul joueur, dix cibles, aucune gorgée. Un score de précision et un biais à corriger. Le mode pour progresser."},
   {id:'coop', n:'Coopératif',
    d:"La table partage trois vies et doit amener le chrono à 30,00 s. Chaque sortie de zone coûte une vie, et tout le monde boit une gorgée."},
   {id:'compte', n:'Le compte est bon',
@@ -1034,10 +1042,10 @@ const TROPHEES = [
   {id:'marathon', n:'Marathonien', d:"Accumuler les tours joués.", seuils:[100, 500, 1500],
    m:"Le chrono a tourné longtemps entre tes mains.",
    valeur:p => p.tours},
-  {id:'serie', n:'En série', d:"Enchaîner des piles en entraînement.", seuils:[2, 3, 5],
+  {id:'serie', n:'En série', d:"Enchaîner des piles en solo.", seuils:[2, 3, 5],
    m:"Deux fois de suite, ça commence à faire beaucoup.",
    valeur:p => p.serie || 0},
-  {id:'score', n:'Grand score', d:"Marquer en entraînement.", seuils:[500, 1500, 3000],
+  {id:'score', n:'Grand score', d:"Marquer en solo.", seuils:[500, 1500, 3000],
    m:"Seul face au chrono, sans personne pour trinquer.",
    valeur:p => p.meilleurScore || 0},
   {id:'minute', n:'La minute', d:"Tomber pile sur une minute ronde.",
@@ -1216,6 +1224,7 @@ async function effacerMem(){
 const signature = e => e.aff + '·' + e.diff + '·' + e.tours + '·' + (e.bareme || 'v1');
 const sigCourante = () => CFG.aff + '·' + CFG.diff + '·' + (CFG.maxTours || 10) + '·v2';
 const libelleSig = s => {
+  if(!s) return 'réglages inconnus';
   const [a,d,t,b] = s.split('·');
   return (a === 'aveugle' ? "À l'aveugle" : 'Visible') + ' · '
        + (d === 'hard' ? 'Hard' : 'Simple') + ' · ' + t + ' tours'
@@ -1404,7 +1413,7 @@ function peupler(){
   liste.forEach((n,i) => $('liste').appendChild(rang(n, i+1)));
   $('ajouter').style.display = solo ? 'none' : 'block';
   $('note-joueurs').textContent = solo
-    ? "L'entraînement se joue seul : un seul joueur, dix cibles, aucune gorgée."
+    ? "Le mode solo se joue seul : un seul joueur, dix cibles, aucune gorgée."
     : '';
   renumeroter();
 }
@@ -1631,7 +1640,7 @@ function demarrerPartie(){
   const j = lireListe();
   if(CFG.mode !== 'solo' && j.length < 2){
     demander('Il faut au moins deux joueurs',
-      'Ajoutez quelqu\'un, ou passez en mode Entraînement solo.', 'Compris');
+      'Ajoutez quelqu\'un, ou passez en Mode Solo.', 'Compris');
     return false;
   }
   S.joueurs = j; S.stats = {}; S.jetons = {}; S.couleurs = {};
@@ -2270,7 +2279,7 @@ function afficherFin(){
     const apres = scoresDe(sig);
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
     TI.textContent = S.points + ' points';
-    let l = 'Entraînement · ' + libelleSig(sig) + ' · '
+    let l = 'Mode Solo · ' + libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
     else if(doubles.length) l += ' — devant ' + doubles.slice(0,2).map(e => e.n).join(', ')
@@ -2475,7 +2484,7 @@ $('salon-rejoindre').onclick = async () => {
 };
 
 /* ════════ PANTHÉON GLOBAL ════════ */
-let glFiltre = 'config';
+let glFiltre = 'collectif';
 $('go-global').onclick = () => { construireGlobal(); montrer('global'); };
 $('gl-retour').onclick = () => { construirePantheon(); montrer('pantheon'); };
 segmente('seg-gl', v => { glFiltre = v; construireGlobal(); });
@@ -2491,16 +2500,22 @@ async function construireGlobal(){
   }
   let lignes;
   try{
-    const q = 'resultats?salon=eq.' + encodeURIComponent(S.salon)
-      + (glFiltre === 'config' ? '&config=eq.' + encodeURIComponent(sigCourante()) : '')
-      + '&select=pseudo,tours,somme,biais,carres,piles,gorgees,culs&limit=2000';
-    lignes = await api(q);
+    lignes = await api('resultats?salon=eq.' + encodeURIComponent(S.salon)
+      + '&select=pseudo,mode,config,tours,somme,biais,carres,piles,gorgees,culs,points'
+      + '&limit=4000');
   }catch(e){
     L.innerHTML = '<div class="vide">Impossible de joindre le serveur.<br>'
       + 'Réessayez quand la connexion revient.</div>';
     return;
   }
-  // agrégation par pseudo : la base renvoie une ligne par partie
+  L.innerHTML = '';
+  if(glFiltre === 'solo') return classementSolo(L, lignes);
+  return classementCollectif(L, lignes);
+}
+
+// Précision : toutes les parties, tous les modes, tous les réglages.
+// Un joueur régulier doit remonter quel que soit le contexte de jeu.
+function classementCollectif(L, lignes){
   const par = {};
   (lignes || []).forEach(r => {
     const p = par[r.pseudo] || (par[r.pseudo] = profilVide());
@@ -2510,9 +2525,8 @@ async function construireGlobal(){
   });
   const tous = Object.keys(par).map(n => ({n, a:analyse(par[n])}))
     .filter(x => x.a).sort((a,b) => a.a.precision - b.a.precision).slice(0, 30);
-  L.innerHTML = '';
   if(!tous.length){
-    L.innerHTML = '<div class="vide">Aucune partie publiée pour ces réglages.</div>';
+    L.innerHTML = '<div class="vide">Aucune partie publiée dans ce salon.</div>';
     return;
   }
   tous.forEach((x,i) => {
@@ -2523,14 +2537,36 @@ async function construireGlobal(){
       <span class="qui" style="color:${coulHash(x.n)}">${esc(x.n)}</span>
       <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(a.precision))}</span>
       <span class="bu">${a.parties} partie${a.parties>1?'s':''} · ${a.tours} tours ·
-        ${a.piles} pile${a.piles>1?'s':''}</span>
+        ${a.piles} pile${a.piles>1?'s':''} · ${gorg(a.gorgees)}</span>
       <span class="detail">${jaugeHTML(a)}
         <span class="conseil">${phraseBiais(a)} · régularité ±${fmt(Math.round(a.disp))}</span></span>`;
     L.appendChild(d);
   });
   $('gl-note').textContent = tous.length + ' joueur' + (tous.length>1?'s':'')
-    + ' · classement par précision, 30 premiers'
-    + (glFiltre === 'config' ? ' · ' + libelleSig(sigCourante()) : ' · toutes configurations');
+    + ' · précision moyenne sur toutes les parties, tous modes et réglages confondus.';
+}
+
+// Scores solo : une ligne par performance, pas une moyenne. Dix meilleures.
+function classementSolo(L, lignes){
+  const perfs = (lignes || []).filter(r => r.mode === 'solo' && r.points > 0)
+    .sort((a,b) => b.points - a.points).slice(0, 10);
+  if(!perfs.length){
+    L.innerHTML = '<div class="vide">Aucun score solo publié dans ce salon.</div>';
+    return;
+  }
+  perfs.forEach((r,i) => {
+    const prec = r.tours ? Math.round(r.somme / r.tours) : 0;
+    const d = document.createElement('div');
+    d.className = 'ligne';
+    d.innerHTML = `<span class="pos">${i+1}</span>
+      <span class="qui" style="color:${coulHash(r.pseudo)}">${esc(r.pseudo)}</span>
+      <span class="moy ${i===0?'t-laiton':''}">${r.points} pts</span>
+      <span class="bu">précision ±${fmt(prec)} · ${r.piles} pile${r.piles>1?'s':''}
+        · ${libelleSig(r.config || '')}</span>`;
+    L.appendChild(d);
+  });
+  $('gl-note').textContent = 'Dix meilleures performances en Mode Solo. '
+    + 'Chaque ligne est une partie, pas une moyenne.';
 }
 
 /* ════════ SCORES D'ENTRAÎNEMENT ════════ */
@@ -2550,7 +2586,7 @@ function construireScores(){
   if(!liste.length){
     L.innerHTML = '<div class="vide">Aucun score enregistré'
       + (scFiltre === 'config' ? ' pour ces réglages.' : '.') + '<br>'
-      + 'Jouez une partie en mode Entraînement solo.</div>';
+      + 'Jouez une partie en Mode Solo.</div>';
     $('sc-note').textContent = "Les scores ne se comparent qu'à réglages identiques : "
       + "l'affichage et la difficulté changent complètement la donne.";
     return;
