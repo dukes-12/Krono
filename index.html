@@ -198,6 +198,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .ligne .pos{font-family:var(--mono);font-size:12px;color:var(--laiton);width:18px}
 .ligne .qui{flex:1;font-size:21px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .ligne .moy{font-family:var(--mono);font-size:13px}
+.attente{color:var(--gris);opacity:.7;font-size:11px}
 .ligne .bu{font-family:var(--mono);font-size:10px;color:var(--gris);width:100%;
   padding-left:29px;margin-top:-4px;letter-spacing:.08em}
 .detail{display:block;width:100%;padding-left:29px;margin-top:7px}
@@ -230,6 +231,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   background:var(--surface);padding:14px 15px;margin-top:9px}
 .evt.actif{border-color:var(--laiton);background:rgba(201,162,39,.06)}
 .evt.choisir{cursor:pointer;position:relative}
+.evt.epuise{opacity:.45}
 .evt.choisir .coche{position:absolute;top:14px;right:15px;font-family:var(--mono);
   font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--laiton);
   border:1px solid var(--laiton);border-radius:999px;padding:3px 9px;display:none}
@@ -275,7 +277,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .code-salon{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:.3em;
   color:var(--laiton);text-align:center;padding:14px 0 4px}
 #fluide{position:relative}
-.solo-actions{display:none;position:absolute;top:14px;left:18px;right:18px;
+.solo-actions{display:none;position:absolute;top:12px;left:18px;right:18px;
   justify-content:space-between;gap:6px;z-index:5;pointer-events:none}
 .solo-actions.on{display:flex}
 .solo-actions button{pointer-events:auto}
@@ -308,18 +310,24 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* ─── interface fluide ─── */
 /* Tout ce qui entoure le chiffre a une hauteur figée : le chrono ne doit
    jamais bouger d'un tour à l'autre, sinon le joueur perd son repère. */
-.f-tete-j{margin-top:10px;flex-shrink:0}
-.f-nom-l{height:46px;display:flex;align-items:center;justify-content:center}
-.f-badges{min-height:31px;display:flex;align-items:center;justify-content:center;
-  gap:6px;flex-wrap:wrap;overflow:hidden}
+.f-sprint{display:none;font-family:var(--mono);font-size:26px;font-weight:600;
+  letter-spacing:-.01em;color:var(--laiton);line-height:1}
+.f-sprint.on{display:block}
+#fluide .tete{position:relative}
+.f-sprint.urgent{color:var(--signal);animation:presse .6s ease-in-out infinite}
+@keyframes presse{0%,100%{opacity:1}50%{opacity:.45}}
+.f-tete-j{margin-top:26px;flex-shrink:0}
+.f-nom-l{height:54px;display:flex;align-items:center;justify-content:center}
+.f-badges{min-height:38px;display:flex;align-items:center;justify-content:center;
+  gap:6px;flex-wrap:wrap;overflow:hidden;padding-top:7px}
 .f-badges .bouclier{margin-left:0}
 .f-nom{font-size:clamp(26px,8vw,38px);max-width:100%;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
-.f-obj{text-align:center;margin-top:9px;font-family:var(--mono);
-  height:74px;flex-shrink:0}
+.f-obj{text-align:center;margin-top:18px;font-family:var(--mono);
+  height:80px;flex-shrink:0}
 .f-obj b{font-size:30px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
 .f-obj em{display:block;font-style:normal;font-size:12px;letter-spacing:.15em;
-  color:var(--gris);text-transform:uppercase;margin-top:4px}
+  color:var(--gris);text-transform:uppercase;margin-top:7px}
 .f-obj em.f-realise{font-size:15px;font-weight:600;letter-spacing:.1em;margin-top:5px;visibility:hidden}
 .f-obj em.f-realise.on{visibility:visible}
 /* durée réellement tenue, rappelée sur la fiche de détails */
@@ -329,7 +337,25 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .duree:empty{display:none}
 .duree b{font-weight:600}
 .f-centre{flex:1;min-height:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:4px}
+  align-items:center;justify-content:center;gap:6px;padding-top:22px;position:relative}
+/* survie : la zone devient un anneau qui se resserre autour du chiffre */
+.anneau{display:none;position:absolute;width:min(94vw,360px);height:min(94vw,360px);
+  top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;
+  opacity:.42;z-index:0}
+.f-chrono,.f-ecart,.f-gain{position:relative;z-index:1}
+.anneau.on{display:block}
+.anneau circle{transition:r .5s cubic-bezier(.16,.8,.3,1),stroke .3s}
+.f-gain{font-family:var(--cond);font-size:17px;font-weight:600;letter-spacing:.02em;
+  line-height:1.3;text-align:center;padding:0 14px;min-height:0;visibility:hidden}
+.f-gain.on{visibility:visible}
+.pv-bloc{display:none;width:100%;max-width:270px;margin-top:14px}
+.pv-bloc.on{display:block}
+.pv-b{height:9px;border-radius:999px;background:var(--ardoise);overflow:hidden;margin-bottom:9px}
+.pv-b i{display:block;height:100%;border-radius:999px;background:var(--signal);
+  transition:width .4s cubic-bezier(.16,.8,.3,1)}
+.pv-b.moi i{background:var(--vertVif)}
+.pv-l{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin-bottom:4px}
 .f-chrono{font-family:var(--mono);font-weight:500;font-size:clamp(62px,22vw,108px);
   letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
 .f-chrono.repos{color:var(--gris)}
@@ -347,7 +373,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--gris);margin-top:0;text-transform:uppercase;line-height:1.45;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f-boutons{display:flex;justify-content:center;gap:26px;align-items:center;
-  padding:12px 0 4px;flex-shrink:0}
+  padding:16px 0 6px;flex-shrink:0}
 .f-quitter{display:block;width:100%;padding:11px;flex-shrink:0;
   font-family:var(--mono);font-size:11px;letter-spacing:.18em;
   text-transform:uppercase;color:var(--gris)}
@@ -386,6 +412,32 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .depasse{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--laiton);margin-top:5px}
 .depasse:empty{display:none}
+
+/* ─── mode réflexe ─── */
+.cible-reflexe{display:none;position:absolute;width:104px;height:104px;border-radius:50%;
+  border:2px solid var(--vertVif);color:var(--vertVif);z-index:8;
+  font-size:17px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  align-items:center;justify-content:center}
+.cible-reflexe::after{content:"";position:absolute;inset:4px;border-radius:50%;
+  background:currentColor;opacity:.16}
+.cible-reflexe span{position:relative;z-index:1}
+.cible-reflexe.on{display:flex;animation:surgir .12s ease-out}
+@keyframes surgir{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+#fluide.attente-reflexe .f-centre,#fluide.attente-reflexe .f-verdict{opacity:.25}
+
+/* ─── usage ─── */
+.h-graph{display:flex;align-items:flex-end;gap:2px;height:56px;margin-top:9px}
+.h-b{flex:1;height:100%;display:flex;align-items:flex-end;background:var(--ardoise);
+  border-radius:2px;overflow:hidden}
+.h-b i{display:block;width:100%;background:var(--laiton);border-radius:2px;min-height:1px}
+.h-ech{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;
+  color:var(--gris);margin-top:5px;letter-spacing:.08em}
+.u-l{display:flex;align-items:center;gap:9px;padding:6px 0;flex-wrap:wrap}
+.u-n{width:112px;font-size:15px;font-weight:600;letter-spacing:.02em;flex-shrink:0}
+.u-bar{flex:1;min-width:60px;height:8px;border-radius:999px;background:var(--ardoise);overflow:hidden}
+.u-bar i{display:block;height:100%;background:var(--laiton);border-radius:999px}
+.u-v{font-family:var(--mono);font-size:12px;width:26px;text-align:right}
+.u-t{font-family:var(--mono);font-size:9.5px;color:var(--gris);width:66px;text-align:right}
 
 /* ─── latence ─── */
 .lat-bloc{border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface);
@@ -490,63 +542,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="note" id="note-joueurs"></div>
 
     <div class="bloc">
-      <div class="eyebrow">Modes de jeu</div>
+      <div class="eyebrow">Solo</div>
+      <div class="note">Un joueur, un score, une progression.</div>
+      <div id="modes-solo"></div>
+    </div>
+
+    <div class="bloc">
+      <div class="eyebrow">Soirée</div>
+      <div class="note">Plusieurs joueurs autour d'un seul téléphone.</div>
       <div id="modes-menu"></div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Affichage</div>
-      <div class="seg" id="seg-aff">
-        <button data-v="visible" aria-pressed="false">Visible</button>
-        <button data-v="aveugle" aria-pressed="true">À l'aveugle</button>
-      </div>
-      <div class="note" id="note-aff">—</div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Difficulté</div>
-      <div class="seg" id="seg-diff">
-        <button data-v="simple" aria-pressed="false">Simple</button>
-        <button data-v="hard" aria-pressed="true">Hard</button>
-      </div>
-      <div class="note" id="note-diff">—</div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Gorgées</div>
-      <div class="seg" id="seg-gor">
-        <button data-v="classique" aria-pressed="true">Classique</button>
-        <button data-v="gros" aria-pressed="false">Gros buveur</button>
-      </div>
-      <div class="note" id="note-gor">—</div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Événements aléatoires</div>
-      <div class="seg" id="seg-evt">
-        <button data-v="aucun" aria-pressed="true">Aucun</button>
-        <button data-v="rares" aria-pressed="false">Rares</button>
-        <button data-v="frequents" aria-pressed="false">Fréquents</button>
-      </div>
-      <div class="note" id="note-evt">—</div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Fin de partie</div>
-      <div class="seg" id="seg-fin">
-        <button data-v="10" aria-pressed="false">10 tours</button>
-        <button data-v="20" aria-pressed="true">20 tours</button>
-        <button data-v="40" aria-pressed="false">40 tours</button>
-        <button data-v="0" aria-pressed="false">∞</button>
-      </div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Barème</div>
-      <div class="regles" id="tableau"></div>
-      <div class="note">Sur un pile, le suivant peut annuler son cul sec en faisant pile
-        lui aussi : la mise passe alors au joueur d'après, à 2 culs secs. La riposte
-        s'enchaîne sans limite. Pendant une riposte, seul le pile compte.</div>
     </div>
 
     <div class="bloc" id="bloc-salon">
@@ -602,6 +606,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="nav"><button id="panth-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
+  <div class="seg" id="seg-pa" style="margin-bottom:4px">
+    <button data-v="tout" aria-pressed="true">Tout</button>
+    <button data-v="visible" aria-pressed="false">Visible</button>
+    <button data-v="aveugle" aria-pressed="false">Aveugle</button>
+  </div>
+  <div class="seg" id="seg-pd">
+    <button data-v="tout" aria-pressed="true">Toutes</button>
+    <button data-v="simple" aria-pressed="false">Simple</button>
+    <button data-v="hard" aria-pressed="false">Hard</button>
+  </div>
   <div class="records" id="records"></div>
   <div class="classement" id="palmares"></div>
   <div class="recap-b">
@@ -612,6 +626,63 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="note" id="panth-note">—</div>
   <div class="note">Sauvegarde, import et effacement : menu → Mémoire.</div>
+</section>
+
+<!-- ═══ FICHE D'UN MODE ═══ -->
+<section class="ecran" id="fiche">
+  <div class="entete">
+    <div class="marque"><h1 id="fi-nom">MODE</h1><span id="fi-fam">—</span></div>
+    <div class="nav"><button id="fi-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="carte-verdict"><div class="titre" id="fi-titre">Règle</div>
+      <div class="sous" id="fi-regle">—</div></div>
+    <div class="revelation" id="fi-bloc-astuce" style="display:block">
+      <div class="t">À savoir</div><div class="s" id="fi-astuce">—</div></div>
+
+    <div class="bloc" id="fi-bloc-aff"><div class="eyebrow">Affichage</div>
+      <div class="seg" id="fi-aff">
+        <button data-v="visible" aria-pressed="false">Visible</button>
+        <button data-v="aveugle" aria-pressed="true">À l'aveugle</button>
+      </div></div>
+    <div class="bloc" id="fi-bloc-diff"><div class="eyebrow">Difficulté</div>
+      <div class="seg" id="fi-diff">
+        <button data-v="simple" aria-pressed="false">Simple</button>
+        <button data-v="hard" aria-pressed="true">Hard</button>
+      </div>
+      <div class="note" id="fi-note-diff">—</div></div>
+
+    <div class="bloc" id="fi-bloc-gor"><div class="eyebrow">Gorgées</div>
+      <div class="seg" id="fi-gor">
+        <button data-v="classique" aria-pressed="true">Classique</button>
+        <button data-v="gros" aria-pressed="false">Gros buveur</button>
+      </div>
+      <div class="note" id="fi-note-gor">—</div></div>
+
+    <div class="bloc" id="fi-bloc-evt"><div class="eyebrow">Événements aléatoires</div>
+      <div class="seg" id="fi-evt">
+        <button data-v="aucun" aria-pressed="true">Aucun</button>
+        <button data-v="rares" aria-pressed="false">Rares</button>
+        <button data-v="frequents" aria-pressed="false">Fréquents</button>
+      </div>
+      <div class="note" id="fi-note-evt">—</div></div>
+
+    <div class="bloc" id="fi-bloc-bar"><div class="eyebrow">Barème</div>
+      <div class="regles" id="fi-tableau"></div></div>
+
+    <div class="bloc" id="fi-bloc-fin"><div class="eyebrow">Fin de partie</div>
+      <div class="seg" id="fi-fin">
+        <button data-v="10" aria-pressed="false">10 tours</button>
+        <button data-v="20" aria-pressed="true">20 tours</button>
+        <button data-v="40" aria-pressed="false">40 tours</button>
+        <button data-v="0" aria-pressed="false">∞</button>
+      </div>
+      <div class="note" id="fi-note-duree">—</div></div>
+
+    <div class="note" id="fi-note">—</div>
+  </div>
+  <div style="margin-top:12px"><button class="bouton" id="fi-jouer">Jouer</button></div>
 </section>
 
 <!-- ═══ PANTHÉON GLOBAL ═══ -->
@@ -695,6 +766,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
     <div class="note" id="note-horo">—</div>
 
+    <div class="titre-sec">Usage</div>
+    <div class="note">Statistiques enregistrées sur ce téléphone uniquement.
+      Rien n'est envoyé nulle part.</div>
+    <div id="usage-bloc"></div>
+
+    <div class="titre-sec">Modes de soirée en test</div>
+    <div id="liste-soirees"></div>
+
     <div class="titre-sec">Modes solo</div>
     <div class="note">Huit modes, chacun mesure une compétence différente.
       « Lancer » démarre immédiatement une partie.</div>
@@ -711,6 +790,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran" id="fluide">
   <div class="tete" style="justify-content:center">
     <span class="eyebrow" id="f-tour">Tour 1</span>
+    <span class="f-sprint" id="f-sprint"></span>
   </div>
   <div class="f-tete-j">
     <div class="f-nom-l"><span class="pilule f-nom" id="f-nom">Joueur</span></div>
@@ -732,8 +812,20 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="s" id="f-evt-sous">—</div>
   </div>
   <div class="f-centre">
+    <svg class="anneau" id="f-anneau" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(237,230,214,.07)" stroke-width="3"/>
+      <circle id="f-anneau-c" cx="100" cy="100" r="70" fill="none"
+              stroke="#3E8E68" stroke-width="5" opacity=".85"/>
+    </svg>
     <div class="f-chrono repos" id="f-chrono">0,00</div>
     <div class="f-ecart" id="f-ecart"></div>
+    <div class="f-gain" id="f-gain"></div>
+    <div class="pv-bloc" id="f-pv">
+      <div class="pv-l"><span>Boss</span><span id="pv-b-n">80</span></div>
+      <div class="pv-b"><i id="pv-b" style="width:100%"></i></div>
+      <div class="pv-l"><span>Vous</span><span id="pv-m-n">100</span></div>
+      <div class="pv-b moi"><i id="pv-m" style="width:100%"></i></div>
+    </div>
   </div>
   <div class="f-verdict" id="f-verdict">
     <div class="titre" id="f-ver-titre"></div>
@@ -745,6 +837,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <button class="rond vert" id="f-droite"><span>Démarrer</span></button>
   </div>
   <button class="f-quitter" id="f-quitter">Quitter la partie</button>
+  <button class="cible-reflexe" id="f-reflexe"><span>STOP</span></button>
   <div class="solo-actions" id="f-solo-actions">
     <span class="ja-cote"><button id="f-sol-recommencer">Recommencer</button></span>
     <span class="ja-cote">
@@ -832,6 +925,33 @@ const CFG = { aff:'visible', diff:'simple', gor:'classique',
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
 const RATE = { classique:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
+const ZONE_MAX_SURVIE = 35;
+// Survie : on commente le terrain gagné ou perdu, avec assez de variantes
+// pour que ça ne devienne pas un bruit de fond.
+const GAINS = {
+  gros:  ["Tu agrandis la zone de {n} centièmes !",
+          "Superbe · {n} centièmes repris d'un coup",
+          "La zone respire · +{n} centièmes",
+          "Du terrain gagné · +{n} centièmes"],
+  petit: ["Bien vu · +{n} centièmes",
+          "Ça remonte · +{n} centièmes",
+          "Tu grappilles {n} centièmes",
+          "Un peu d'air · +{n} centièmes"],
+  stable:["Tu tiens, sans plus",
+          "Ni gagné ni perdu, ou presque",
+          "Le terrain reste à peu près",
+          "Statu quo"],
+  perte: ["Aïe · encore {n} centièmes de perdus",
+          "Ça se resserre · −{n} centièmes",
+          "Tu perds du terrain · −{n} centièmes",
+          "La zone se referme · −{n} centièmes",
+          "Attention · {n} centièmes en moins"]
+};
+function phraseGain(delta){
+  const L = delta >= 3 ? GAINS.gros : delta > 0 ? GAINS.petit
+          : delta === 0 ? GAINS.stable : GAINS.perte;
+  return L[Math.floor(Math.random() * L.length)].replace('{n}', Math.abs(delta));
+}   // plafond affiché ET appliqué : les deux doivent coïncider
 const zoneBase = () => SAUF[CFG.aff][CFG.diff];
 const zone = () => S.zoneTour || zoneBase();
 
@@ -860,20 +980,18 @@ function couleurLibre(){
 
 /* ════════ MODES DE JEU ════════ */
 const MODES = [
-  {id:'solo', n:'Solo classique',
-   d:"Un seul joueur, dix cibles, aucune gorgée. Des points, un multiplicateur qui monte à chaque pile enchaîné, un biais à corriger."},
   {id:'classique', n:'Classique',
-   d:"Le barème habituel, chacun pour soi, fin au nombre de tours choisi."},
+   d:"Le barème habituel, chacun pour soi."},
   {id:'enchere', n:"L'enchère",
-   d:"Avant chaque lancer, le joueur annonce la précision qu'il vise. Tenu, c'est le suivant qui boit ; manqué, il boit le double. Le seul mode où l'on décide quelque chose."},
+   d:"Annoncer la précision qu'on vise avant de lancer."},
   {id:'elimination', n:'Élimination',
-   d:"Trois sorties de zone et le joueur quitte la table. La partie se termine sur un dernier survivant, pas sur un compteur de tours."},
+   d:"Trois sorties de zone et l'on quitte la table."},
   {id:'handicap', n:'Handicap',
-   d:"La zone sûre se resserre pour les joueurs les plus précis du panthéon, et s'élargit pour les autres. Rééquilibre les tables inégales."},
-  {id:'coop', n:'Coopératif',
-   d:"La table partage trois vies et doit amener le chrono à 30,00 s. Chaque sortie de zone coûte une vie, et tout le monde boit une gorgée."},
-  {id:'compte', n:'Le compte est bon',
-   d:"Atteindre exactement 20,00 s en exactement dix tours. Chaque cible est recalculée pour rester sur la trajectoire : si vous dérivez, les suivants paient."}
+   d:"La zone s'adapte au niveau de chacun."},
+  {id:'coop', n:'Coopératif', test:1,
+   d:"La table partage trois vies et vise 30 secondes."},
+  {id:'compte', n:'Le compte est bon', test:1,
+   d:"Atteindre exactement 20,00 s en dix tours."}
 ];
 const MODE = () => MODES.find(m => m.id === CFG.mode) || MODES[0];
 const ENCHERES = [
@@ -886,22 +1004,55 @@ const ENCHERES = [
 // Chaque mode solo décrit sa cible, sa condition de fin et son barème.
 // « seul » les distingue des modes de soirée dans l'interface.
 const SOLOS = [
-  {id:'solo', n:'Solo classique', tours:10,
-   d:"Dix cibles, des points, un multiplicateur qui monte à chaque pile enchaîné."},
-  {id:'defi', n:'Défi du jour', tours:10,
-   d:"La même séquence de cibles pour tout le monde, générée à partir de la date. Une seule tentative par jour."},
-  {id:'survie', n:'Survie', tours:0,
-   d:"La zone sûre rétrécit d'un centième à chaque tour. Une sortie et la partie s'arrête."},
-  {id:'escalier', n:"L'escalier", tours:0,
-   d:"Une seconde, puis deux, puis trois. Rester dans la zone fait monter d'une marche, la rater fait redescendre."},
-  {id:'fantome', n:'Le fantôme', tours:10,
-   d:"Rejouer les cibles de sa meilleure partie, avec son propre score d'alors annoncé à chaque tour."},
-  {id:'sprint', n:'Contre-la-montre', tours:0,
-   d:"Soixante secondes de jeu, des cibles courtes qui s'enchaînent. Viser juste ou aller vite, il faut choisir."},
-  {id:'calibrage', n:'Calibrage', tours:15,
-   d:"Trois phases : on mesure le biais, on l'annonce, on essaie de le corriger. Aucun score, un progrès."},
-  {id:'nues', n:'Cibles nues', tours:10,
-   d:"Les cibles ne tombent plus sur des secondes rondes. Le comptage mental devient inutilisable. Points doublés."}
+  {id:'solo', n:'Solo classique', tours:10, fam:'score',
+   regle:"Dix cibles, chacune sur une seconde pleine. Un pile vaut 100 points, un écart de 3 centièmes ou moins en vaut 50, rester dans la zone en vaut 20.",
+   astuce:"Enchaîner des piles multiplie les points : le deuxième vaut double, le troisième triple, jusqu'à cinq.",
+   d:"Dix cibles, des points, des piles à enchaîner."},
+
+  {id:'defi', n:'Défi du jour', tours:0, fam:'defi',
+   regle:"Un objectif unique, le même pour tout le monde, tiré de la date du jour. Une seule tentative : le résultat est celui du premier essai.",
+   astuce:"Le défi change chaque nuit. Rien ne sert de relancer, la consigne restera la même jusqu'à demain.",
+   d:"Un objectif pour tous, renouvelé chaque jour."},
+
+  {id:'survie', n:'Survie', tours:0, fam:'survie',
+   regle:"La zone sûre rétrécit d'un centième à chaque tour. Une seule sortie met fin à la partie. Le score est le nombre de tours tenus.",
+   astuce:"Un pile élargit la zone de 5 centièmes, un écart sous 5 centièmes l'élargit de 2. Bien viser, c'est gagner du temps.",
+   d:"La zone rétrécit. Une sortie et c'est fini."},
+
+  {id:'escalier', n:"L'escalier", tours:0, fam:'escalier',
+   regle:"Les cibles s'allongent : 1 s, puis 1,5 s, puis 2 s. Rester dans la zone fait monter d'une marche, la rater fait redescendre. Trois chutes et la partie s'arrête.",
+   astuce:"La zone se resserre aussi en montant. Le score est la marche la plus haute atteinte.",
+   d:"Des cibles de plus en plus longues."},
+
+  {id:'fantome', n:'Le fantôme', tours:10, fam:'duel',
+   regle:"Vous rejouez exactement les cibles de votre meilleure partie. À chaque tour, le score que vous aviez fait ce jour-là s'affiche : il faut faire mieux.",
+   astuce:"Sans partie de référence, une séquence neuve est tirée et deviendra votre fantôme si le score est bon.",
+   d:"Rejouer sa meilleure partie contre soi-même."},
+
+  {id:'sprint', n:'Contre-la-montre', tours:0, fam:'sprint',
+   regle:"Trente secondes au compteur réel. Chaque cible fait une seconde. Enchaînez-en le plus possible : le décompte ne s'arrête jamais.",
+   astuce:"Le temps entre deux tours compte aussi. Hésiter coûte une cible.",
+   d:"Trente secondes pour enchaîner un maximum de cibles."},
+
+  {id:'nues', n:'Cibles nues', tours:10, fam:'score',
+   regle:"Les cibles ne tombent plus sur des secondes rondes : 2,41 s, 3,78 s. Compter dans sa tête ne sert plus à rien.",
+   astuce:"Les points valent double, la difficulté n'a rien de comparable.",
+   d:"Des cibles non rondes. Compter ne sert plus."},
+
+  {id:'solo2', n:'Solo · enchaîné', tours:10, fam:'score',
+   regle:"Comme le solo classique, mais les frôlements s'enchaînent : le premier vaut 50, le deuxième 60, le troisième 70, et ainsi de suite.",
+   astuce:"Les piles gardent leur multiplicateur. Un tour hors zone remet les deux compteurs à zéro.",
+   d:"Variante : les frôlements s'enchaînent aussi."},
+
+  {id:'combat', n:'Combat', tours:0, fam:'combat',
+   regle:"Un adversaire ouvre sa garde à un instant précis. Frapper dans la fenêtre lui inflige des dégâts, frapper à côté vous en fait subir. Le premier à zéro perd.",
+   astuce:"Toucher au centre exact de la garde double les dégâts. Trois coups encaissés et l'adversaire resserre sa garde pour le reste du combat.",
+   d:"Frapper dans la garde d'un adversaire. Le premier à zéro perd."},
+
+  {id:'reflexe', n:'Réflexe', tours:10, fam:'reflexe',
+   regle:"Le bouton d'arrêt apparaît à un endroit imprévisible de l'écran, entre 0,25 et 2 secondes après le départ. Touchez-le le plus vite possible.",
+   astuce:"Dix manches. Sur un écran tactile, l'affichage ajoute 30 à 60 ms : sous 300 ms, c'est déjà exceptionnel.",
+   d:"Le bouton surgit au hasard. Vitesse pure."}
 ];
 const estSolo = id => SOLOS.some(s => s.id === id);
 const SOLO = () => SOLOS.find(s => s.id === CFG.mode);
@@ -912,8 +1063,65 @@ function graine(n){
   return () => { x ^= x << 13; x >>>= 0; x ^= x >> 17; x ^= x << 5; x >>>= 0;
                  return x / 4294967296; };
 }
+// Chaque jour tire un défi dans cette liste. Les consignes sont volontairement
+// courtes : on doit comprendre en une phrase, sans avoir joué avant.
+const DEFIS = [
+  {id:'long', n:'La longue', consigne:"Tenir 6,00 s à l'aveugle",
+   detail:"Une seule cible. Le score est votre écart, au centième.",
+   cible:600, essais:1, aff:'aveugle', mesure:'ecart'},
+  {id:'double', n:'Deux piles', consigne:"Faire 2 piles en 10 essais",
+   detail:"Chaque pile compte. Le score est le nombre de piles réussis.",
+   cible:100, essais:10, mesure:'piles', but:2},
+  {id:'triple', n:'Trois sur trois', consigne:"Trois cibles dans la zone, sans en rater une",
+   detail:"Une seule erreur termine le défi. Le score est le nombre de réussites.",
+   cible:100, essais:3, mesure:'suite'},
+  {id:'court', n:'La courte', consigne:"Tenir 0,40 s au plus juste",
+   detail:"Une seule cible, très brève. Le score est votre écart.",
+   cible:40, essais:1, mesure:'ecart'},
+  {id:'moyenne', n:'La régulière', consigne:"Cinq cibles d'une seconde, le plus régulièrement possible",
+   detail:"Le score est votre écart moyen sur les cinq.",
+   cible:100, essais:5, mesure:'moyenne'},
+  {id:'demi', n:'La demie', consigne:"Tenir 2,50 s exactement",
+   detail:"Une seule cible, sur une demi-seconde. Le score est votre écart.",
+   cible:250, essais:1, mesure:'ecart'},
+  {id:'huit', n:"L'endurance", consigne:"Tenir 8,00 s à l'aveugle",
+   detail:"Une seule cible, très longue. Le score est votre écart.",
+   cible:800, essais:1, aff:'aveugle', mesure:'ecart'}
+];
+const defiDuJour = () => DEFIS[jourCourant() % DEFIS.length];
+const MAX_ESSAIS_DEFI = 3;
+function essaisRestants(){
+  const d = (MEM.defi || {});
+  return d.jour === jourCourant() ? Math.max(0, MAX_ESSAIS_DEFI - (d.n || 0))
+                                  : MAX_ESSAIS_DEFI;
+}
+function consommerEssai(){
+  const j = jourCourant();
+  MEM.defi = (MEM.defi && MEM.defi.jour === j)
+    ? {jour:j, n:(MEM.defi.n || 0) + 1, best:MEM.defi.best}
+    : {jour:j, n:1, best:null};
+  ecrireMem();
+}
+
 const jourCourant = () => { const d = new Date();
   return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); };
+
+/* ════════ COMBAT ════════ */
+// Chaque boss est une combinaison de trois variables : largeur de garde,
+// cadence, et points de vie. Rien d'autre — la variété vient du jeu, pas des chiffres.
+const BOSS = [
+  {id:'coucou',    n:'Le Coucou',    garde:30, cadence:100, pv:80,  degats:12,
+   d:"Cadence régulière, garde large. Le combat d'apprentissage."},
+  {id:'trotteuse', n:'La Trotteuse', garde:18, cadence:0,   pv:120, degats:15,
+   d:"Sa cadence change à chaque coup, entre 1 et 3 secondes."},
+  {id:'metronome', n:'Le Métronome', garde:10, cadence:75,  pv:140, degats:18,
+   d:"Tempo serré et garde étroite. Aucune place pour l'hésitation."},
+  {id:'ombre',     n:"L'Ombre",      garde:20, cadence:0,   pv:160, degats:18, aveugle:1,
+   d:"Le chrono reste masqué. Il faut sentir le moment."},
+  {id:'quartz',    n:'Le Quartz',    garde:6,  cadence:0,   pv:200, degats:22,
+   d:"Garde minuscule, cadence imprévisible. Le dernier."}
+];
+const bossCourant = () => BOSS[Math.min(S.bossIdx || 0, BOSS.length - 1)];
 
 /* ════════ ÉVÉNEMENTS ════════ */
 // « fausse » : le tour est exclu du profil, la mesure n'est pas comparable
@@ -1162,6 +1370,7 @@ const S = { joueurs:[], idx:0, sens:1, total:0, cible:100, cibleBase:100, tour:1
             zoneTour:0, enchere:null,
             derniereBlague:null, tableauDepart:[], nbSous:0, couleurs:{}, salon:null,
             marche:1, zoneSolo:0, sequence:[], fantome:null, finSprint:0,
+            bossIdx:0, pvBoss:0, pvMoi:0, gardeBoss:0, touches:0, critiques:0,
             phase:1, biaisPhase:0, latences:[] };
 
 const $ = id => document.getElementById(id);
@@ -1264,10 +1473,20 @@ function cibleSuivante(total){
   // séquence figée : défi du jour, fantôme, cibles nues
   if(S.sequence.length){
     const d = S.sequence[Math.min(S.tour - 1, S.sequence.length - 1)];
-    return total + d;
+    // cibles nues : le chrono repart de zéro à chaque tour, aucun repère cumulé
+    return (m === 'nues' ? 0 : total) + d;
   }
-  if(m === 'escalier') return total + S.marche * 100;
-  if(m === 'sprint')   return total + 50;
+  // l'escalier monte par demi-secondes : la progression est moins brutale
+  if(m === 'escalier') return total + Math.round(100 + (S.marche - 1) * 50);
+  if(m === 'sprint')   return total + 100;
+  if(m === 'reflexe')  return total + 100;
+  // combat : la cadence du boss donne le rythme, fixe ou tirée au sort
+  if(m === 'combat'){
+    const b = bossCourant();
+    const c = b.cadence || (100 + Math.floor(Math.random() * 3) * 50);
+    // sous 25 PV, il accélère : les derniers coups sont les plus durs
+    return total + Math.round(c * (S.pvBoss <= 25 ? 0.8 : 1));
+  }
   if(m === 'survie' || m === 'calibrage') return prochaineCible(total);
   if(m === 'compte'){
     const reste = Math.max(1, (CFG.maxTours || 10) - S.tour);
@@ -1279,7 +1498,11 @@ function cibleSuivante(total){
 
 // handicap : plus on est précis au panthéon, plus la zone se resserre
 function zoneDe(nom){
-  if(CFG.mode === 'survie') return Math.max(1, 40 - (S.tour - 1));
+  // survie : la zone se resserre, mais bien viser la fait respirer
+  if(CFG.mode === 'survie') return Math.max(1, S.zoneSurvie);
+  // escalier : plus la marche est haute, plus la zone est étroite
+  if(CFG.mode === 'escalier') return Math.max(8, 34 - (S.marche - 1) * 2);
+  if(CFG.mode === 'combat')   return Math.max(3, S.gardeBoss);
   if(CFG.mode === 'nues')   return zoneBase();
   if(CFG.mode !== 'handicap') return zoneBase();
   const a = analyse(MEM.profils[nom]);
@@ -1292,8 +1515,13 @@ function zoneDe(nom){
 function partieFinie(){
   const m = CFG.mode;
   if(m === 'survie')   return S.mort === true;
-  if(m === 'escalier') return S.mort === true;
-  if(m === 'sprint')   return S.finSprint > 0 && S.total >= S.finSprint;
+  if(m === 'escalier') return S.chutes >= 3;
+  if(m === 'combat')   return S.pvBoss <= 0 || S.pvMoi <= 0;
+  // le sprint se joue sur du temps réel, pas sur le chrono du jeu
+  if(m === 'sprint')   return S.sprintFini === true
+    || (S.debutSprint > 0 && (performance.now() - S.debutSprint) >= 30000);
+  if(m === 'defi' && S.defi && S.defi.mesure === 'suite')
+    return S.mort === true || S.tour >= S.defi.essais;
   if(CFG.mode === 'elimination') return actifs().length <= 1;
   if(CFG.mode === 'coop')        return S.vies <= 0 || S.total >= 3000;
   return !!(CFG.maxTours && S.tour >= CFG.maxTours);
@@ -1301,7 +1529,9 @@ function partieFinie(){
 
 /* ════════ MÉMOIRE PERSISTANTE ════════ */
 const CLE = 'krono.v1';
-const NEUF = () => ({joueurs:['Alexandre','Charles','Jean','Hugo'], cfg:null, profils:{}, scores:[], connus:[], salon:null});
+const NEUF = () => ({joueurs:['Alexandre','Charles','Jean','Hugo'], cfg:null, profils:{},
+                     scores:[], connus:[], salon:null, defi:null,
+                     usage:{heures:{}, modes:{}, reflexes:[], parties:0}});
 let MEM = NEUF();
 
 async function lireMem(){
@@ -1354,14 +1584,31 @@ const scoresDe = sig => (MEM.scores || []).filter(e => signature(e) === sig)
                                           .sort((a,b) => b.p - a.p);
 const coulHash = n => coul([...String(n)].reduce((a,c) => a + c.charCodeAt(0), 0));
 
+// Statistiques d'usage : trois agrégats, aucun horodatage précis, aucune donnée
+// personnelle. Elles servent à savoir quels modes sont joués et quand.
+function noterUsage(mode, termine){
+  const u = MEM.usage || (MEM.usage = {heures:{}, modes:{}, reflexes:[], parties:0});
+  const hr = String(new Date().getHours());
+  u.heures[hr] = (u.heures[hr] || 0) + 1;
+  u.modes[mode] = u.modes[mode] || {parties:0, finies:0};
+  u.modes[mode].parties++;
+  if(termine) u.modes[mode].finies++;
+  u.parties++;
+}
+function noterReflexe(moy){
+  const u = MEM.usage || (MEM.usage = {heures:{}, modes:{}, reflexes:[], parties:0});
+  u.reflexes.push(moy);
+  if(u.reflexes.length > 100) u.reflexes = u.reflexes.slice(-100);
+}
+
 const profilVide = () => ({tours:0, somme:0, biais:0, carres:0,
                            piles:0, gorgees:0, culs:0, parties:0,
-                           serie:0, meilleurScore:0, minutes:0});
+                           serie:0, meilleurScore:0, minutes:0, configs:{}});
 function analyse(p){
   if(!p || !p.tours) return null;
   const moy = p.biais / p.tours;
   return { tours:p.tours, moy, parties:p.parties||0, piles:p.piles||0,
-           gorgees:p.gorgees||0, culs:p.culs||0,
+           gorgees:p.gorgees||0, culs:p.culs||0, configs:p.configs||{},
            disp: Math.sqrt(Math.max(0, p.carres/p.tours - moy*moy)),
            precision: p.somme / p.tours };
 }
@@ -1549,8 +1796,10 @@ $('ajouter').onclick = () => {
 };
 
 function segmente(id, cb){
-  $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
-    $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b));
+  const el = $(id);
+  if(!el) return;              // le sélecteur peut ne pas exister sur cet écran
+  el.querySelectorAll('button').forEach(b => b.onclick = () => {
+    el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b));
     cb(b.dataset.v); rafraichir();
   });
 }
@@ -1562,25 +1811,13 @@ segmente('seg-horo', v => { CFG.horo = v === '1'; MEM.cfg = {...CFG}; ecrireMem(
 segmente('seg-fin',  v => CFG.maxTours = +v);
 
 function rafraichir(){
-  $('note-aff').textContent = CFG.aff === 'aveugle'
-    ? "Aucun chiffre pendant le tour. Zone sûre élargie pour compenser."
-    : "Le chrono défile à l'écran. Zone sûre resserrée.";
-  $('note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
-    + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
-  $('note-gor').textContent = CFG.gor === 'gros'
-    ? 'Gorgées doublées près du pile, 4 hors zone. Les culs secs ne doublent jamais.'
-    : 'Barème normal. Les culs secs ne doublent jamais.';
-  $('note-evt').textContent = {
-    aucun: "Aucun événement. Le jeu se joue au barème seul.",
-    rares: "Environ un tour sur huit. Jamais deux fois de suite, jamais pendant une riposte.",
-    frequents: "Environ un tour sur trois. La partie devient franchement bordélique."
-  }[CFG.evts];
-  $('note-horo').textContent = CFG.horo
-    ? "Le chrono part de l'horodatage matériel de l'appui : le délai de traitement est retranché."
-    : "Le chrono part de l'heure au moment du traitement JavaScript : la latence reste dans la mesure.";
   tableau();
+  majLatence();
 }
+// le barème n'existe plus qu'au sein d'une fiche de mode de soirée
 function tableau(){
+  const cible = $('fi-tableau');
+  if(!cible) return;
   const L = [
     ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, cul sec'],
     ['var(--laiton)', 'pile', 'le suivant fait cul sec — ou riposte'],
@@ -1590,7 +1827,7 @@ function tableau(){
     ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
     ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
   ];
-  $('tableau').innerHTML = L.map(([c,k,t],i) =>
+  cible.innerHTML = L.map(([c,k,t],i) =>
     `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
      <i>${k}</i>${t}</div>`).join('');
 }
@@ -1605,8 +1842,9 @@ function appliquerCfg(){
   const m = {'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
              'seg-evt':CFG.evts, 'seg-fin':String(CFG.maxTours),
              'seg-horo':CFG.horo ? '1' : '0'};
-  for(const id in m) $(id).querySelectorAll('button')
-    .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[id]));
+  for(const id in m){ const e = $(id); if(!e) continue;
+    e.querySelectorAll('button').forEach(b =>
+      b.setAttribute('aria-pressed', b.dataset.v === m[id])); }
 }
 $('oublier').onclick = async () => {
   if(!await demander('Effacer les profils ?',
@@ -1743,7 +1981,7 @@ $('go-panth').onclick = () => {
   if(S.salon && EN_LIGNE()){ construireGlobal(); montrer('global'); }
   else { construirePantheon(); montrer('pantheon'); }
 };
-$('go-test').onclick      = () => { verrouTest(); majLatence(); montrer('test'); };
+$('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage(); montrer('test'); };
 $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
 $('recap-panth').onclick  = () => $('go-panth').onclick();
@@ -1779,9 +2017,10 @@ function demarrerPartie(){
   S.historique = []; S.enregistre = false; S.partie = true;
   S.evt = null; S.force = null; S.dernierEvt = -9; S.duel = null; S.prochain = null;
   S.fautes = {}; S.elimines = []; S.vies = 3;
-  S.points = 0; S.chaine = 0; S.meilleureChaine = 0;
-  S.dernier = null; S.finDeTour = null;   // sinon l'écran garde le tour d'avant
-  S.tropheesAvant = {}; S.gagnes = []; S.abandon = false; S.ecarts = [];
+  S.points = 0; S.chaine = 0; S.meilleureChaine = 0; S.chaineFrole = 0;
+  S.dernier = null; S.finDeTour = null; S.dernierMs = undefined;
+  $('f-sprint').classList.remove('on'); $('f-sprint').textContent = '';
+  S.tropheesAvant = {}; S.gagnes = []; S.abandon = false; S.ecarts = []; S.usageNote = false;
   j.forEach(n => S.tropheesAvant[n] = trophees(n).map(x => x.tr.id + ':' + x.e.rang));
   S.zoneTour = 0; S.enchere = null;
   if(estSolo(CFG.mode)){
@@ -1804,13 +2043,17 @@ function demarrerPartie(){
 function preparerSolo(){
   const m = CFG.mode;
   S.sequence = []; S.marche = 1; S.mort = false; S.finSprint = 0;
-  S.phase = 1; S.biaisPhase = 0; S.fantome = null;
+  S.phase = 1; S.biaisPhase = 0; S.fantome = null; S.chutes = 0;
+  S.defi = null; S.reussites = 0; S.debutSprint = 0; S.reflexes = [];
   const s = SOLO();
-  if(s && s.tours) CFG.maxTours = s.tours;
+  CFG.maxTours = s && s.tours ? s.tours : 0;
 
   if(m === 'defi'){
-    const r = graine(jourCourant());
-    for(let i = 0; i < 10; i++) S.sequence.push(100 + Math.floor(r() * 4) * 100);
+    consommerEssai();
+    S.defi = defiDuJour();
+    CFG.maxTours = S.defi.essais;
+    if(S.defi.aff) CFG.aff = S.defi.aff;
+    for(let i = 0; i < S.defi.essais; i++) S.sequence.push(S.defi.cible);
   }
   if(m === 'nues'){
     const r = graine(Date.now() & 0xffffff);
@@ -1819,14 +2062,22 @@ function preparerSolo(){
   if(m === 'fantome'){
     const ref = (MEM.fantomes || {})[S.joueurs[0]];
     if(ref && ref.sequence && ref.sequence.length){
-      S.sequence = ref.sequence.slice();
-      S.fantome = ref;
+      S.sequence = ref.sequence.slice(); S.fantome = ref;
     } else {
       const r = graine(Date.now() & 0xffffff);
       for(let i = 0; i < 10; i++) S.sequence.push(100 + Math.floor(r() * 3) * 100);
     }
+    CFG.maxTours = S.sequence.length;
   }
-  if(m === 'sprint') S.finSprint = 6000;   // 60 s de chrono cumulé
+  if(m === 'survie') S.zoneSurvie = ZONE_MAX_SURVIE;
+  if(m === 'sprint'){ S.debutSprint = 0; S.sprintFini = false; }
+  if(m === 'reflexe') CFG.maxTours = 10;
+  if(m === 'combat'){
+    const b = bossCourant();
+    S.pvBoss = b.pv; S.pvMoi = 100;
+    S.gardeBoss = b.garde; S.touches = 0; S.critiques = 0;
+    if(b.aveugle) CFG.aff = 'aveugle';
+  }
 }
 
 function tirerEvenement(){
@@ -1871,7 +2122,14 @@ function compteursMode(p){
   if(CFG.mode === 'coop')        t = S.vies + ' vie' + (S.vies>1?'s':'');
   if(CFG.mode === 'elimination') t = (3 - (S.fautes[nom]||0)) + ' faute'
     + (3-(S.fautes[nom]||0)>1?'s':'') + ' restante' + (3-(S.fautes[nom]||0)>1?'s':'');
-  if(estSolo(CFG.mode)) t = S.points + ' pts'
+  const md = CFG.mode;
+  if(md === 'survie')        t = 'zone ± ' + fmt(Math.max(1, S.zoneSurvie));
+  else if(md === 'escalier') t = 'record ' + fmt(100 + (Math.max(1,S.points)-1)*50) + ' s';
+  else if(md === 'combat')   t = S.pvMoi + ' PV · garde ± ' + fmt(S.gardeBoss);
+  else if(md === 'reflexe')  t = S.reflexes.length
+    ? Math.round(S.reflexes.reduce((a,b)=>a+b,0)/S.reflexes.length) + ' ms' : '';
+  else if(md === 'defi' && S.defi) t = S.defi.consigne;
+  else if(estSolo(md)) t = S.points + ' pts'
     + (S.chaine > 1 ? ' · série ×' + Math.min(MULT_MAX, S.chaine) : '');
   v.className = 'bouclier ' + (estSolo(CFG.mode)
     ? (S.chaine > 1 ? 'serie' : 'or') : 'vies') + (t ? ' on' : '');
@@ -1902,15 +2160,36 @@ function demarrer(ev){
   if(t - verrou < 120) return;
   verrou = t;
   purgerMinuteries();
+  if(CFG.mode === 'reflexe'){
+    fluidePhase('course');
+    lancerReflexe();
+    return;
+  }
+  if(CFG.mode === 'nues') S.total = 0;   // chaque tour repart de zéro
   S.t0 = t; S.encours = true;
+  if(CFG.mode === 'sprint' && !S.debutSprint){ S.debutSprint = t; boucleSprint(); }
   fluidePhase('course');
   if(CFG.aff === 'visible' && S.evt !== 'yeux') boucleChiffres();
 }
 function boucleChiffres(){
   if(!S.encours) return;
-  const v = fmt(S.total + Math.round((performance.now() - S.t0)/10));
-  $('f-chrono').textContent = v;
+  $('f-chrono').textContent = fmt(S.total + Math.round((performance.now() - S.t0)/10));
   requestAnimationFrame(boucleChiffres);
+}
+// sprint : un décompte visible en permanence, même entre deux tours
+function boucleSprint(){
+  if(CFG.mode !== 'sprint' || !S.partie || !S.debutSprint) return;
+  const reste = Math.max(0, 30 - (performance.now() - S.debutSprint) / 1000);
+  const el = $('f-sprint');
+  el.classList.add('on');
+  el.textContent = reste.toFixed(1).replace('.', ',');
+  el.classList.toggle('urgent', reste <= 10);
+  if(reste > 0){ requestAnimationFrame(boucleSprint); return; }
+  el.textContent = '0,0';
+  // le temps est écoulé : on coupe net, sauf si un chrono est en cours —
+  // dans ce cas le tour va au bout, puis la partie s'arrête
+  if(S.encours){ S.sprintFini = true; return; }
+  afficherFin();
 }
 function arreter(ev){
   if(!S.encours) return;
@@ -2051,41 +2330,139 @@ function resoudre(valeur, delta, ecart){
   else if(CFG.mode === 'survie'){
     const v = evaluer(ecart);
     if(v.code === 'rate'){
-      S.mort = true; couleur = 't-s0';
+      S.mort = true; couleur = 't-s0'; S.gainSurvie = null;
       T.textContent = 'Éliminé au tour ' + S.tour;
       U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
     } else {
-      S.points = S.tour; couleur = ecart === 0 ? 't-s100' : 't-s50';
-      T.textContent = 'Survécu · tour ' + S.tour;
-      U.textContent = 'la zone passe à ± ' + fmt(Math.max(1, zone() - 1));
+      S.points = S.tour;
+      let bonus = 0;
+      if(ecart === 0)      bonus = 4;   // un pile fait respirer
+      else if(ecart <= 3)  bonus = 2;   // frôler aussi, mais il faut vraiment frôler
+      S.chaineSurvie = bonus ? (S.chaineSurvie || 0) + 1 : 0;
+      if(S.chaineSurvie >= 3) bonus += 1;   // l'enchaînement paie, mais moins
+      // le resserrement s'accélère : 1 centième, puis 2, puis 3
+      const usureBase = S.tour < 10 ? 1 : S.tour < 20 ? 2 : 3;
+      // un bon coup annule l'usure du tour : la règle reste simple à comprendre
+      const usure = bonus ? 0 : usureBase;
+      const avant = S.zoneSurvie;
+      S.zoneSurvie = Math.max(1, Math.min(ZONE_MAX_SURVIE, S.zoneSurvie - usure + bonus));
+      couleur = ecart === 0 ? 't-s100' : bonus ? 't-s50' : 't-s20';
+      const delta = S.zoneSurvie - avant;
+      S.gainSurvie = delta;
+      couleur = delta >= 3 ? 't-s100' : delta > 0 ? 't-s50'
+              : delta === 0 ? 't-s20' : 't-s0';
+      T.textContent = ecart === 0 ? 'Pile' : 'Tour ' + S.tour + ' passé';
+      U.textContent = 'zone ± ' + fmt(S.zoneSurvie)
+        + (bonus ? ' · usure annulée' : ' · usure ' + fmt(usureBase) + '/tour')
+        + (S.chaineSurvie >= 3 ? ' · série de ' + S.chaineSurvie : '');
     }
   }
   else if(CFG.mode === 'escalier'){
     const v = evaluer(ecart);
+    const duree = m => fmt(100 + (m - 1) * 50);
     if(v.code === 'rate'){
-      if(S.marche <= 1){
-        S.mort = true; couleur = 't-s0';
-        T.textContent = 'Chute';
-        U.textContent = 'meilleure marche atteinte : ' + S.points + ' s';
-      } else {
-        S.marche--; couleur = 't-s20';
-        T.textContent = 'Redescendu';
-        U.textContent = 'retour à la marche ' + S.marche + ' s';
-      }
+      S.chutes++;
+      if(S.marche > 1) S.marche--;
+      couleur = 't-s0';
+      T.textContent = 'Chute · ' + (3 - S.chutes) + ' vie'
+        + (3 - S.chutes > 1 ? 's' : '') + ' restante' + (3 - S.chutes > 1 ? 's' : '');
+      U.textContent = 'retour à ' + duree(S.marche) + ' s · record ' + duree(S.points || 1) + ' s';
     } else {
       S.points = Math.max(S.points, S.marche);
-      S.marche++; couleur = ecart === 0 ? 't-s100' : 't-s50';
-      T.textContent = 'Marche ' + (S.marche - 1) + ' franchie';
-      U.textContent = 'prochaine marche : ' + S.marche + ',00 s';
+      // un pile fait sauter une marche : la montée devient nerveuse
+      const saut = ecart === 0 ? 2 : 1;
+      S.marche += saut;
+      couleur = ecart === 0 ? 't-s100' : 't-s50';
+      T.textContent = ecart === 0 ? 'Pile · deux marches d\'un coup'
+                                  : 'Marche ' + duree(S.marche - 1) + ' s franchie';
+      U.textContent = 'prochaine : ' + duree(S.marche) + ' s · zone ± '
+        + fmt(Math.max(8, 34 - (S.marche - 1) * 2));
     }
   }
   else if(CFG.mode === 'sprint'){
-    const v = evaluer(ecart);
     const pts = ecart === 0 ? 100 : ecart <= PRES ? 50 : ecart <= zone() ? 20 : 0;
-    S.points += pts; couleur = pts === 100 ? 't-s100' : pts === 50 ? 't-s50'
+    S.points += pts; S.reussites += pts ? 1 : 0;
+    couleur = pts === 100 ? 't-s100' : pts === 50 ? 't-s50'
       : pts === 20 ? 't-s20' : 't-s0';
+    const reste = Math.max(0, 30 - (performance.now() - S.debutSprint) / 1000);
     T.textContent = pts ? '+' + pts + ' points' : 'Aucun point';
-    U.textContent = fmt(Math.max(0, S.finSprint - valeur)) + ' s restantes · total ' + S.points;
+    U.textContent = reste.toFixed(0).replace('.', ',') + ' s restantes · '
+      + S.tour + ' cible' + (S.tour > 1 ? 's' : '') + ' · total ' + S.points;
+  }
+  else if(CFG.mode === 'defi'){
+    const d = S.defi;
+    if(d.mesure === 'piles'){
+      if(ecart === 0){ S.reussites++; S.points = S.reussites; }
+      couleur = ecart === 0 ? 't-s100' : 't-s20';
+      T.textContent = ecart === 0 ? 'Pile !' : 'Manqué de ' + fmt(ecart);
+      U.textContent = S.reussites + ' pile' + (S.reussites > 1 ? 's' : '')
+        + ' sur ' + d.but + ' · essai ' + S.tour + ' sur ' + d.essais;
+    } else if(d.mesure === 'suite'){
+      if(ecart <= zone()){
+        S.reussites++; S.points = S.reussites;
+        couleur = 't-s50';
+        T.textContent = 'Réussi · ' + S.reussites + ' sur ' + d.essais;
+        U.textContent = 'écart ±' + fmt(ecart) + ' · ne rate pas la suivante';
+      } else {
+        S.mort = true; couleur = 't-s0';
+        T.textContent = 'Série interrompue';
+        U.textContent = S.reussites + ' réussite' + (S.reussites > 1 ? 's' : '')
+          + ' avant l\'erreur';
+      }
+    } else {
+      // mesure d'écart : le score est la précision, plus bas vaut mieux
+      S.ecartsDefi = (S.ecartsDefi || []).concat(ecart);
+      const moyD = Math.round(S.ecartsDefi.reduce((a,b) => a+b, 0) / S.ecartsDefi.length);
+      S.points = moyD;
+      couleur = ecart === 0 ? 't-s100' : ecart <= PRES ? 't-s50'
+        : ecart <= zone() ? 't-s20' : 't-s0';
+      T.textContent = 'Écart ±' + fmt(ecart);
+      U.textContent = d.essais > 1
+        ? 'essai ' + S.tour + ' sur ' + d.essais + ' · moyenne ±' + fmt(moyD)
+        : 'résultat définitif · une seule tentative';
+    }
+  }
+  else if(CFG.mode === 'combat'){
+    const b = bossCourant();
+    if(ecart <= zone()){
+      // au centre exact de la garde, le coup compte double
+      const crit = ecart <= PRES;
+      const deg = Math.max(4, Math.round((30 - ecart) * (crit ? 2 : 1)));
+      S.pvBoss = Math.max(0, S.pvBoss - deg);
+      if(crit) S.critiques++; else S.critiques = 0;
+      // trois coups critiques d'affilée forcent une ouverture
+      if(S.critiques >= 3){ S.gardeBoss += 6; S.critiques = 0; }
+      couleur = crit ? 't-s100' : 't-s50';
+      T.textContent = crit ? 'Critique · ' + deg + ' dégâts' : 'Touché · ' + deg + ' dégâts';
+      U.textContent = b.n + ' · ' + S.pvBoss + ' PV'
+        + (S.critiques === 0 && crit ? ' · sa garde s\'ouvre' : '')
+        + (S.pvBoss <= 25 && S.pvBoss > 0 ? ' · il accélère' : '');
+    } else {
+      S.pvMoi = Math.max(0, S.pvMoi - b.degats);
+      S.touches++; S.critiques = 0;
+      // il apprend : après trois coups portés, sa garde se resserre
+      if(S.touches % 3 === 0) S.gardeBoss = Math.max(3, S.gardeBoss - 3);
+      couleur = 't-s0';
+      T.textContent = 'Manqué · −' + b.degats + ' PV';
+      U.textContent = 'il vous reste ' + S.pvMoi + ' PV'
+        + (S.touches % 3 === 0 ? ' · sa garde se resserre à ± ' + fmt(S.gardeBoss) : '');
+    }
+    S.points = Math.max(0, S.pvBoss <= 0 ? 500 + S.pvMoi * 5 : 0);
+  }
+  else if(CFG.mode === 'reflexe'){
+    const ms = Math.round((valeur - S.total) * 10);   // centièmes → ms
+    S.reflexes.push(ms);
+    // Barème calé sur la réalité du tactile : l'écran ajoute 30 à 60 ms au temps
+    // neurologique. Sous 300 ms sur téléphone, c'est déjà exceptionnel.
+    const pts = Math.max(0, Math.round((800 - ms)));
+    S.points += pts;
+    couleur = ms < 300 ? 't-s100' : ms < 400 ? 't-s50' : ms < 550 ? 't-s20' : 't-s0';
+    const moy = Math.round(S.reflexes.reduce((a,b) => a+b, 0) / S.reflexes.length);
+    T.textContent = ms + ' ms';
+    U.textContent = (ms < 250 ? 'exceptionnel' : ms < 300 ? 'excellent'
+                   : ms < 400 ? 'bon' : ms < 550 ? 'correct' : 'lent')
+      + ' · +' + pts + ' pts · moyenne ' + moy + ' ms';
+    S.dernierMs = ms;
   }
   else if(CFG.mode === 'calibrage'){
     const parPhase = 5;
@@ -2117,6 +2494,7 @@ function resoudre(valeur, delta, ecart){
       S.chaine++;
       S.meilleureChaine = Math.max(S.meilleureChaine, S.chaine);
       const m = Math.min(MULT_MAX, S.chaine);
+      S.chaineFrole = 0;          // un pile n'entretient pas la chaîne de frôlements
       pts = PTS.pile * m * doubles; couleur = 't-s100';
       T.textContent = '+' + pts + ' points' + (m > 1 ? '  ×' + m : '');
       U.textContent = 'pile · série de ' + S.chaine
@@ -2124,11 +2502,22 @@ function resoudre(valeur, delta, ecart){
     } else {
       if(S.chaine > 1) vibrer(30);
       S.chaine = 0;
-      if(ecart <= PRES){      pts = PTS.frole * doubles; couleur = 't-s50';  }
-      else if(ecart <= zone()){ pts = PTS.zone * doubles;  couleur = 't-s20'; }
-      else {                    pts = PTS.rate;            couleur = 't-s0';  }
+      if(ecart <= PRES){
+        // variante enchaînée : chaque frôlement consécutif ajoute 10 points
+        if(CFG.mode === 'solo2'){
+          S.chaineFrole = (S.chaineFrole || 0) + 1;
+          pts = (PTS.frole + (S.chaineFrole - 1) * 10) * doubles;
+        } else pts = PTS.frole * doubles;
+        couleur = 't-s50';
+      }
+      else if(ecart <= zone()){ pts = PTS.zone * doubles;  couleur = 't-s20';
+                                S.chaineFrole = 0; }   // la chaîne casse aussi ici
+      else {                    pts = PTS.rate;            couleur = 't-s0';
+                                S.chaineFrole = 0; }
       T.textContent = pts ? '+' + pts + ' points' : 'Aucun point';
-      U.textContent = 'écart ±' + fmt(ecart) + ' · zone ± ' + fmt(zone());
+      U.textContent = 'écart ±' + fmt(ecart) + ' · zone ± ' + fmt(zone())
+        + (CFG.mode === 'solo2' && S.chaineFrole > 1
+           ? ' · ' + S.chaineFrole + ' frôlements d\'affilée' : '');
     }
     S.points += pts;
     U.textContent += ' · total ' + S.points;
@@ -2235,12 +2624,15 @@ function resoudre(valeur, delta, ecart){
   S.historique.unshift({nom:joueur, cible:S.cible, val:valeur, couleur, tour:S.tour});
   dessinerFilm();
 
-  if(avance){ S.total = valeur; S.enAttente = cibleSuivante(valeur); }
+  // cibles nues : chaque tour est indépendant, le chrono ne cumule pas
+  if(avance){ S.total = CFG.mode === 'nues' ? 0 : valeur;
+              S.enAttente = cibleSuivante(S.total); }
   else       { S.enAttente = S.cible; }
   S.finDeTour = {avance};
   const pioche = L => L[Math.floor(Math.random() * L.length)];
   let mot;
-  if(minutePile)                                    mot = pioche(MOTS_MINUTE);
+  if(CFG.mode === 'defi' || CFG.mode === 'reflexe')  mot = '';
+  else if(minutePile)                               mot = pioche(MOTS_MINUTE);
   else if(estSolo(CFG.mode) && S.chaine >= 2)     mot = MOTS_SERIE[Math.min(S.chaine, 6) - 2];
   else                                              mot = blague(ecart);
   if(estSolo(CFG.mode) && S.chaine >= 2) S.derniereBlague = 'serie';
@@ -2275,12 +2667,39 @@ function bandeaux(pfx){
 function fluidePret(){
   const nom = S.joueurs[S.idx];
   S.zoneTour = zoneDe(nom);   // recalculée à chaque tour : survie et handicap en dépendent
-  $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}` : 'Tour ' + S.tour;
+  // chaque mode a son propre compteur : « tour 3 / 10 » n'a pas de sens en survie
+  const m = CFG.mode;
+  if(m === 'survie')        $('f-tour').textContent = 'Tour ' + S.tour;
+  else if(m === 'escalier') $('f-tour').textContent = 'Marche ' + fmt(100 + (S.marche-1)*50)
+                                                    + ' s · ' + (3 - S.chutes) + ' vies';
+  else if(m === 'sprint')   $('f-tour').textContent = S.debutSprint ? '' : 'Prêt ?';
+  else if(m === 'defi' && S.defi) $('f-tour').textContent = S.defi.essais > 1
+    ? 'Essai ' + S.tour + ' / ' + S.defi.essais : 'Une seule tentative';
+  else if(m === 'reflexe')  $('f-tour').textContent = 'Manche ' + S.tour + ' / 10';
+  else if(m === 'combat')   $('f-tour').textContent = bossCourant().n;
+  else $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}`
+                                              : 'Tour ' + S.tour;
   $('f-nom').textContent = nom;
   surligner($('f-nom'), coulNom(nom));
   $('f-obj-cible').textContent = fmt(S.cible);
-  $('f-obj-tenir').textContent = fmt(S.cible - S.total) + ' s à tenir'
-    + (CFG.mode === 'compte' ? ' · viser 20,00 au bout' : '');
+  // à l'escalier, c'est la durée à tenir qui compte, pas la cible cumulée
+  const esc = CFG.mode === 'escalier';
+  $('f-obj-cible').classList.toggle('geant', esc);
+  if(esc){
+    $('f-obj-cible').textContent = fmt(S.cible - S.total);
+    $('f-obj-tenir').textContent = 'secondes à tenir · marche '
+      + fmt(100 + (S.marche - 1) * 50) + ' s';
+  }
+  else if(CFG.mode === 'combat'){
+    // en combat, seul le prochain nombre compte : la garde et les PV sont ailleurs
+    $('f-obj-cible').textContent = fmt(S.cible);
+    $('f-obj-tenir').textContent = 'garde ouverte à ± ' + fmt(zone());
+  }
+  else $('f-obj-tenir').textContent = CFG.mode === 'reflexe'
+    ? 'touche le bouton dès qu\'il apparaît'
+    : fmt(S.cible - S.total) + ' s à tenir'
+      + (CFG.mode === 'compte' ? ' · viser 20,00 au bout' : '');
+  if(CFG.mode === 'reflexe'){ $('f-obj-cible').textContent = 'STOP'; }
   const jc = S.jetons[nom] || 0;
   $('f-bouclier').classList.toggle('on', jc > 0);
   $('f-bouclier').textContent = jc > 1 ? 'Bouclier ×' + jc : 'Bouclier';
@@ -2290,9 +2709,34 @@ function fluidePret(){
   montrer('fluide');
 }
 
+// l'anneau donne à voir la zone : un cercle qui se referme sur le chiffre
+function majAnneau(){
+  const A = $('f-anneau'), C = $('f-anneau-c');
+  const on = CFG.mode === 'survie' && S.partie;
+  A.classList.toggle('on', on);
+  // combat : deux barres de vie sous le chiffre
+  const cb = CFG.mode === 'combat' && S.partie;
+  $('f-pv').classList.toggle('on', cb);
+  if(cb){
+    const b = bossCourant();
+    $('pv-b').style.width = Math.round(S.pvBoss / b.pv * 100) + '%';
+    $('pv-m').style.width = Math.max(0, S.pvMoi) + '%';
+    $('pv-b-n').textContent = S.pvBoss;
+    $('pv-m-n').textContent = S.pvMoi;
+  }
+  if(!on) return;
+  const z = Math.max(1, S.zoneSurvie);
+  // l'anneau reste loin du centre : il encadre, il ne gêne pas la lecture
+  C.setAttribute('r', String(Math.round(52 + (z / ZONE_MAX_SURVIE) * 44)));
+  C.setAttribute('stroke', z > 24 ? '#3E8E68' : z > 12 ? '#E6C544' : '#DC3B2A');
+}
+
 function fluidePhase(ph){
   S.fPhase = ph; S.fPhaseAt = performance.now();
   montrer('fluide');
+  majAnneau();
+  // le décompte du sprint ne doit jamais survivre à un changement de mode
+  if(CFG.mode !== 'sprint') $('f-sprint').classList.remove('on');
   const C = $('f-chrono'), G = $('f-gauche'), D = $('f-droite'), R = $('f-realise');
   C.className = 'f-chrono';
   G.className = 'rond'; D.className = 'rond';
@@ -2302,7 +2746,8 @@ function fluidePhase(ph){
   $('f-quitter').style.visibility = 'visible';
 
   if(ph === 'course'){
-    if(CFG.aff === 'visible' && S.evt !== 'yeux'){ C.textContent = fmt(S.total); }
+    if(CFG.mode === 'reflexe'){ C.classList.add('attente'); C.textContent = '— ms'; }
+    else if(CFG.aff === 'visible' && S.evt !== 'yeux'){ C.textContent = fmt(S.total); }
     else { C.classList.add('attente'); C.textContent = '—,——'; }
     $('f-ecart').textContent = '';
     $('f-verdict').style.visibility = 'hidden';
@@ -2320,19 +2765,33 @@ function fluidePhase(ph){
   const d = S.dernier;
   if(d){
     C.classList.add(d.couleur);
-    C.textContent = fmt(d.valeur);
+    // en réflexe, le grand chiffre est un temps de réaction, pas un chrono
+    C.textContent = CFG.mode === 'reflexe' && S.dernierMs !== undefined
+      ? S.dernierMs + ' ms' : fmt(d.valeur);
     R.className = 'f-realise on ' + d.couleur;
-    R.textContent = 'tenu ' + fmt(d.dureeTenue) + ' s';
+    const sansDuree = CFG.mode === 'reflexe' || CFG.mode === 'combat';
+    R.textContent = sansDuree ? '' : 'tenu ' + fmt(d.dureeTenue) + ' s';
+    if(sansDuree) R.classList.remove('on');
     $('f-blague').textContent = d.blague || '';
     $('f-blague').classList.toggle('on', !!d.blague);
-    $('f-ecart').textContent = (d.delta>0?'+':d.delta<0?'−':'±') + fmt(d.ecart);
+    // survie : le terrain gagné ou perdu, en toutes lettres sous le chiffre
+    const G = $('f-gain');
+    if(CFG.mode === 'survie' && S.gainSurvie !== null && S.gainSurvie !== undefined){
+      G.textContent = phraseGain(S.gainSurvie);
+      G.className = 'f-gain on ' + (S.gainSurvie >= 3 ? 't-s100' : S.gainSurvie > 0
+                  ? 't-s50' : S.gainSurvie === 0 ? 't-s20' : 't-s0');
+    } else G.classList.remove('on');
+    $('f-ecart').textContent = CFG.mode === 'reflexe' ? ''
+      : CFG.mode === 'combat' ? 'écart ±' + fmt(d.ecart)
+      : (d.delta>0?'+':d.delta<0?'−':'±') + fmt(d.ecart);
     $('f-ver-titre').textContent = d.titre;
     $('f-ver-titre').className = 'titre ' + d.couleur;
     $('f-ver-sous').textContent = d.sous;
     $('f-verdict').style.visibility = 'visible';
   } else {
     C.classList.add('repos');
-    C.textContent = fmt(S.total);
+    C.textContent = CFG.mode === 'reflexe' ? '— ms' : fmt(S.total);
+    S.dernierMs = undefined;
     $('f-ecart').textContent = '';
     $('f-verdict').style.visibility = 'hidden';
   }
@@ -2346,6 +2805,39 @@ function fluidePhase(ph){
     D.querySelector('span').textContent = 'Démarrer';
   }
 }
+
+/* ─── mode réflexe : la cible surgit à un endroit imprévisible ─── */
+function lancerReflexe(){
+  const z = $('fluide'), b = $('f-reflexe');
+  z.classList.add('attente-reflexe');
+  b.classList.remove('on');
+  $('f-chrono').textContent = '—,——';
+  $('f-chrono').className = 'f-chrono attente';
+  // entre 0,25 et 2 s : impossible d'anticiper
+  attendre(250 + Math.random() * 1750, () => {
+    const r = z.getBoundingClientRect();
+    const marge = 118;
+    const x = 14 + Math.random() * Math.max(10, r.width  - marge);
+    const y = 132 + Math.random() * Math.max(10, r.height - marge - 250);
+    b.style.left = Math.round(x) + 'px';
+    b.style.top  = Math.round(y) + 'px';
+    b.classList.add('on');
+    S.t0 = performance.now();
+    S.encours = true;
+    vibrer(20);
+  });
+}
+$('f-reflexe').addEventListener('pointerdown', ev => {
+  if(!S.encours || CFG.mode !== 'reflexe') return;
+  ev.preventDefault(); ev.stopPropagation();
+  const t = tempsEvt(ev);
+  S.encours = false;
+  purgerMinuteries();
+  $('fluide').classList.remove('attente-reflexe');
+  $('f-reflexe').classList.remove('on');
+  vibrer(18);
+  afficherResultat(S.total + Math.round((t - S.t0) / 10));
+});
 
 // prépare le tour suivant sans rien afficher
 function avancerTour(){
@@ -2361,6 +2853,8 @@ function avancerTour(){
 
 function fluideResultat(){
   const ft = S.finDeTour || {avance:true};
+  // sprint : le temps écoulé pendant le tour clôt la partie sans écran de repos
+  if(CFG.mode === 'sprint' && S.sprintFini){ afficherFin(); return; }
   if(partieFinie() && S.contre === 0 && ft.avance){
     bandeaux('f-');
     fluidePhase('fin');
@@ -2374,7 +2868,10 @@ function fluideResultat(){
 // dépend. Les autres actions attendent le clic, sinon le doigt qui déclenche
 // traverse la modale qui vient d'apparaître et la referme aussitôt.
 $('fluide').addEventListener('pointerdown', ev => {
-  if(S.fPhase === 'course'){ arreter(ev); return; }   // tout l'écran arrête
+  if(S.fPhase === 'course'){
+    if(CFG.mode === 'reflexe') return;   // seul le bouton compte
+    arreter(ev); return;
+  }
   const b = ev.target.closest && ev.target.closest('.rond');
   if(!b || b.disabled || b.id !== 'f-droite' || S.fPhase !== 'repos') return;
   if(performance.now() - S.fPhaseAt < 220) return;
@@ -2425,6 +2922,9 @@ function afficherFin(){
       p.tours += s.tours;   p.somme  += s.ecart;  p.biais   += s.biais;
       p.carres += s.carres; p.piles  += s.piles;  p.gorgees += s.gorgees;
       p.culs += s.culs;     p.parties++;
+      p.configs = p.configs || {};
+      const kc = CFG.aff + '·' + CFG.diff;
+      p.configs[kc] = (p.configs[kc] || 0) + 1;
       p.minutes = (p.minutes || 0) + (s.minutes || 0);
       if(estSolo(CFG.mode) && n === S.joueurs[0]){
         p.serie = Math.max(p.serie || 0, S.meilleureChaine);
@@ -2433,6 +2933,15 @@ function afficherFin(){
     });
     ecrireMem(); majMem();
     publierPartie();          // envoi au salon, sans bloquer l'affichage
+  }
+  // l'usage compte TOUTES les parties, abandons compris : c'est le taux
+  // d'abandon qui est intéressant
+  if(!S.usageNote){
+    S.usageNote = true;
+    noterUsage(CFG.mode, !abandonSolo);
+    if(CFG.mode === 'reflexe' && S.reflexes.length)
+      noterReflexe(Math.round(S.reflexes.reduce((a,b) => a+b, 0) / S.reflexes.length));
+    ecrireMem();
   }
   const R = $('fin-resume'), TI = $('fin-titre');
   TI.textContent = 'Le plus précis'; R.textContent = MODE().n;
@@ -2447,6 +2956,24 @@ function afficherFin(){
     TI.textContent = gagne ? 'Objectif atteint' : 'Plus de vies';
     R.textContent = 'Coopératif · chrono ' + fmt(S.total) + ' / 30,00 · '
       + S.vies + ' vie' + (S.vies>1?'s':'') + ' restante' + (S.vies>1?'s':'');
+  }
+  if(CFG.mode === 'combat'){
+    const b = bossCourant();
+    const gagne = S.pvBoss <= 0;
+    TI.textContent = gagne ? b.n + ' est tombé' : 'Vaincu par ' + b.n;
+    const rang = !gagne ? null : S.pvMoi >= 100 ? 'or' : S.pvMoi > 50 ? 'argent' : 'bronze';
+    R.textContent = gagne
+      ? 'Combat · rang ' + rang + ' · ' + S.pvMoi + ' PV restants'
+        + (S.bossIdx < BOSS.length - 1 ? ' · ' + BOSS[S.bossIdx+1].n + ' débloqué' : '')
+      : 'Combat · il lui restait ' + S.pvBoss + ' PV';
+    if(gagne){
+      MEM.boss = MEM.boss || {};
+      const anc = MEM.boss[b.id];
+      const ordre = {bronze:1, argent:2, or:3};
+      if(!anc || ordre[rang] > ordre[anc]) MEM.boss[b.id] = rang;
+      S.bossIdx = Math.min(BOSS.length - 1, S.bossIdx + 1);
+      ecrireMem();
+    }
   }
   if(CFG.mode === 'compte'){
     const d = Math.abs(S.total - 2000);
@@ -2497,6 +3024,22 @@ function afficherFin(){
                  && x.a.disp < x.a.precision - 1)
     .sort((a,b) => Math.abs(b.a.moy) - Math.abs(a.a.moy))[0];
   const rev = $('revelation');
+  if(CFG.mode === 'reflexe' && S.reflexes.length){
+    const L = S.reflexes;
+    const moy  = Math.round(L.reduce((a,b) => a+b, 0) / L.length);
+    const best = Math.min(...L), pire = Math.max(...L);
+    TI.textContent = moy + ' ms de moyenne';
+    R.textContent = 'Réflexe · meilleure ' + best + ' ms · plus lente ' + pire
+      + ' ms · ' + L.length + ' manches';
+    rev.style.display = 'block';
+    rev.querySelector('.t').textContent = 'Ce que ça vaut';
+    $('rev-texte').textContent = moy < 250
+      ? "Exceptionnel. Un très bon départ de Formule 1 tourne autour de 200 ms, sans le délai d'un écran tactile."
+      : moy < 300 ? "Excellent. Vous êtes au niveau d'un bon pilote, écran compris."
+      : moy < 400 ? "Bon. La moyenne d'un adulte sur écran tactile tourne autour de 350 ms."
+      : moy < 550 ? "Correct. La fatigue et l'attention comptent beaucoup sur ce genre de test."
+      : "Lent pour l'instant. Réessayez au calme, sans rien autour.";
+  }
   if(abandonSolo){
     TI.textContent = 'Partie abandonnée';
     R.textContent = (SOLO() || {n:'Solo'}).n + ' · rien n\'a été enregistré. '
@@ -2524,7 +3067,9 @@ function afficherFin(){
     ecrireMem();
     const apres = scoresDe(sig);
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
-    TI.textContent = S.points + ' points';
+    // réflexe et combat ont déjà écrit leur propre résumé
+    const propre = CFG.mode === 'reflexe' || CFG.mode === 'combat';
+    if(!propre) TI.textContent = S.points + ' points';
     let l = libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
@@ -2532,6 +3077,7 @@ function afficherFin(){
       + (doubles.length > 2 ? ' et ' + (doubles.length-2) + ' autre'
          + (doubles.length > 3 ? 's' : '') : '');
     if(S.meilleureChaine > 1) l += ' · meilleure série ' + S.meilleureChaine + ' piles';
+    if(propre) l = R.textContent;
     // on garde la meilleure partie comme fantôme rejouable
     if(S.sequence.length && CFG.mode !== 'fantome'){
       MEM.fantomes = MEM.fantomes || {};
@@ -2541,9 +3087,11 @@ function afficherFin(){
                              sequence:S.sequence.slice(), ecarts:S.ecarts || []};
     }
     R.textContent = l;
-    rev.style.display = 'block';
-    rev.querySelector('.t').textContent = 'Le mot de la fin';
-    $('rev-texte').textContent = bilan(S.points);
+    if(!propre){
+      rev.style.display = 'block';
+      rev.querySelector('.t').textContent = 'Le mot de la fin';
+      $('rev-texte').textContent = bilan(S.points);
+    }
   }
   else if(cible){
     rev.querySelector('.t').textContent = 'Ce que dit le chrono';
@@ -2567,6 +3115,20 @@ function afficherFin(){
 $('rejouer').onclick = () => demarrerPartie();
 
 /* ════════ PANTHÉON ════════ */
+// Les profils cumulent tous les réglages : on ne peut filtrer que sur ce que
+// le joueur a réellement pratiqué, d'où les compteurs par configuration.
+let paAff = 'tout', paDiff = 'tout';
+segmente('seg-pa', v => { paAff = v; construirePantheon(); });
+segmente('seg-pd', v => { paDiff = v; construirePantheon(); });
+function filtrePanth(a){
+  if(paAff === 'tout' && paDiff === 'tout') return true;
+  const c = a.configs || {};
+  return Object.keys(c).some(k => {
+    const [aff, diff] = k.split('·');
+    return (paAff === 'tout' || aff === paAff) && (paDiff === 'tout' || diff === paDiff);
+  });
+}
+
 function construirePantheon(){
   const noms = Object.keys(MEM.profils);
   const P = $('palmares'), R = $('records');
@@ -2577,8 +3139,10 @@ function construirePantheon(){
       + 'Terminez une partie et les profils apparaîtront ici.</div>';
     return;
   }
-  const tous = noms.map(n => ({n, a:analyse(MEM.profils[n])})).filter(x => x.a);
-  const fiables = tous.filter(x => x.a.tours >= 5);
+  const MIN_PARTIES = 5;   // sous ce seuil, une précision moyenne ne veut rien dire
+  const tous = noms.map(n => ({n, a:analyse(MEM.profils[n])}))
+    .filter(x => x.a).filter(x => filtrePanth(x.a));
+  const fiables = tous.filter(x => x.a.parties >= MIN_PARTIES);
   const base = fiables.length ? fiables : tous;
   const min = (arr,f) => arr.slice().sort((a,b) => f(a)-f(b))[0];
   const max = (arr,f) => arr.slice().sort((a,b) => f(b)-f(a))[0];
@@ -2592,21 +3156,33 @@ function construirePantheon(){
     ? `<div class="rec"><div class="k">${k}</div><div class="v">${esc(x.n)}</div>
        <div class="d">${f(x)}</div></div>` : '').join('');
 
-  tous.sort((a,b) => a.a.precision - b.a.precision).forEach((x,i) => {
+  const MIN_P = 5;
+  tous.sort((a,b) => {
+    const fa = a.a.parties >= MIN_P, fb = b.a.parties >= MIN_P;
+    if(fa !== fb) return fa ? -1 : 1;         // les non fiables passent en bas
+    return a.a.precision - b.a.precision;
+  }).forEach((x,i) => {
     const a = x.a;
+    const fiable = a.parties >= MIN_P;
     const bu = [ a.piles ? a.piles + ' pile' + (a.piles>1?'s':'') : null,
                  a.culs ? culs(a.culs) : null,
                  a.gorgees ? gorg(a.gorgees) : null ].filter(Boolean).join(' · ') || 'rien bu';
     const d = document.createElement('div');
     d.className = 'ligne';
-    d.innerHTML = `<span class="pos">${i+1}</span><span class="qui">${esc(x.n)}</span>
-      <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(a.precision))}</span>
+    d.innerHTML = `<span class="pos">${fiable ? i+1 : '—'}</span>
+      <span class="qui">${esc(x.n)}</span>
+      <span class="moy ${i===0&&fiable?'t-laiton':''}">${fiable
+        ? '±' + fmt(Math.round(a.precision))
+        : '<span class="attente">' + a.parties + '/' + MIN_P + '</span>'}</span>
       <span class="bu">${a.parties} partie${a.parties>1?'s':''} · ${a.tours} tours · ${bu}</span>
-      <span class="detail">${jaugeHTML(a)}
-        <span class="conseil">${phraseBiais(a)} · régularité ±${fmt(Math.round(a.disp))}</span></span>`;
+      ${fiable ? `<span class="detail">${jaugeHTML(a)}
+        <span class="conseil">${phraseBiais(a)} · régularité ±${fmt(Math.round(a.disp))}</span></span>`
+      : `<span class="detail"><span class="conseil">précision affichée après
+         ${MIN_P} parties terminées</span></span>`}`;
     P.appendChild(d);
   });
-  $('panth-note').textContent = "Profils enregistrés sur ce téléphone uniquement. "
+  $('panth-note').textContent = "Profils de ce téléphone · précision affichée après "
+    + MIN_PARTIES + " parties terminées. "
     + "Les tours à événement qui faussent la mesure (cible déplacée, écran masqué, "
     + "duel) sont exclus du calcul.";
 }
@@ -2673,6 +3249,99 @@ function construireTrophees(){
     <span>${or} en or</span>
     <span>${p.tours} tours · ${p.parties} partie${p.parties>1?'s':''}</span></span>`;
 }
+
+/* ════════ FICHE D'UN MODE ════════ */
+// Ouvrir un mode montre d'abord sa règle : on ne lance pas une partie sans
+// savoir ce qu'on va devoir faire.
+let ficheId = null;
+function ouvrirFiche(id){
+  ficheId = id;
+  const s = SOLOS.find(x => x.id === id) || MODES.find(x => x.id === id);
+  if(!s) return;
+  const solo = estSolo(id);
+  const f = (SOLOS.find(x => x.id === id) || {}).fam;
+  $('fi-nom').textContent = s.n.toUpperCase();
+  $('fi-fam').textContent = solo ? 'mode solo' : 'mode soirée';
+  $('fi-titre').textContent = 'Comment ça marche';
+  $('fi-regle').textContent = s.regle || s.d;
+  $('fi-bloc-astuce').style.display = s.astuce ? 'block' : 'none';
+  if(s.astuce) $('fi-astuce').textContent = s.astuce;
+
+  // Chaque réglage n'apparaît que s'il change quelque chose pour ce mode.
+  const imposeAff = id === 'defi';                       // le défi fixe l'affichage
+  const sansAff   = id === 'reflexe';                    // aucun chrono à lire
+  const avecDiff  = !['reflexe','survie','escalier','defi'].includes(id);
+  const avecGor   = !solo;                               // l'alcool ne concerne que la soirée
+  const avecEvt   = id === 'classique';                  // les événements ne touchent que le classique
+  const avecFin   = !solo && !['elimination','coop','compte'].includes(id);
+
+  const aff = (bloc, on) => { const e = $(bloc); if(e) e.style.display = on ? 'block' : 'none'; };
+  aff('fi-bloc-aff',  !sansAff);
+  aff('fi-bloc-diff', avecDiff);
+  aff('fi-bloc-gor',  avecGor);
+  aff('fi-bloc-evt',  avecEvt);
+  aff('fi-bloc-bar',  avecGor);
+  aff('fi-bloc-fin',  avecFin);
+
+  $('fi-aff').style.opacity = imposeAff ? .35 : 1;
+  $('fi-aff').style.pointerEvents = imposeAff ? 'none' : 'auto';
+
+  const m = {'fi-aff':CFG.aff, 'fi-diff':CFG.diff, 'fi-gor':CFG.gor,
+             'fi-evt':CFG.evts, 'fi-fin':String(CFG.maxTours)};
+  for(const k in m){ const e = $(k); if(e) e.querySelectorAll('button')
+    .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[k])); }
+
+  if(avecDiff) $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
+    + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
+  if(avecGor)  $('fi-note-gor').textContent = CFG.gor === 'gros'
+    ? 'Gorgées doublées près du pile, 4 hors zone. Les culs secs ne doublent jamais.'
+    : 'Barème normal. Les culs secs ne doublent jamais.';
+  if(avecEvt)  $('fi-note-evt').textContent = {
+    aucun:'Aucun événement. Le jeu se joue au barème seul.',
+    rares:'Environ un tour sur huit. Jamais deux fois de suite.',
+    frequents:'Environ un tour sur trois. La partie devient franchement bordélique.'}[CFG.evts];
+  if(avecGor) tableau();
+  if(avecFin){
+    // ~11 s par tour en soirée : lancer, jouer, lire le verdict, passer le téléphone
+    const t = CFG.maxTours;
+    $('fi-note-duree').textContent = t
+      ? 'Environ ' + Math.max(2, Math.round(t * 11 / 60)) + ' minutes de jeu.'
+      : 'Partie sans fin : vous arrêtez quand vous voulez.';
+  }
+
+  if(imposeAff){
+    const d = defiDuJour();
+    const rest = essaisRestants();
+    $('fi-note').textContent = 'Défi du jour : ' + d.consigne + '. ' + d.detail
+      + ' · ' + (rest > 0 ? rest + ' tentative' + (rest > 1 ? 's' : '') + ' restante'
+                          + (rest > 1 ? 's' : '') + ' aujourd\'hui'
+                          : 'plus de tentative aujourd\'hui');
+    $('fi-jouer').disabled = rest <= 0;
+    $('fi-jouer').textContent = rest > 0 ? 'Jouer' : 'Revenez demain';
+  } else {
+    $('fi-jouer').disabled = false;
+    $('fi-jouer').textContent = 'Jouer';
+    $('fi-note').textContent = solo
+      ? 'Un seul joueur, un score, un progrès à mesurer.'
+      : 'Mode de soirée : plusieurs joueurs, un seul téléphone qui tourne.';
+  }
+  montrer('fiche');
+}
+const majFiche = () => { MEM.cfg = {...CFG}; ecrireMem(); appliquerCfg(); ouvrirFiche(ficheId); };
+segmente('fi-aff',  v => { CFG.aff = v;  majFiche(); });
+segmente('fi-diff', v => { CFG.diff = v; majFiche(); });
+segmente('fi-gor',  v => { CFG.gor = v;  majFiche(); });
+segmente('fi-evt',  v => { CFG.evts = v; majFiche(); });
+segmente('fi-fin',  v => { CFG.maxTours = +v; majFiche(); });
+$('fi-retour').onclick = () => montrer('reglages');
+$('fi-jouer').onclick = () => {
+  if(!ficheId) return;
+  CFG.mode = ficheId;
+  if(estSolo(ficheId)) peupler();
+  MEM.cfg = {...CFG}; ecrireMem();
+  construireModes(); construireTest(); rafraichir();
+  demarrerPartie();
+};
 
 /* ════════ SALON ════════ */
 function majEtatSalon(){
@@ -2865,27 +3534,51 @@ function construireScores(){
 
 /* ════════ ONGLET TEST ════════ */
 // les modes sont des réglages à part entière : on les choisit, on ne les lance pas
+// Les modes solo mis en avant dans le menu : les autres restent en test
+// tant qu'ils n'ont pas fait leurs preuves.
+const SOLO_MENU = ['solo', 'survie', 'defi', 'reflexe'];
+
+function carteMode(m){
+  const d = document.createElement('div');
+  d.className = 'evt choisir' + (CFG.mode === m.id ? ' actif' : '');
+  d.dataset.mode = m.id;
+  d.innerHTML = `<span class="coche">choisi</span>
+    <div class="n">${m.n}</div><div class="d">${m.d}</div>`;
+  if(m.id === 'defi' && essaisRestants() <= 0){
+    d.classList.add('epuise');
+    d.innerHTML += '<div class="b"><span class="tag">épuisé · revenez demain</span></div>';
+  }
+  d.onclick = () => { MEM.joueurs = lireListe(); ouvrirFiche(m.id); };
+  return d;
+}
 function construireModes(){
+  const S1 = $('modes-solo');
+  if(S1){
+    S1.innerHTML = '';
+    SOLO_MENU.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
+      .forEach(m => S1.appendChild(carteMode(m)));
+  }
   const M = $('modes-menu'); M.innerHTML = '';
-  MODES.forEach(m => {
-    const d = document.createElement('div');
-    d.className = 'evt choisir' + (CFG.mode === m.id ? ' actif' : '');
-    d.dataset.mode = m.id;
-    d.innerHTML = `<span class="coche">choisi</span>
-      <div class="n">${m.n}</div><div class="d">${m.d}</div>`;
-    d.onclick = () => {
-      MEM.joueurs = lireListe();          // lu avec le mode encore en cours
-      CFG.mode = m.id;
-      if(m.id === 'solo' || m.id === 'compte') CFG.maxTours = 10;
-      MEM.cfg = {...CFG}; ecrireMem();
-      construireModes(); peupler(); appliquerCfg(); rafraichir();
-    };
-    M.appendChild(d);
-  });
+  MODES.filter(m => !m.test).forEach(m => M.appendChild(carteMode(m)));
 }
 
 function construireTest(){
   construireModes();
+  const T = $('liste-soirees');
+  if(T){
+    T.innerHTML = '';
+    MODES.filter(m => m.test).forEach(m => {
+      const d = document.createElement('div');
+      d.className = 'evt choisir' + (CFG.mode === m.id ? ' actif' : '');
+      d.innerHTML = `<span class="coche">choisi</span>
+        <div class="n">${m.n}</div><div class="d">${m.d}</div>
+        <div class="b"><button>Lancer</button></div>`;
+      d.querySelector('button').onclick = () => { CFG.mode = m.id;
+        MEM.cfg = {...CFG}; ecrireMem(); demarrerPartie(); };
+      d.querySelector('.n').onclick = () => ouvrirFiche(m.id);
+      T.appendChild(d);
+    });
+  }
   const M = $('liste-solos');
   if(M){
     M.innerHTML = '';
@@ -2902,6 +3595,7 @@ function construireTest(){
         peupler();
         demarrerPartie();
       };
+      d.querySelector('.n').onclick = () => ouvrirFiche(s.id);
       M.appendChild(d);
     });
   }
@@ -2932,7 +3626,7 @@ function verrouTest(){
 }
 function tenterMdp(){
   if($('test-mdp').value.trim().toUpperCase() === MDP_TEST){
-    testOuvert = true; verrouTest(); majLatence(); construireTest();
+    testOuvert = true; verrouTest(); majLatence(); construireUsage(); construireTest();
   } else {
     $('test-err').textContent = 'Mot de passe incorrect.';
     $('test-mdp').value = '';
@@ -2946,6 +3640,57 @@ function noterLatence(ms){
   S.latences.push(ms);
   if(S.latences.length > 10) S.latences.shift();
 }
+function construireUsage(){
+  const U = $('usage-bloc');
+  if(!U) return;
+  const u = MEM.usage || {heures:{}, modes:{}, reflexes:[], parties:0};
+  if(!u.parties){
+    U.innerHTML = '<div class="note">Aucune partie enregistrée pour l\'instant.</div>';
+    return;
+  }
+  // répartition horaire, sur 24 barres
+  const maxH = Math.max(1, ...Object.values(u.heures));
+  const heures = [...Array(24)].map((_, i) => {
+    const n = u.heures[String(i)] || 0;
+    return `<span class="h-b" title="${i} h · ${n}">
+      <i style="height:${Math.round(n / maxH * 100)}%"></i></span>`;
+  }).join('');
+  const pointe = Object.entries(u.heures).sort((a,b) => b[1] - a[1])[0];
+
+  const modes = Object.entries(u.modes).sort((a,b) => b[1].parties - a[1].parties)
+    .map(([id, m]) => {
+      const nom = (SOLOS.find(s => s.id === id) || MODES.find(x => x.id === id) || {n:id}).n;
+      const taux = Math.round(m.finies / m.parties * 100);
+      return `<div class="u-l"><span class="u-n">${esc(nom)}</span>
+        <span class="u-bar"><i style="width:${Math.round(m.parties / u.parties * 100)}%"></i></span>
+        <span class="u-v">${m.parties}</span>
+        <span class="u-t">${taux}% finies</span></div>`;
+    }).join('');
+
+  const R = u.reflexes || [];
+  const moyR = R.length ? Math.round(R.reduce((a,b) => a+b, 0) / R.length) : null;
+
+  U.innerHTML = `
+    <div class="carte-verdict" style="margin-top:10px">
+      <div class="titre">${u.parties} partie${u.parties>1?'s':''}</div>
+      <div class="sous">${pointe ? 'heure de pointe : ' + pointe[0] + ' h' : ''}
+        ${moyR ? ' · réflexe moyen ' + moyR + ' ms sur ' + R.length + ' parties' : ''}</div>
+    </div>
+    <div class="titre-sec" style="margin-top:14px">Heures de jeu</div>
+    <div class="h-graph">${heures}</div>
+    <div class="h-ech"><span>0 h</span><span>12 h</span><span>23 h</span></div>
+    <div class="titre-sec" style="margin-top:14px">Modes joués</div>
+    ${modes}
+    <div style="margin-top:12px">
+      <button class="bouton fantome" id="usage-raz">Effacer ces statistiques</button>
+    </div>`;
+  const b = $('usage-raz');
+  if(b) b.onclick = async () => {
+    MEM.usage = {heures:{}, modes:{}, reflexes:[], parties:0};
+    await ecrireMem(); construireUsage();
+  };
+}
+
 function majLatence(){
   const L = S.latences;
   if(!L.length){
