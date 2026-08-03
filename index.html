@@ -131,7 +131,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .marque span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
   color:var(--laiton);text-transform:uppercase;margin-top:5px;padding-left:2px}
 .entete{align-items:flex-start}
-.entete{display:flex;align-items:flex-start;gap:11px}
+.entete{display:flex;align-items:flex-start;gap:11px;flex-wrap:wrap}
+/* quatre entrées de navigation ne tiennent pas à côté du titre :
+   on les fait passer sur leur propre ligne, réparties également */
+#reglages .entete{flex-direction:column;align-items:stretch;gap:12px}
+#reglages .nav{justify-content:stretch;gap:6px}
+#reglages .nav button{flex:1;text-align:center;padding:9px 4px}
 .defile{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
 .bloc{margin-top:15px}
 .rang{display:flex;align-items:center;gap:10px;padding:8px 0;
@@ -256,6 +261,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .ligne .qui{flex:1;font-size:21px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .ligne .moy{font-family:var(--mono);font-size:13px}
 .attente{color:var(--gris);opacity:.7;font-size:11px}
+/* ligne du panthéon du défi : quatre colonnes fixes, rien ne se chevauche */
+.l-defi{display:grid;grid-template-columns:44px 1fr auto 34px;align-items:baseline;
+  gap:10px;padding:11px 0;border-bottom:1px solid var(--trait)}
+.d-date{font-family:var(--mono);font-size:11px;color:var(--laiton);letter-spacing:.04em}
+.d-nom{font-size:18px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.d-val{font-family:var(--mono);font-size:14px;white-space:nowrap}
+.d-ess{font-family:var(--mono);font-size:10px;color:var(--gris);text-align:right}
 .ligne .bu{font-family:var(--mono);font-size:10px;color:var(--gris);width:100%;
   padding-left:29px;margin-top:-4px;letter-spacing:.08em}
 .detail{display:block;width:100%;padding-left:29px;margin-top:7px}
@@ -408,6 +421,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   opacity:.42;z-index:0}
 .f-chrono,.f-ecart,.f-gain{position:relative;z-index:1}
 .anneau.on{display:block}
+.anneau.critique{animation:pulseAnneau 1.1s ease-in-out infinite}
+@keyframes pulseAnneau{0%,100%{opacity:.42}50%{opacity:.85}}
+.bouclier.crit{display:none;color:var(--signal);border-color:var(--signal)}
+.bouclier.crit.on{display:inline-block;animation:pulseAnneau 1.1s ease-in-out infinite}
+#fluide.zone-critique{background:
+  radial-gradient(120% 70% at 50% 55%,rgba(220,59,42,.13),transparent 66%)}
+.pari-b{display:none;margin-top:8px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--alerte);
+  border:1px solid var(--alerte);border-radius:999px;padding:7px 14px}
+.pari-b.on{display:inline-block}
+.pari-b.pris{background:rgba(155,107,240,.18)}
 .anneau circle{transition:r .5s cubic-bezier(.16,.8,.3,1),stroke .3s}
 .f-gain{font-family:var(--cond);font-size:17px;font-weight:600;letter-spacing:.02em;
   line-height:1.3;text-align:center;padding:0 14px;min-height:0;visibility:hidden}
@@ -489,6 +513,27 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 @keyframes surgir{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 #fluide.attente-reflexe .f-centre,#fluide.attente-reflexe .f-verdict{opacity:.25}
 
+/* ─── profil ─── */
+.pr-tete{display:flex;gap:16px;align-items:center;margin-top:14px}
+.pr-photo{width:88px;height:88px;flex-shrink:0;border-radius:50%;position:relative;
+  border:2px solid var(--bordDoux);background:var(--surface);overflow:hidden;
+  display:flex;align-items:center;justify-content:center}
+.pr-photo img{width:100%;height:100%;object-fit:cover}
+#pr-init{font-size:36px;font-weight:700;letter-spacing:.02em;color:var(--laiton)}
+.pr-plus{position:absolute;right:-1px;bottom:-1px;width:28px;height:28px;border-radius:50%;
+  background:var(--laiton);color:var(--nuit);display:flex;align-items:center;
+  justify-content:center;font-size:19px;font-weight:700;line-height:1}
+.pr-id{flex:1;min-width:0}
+.pr-pseudo{font-size:30px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+  line-height:1.05;overflow:hidden;text-overflow:ellipsis}
+.pr-mail{font-family:var(--mono);font-size:11px;color:var(--gris);margin-top:6px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr-coul{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
+.pr-coul button{width:38px;height:38px;border-radius:50%;border:2px solid transparent;
+  position:relative}
+.pr-coul button[aria-pressed="true"]{border-color:var(--ivoire);
+  box-shadow:0 0 0 3px var(--nuit) inset}
+
 /* ─── banc d'essai comptes ─── */
 .journal{font-family:var(--mono);font-size:10.5px;line-height:1.75;color:var(--gris);
   background:var(--ardoise);border:1px solid var(--bordDoux);border-radius:var(--r);
@@ -549,10 +594,24 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--laiton);margin-top:6px}
 .barre{height:4px;border-radius:999px;background:var(--ardoise);margin-top:6px;overflow:hidden}
 .barre i{display:block;height:100%;background:var(--laiton);border-radius:999px}
-.mdl{display:flex;gap:5px;flex-wrap:wrap;margin:14px 0 12px}
+.mdl{display:flex;gap:5px;flex-wrap:wrap;margin:14px 0 10px}
+.filtre-bar{display:flex;justify-content:flex-end;margin-bottom:8px}
+.filtre-btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gris);border:1px solid var(--bordDoux);border-radius:999px;padding:6px 13px}
+.filtre-btn[aria-expanded="true"],.filtre-btn.actif{color:var(--laiton);border-color:var(--laiton)}
+.filtre-btn span{font-family:var(--mono)}
+.filtre-btn span:not(:empty)::before{content:" · "}
+.filtre-pan{display:none;border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:12px 13px;margin-bottom:10px}
+.filtre-pan.on{display:block}
 .mdl button{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
   padding:5px 10px;border-radius:999px;border:1px solid var(--bordDoux);color:var(--gris)}
 .mdl button[aria-pressed="true"]{color:var(--laiton);border-color:var(--laiton)}
+.courbe-sv{display:flex;align-items:flex-end;gap:2px;height:56px;margin-top:12px}
+.courbe-sv i{flex:1;background:var(--laiton);border-radius:2px 2px 0 0;min-height:3px;
+  opacity:.85}
+.courbe-lb{display:block;font-family:var(--mono);font-size:9.5px;color:var(--gris);
+  text-align:center;margin-top:5px;letter-spacing:.08em}
 .compte{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
 .compte span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
   text-transform:uppercase;border:1px solid var(--bordDoux);border-radius:999px;
@@ -607,6 +666,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="entete">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
     <div class="nav">
+      <button id="go-profil">Profil</button>
       <button id="go-panth">Panthéon</button>
       <button id="go-trophees">Trophées</button>
       <button id="go-test">Test</button>
@@ -704,6 +764,50 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="note" id="panth-note">—</div>
   <div class="note">Sauvegarde, import et effacement : menu → Mémoire.</div>
+</section>
+
+<!-- ═══ PROFIL ═══ -->
+<section class="ecran" id="profil">
+  <div class="entete">
+    <div class="marque"><h1>PROFIL</h1><span id="pr-etat">hors ligne</span></div>
+    <div class="nav"><button id="pr-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="pr-tete">
+      <button class="pr-photo" id="pr-photo" aria-label="Changer la photo">
+        <img id="pr-img" alt="" style="display:none">
+        <span id="pr-init">?</span>
+        <span class="pr-plus">+</span>
+      </button>
+      <div class="pr-id">
+        <div class="pr-pseudo" id="pr-pseudo">Invité</div>
+        <div class="pr-mail" id="pr-mail">Aucun compte</div>
+      </div>
+    </div>
+    <input type="file" id="pr-fichier" accept="image/*" style="display:none">
+    <div class="recap-b">
+      <button class="bouton fantome" id="pr-nom">Changer de pseudo</button>
+      <button class="bouton fantome" id="pr-effacer-photo">Retirer la photo</button>
+    </div>
+
+    <div class="titre-sec">Couleur</div>
+    <div class="note">Elle vous identifie dans les classements et pendant les parties.</div>
+    <div class="pr-coul" id="pr-coul"></div>
+
+    <div class="titre-sec">Partager</div>
+    <div class="note" id="pr-part-note">Un lien qui ouvre le jeu directement.</div>
+    <div class="recap-b">
+      <button class="bouton fantome" id="pr-inviter">Viens jouer avec moi</button>
+      <button class="bouton fantome" id="pr-ligue">Rejoins ma ligue</button>
+    </div>
+
+    <div class="titre-sec">Compte</div>
+    <div class="note" id="pr-compte-note">—</div>
+    <div class="recap-b">
+      <button class="bouton fantome" id="pr-connexion">Se connecter</button>
+    </div>
+  </div>
 </section>
 
 <!-- ═══ COMPTES ET LIGUES · BANC D'ESSAI ═══ -->
@@ -833,6 +937,23 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <button data-v="collectif" aria-pressed="false">Précision</button>
   </div>
   <div class="mdl" id="gl-modes"></div>
+  <div class="filtre-bar">
+    <button class="filtre-btn" id="gl-filtres">Filtrer<span id="gl-filtre-n"></span></button>
+  </div>
+  <div class="filtre-pan" id="gl-panneau">
+    <div class="eyebrow">Affichage</div>
+    <div class="seg" id="gl-aff">
+      <button data-v="tout" aria-pressed="true">Tout</button>
+      <button data-v="visible" aria-pressed="false">Visible</button>
+      <button data-v="aveugle" aria-pressed="false">Aveugle</button>
+    </div>
+    <div class="eyebrow" style="margin-top:10px">Difficulté</div>
+    <div class="seg" id="gl-diff">
+      <button data-v="tout" aria-pressed="true">Toutes</button>
+      <button data-v="simple" aria-pressed="false">Simple</button>
+      <button data-v="hard" aria-pressed="false">Hard</button>
+    </div>
+  </div>
   <div class="hairline" style="margin-bottom:12px"></div>
   <div class="classement" id="gl-liste"></div>
   <div class="note" id="gl-note">—</div>
@@ -904,6 +1025,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
     <div class="note" id="note-horo">—</div>
 
+    <div class="titre-sec">Mode Survie · options</div>
+    <div class="note">Chaque option peut être coupée pour juger de son utilité.</div>
+    <div id="sv-opts"></div>
+
     <div class="titre-sec">Apparence</div>
     <div class="seg" id="seg-da">
       <button data-v="instrument" aria-pressed="true">Origine</button>
@@ -953,6 +1078,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <span class="bouclier or" id="f-enchere"></span>
       <span class="bouclier vies" id="f-vies"></span>
       <span class="bouclier or" id="f-minute">La minute pile</span>
+    <span class="bouclier crit" id="f-critique"></span>
     </div>
   </div>
   <div class="f-obj"><b id="f-obj-cible">1,00</b><em id="f-obj-tenir">—</em>
@@ -974,6 +1100,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="f-chrono repos" id="f-chrono">0,00</div>
     <div class="f-ecart" id="f-ecart"></div>
     <div class="f-gain" id="f-gain"></div>
+    <button class="pari-b" id="f-pari"></button>
     <div class="pv-bloc" id="f-pv">
       <div class="pv-l"><span>Boss</span><span id="pv-b-n">80</span></div>
       <div class="pv-b"><i id="pv-b" style="width:100%"></i></div>
@@ -1075,12 +1202,23 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'classique',
               evts:'aucun', maxTours:20, horo:true,
-              mode:'classique', da:'instrument' };
+              mode:'classique', da:'instrument',
+  sv:{paliers:true, pari:true, son:true, vibr:true, anim:true} };
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
 const RATE = { classique:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
-const ZONE_MAX_SURVIE = 50;
 const ZONE_DEPART_SURVIE = 30;
+// Le plafond ne bouge pas avant le tour 60 : les longues parties restent
+// possibles, mais elles finissent par se refermer.
+function plafondSurvie(tour){
+  if(tour >= 100) return 35;
+  if(tour >= 60)  return 40;
+  return 50;
+}
+const ZONE_MAX_SURVIE = 50;          // valeur de référence pour l'anneau
+const ZONE_CRITIQUE = 8;             // en dessous, l'écran change de registre
+const PALIER_SURVIE = 10;            // un palier tous les dix tours
+const VIES_MAX_SURVIE = 1;           // une seule vie de rab pour l'instant
 // Survie : on commente le terrain gagné ou perdu, avec assez de variantes
 // pour que ça ne devienne pas un bruit de fond.
 const GAINS = {
@@ -1126,7 +1264,13 @@ function surligner(el, c){
 }
 // la couleur est attribuée une fois pour toutes : insérer un joueur en cours
 // de partie ne doit pas repeindre toute la table
-const coulNom = n => (S.couleurs && S.couleurs[n]) || coul(Math.max(0, S.joueurs.indexOf(n)));
+const coulNom = n => {
+  const p = MEM.profil;
+  // le joueur principal garde la couleur choisie dans son profil
+  if(p && p.couleur && (n === p.pseudo || (estSolo(CFG.mode) && n === S.joueurs[0])))
+    return p.couleur;
+  return (S.couleurs && S.couleurs[n]) || coul(Math.max(0, S.joueurs.indexOf(n)));
+};
 function couleurLibre(){
   const prises = new Set(Object.values(S.couleurs || {}));
   for(let i = 0; i < COULEURS.length; i++) if(!prises.has(coul(i))) return coul(i);
@@ -1170,8 +1314,8 @@ const SOLOS = [
    d:"Un objectif pour tous, renouvelé chaque jour."},
 
   {id:'survie', n:'Survie', tours:0, fam:'survie',
-   regle:"La zone sûre rétrécit d'un centième à chaque tour. Une seule sortie met fin à la partie. Le score est le nombre de tours tenus.",
-   astuce:"Un pile élargit la zone de 4 centièmes, un écart de 3 centièmes ou moins de 3 — et dans les deux cas l'usure du tour est annulée. Deux bons coups d'affilée majorent le gain de moitié, trois le doublent.",
+   regle:"La zone sûre rétrécit à chaque tour, de plus en plus vite. Une sortie met fin à la partie, sauf si vous avez gagné une vie. Le score est le nombre de tours tenus.",
+   astuce:"Un pile élargit la zone de 4 centièmes, un écart de 3 centièmes ou moins de 3 — et dans les deux cas l'usure du tour est annulée. Deux bons coups d'affilée majorent le gain de moitié, trois le doublent. Trois piles au total, ou deux d'affilée, offrent une vie de rattrapage.",
    d:"La zone rétrécit. Une sortie et c'est fini."},
 
   {id:'escalier', n:"L'escalier", tours:0, fam:'escalier',
@@ -1255,6 +1399,55 @@ function consommerEssai(){
 
 const jourCourant = () => { const d = new Date();
   return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); };
+
+/* ════════ SON ET RETOUR HAPTIQUE ════════ */
+// Un contexte audio unique, créé au premier appui : les navigateurs refusent
+// de le démarrer sans geste de l'utilisateur.
+let ctxAudio = null;
+function audio(){
+  if(ctxAudio) return ctxAudio;
+  try{ ctxAudio = new (window.AudioContext || window.webkitAudioContext)(); }
+  catch(e){ ctxAudio = false; }
+  return ctxAudio;
+}
+function bip(freq, duree, vol){
+  if(!CFG.sv || !CFG.sv.son) return;
+  const a = audio();
+  if(!a) return;
+  try{
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || .05, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + duree);
+    o.connect(g); g.connect(a.destination);
+    o.start(); o.stop(a.currentTime + duree);
+  }catch(e){}
+}
+function sonSurvie(quoi){
+  ({pile:  () => { bip(880, .12, .06); setTimeout(() => bip(1320, .16, .05), 90); },
+    bon:   () => bip(660, .10, .045),
+    passe: () => bip(392, .08, .03),
+    vie:   () => { bip(523, .12, .06); setTimeout(() => bip(784, .18, .05), 110); },
+    mort:  () => { bip(196, .28, .07); setTimeout(() => bip(147, .40, .06), 160); }
+  }[quoi] || (() => {}))();
+}
+// battement de cœur : sa cadence suit le resserrement de la zone
+let battement = null;
+function lancerBattement(){
+  arreterBattement();
+  if(!CFG.sv || !CFG.sv.son || CFG.mode !== 'survie') return;
+  const tic = () => {
+    if(!S.partie || CFG.mode !== 'survie'){ arreterBattement(); return; }
+    const z = Math.max(1, S.zoneSurvie);
+    bip(z <= ZONE_CRITIQUE ? 150 : 110, .07, z <= ZONE_CRITIQUE ? .05 : .028);
+    // de 1200 ms au large à 340 ms quand la zone est critique
+    const ms = 340 + Math.min(1, z / 30) * 860;
+    battement = setTimeout(tic, ms);
+  };
+  battement = setTimeout(tic, 900);
+}
+function arreterBattement(){ if(battement){ clearTimeout(battement); battement = null; } }
+function vibrerSv(ms){ if(CFG.sv && CFG.sv.vibr) vibrer(ms); }
 
 /* ════════ COMBAT ════════ */
 // Chaque boss est une combinaison de trois variables : largeur de garde,
@@ -1680,7 +1873,7 @@ function partieFinie(){
 /* ════════ MÉMOIRE PERSISTANTE ════════ */
 const CLE = 'krono.v1';
 const NEUF = () => ({joueurs:['Alexandre','Charles','Jean','Hugo'], cfg:null, profils:{},
-                     scores:[], connus:[], salon:null, defi:null, defis:{},
+                     scores:[], connus:[], salon:null, defi:null, defis:{}, profil:null,
                      usage:{heures:{}, modes:{}, reflexes:[], parties:0}});
 let MEM = NEUF();
 
@@ -2151,7 +2344,7 @@ $('go-panth').onclick = () => {
   if(S.salon && EN_LIGNE()){ construireGlobal(); montrer('global'); }
   else { construirePantheon(); montrer('pantheon'); }
 };
-$('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage(); montrer('test'); };
+$('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage(); construireSvOpts(); montrer('test'); };
 $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
 $('recap-panth').onclick  = () => $('go-panth').onclick();
@@ -2239,7 +2432,11 @@ function preparerSolo(){
     const r = graine(Date.now() & 0xffffff);
     for(let i = 0; i < 10; i++) S.sequence.push(80 + Math.floor(r() * 320));
   }
-  if(m === 'survie'){ S.zoneSurvie = ZONE_DEPART_SURVIE; S.chaineSurvie = 0; S.gainSurvie = null; }
+  if(m === 'survie'){
+    S.zoneSurvie = ZONE_DEPART_SURVIE; S.chaineSurvie = 0; S.gainSurvie = null;
+    S.vies = 0; S.pilesSurvie = 0; S.pariSurvie = false;
+    S.courbe = []; S.meilleureSerie = {n:0, tour:0, de:0, a:0};
+  }
   if(m === 'sprint'){ S.debutSprint = 0; S.sprintFini = false; }
   if(m === 'reflexe') CFG.maxTours = 10;
   if(m === 'combat'){
@@ -2336,6 +2533,7 @@ function demarrer(ev){
     return;
   }
   if(CFG.mode === 'nues') S.total = 0;   // chaque tour repart de zéro
+  if(CFG.mode === 'survie' && !battement) lancerBattement();
   S.t0 = t; S.encours = true;
   if(CFG.mode === 'sprint' && !S.debutSprint){ S.debutSprint = t; boucleSprint(); }
   fluidePhase('course');
@@ -2500,37 +2698,79 @@ function resoudre(valeur, delta, ecart){
   else if(CFG.mode === 'survie'){
     const v = evaluer(ecart);
     if(v.code === 'rate'){
-      S.mort = true; couleur = 't-s0'; S.gainSurvie = null;
-      T.textContent = 'Éliminé au tour ' + S.tour;
-      U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
+      if(S.vies > 0){
+        // seconde chance : on survit, mais la zone est amputée de moitié
+        S.vies--;
+        S.zoneSurvie = Math.max(2, Math.round(S.zoneSurvie / 2));
+        S.chaineSurvie = 0; S.gainSurvie = null;
+        couleur = 't-s20';
+        T.textContent = 'Rattrapé de justesse';
+        U.textContent = 'une vie consommée · zone ± ' + fmt(S.zoneSurvie);
+        sonSurvie('vie');
+        vibrerSv(60);
+      } else {
+        S.mort = true; couleur = 't-s0'; S.gainSurvie = null;
+        T.textContent = 'Éliminé au tour ' + S.tour;
+        U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
+        sonSurvie('mort');
+        vibrerSv(180);
+      }
     } else {
       S.points = S.tour;
-      // Règle : un pile rapporte 4 centièmes, un écart de 3 centièmes ou moins en
-      // rapporte 3. Dans les deux cas l'usure du tour est annulée. Sinon elle
-      // s'applique et rien n'est gagné.
       let bonus = 0;
       if(ecart === 0)     bonus = 4;
       else if(ecart <= 3) bonus = 3;
-      // enchaîner deux bons coups majore le gain de moitié, puis du double
+      const doublePari = S.pariSurvie;
       S.chaineSurvie = bonus ? (S.chaineSurvie || 0) + 1 : 0;
-      if(S.chaineSurvie >= 3)      bonus = Math.round(bonus * 2);
+      if(S.chaineSurvie >= 3)       bonus = Math.round(bonus * 2);
       else if(S.chaineSurvie === 2) bonus = Math.round(bonus * 1.5);
+      if(doublePari && bonus) bonus *= 2;      // le pari tenu double le gain
+
+      // une vie de rab au troisième pile, ou au deuxième pile d'affilée
+      let vieGagnee = false;
+      if(ecart === 0){
+        S.pilesSurvie++;
+        S.pilesEnchaines = (S.pilesEnchaines || 0) + 1;
+        if(S.vies < VIES_MAX_SURVIE
+           && (S.pilesSurvie % 3 === 0 || S.pilesEnchaines >= 2)){
+          S.vies++; vieGagnee = true; S.pilesEnchaines = 0;
+        }
+      } else S.pilesEnchaines = 0;
 
       const usureBase = S.tour < 10 ? 1 : S.tour < 20 ? 2 : 3;
-      const usure = bonus ? 0 : usureBase;      // gagner annule l'usure du tour
+      const usure = bonus ? 0 : usureBase;
       const avant = S.zoneSurvie;
-      S.zoneSurvie = Math.max(1, Math.min(ZONE_MAX_SURVIE, S.zoneSurvie - usure + bonus));
+
+      // palier tous les dix tours : cinq centièmes rendus
+      let palier = 0;
+      if(CFG.sv.paliers && S.tour % PALIER_SURVIE === 0) palier = 5;
+
+      const plaf = plafondSurvie(S.tour);
+      S.zoneSurvie = Math.max(1, Math.min(plaf, S.zoneSurvie - usure + bonus + palier));
 
       const delta = S.zoneSurvie - avant;
       S.gainSurvie = delta;
       couleur = ecart === 0 ? 't-s100' : bonus ? 't-s50' : 't-s20';
-      T.textContent = ecart === 0 ? 'Pile' : bonus ? 'Dans les 3 centièmes'
-                    : 'Tour ' + S.tour + ' passé';
+      T.textContent = vieGagnee ? 'Pile · une vie gagnée'
+        : ecart === 0 ? 'Pile'
+        : bonus ? (doublePari ? 'Pari tenu · gain doublé' : 'Dans les 3 centièmes')
+        : 'Tour ' + S.tour + ' passé';
       U.textContent = 'zone ± ' + fmt(S.zoneSurvie)
         + (bonus ? ' · usure annulée' : ' · usure ' + fmt(usureBase))
-        + (S.chaineSurvie >= 2 ? ' · série de ' + S.chaineSurvie
-           + (S.chaineSurvie >= 3 ? ' · gain doublé' : ' · gain +50 %') : '');
+        + (palier ? ' · palier +0,05' : '')
+        + (S.chaineSurvie >= 2 ? ' · série de ' + S.chaineSurvie : '');
+      sonSurvie(ecart === 0 ? 'pile' : bonus ? 'bon' : 'passe');
+      vibrerSv(bonus ? 25 : 12);
+
+      // on retient la meilleure remontée de la partie, pour la raconter à la fin
+      if(bonus){
+        const s = S.serieCourante = S.serieCourante || {n:0, de:avant, tour:S.tour};
+        s.n++; s.a = S.zoneSurvie;
+        if(s.n > S.meilleureSerie.n) S.meilleureSerie = {...s};
+      } else S.serieCourante = null;
     }
+    // le pari ne vaut que pour le tour suivant celui où il est pris
+    if(!S.mort){ S.pariSurvie = false; S.courbe.push(S.zoneSurvie); }
   }
   else if(CFG.mode === 'escalier'){
     const v = evaluer(ecart);
@@ -2809,8 +3049,31 @@ function bandeaux(pfx){
   }
 }
 
+// Le pari : sacrifier 5 centièmes maintenant pour doubler le gain du tour.
+function majPari(){
+  const b = $('f-pari');
+  const dispo = CFG.mode === 'survie' && S.partie && CFG.sv && CFG.sv.pari
+              && S.fPhase !== 'course' && S.zoneSurvie > 8;
+  b.classList.toggle('on', !!dispo);
+  b.classList.toggle('pris', !!S.pariSurvie);
+  if(dispo) b.textContent = S.pariSurvie
+    ? 'Pari pris · gain doublé'
+    : 'Parier −0,05 pour doubler le gain';
+}
+$('f-pari').onclick = ev => {
+  ev.stopPropagation();
+  if(CFG.mode !== 'survie' || S.pariSurvie || S.zoneSurvie <= 8) return;
+  S.pariSurvie = true;
+  S.zoneSurvie = Math.max(1, S.zoneSurvie - 5);
+  majPari(); majAnneau();
+  $('f-vies').textContent = 'zone ± ' + fmt(Math.max(1, S.zoneSurvie));
+  vibrerSv(20);
+};
+
+
 function fluidePret(){
   const nom = S.joueurs[S.idx];
+  majPari();
   S.zoneTour = zoneDe(nom);   // recalculée à chaque tour : survie et handicap en dépendent
   // chaque mode a son propre compteur : « tour 3 / 10 » n'a pas de sens en survie
   const m = CFG.mode;
@@ -2875,8 +3138,16 @@ function majAnneau(){
   if(!on) return;
   const z = Math.max(1, S.zoneSurvie);
   // l'anneau reste loin du centre : il encadre, il ne gêne pas la lecture
+  C.style.transition = (CFG.sv && CFG.sv.anim)
+    ? 'r .45s cubic-bezier(.16,1.1,.3,1), stroke .3s' : 'none';
   C.setAttribute('r', String(Math.round(48 + (z / ZONE_MAX_SURVIE) * 48)));
   C.setAttribute('stroke', z > 22 ? '#3E8E68' : z > 11 ? '#E6C544' : '#DC3B2A');
+  const crit = z <= ZONE_CRITIQUE;
+  A.classList.toggle('critique', crit && (CFG.sv ? CFG.sv.anim : true));
+  $('fluide').classList.toggle('zone-critique', crit);
+  $('f-critique').classList.toggle('on', crit);
+  $('f-critique').textContent = crit
+    ? 'Zone critique · ± ' + fmt(z) + (S.vies ? ' · ' + S.vies + ' vie' : '') : '';
 }
 
 function fluidePhase(ph){
@@ -3061,6 +3332,7 @@ $('stop').onclick = async () => {
 function afficherFin(){
   purgerMinuteries();
   S.partie = false; S.encours = false;
+  arreterBattement();
   const abandonSolo = estSolo(CFG.mode) && S.abandon;
   if(!S.enregistre && !abandonSolo){
     S.enregistre = true;
@@ -3143,6 +3415,26 @@ function afficherFin(){
   S.gagnes = gagnes;
 
   const rev0 = $('revelation');
+  if(CFG.mode === 'survie'){
+    const c = S.courbe || [];
+    TI.textContent = S.points + ' tour' + (S.points > 1 ? 's' : '');
+    const plaf = plafondSurvie(S.points || 1);
+    R.innerHTML = 'Survie · zone finale ± ' + fmt(Math.max(1, S.zoneSurvie))
+      + ' · ' + S.pilesSurvie + ' pile' + (S.pilesSurvie > 1 ? 's' : '')
+      + (c.length > 1 ? '<span class="courbe-sv">' + c.map((z, i) =>
+          `<i style="height:${Math.max(4, Math.round(z / 50 * 100))}%${
+            i === c.length - 1 ? ';background:var(--signal)' : ''}"></i>`).join('')
+        + '</span><span class="courbe-lb">largeur de zone, tour par tour</span>' : '');
+    const m = S.meilleureSerie || {n:0};
+    rev0.style.display = 'block';
+    rev0.querySelector('.t').textContent = 'Le moment clé';
+    $('rev-texte').textContent = m.n >= 2
+      ? 'Ta meilleure série : ' + m.n + ' bons coups d\'affilée au tour ' + m.tour
+        + ', la zone est remontée de ' + fmt(m.de) + ' à ' + fmt(m.a) + '.'
+      : S.points <= 3
+        ? "Partie très courte. La zone part à ± 0,30 : les premiers tours sont les plus faciles."
+        : 'Aucune série cette fois. Deux bons coups d\'affilée majorent le gain de moitié, trois le doublent.';
+  }
   if(CFG.mode === 'reflexe' && S.reflexes.length){
     const L = S.reflexes;
     const moy  = Math.round(L.reduce((a,b) => a+b, 0) / L.length);
@@ -3228,7 +3520,7 @@ function afficherFin(){
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
     // réflexe et combat ont déjà écrit leur propre résumé
     const propre = CFG.mode === 'reflexe' || CFG.mode === 'combat';
-    TI.textContent = S.points + ' points';
+    if(CFG.mode !== 'survie') TI.textContent = S.points + ' points';
     let l = libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
@@ -3236,9 +3528,9 @@ function afficherFin(){
       + (doubles.length > 2 ? ' et ' + (doubles.length-2) + ' autre'
          + (doubles.length > 3 ? 's' : '') : '');
     if(S.meilleureChaine > 1) l += ' · meilleure série ' + S.meilleureChaine + ' piles';
-    if(propre) l = R.textContent;
-    R.textContent = l;
-    if(!propre){
+    if(propre || CFG.mode === 'survie') l = null;
+    if(l !== null) R.textContent = l;
+    if(!propre && CFG.mode !== 'survie'){
       rev.style.display = 'block';
       rev.querySelector('.t').textContent = 'Le mot de la fin';
       $('rev-texte').textContent = bilan(S.points);
@@ -3255,7 +3547,8 @@ function afficherFin(){
   if(S.gagnes && S.gagnes.length){
     const t = S.gagnes.slice(0, 4)
       .map(g => g.n + ' · ' + g.nom + ' ' + g.rang).join('  —  ');
-    R.textContent += (R.textContent ? ' · ' : '') + 'Trophées : ' + t
+    // textContent écraserait la courbe : on complète le HTML
+    R.innerHTML += (R.innerHTML ? ' · ' : '') + 'Trophées : ' + esc(t)
       + (S.gagnes.length > 4 ? ' et ' + (S.gagnes.length-4) + ' autre'
          + (S.gagnes.length > 5 ? 's' : '') : '');
   }
@@ -3495,6 +3788,151 @@ async function publierPerf(){
       tours:st.tours, somme:st.ecart, biais:st.biais, carres:st.carres, piles:st.piles
     })});
   }catch(e){ /* silencieux : la partie locale compte de toute façon */ }
+}
+
+/* ════════ PROFIL ════════ */
+// Le profil est local par défaut. Il se synchronise avec le compte dès qu'une
+// session existe, sans jamais bloquer le jeu s'il n'y en a pas.
+const PROFIL_VIDE = () => ({pseudo:null, photo:null, couleur:null});
+const monPro = () => (MEM.profil = MEM.profil || PROFIL_VIDE());
+
+$('go-profil').onclick = () => { construireProfil(); montrer('profil'); };
+$('pr-retour').onclick = () => montrer('reglages');
+
+async function construireProfil(){
+  const p = monPro();
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  let distant = null;
+  if(s){ try{ distant = await monProfil(); }catch(e){} }
+  const nom = p.pseudo || distant || (MEM.joueurs && MEM.joueurs[0]) || 'Invité';
+
+  $('pr-pseudo').textContent = nom;
+  $('pr-pseudo').style.color = p.couleur || coulHash(nom);
+  $('pr-mail').textContent = s ? s.email : 'Profil local · aucun compte';
+  $('pr-etat').textContent = s ? 'connecté' : 'local';
+  $('pr-init').textContent = nom.slice(0, 1).toUpperCase();
+  $('pr-init').style.color = p.couleur || coulHash(nom);
+  $('pr-img').style.display = p.photo ? 'block' : 'none';
+  $('pr-init').style.display = p.photo ? 'none' : 'block';
+  if(p.photo) $('pr-img').src = p.photo;
+
+  $('pr-coul').innerHTML = COULEURS.map(c =>
+    `<button data-c="${c}" style="background:${c}"
+       aria-pressed="${(p.couleur || coulHash(nom)) === c}"
+       aria-label="Couleur ${c}"></button>`).join('');
+  $('pr-coul').querySelectorAll('button').forEach(b => b.onclick = async () => {
+    monPro().couleur = b.dataset.c;
+    await ecrireMem(); construireProfil();
+  });
+
+  $('pr-connexion').textContent = s ? 'Gérer le compte' : 'Se connecter';
+  $('pr-compte-note').textContent = s
+    ? 'Vos performances solo sont publiées sous ce compte.'
+    : EN_LIGNE()
+      ? 'Sans compte, tout reste sur ce téléphone. Un compte permet de retrouver ses scores ailleurs et de rejoindre des ligues.'
+      : 'Le mode en ligne n\'est pas configuré sur cette installation.';
+  $('pr-ligue').style.display = S.salon ? 'block' : 'none';
+}
+
+// photo : redimensionnée à 256 px et stockée en local, jamais envoyée
+$('pr-photo').onclick = () => $('pr-fichier').click();
+$('pr-fichier').onchange = async ev => {
+  const f = ev.target.files && ev.target.files[0];
+  if(!f) return;
+  try{
+    const url = await redimensionner(f, 256);
+    monPro().photo = url;
+    await ecrireMem(); construireProfil();
+  }catch(e){
+    choisir('Image illisible', "Ce fichier n'a pas pu être lu.", [{label:'Fermer', val:true}]);
+  }
+  ev.target.value = '';
+};
+function redimensionner(fichier, taille){
+  return new Promise((ok, ko) => {
+    const fr = new FileReader();
+    fr.onerror = ko;
+    fr.onload = () => {
+      const im = new Image();
+      im.onerror = ko;
+      im.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = c.height = taille;
+        const x = c.getContext('2d');
+        // recadrage centré, sans déformer
+        const m = Math.min(im.width, im.height);
+        x.drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, taille, taille);
+        ok(c.toDataURL('image/jpeg', .82));
+      };
+      im.src = fr.result;
+    };
+    fr.readAsDataURL(fichier);
+  });
+}
+$('pr-effacer-photo').onclick = async () => {
+  monPro().photo = null; await ecrireMem(); construireProfil();
+};
+
+$('pr-nom').onclick = async () => {
+  const n = await demanderNom('Votre pseudo',
+    'Il vous identifie dans les classements et les ligues.', []);
+  if(!n) return;
+  monPro().pseudo = n;
+  memoriser(n);
+  await ecrireMem();
+  // si un compte existe, on aligne le profil distant
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  if(s){ try{ await apiAuth('profils?id=eq.' + s.id,
+    {method:'PATCH', body:JSON.stringify({pseudo:n})}); }catch(e){} }
+  construireProfil();
+};
+
+$('pr-connexion').onclick = async () => {
+  if(!EN_LIGNE())
+    return choisir('Mode en ligne indisponible',
+      "Aucune clé n'est configurée sur cette installation.", [{label:'Fermer', val:true}]);
+  await majComptes(); montrer('comptes');
+};
+
+/* ─── partage ─── */
+function lienJeu(params){
+  const base = location.origin + location.pathname;
+  const q = Object.entries(params || {}).filter(([,v]) => v)
+    .map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&');
+  return base + (q ? '?' + q : '');
+}
+async function partager(titre, texte, url){
+  try{
+    if(navigator.share){ await navigator.share({title:titre, text:texte, url}); return 'partagé'; }
+  }catch(e){ if(e && e.name === 'AbortError') return null; }
+  try{ await navigator.clipboard.writeText(texte + ' ' + url); return 'copié'; }
+  catch(e){ return url; }
+}
+$('pr-inviter').onclick = async () => {
+  const nom = $('pr-pseudo').textContent;
+  const r = await partager('Krono',
+    nom + ' t\'invite à jouer à Krono. Viens jouer avec moi !',
+    lienJeu({de:nom}));
+  if(r === 'copié') $('pr-part-note').textContent = 'Lien copié dans le presse-papier.';
+};
+$('pr-ligue').onclick = async () => {
+  if(!S.salon) return;
+  const nom = $('pr-pseudo').textContent;
+  const r = await partager('Krono · ' + S.salon,
+    nom + ' t\'invite dans sa ligue Krono. Code : ' + S.salon + '. Je te joins ma ligue !',
+    lienJeu({ligue:S.salon}));
+  if(r === 'copié') $('pr-part-note').textContent = 'Invitation copiée · code ' + S.salon;
+};
+
+// un lien d'invitation pré-remplit le salon
+function lireInvitation(){
+  const q = new URLSearchParams(location.search);
+  const l = (q.get('ligue') || '').toUpperCase();
+  if(/^[A-Z]{5}$/.test(l) && !S.salon){
+    S.salon = l; MEM.salon = l; ecrireMem(); majEtatSalon();
+    return l;
+  }
+  return null;
 }
 
 /* ════════ BANC D'ESSAI COMPTES ET LIGUES ════════ */
@@ -3813,13 +4251,14 @@ function construirePantheonDefi(){
   };
   L.innerHTML = jours.map((j,i) => {
     const e = tout[j];
+    // on n'affiche que le meilleur résultat du jour, jamais une moyenne
     const val = e.best === null ? '—'
-      : (e.mesure === 'ecart' || e.mesure === 'moyenne') ? '±' + fmt(e.best) : e.best;
-    return `<div class="ligne">
-      <span class="pos">${dateFr(j)}</span>
-      <span class="qui">${esc(e.nom || 'Défi')}</span>
-      <span class="moy ${i===0?'t-laiton':''}">${val}</span>
-      <span class="bu">${e.essais} tentative${e.essais>1?'s':''}</span></div>`;
+      : (e.mesure === 'ecart' || e.mesure === 'moyenne') ? '±' + fmt(e.best) : String(e.best);
+    return `<div class="l-defi">
+      <span class="d-date">${dateFr(j)}</span>
+      <span class="d-nom">${esc(e.nom || 'Défi')}</span>
+      <span class="d-val ${i===0?'t-laiton':''}">${val}</span>
+      <span class="d-ess">${e.essais}/${MAX_ESSAIS_DEFI}</span></div>`;
   }).join('');
   const faits = Object.keys(tout).length;
   // série de jours consécutifs, en partant d'aujourd'hui
@@ -3827,8 +4266,9 @@ function construirePantheonDefi(){
   while(tout[cur]){ serie++; const d = new Date(String(cur).slice(0,4),
     +String(cur).slice(4,6)-1, +String(cur).slice(6,8) - 1);
     cur = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); }
-  $('fi-defi-note').textContent = faits + ' défi' + (faits>1?'s':'') + ' joué'
-    + (faits>1?'s':'') + (serie > 1 ? ' · ' + serie + ' jours d\'affilée' : '');
+  $('fi-defi-note').textContent = 'Meilleur résultat de chaque jour · '
+    + faits + ' défi' + (faits>1?'s':'') + ' joué' + (faits>1?'s':'')
+    + (serie > 1 ? ' · ' + serie + ' jours d\'affilée' : '');
 }
 
 /* ════════ SALON ════════ */
@@ -3896,13 +4336,37 @@ $('salon-rejoindre').onclick = async () => {
 
 /* ════════ PANTHÉON GLOBAL ════════ */
 let glFiltre = 'solo';
-let glMode = 'solo';
+let glMode = 'solo', glAff = 'tout', glDiff = 'tout';
 const HORS_PANTHEON = ['defi'];   // le défi a son propre tableau
 $('go-global').onclick = () => { construireGlobal(); montrer('global'); };
+// le panneau de filtres se replie à chaque ouverture de l'écran
+function replierFiltres(){
+  $('gl-panneau').classList.remove('on');
+  $('gl-filtres').setAttribute('aria-expanded', 'false');
+}
 $('gl-retour').onclick = () => montrer('reglages');
-segmente('seg-gl', v => { glFiltre = v; construireGlobal(); });
+segmente('seg-gl', v => { glFiltre = v; construireGlobal(true); });
+segmente('gl-aff',  v => { glAff = v;  construireGlobal(true); });
+segmente('gl-diff', v => { glDiff = v; construireGlobal(true); });
+$('gl-filtres').onclick = () => {
+  const on = !$('gl-panneau').classList.contains('on');
+  $('gl-panneau').classList.toggle('on', on);
+  $('gl-filtres').setAttribute('aria-expanded', on);
+};
+// une performance porte sa configuration dans « config » : aff·diff·tours·mode
+function passeFiltres(r){
+  if(glAff === 'tout' && glDiff === 'tout') return true;
+  const [a, d] = String(r.config || '').split('·');
+  return (glAff === 'tout' || a === glAff) && (glDiff === 'tout' || d === glDiff);
+}
+function majBadgeFiltres(){
+  const n = (glAff !== 'tout' ? 1 : 0) + (glDiff !== 'tout' ? 1 : 0);
+  $('gl-filtre-n').textContent = n ? String(n) : '';
+  $('gl-filtres').classList.toggle('actif', n > 0);
+}
 
-async function construireGlobal(){
+async function construireGlobal(depuisFiltre){
+  if(!depuisFiltre) replierFiltres();
   $('gl-code').textContent = S.salon || '';
   const L = $('gl-liste');
   L.innerHTML = '<div class="vide">Chargement…</div>';
@@ -3931,8 +4395,9 @@ async function construireGlobal(){
 // Précision : toutes les parties, tous les modes, tous les réglages.
 // Un joueur régulier doit remonter quel que soit le contexte de jeu.
 function classementCollectif(L, lignes){
+  majBadgeFiltres();
   const par = {};
-  (lignes || []).forEach(r => {
+  (lignes || []).filter(passeFiltres).forEach(r => {
     const p = par[r.pseudo] || (par[r.pseudo] = profilVide());
     ['tours','somme','biais','carres','piles','gorgees','culs']
       .forEach(k => p[k] += (r[k] || 0));
@@ -3976,16 +4441,19 @@ function construireOngletsModes(lignes){
     .map(v => `<button data-v="${v}" aria-pressed="${v === glMode}">${esc(nom(v))}`
       + ' · ' + (cpt[v] || 0) + '</button>').join('');
   $('gl-modes').querySelectorAll('button').forEach(b => b.onclick = () => {
-    glMode = b.dataset.v; construireGlobal();
+    glMode = b.dataset.v; construireGlobal(true);
   });
 }
 
 // Scores solo : une ligne par performance, pas une moyenne. Dix meilleures.
 function classementSolo(L, lignes){
+  majBadgeFiltres();
   const perfs = (lignes || []).filter(r => r.points > 0 && r.mode === glMode)
+    .filter(passeFiltres)
     .sort((a,b) => b.points - a.points).slice(0, 10);
   if(!perfs.length){
-    L.innerHTML = '<div class="vide">Aucun score publié dans ce salon pour ce mode.</div>';
+    L.innerHTML = '<div class="vide">Aucun score pour ce mode'
+      + (glAff !== 'tout' || glDiff !== 'tout' ? ' avec ces filtres' : '') + '.</div>';
     return;
   }
   perfs.forEach((r,i) => {
@@ -4000,8 +4468,10 @@ function classementSolo(L, lignes){
     L.appendChild(d);
   });
   const nomM = (SOLOS.find(s => s.id === glMode) || {n:glMode}).n;
+  const detail = [glAff !== 'tout' ? (glAff === 'aveugle' ? "à l'aveugle" : 'visible') : null,
+                  glDiff !== 'tout' ? glDiff : null].filter(Boolean).join(' · ');
   $('gl-note').textContent = 'Dix meilleures performances · ' + nomM
-    + ' · chaque ligne est une partie, pas une moyenne.';
+    + (detail ? ' · ' + detail : '') + ' · chaque ligne est une partie.';
 }
 
 /* ════════ SCORES D'ENTRAÎNEMENT ════════ */
@@ -4144,7 +4614,7 @@ function verrouTest(){
 }
 function tenterMdp(){
   if($('test-mdp').value.trim().toUpperCase() === MDP_TEST){
-    testOuvert = true; verrouTest(); majLatence(); construireUsage(); construireTest();
+    testOuvert = true; verrouTest(); majLatence(); construireUsage(); construireSvOpts(); construireTest();
   } else {
     $('test-err').textContent = 'Mot de passe incorrect.';
     $('test-mdp').value = '';
@@ -4158,6 +4628,34 @@ function noterLatence(ms){
   S.latences.push(ms);
   if(S.latences.length > 10) S.latences.shift();
 }
+const SV_OPTS = [
+  {c:'paliers', n:'Paliers', d:"Tous les dix tours, cinq centièmes rendus. Crée des objectifs intermédiaires."},
+  {c:'pari',    n:'Le pari', d:"Sacrifier 5 centièmes avant un lancer pour doubler le gain s'il est bon."},
+  {c:'son',     n:'Son',     d:"Battement qui s'accélère quand la zone se resserre, et retours sonores."},
+  {c:'vibr',    n:'Vibration', d:"Retour haptique court sur un gain, long sur une perte."},
+  {c:'anim',    n:'Anneau animé', d:"Transition douce de l'anneau et pulsation en zone critique."}
+];
+function construireSvOpts(){
+  const B = $('sv-opts');
+  if(!B) return;
+  CFG.sv = CFG.sv || {paliers:true, pari:true, son:true, vibr:true, anim:true};
+  B.innerHTML = '';
+  SV_OPTS.forEach(o => {
+    const d = document.createElement('div');
+    d.className = 'evt' + (CFG.sv[o.c] ? ' actif' : '');
+    d.innerHTML = `<span class="coche">actif</span>
+      <div class="n">${o.n}</div><div class="d">${o.d}</div>
+      <div class="b"><button>${CFG.sv[o.c] ? 'Couper' : 'Activer'}</button></div>`;
+    d.querySelector('button').onclick = () => {
+      CFG.sv[o.c] = !CFG.sv[o.c];
+      MEM.cfg = {...CFG}; ecrireMem();
+      if(!CFG.sv.son) arreterBattement();
+      construireSvOpts();
+    };
+    B.appendChild(d);
+  });
+}
+
 function construireUsage(){
   const U = $('usage-bloc');
   if(!U) return;
@@ -4261,6 +4759,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   majDatalist();
   S.salon = MEM.salon || null;
   SESSION = lireSession();
+  lireInvitation();
   peupler(); majMem(); construireTest(); rafraichir(); majEtatSalon();
   viderFile();
 })();
