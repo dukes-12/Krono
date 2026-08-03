@@ -231,7 +231,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   background:var(--surface);padding:14px 15px;margin-top:9px}
 .evt.actif{border-color:var(--laiton);background:rgba(201,162,39,.06)}
 .evt.choisir{cursor:pointer;position:relative}
-.evt.epuise{opacity:.45}
+.evt.epuise{opacity:.5}
+/* le défi du jour se distingue : c'est le rendez-vous quotidien */
+.evt.defi-carte{background:linear-gradient(135deg,rgba(201,162,39,.14),rgba(185,140,255,.08));
+  border-color:rgba(201,162,39,.42)}
+.evt.defi-carte .n{color:var(--laiton)}
+.evt .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--bordDoux);border-radius:999px;padding:4px 10px;color:var(--gris)}
+.evt .tag.vif{color:var(--laiton);border-color:rgba(201,162,39,.5)}
 .evt.choisir .coche{position:absolute;top:14px;right:15px;font-family:var(--mono);
   font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--laiton);
   border:1px solid var(--laiton);border-radius:999px;padding:3px 9px;display:none}
@@ -425,6 +432,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 @keyframes surgir{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 #fluide.attente-reflexe .f-centre,#fluide.attente-reflexe .f-verdict{opacity:.25}
 
+/* ─── banc d'essai comptes ─── */
+.journal{font-family:var(--mono);font-size:10.5px;line-height:1.75;color:var(--gris);
+  background:var(--ardoise);border:1px solid var(--bordDoux);border-radius:var(--r);
+  padding:12px 13px;margin-top:9px;max-height:220px;overflow-y:auto;
+  white-space:pre-wrap;word-break:break-word}
+.journal .ok{color:var(--vertVif)}
+.journal .ko{color:var(--signal)}
+.journal .info{color:var(--laiton)}
+
 /* ─── usage ─── */
 .h-graph{display:flex;align-items:flex-end;gap:2px;height:56px;margin-top:9px}
 .h-b{flex:1;height:100%;display:flex;align-items:flex-end;background:var(--ardoise);
@@ -475,6 +491,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--laiton);margin-top:6px}
 .barre{height:4px;border-radius:999px;background:var(--ardoise);margin-top:6px;overflow:hidden}
 .barre i{display:block;height:100%;background:var(--laiton);border-radius:999px}
+.mdl{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.mdl button{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
+  padding:5px 10px;border-radius:999px;border:1px solid var(--bordDoux);color:var(--gris)}
+.mdl button[aria-pressed="true"]{color:var(--laiton);border-color:var(--laiton)}
 .compte{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
 .compte span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
   text-transform:uppercase;border:1px solid var(--bordDoux);border-radius:999px;
@@ -628,6 +648,46 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="note">Sauvegarde, import et effacement : menu → Mémoire.</div>
 </section>
 
+<!-- ═══ COMPTES ET LIGUES · BANC D'ESSAI ═══ -->
+<section class="ecran" id="comptes">
+  <div class="entete">
+    <div class="marque"><h1>COMPTES</h1><span id="cp-etat">hors ligne</span></div>
+    <div class="nav"><button id="cp-retour">Test</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="titre-sec">1 · Connexion au serveur</div>
+    <div class="note" id="cp-serveur">—</div>
+    <div style="margin-top:8px">
+      <button class="bouton fantome" id="cp-ping">Tester la connexion</button>
+    </div>
+
+    <div class="titre-sec">2 · Tables d'authentification</div>
+    <div class="note" id="cp-tables">Non vérifiées.</div>
+    <div style="margin-top:8px">
+      <button class="bouton fantome" id="cp-verif">Vérifier les tables</button>
+    </div>
+
+    <div class="titre-sec">3 · Compte</div>
+    <div class="mod-saisie" style="display:flex;margin-top:8px">
+      <input id="cp-mail" type="email" placeholder="adresse@exemple.fr"
+             autocomplete="email" autocapitalize="off">
+      <button id="cp-envoyer">Lien</button>
+    </div>
+    <div class="note" id="cp-compte">Aucun compte connecté sur cet appareil.</div>
+
+    <div class="titre-sec">4 · Ligues</div>
+    <div class="note" id="cp-ligues">Connectez-vous pour voir vos ligues.</div>
+    <div class="recap-b">
+      <button class="bouton fantome" id="cp-creer">Créer une ligue</button>
+      <button class="bouton fantome" id="cp-rejoindre">Rejoindre</button>
+    </div>
+
+    <div class="titre-sec">Journal</div>
+    <div class="journal" id="cp-log"></div>
+  </div>
+</section>
+
 <!-- ═══ FICHE D'UN MODE ═══ -->
 <section class="ecran" id="fiche">
   <div class="entete">
@@ -693,9 +753,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="hairline"></div>
   <div class="seg" id="seg-gl">
-    <button data-v="solo" aria-pressed="true">Scores solo</button>
+    <button data-v="solo" aria-pressed="true">Scores</button>
     <button data-v="collectif" aria-pressed="false">Précision</button>
   </div>
+  <div class="mdl" id="gl-modes"></div>
   <div class="classement" id="gl-liste"></div>
   <div class="note" id="gl-note">—</div>
   <div class="recap-b">
@@ -765,6 +826,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button data-v="0" aria-pressed="false">Heure de traitement</button>
     </div>
     <div class="note" id="note-horo">—</div>
+
+    <div class="titre-sec">Comptes et ligues</div>
+    <div class="note">Fonctionnalité en préparation. Ce banc d'essai vérifie la
+      connexion à Supabase avant d'écrire quoi que ce soit dans l'application.</div>
+    <div style="margin-top:10px">
+      <button class="bouton fantome" id="go-comptes">Ouvrir le banc d'essai</button>
+    </div>
 
     <div class="titre-sec">Usage</div>
     <div class="note">Statistiques enregistrées sur ce téléphone uniquement.
@@ -925,7 +993,8 @@ const CFG = { aff:'visible', diff:'simple', gor:'classique',
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
 const RATE = { classique:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
-const ZONE_MAX_SURVIE = 35;
+const ZONE_MAX_SURVIE = 50;
+const ZONE_DEPART_SURVIE = 30;
 // Survie : on commente le terrain gagné ou perdu, avec assez de variantes
 // pour que ça ne devienne pas un bruit de fond.
 const GAINS = {
@@ -948,7 +1017,7 @@ const GAINS = {
           "Attention · {n} centièmes en moins"]
 };
 function phraseGain(delta){
-  const L = delta >= 3 ? GAINS.gros : delta > 0 ? GAINS.petit
+  const L = delta >= 5 ? GAINS.gros : delta > 0 ? GAINS.petit
           : delta === 0 ? GAINS.stable : GAINS.perte;
   return L[Math.floor(Math.random() * L.length)].replace('{n}', Math.abs(delta));
 }   // plafond affiché ET appliqué : les deux doivent coïncider
@@ -1010,13 +1079,13 @@ const SOLOS = [
    d:"Dix cibles, des points, des piles à enchaîner."},
 
   {id:'defi', n:'Défi du jour', tours:0, fam:'defi',
-   regle:"Un objectif unique, le même pour tout le monde, tiré de la date du jour. Une seule tentative : le résultat est celui du premier essai.",
-   astuce:"Le défi change chaque nuit. Rien ne sert de relancer, la consigne restera la même jusqu'à demain.",
+   regle:"Un objectif unique, le même pour tout le monde, tiré de la date du jour. Trois tentatives par jour, pas une de plus : c'est la meilleure qui compte.",
+   astuce:"Le défi change chaque nuit. Rien ne sert de relancer au-delà de trois essais, la consigne restera la même jusqu'à demain.",
    d:"Un objectif pour tous, renouvelé chaque jour."},
 
   {id:'survie', n:'Survie', tours:0, fam:'survie',
    regle:"La zone sûre rétrécit d'un centième à chaque tour. Une seule sortie met fin à la partie. Le score est le nombre de tours tenus.",
-   astuce:"Un pile élargit la zone de 5 centièmes, un écart sous 5 centièmes l'élargit de 2. Bien viser, c'est gagner du temps.",
+   astuce:"Un pile élargit la zone de 4 centièmes, un écart de 3 centièmes ou moins de 3 — et dans les deux cas l'usure du tour est annulée. Deux bons coups d'affilée majorent le gain de moitié, trois le doublent.",
    d:"La zone rétrécit. Une sortie et c'est fini."},
 
   {id:'escalier', n:"L'escalier", tours:0, fam:'escalier',
@@ -2002,7 +2071,15 @@ $('f-quitter').onclick = quitterPartie;
 
 /* ════════ PARTIE ════════ */
 $('commencer').onclick = () => demarrerPartie();
-function demarrerPartie(){
+async function demarrerPartie(){
+  // dernier rempart : aucun chemin ne doit permettre une 4ᵉ tentative
+  if(CFG.mode === 'defi' && essaisRestants() <= 0){
+    montrer('reglages');
+    await choisir('Défi épuisé',
+      'Vous avez utilisé vos ' + MAX_ESSAIS_DEFI + ' tentatives du jour. '
+      + 'Un nouveau défi arrive demain.', [{label:'Compris', val:true}]);
+    return;
+  }
   const j = lireListe();
   if(!estSolo(CFG.mode) && j.length < 2){
     demander('Il faut au moins deux joueurs',
@@ -2020,6 +2097,8 @@ function demarrerPartie(){
   S.points = 0; S.chaine = 0; S.meilleureChaine = 0; S.chaineFrole = 0;
   S.dernier = null; S.finDeTour = null; S.dernierMs = undefined;
   $('f-sprint').classList.remove('on'); $('f-sprint').textContent = '';
+  $('f-gain').classList.remove('on');   $('f-gain').textContent = '';
+  S.gainSurvie = null;
   S.tropheesAvant = {}; S.gagnes = []; S.abandon = false; S.ecarts = []; S.usageNote = false;
   j.forEach(n => S.tropheesAvant[n] = trophees(n).map(x => x.tr.id + ':' + x.e.rang));
   S.zoneTour = 0; S.enchere = null;
@@ -2069,7 +2148,7 @@ function preparerSolo(){
     }
     CFG.maxTours = S.sequence.length;
   }
-  if(m === 'survie') S.zoneSurvie = ZONE_MAX_SURVIE;
+  if(m === 'survie'){ S.zoneSurvie = ZONE_DEPART_SURVIE; S.chaineSurvie = 0; S.gainSurvie = null; }
   if(m === 'sprint'){ S.debutSprint = 0; S.sprintFini = false; }
   if(m === 'reflexe') CFG.maxTours = 10;
   if(m === 'combat'){
@@ -2335,26 +2414,31 @@ function resoudre(valeur, delta, ecart){
       U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
     } else {
       S.points = S.tour;
+      // Règle : un pile rapporte 4 centièmes, un écart de 3 centièmes ou moins en
+      // rapporte 3. Dans les deux cas l'usure du tour est annulée. Sinon elle
+      // s'applique et rien n'est gagné.
       let bonus = 0;
-      if(ecart === 0)      bonus = 4;   // un pile fait respirer
-      else if(ecart <= 3)  bonus = 2;   // frôler aussi, mais il faut vraiment frôler
+      if(ecart === 0)     bonus = 4;
+      else if(ecart <= 3) bonus = 3;
+      // enchaîner deux bons coups majore le gain de moitié, puis du double
       S.chaineSurvie = bonus ? (S.chaineSurvie || 0) + 1 : 0;
-      if(S.chaineSurvie >= 3) bonus += 1;   // l'enchaînement paie, mais moins
-      // le resserrement s'accélère : 1 centième, puis 2, puis 3
+      if(S.chaineSurvie >= 3)      bonus = Math.round(bonus * 2);
+      else if(S.chaineSurvie === 2) bonus = Math.round(bonus * 1.5);
+
       const usureBase = S.tour < 10 ? 1 : S.tour < 20 ? 2 : 3;
-      // un bon coup annule l'usure du tour : la règle reste simple à comprendre
-      const usure = bonus ? 0 : usureBase;
+      const usure = bonus ? 0 : usureBase;      // gagner annule l'usure du tour
       const avant = S.zoneSurvie;
       S.zoneSurvie = Math.max(1, Math.min(ZONE_MAX_SURVIE, S.zoneSurvie - usure + bonus));
-      couleur = ecart === 0 ? 't-s100' : bonus ? 't-s50' : 't-s20';
+
       const delta = S.zoneSurvie - avant;
       S.gainSurvie = delta;
-      couleur = delta >= 3 ? 't-s100' : delta > 0 ? 't-s50'
-              : delta === 0 ? 't-s20' : 't-s0';
-      T.textContent = ecart === 0 ? 'Pile' : 'Tour ' + S.tour + ' passé';
+      couleur = ecart === 0 ? 't-s100' : bonus ? 't-s50' : 't-s20';
+      T.textContent = ecart === 0 ? 'Pile' : bonus ? 'Dans les 3 centièmes'
+                    : 'Tour ' + S.tour + ' passé';
       U.textContent = 'zone ± ' + fmt(S.zoneSurvie)
-        + (bonus ? ' · usure annulée' : ' · usure ' + fmt(usureBase) + '/tour')
-        + (S.chaineSurvie >= 3 ? ' · série de ' + S.chaineSurvie : '');
+        + (bonus ? ' · usure annulée' : ' · usure ' + fmt(usureBase))
+        + (S.chaineSurvie >= 2 ? ' · série de ' + S.chaineSurvie
+           + (S.chaineSurvie >= 3 ? ' · gain doublé' : ' · gain +50 %') : '');
     }
   }
   else if(CFG.mode === 'escalier'){
@@ -2433,19 +2517,16 @@ function resoudre(valeur, delta, ecart){
       // trois coups critiques d'affilée forcent une ouverture
       if(S.critiques >= 3){ S.gardeBoss += 6; S.critiques = 0; }
       couleur = crit ? 't-s100' : 't-s50';
-      T.textContent = crit ? 'Critique · ' + deg + ' dégâts' : 'Touché · ' + deg + ' dégâts';
-      U.textContent = b.n + ' · ' + S.pvBoss + ' PV'
-        + (S.critiques === 0 && crit ? ' · sa garde s\'ouvre' : '')
-        + (S.pvBoss <= 25 && S.pvBoss > 0 ? ' · il accélère' : '');
+      T.textContent = crit ? 'Critique · −' + deg : 'Touché · −' + deg;
+      U.textContent = '';   // les barres de vie disent déjà tout
     } else {
       S.pvMoi = Math.max(0, S.pvMoi - b.degats);
       S.touches++; S.critiques = 0;
       // il apprend : après trois coups portés, sa garde se resserre
       if(S.touches % 3 === 0) S.gardeBoss = Math.max(3, S.gardeBoss - 3);
       couleur = 't-s0';
-      T.textContent = 'Manqué · −' + b.degats + ' PV';
-      U.textContent = 'il vous reste ' + S.pvMoi + ' PV'
-        + (S.touches % 3 === 0 ? ' · sa garde se resserre à ± ' + fmt(S.gardeBoss) : '');
+      T.textContent = 'Manqué · −' + b.degats;
+      U.textContent = '';
     }
     S.points = Math.max(0, S.pvBoss <= 0 ? 500 + S.pvMoi * 5 : 0);
   }
@@ -2673,8 +2754,11 @@ function fluidePret(){
   else if(m === 'escalier') $('f-tour').textContent = 'Marche ' + fmt(100 + (S.marche-1)*50)
                                                     + ' s · ' + (3 - S.chutes) + ' vies';
   else if(m === 'sprint')   $('f-tour').textContent = S.debutSprint ? '' : 'Prêt ?';
-  else if(m === 'defi' && S.defi) $('f-tour').textContent = S.defi.essais > 1
-    ? 'Essai ' + S.tour + ' / ' + S.defi.essais : 'Une seule tentative';
+  else if(m === 'defi' && S.defi){
+    const util = MAX_ESSAIS_DEFI - essaisRestants();
+    $('f-tour').textContent = util + ' / ' + MAX_ESSAIS_DEFI + ' tentatives'
+      + (S.defi.essais > 1 ? ' · essai ' + S.tour + '/' + S.defi.essais : '');
+  }
   else if(m === 'reflexe')  $('f-tour').textContent = 'Manche ' + S.tour + ' / 10';
   else if(m === 'combat')   $('f-tour').textContent = bossCourant().n;
   else $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}`
@@ -2727,8 +2811,8 @@ function majAnneau(){
   if(!on) return;
   const z = Math.max(1, S.zoneSurvie);
   // l'anneau reste loin du centre : il encadre, il ne gêne pas la lecture
-  C.setAttribute('r', String(Math.round(52 + (z / ZONE_MAX_SURVIE) * 44)));
-  C.setAttribute('stroke', z > 24 ? '#3E8E68' : z > 12 ? '#E6C544' : '#DC3B2A');
+  C.setAttribute('r', String(Math.round(48 + (z / ZONE_MAX_SURVIE) * 48)));
+  C.setAttribute('stroke', z > 22 ? '#3E8E68' : z > 11 ? '#E6C544' : '#DC3B2A');
 }
 
 function fluidePhase(ph){
@@ -2737,6 +2821,7 @@ function fluidePhase(ph){
   majAnneau();
   // le décompte du sprint ne doit jamais survivre à un changement de mode
   if(CFG.mode !== 'sprint') $('f-sprint').classList.remove('on');
+  if(CFG.mode !== 'survie'){ $('f-gain').classList.remove('on'); $('f-gain').textContent = ''; }
   const C = $('f-chrono'), G = $('f-gauche'), D = $('f-droite'), R = $('f-realise');
   C.className = 'f-chrono';
   G.className = 'rond'; D.className = 'rond';
@@ -2990,7 +3075,40 @@ function afficherFin(){
   });
   S.gagnes = gagnes;
 
+  const rev0 = $('revelation');
+  if(CFG.mode === 'reflexe' && S.reflexes.length){
+    const L = S.reflexes;
+    const moy  = Math.round(L.reduce((a,b) => a+b, 0) / L.length);
+    const best = Math.min(...L), pire = Math.max(...L);
+    TI.textContent = S.points + ' points';
+    R.textContent = 'Réflexe · ' + moy + ' ms de moyenne · meilleure ' + best
+      + ' ms · plus lente ' + pire + ' ms';
+    rev0.style.display = 'block';
+    rev0.querySelector('.t').textContent = 'Ce que ça vaut';
+    $('rev-texte').textContent = moy < 250
+      ? "Exceptionnel. Un très bon départ de Formule 1 tourne autour de 200 ms, sans le délai d'un écran tactile."
+      : moy < 300 ? "Excellent. Vous êtes au niveau d'un bon pilote, écran compris."
+      : moy < 400 ? "Bon. La moyenne d'un adulte sur écran tactile tourne autour de 350 ms."
+      : moy < 550 ? "Correct. La fatigue et l'attention comptent beaucoup sur ce genre de test."
+      : "Lent pour l'instant. Réessayez au calme, sans rien autour.";
+  }
+  if(abandonSolo){
+    TI.textContent = 'Partie abandonnée';
+    R.textContent = (SOLO() || {n:'Solo'}).n + ' · rien n\'a été enregistré. '
+      + 'Une partie solo ne compte que si elle va jusqu\'au bout.';
+    rev0.style.display = 'none';
+    $('classement').innerHTML = '<div class="vide">Aucun score retenu.<br>'
+      + 'Relancez une partie et terminez les ' + (CFG.maxTours || 10) + ' cibles.</div>';
+    montrer('fin');
+    return;
+  }
+
   const c = $('classement'); c.innerHTML = '';
+  if(CFG.mode === 'reflexe' || CFG.mode === 'combat'){
+    c.innerHTML = '';   // une précision au centième ne veut rien dire ici
+    montrer('fin');
+    return;
+  }
   const rangs = S.joueurs.map(n => ({n, ...S.stats[n]}))
     .filter(p => p.tours > 0)
     .sort((a,b) => a.ecart/a.tours - b.ecart/b.tours);
@@ -3024,32 +3142,6 @@ function afficherFin(){
                  && x.a.disp < x.a.precision - 1)
     .sort((a,b) => Math.abs(b.a.moy) - Math.abs(a.a.moy))[0];
   const rev = $('revelation');
-  if(CFG.mode === 'reflexe' && S.reflexes.length){
-    const L = S.reflexes;
-    const moy  = Math.round(L.reduce((a,b) => a+b, 0) / L.length);
-    const best = Math.min(...L), pire = Math.max(...L);
-    TI.textContent = moy + ' ms de moyenne';
-    R.textContent = 'Réflexe · meilleure ' + best + ' ms · plus lente ' + pire
-      + ' ms · ' + L.length + ' manches';
-    rev.style.display = 'block';
-    rev.querySelector('.t').textContent = 'Ce que ça vaut';
-    $('rev-texte').textContent = moy < 250
-      ? "Exceptionnel. Un très bon départ de Formule 1 tourne autour de 200 ms, sans le délai d'un écran tactile."
-      : moy < 300 ? "Excellent. Vous êtes au niveau d'un bon pilote, écran compris."
-      : moy < 400 ? "Bon. La moyenne d'un adulte sur écran tactile tourne autour de 350 ms."
-      : moy < 550 ? "Correct. La fatigue et l'attention comptent beaucoup sur ce genre de test."
-      : "Lent pour l'instant. Réessayez au calme, sans rien autour.";
-  }
-  if(abandonSolo){
-    TI.textContent = 'Partie abandonnée';
-    R.textContent = (SOLO() || {n:'Solo'}).n + ' · rien n\'a été enregistré. '
-      + 'Une partie solo ne compte que si elle va jusqu\'au bout.';
-    rev.style.display = 'none';
-    $('classement').innerHTML = '<div class="vide">Aucun score retenu.<br>'
-      + 'Relancez une partie et terminez les ' + (CFG.maxTours || 10) + ' cibles.</div>';
-    montrer('fin');
-    return;
-  }
   if(estSolo(CFG.mode)){
     // score enregistré, place au classement, et le mot de la fin
     const nom = S.joueurs[0], sig = sigCourante();
@@ -3069,7 +3161,7 @@ function afficherFin(){
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
     // réflexe et combat ont déjà écrit leur propre résumé
     const propre = CFG.mode === 'reflexe' || CFG.mode === 'combat';
-    if(!propre) TI.textContent = S.points + ' points';
+    TI.textContent = S.points + ' points';
     let l = libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
@@ -3250,6 +3342,114 @@ function construireTrophees(){
     <span>${p.tours} tours · ${p.parties} partie${p.parties>1?'s':''}</span></span>`;
 }
 
+/* ════════ BANC D'ESSAI COMPTES ET LIGUES ════════ */
+// Rien n'est branché sur le jeu : cet écran sert à valider la configuration
+// Supabase avant d'écrire la moindre ligne d'authentification réelle.
+let sessionCp = null;
+
+function log(txt, cls){
+  const J = $('cp-log');
+  const h = new Date().toTimeString().slice(0, 8);
+  J.insertAdjacentHTML('afterbegin',
+    `<div class="${cls || ''}">${h}  ${esc(txt)}</div>`);
+}
+$('go-comptes').onclick = () => { majComptes(); montrer('comptes'); };
+$('cp-retour').onclick  = () => montrer('test');
+
+function majComptes(){
+  $('cp-etat').textContent = EN_LIGNE() ? 'clés présentes' : 'aucune clé';
+  $('cp-serveur').textContent = EN_LIGNE()
+    ? 'URL configurée : ' + SUPABASE_URL.replace(/^https:\/\//, '')
+    : "Aucune clé Supabase dans index.html. Le banc d'essai ne peut rien tester.";
+  $('cp-compte').textContent = sessionCp
+    ? 'Connecté : ' + sessionCp.email + (sessionCp.pseudo ? ' · ' + sessionCp.pseudo : '')
+    : 'Aucun compte connecté sur cet appareil.';
+}
+
+// 1 — le serveur répond-il ?
+$('cp-ping').onclick = async () => {
+  if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
+  log('Appel de salons…', 'info');
+  try{
+    const t0 = performance.now();
+    await api('salons?select=code&limit=1');
+    log('Serveur joignable en ' + Math.round(performance.now() - t0) + ' ms.', 'ok');
+  }catch(e){ log('Échec : ' + e.message, 'ko'); }
+};
+
+// 2 — les tables d'authentification existent-elles ?
+$('cp-verif').onclick = async () => {
+  if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
+  const tables = ['profils', 'ligues', 'membres', 'perfs'];
+  const etat = [];
+  for(const t of tables){
+    try{ await api(t + '?select=*&limit=1'); etat.push(t + ' ✓'); log('Table ' + t + ' : présente.', 'ok'); }
+    catch(e){
+      const abs = /does not exist|PGRST205|42P01/i.test(e.message);
+      etat.push(t + (abs ? ' ✗' : ' ?'));
+      log('Table ' + t + ' : ' + (abs ? 'absente' : e.message.slice(0, 60)), 'ko');
+    }
+  }
+  $('cp-tables').textContent = etat.join(' · ')
+    + (etat.some(x => x.includes('✗')) ? ' — exécutez le SQL du guide.' : ' — tout est en place.');
+};
+
+// 3 — lien magique
+$('cp-envoyer').onclick = async () => {
+  const mail = ($('cp-mail').value || '').trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return log('Adresse invalide.', 'ko');
+  if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
+  log('Demande de lien pour ' + mail + '…', 'info');
+  try{
+    const r = await fetch(SUPABASE_URL + '/auth/v1/otp', {
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY, 'Content-Type':'application/json'},
+      body:JSON.stringify({email:mail, create_user:true})
+    });
+    if(!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 120));
+    log('Lien envoyé. Ouvrez votre boîte mail.', 'ok');
+    log("Si rien n'arrive : Authentication → Providers → Email doit être activé.", 'info');
+  }catch(e){ log('Échec : ' + e.message, 'ko'); }
+};
+
+// 4 — ligues
+$('cp-creer').onclick = async () => {
+  if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
+  const nom = await demanderNom('Nom de la ligue',
+    'Un nom court, visible par tous les membres.', [], true);
+  if(!nom) return;
+  const code = nouveauCode();
+  try{
+    await api('ligues', {method:'POST', body:JSON.stringify({code, nom})});
+    log('Ligue « ' + nom + ' » créée · code ' + code, 'ok');
+    listerLigues();
+  }catch(e){
+    log('Échec : ' + e.message.slice(0, 140), 'ko');
+    if(/row-level security|42501/i.test(e.message))
+      log("Cause probable : la politique d'insertion exige un compte connecté.", 'info');
+  }
+};
+$('cp-rejoindre').onclick = async () => {
+  if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
+  const code = ((await demanderNom('Rejoindre une ligue',
+    'Code à cinq lettres.', [], true)) || '').toUpperCase().trim();
+  if(!/^[A-Z]{5}$/.test(code)) return log('Code invalide.', 'ko');
+  try{
+    const r = await api('ligues?code=eq.' + encodeURIComponent(code) + '&select=code,nom');
+    if(!r || !r.length) return log('Aucune ligue avec ce code.', 'ko');
+    log('Ligue trouvée : ' + (r[0].nom || code) + '.', 'ok');
+    log("L'adhésion demande un compte connecté (table membres).", 'info');
+  }catch(e){ log('Échec : ' + e.message.slice(0, 140), 'ko'); }
+};
+async function listerLigues(){
+  try{
+    const r = await api('ligues?select=code,nom&order=cree_le.desc&limit=10');
+    $('cp-ligues').textContent = r && r.length
+      ? r.map(l => (l.nom || '—') + ' · ' + l.code).join('   |   ')
+      : 'Aucune ligue sur ce serveur.';
+  }catch(e){ $('cp-ligues').textContent = 'Impossible de lister : ' + e.message.slice(0, 70); }
+}
+
 /* ════════ FICHE D'UN MODE ════════ */
 // Ouvrir un mode montre d'abord sa règle : on ne lance pas une partie sans
 // savoir ce qu'on va devoir faire.
@@ -3313,9 +3513,9 @@ function ouvrirFiche(id){
     const d = defiDuJour();
     const rest = essaisRestants();
     $('fi-note').textContent = 'Défi du jour : ' + d.consigne + '. ' + d.detail
-      + ' · ' + (rest > 0 ? rest + ' tentative' + (rest > 1 ? 's' : '') + ' restante'
-                          + (rest > 1 ? 's' : '') + ' aujourd\'hui'
-                          : 'plus de tentative aujourd\'hui');
+      + ' · ' + (MAX_ESSAIS_DEFI - rest) + ' / ' + MAX_ESSAIS_DEFI
+      + ' tentatives utilisées'
+      + (rest > 0 ? ' · il en reste ' + rest : ' · revenez demain');
     $('fi-jouer').disabled = rest <= 0;
     $('fi-jouer').textContent = rest > 0 ? 'Jouer' : 'Revenez demain';
   } else {
@@ -3408,6 +3608,7 @@ $('salon-rejoindre').onclick = async () => {
 
 /* ════════ PANTHÉON GLOBAL ════════ */
 let glFiltre = 'solo';
+let glMode = 'tout';
 $('go-global').onclick = () => { construireGlobal(); montrer('global'); };
 $('gl-retour').onclick = () => montrer('reglages');
 segmente('seg-gl', v => { glFiltre = v; construireGlobal(); });
@@ -3432,7 +3633,9 @@ async function construireGlobal(){
     return;
   }
   L.innerHTML = '';
-  if(glFiltre === 'solo') return classementSolo(L, lignes);
+  // un sélecteur de mode n'a de sens que pour les scores
+  $('gl-modes').style.display = glFiltre === 'solo' ? 'flex' : 'none';
+  if(glFiltre === 'solo'){ construireOngletsModes(lignes); return classementSolo(L, lignes); }
   return classementCollectif(L, lignes);
 }
 
@@ -3469,12 +3672,30 @@ function classementCollectif(L, lignes){
     + ' · précision moyenne sur toutes les parties, tous modes et réglages confondus.';
 }
 
+// Les modes réellement joués dans ce salon, avec leur nombre de performances
+function construireOngletsModes(lignes){
+  const cpt = {};
+  (lignes || []).filter(r => r.points > 0).forEach(r => cpt[r.mode] = (cpt[r.mode] || 0) + 1);
+  const ids = Object.keys(cpt).sort((a,b) => cpt[b] - cpt[a]);
+  if(!ids.includes(glMode)) glMode = 'tout';
+  const nom = id => (SOLOS.find(s => s.id === id) || MODES.find(m => m.id === id) || {n:id}).n;
+  $('gl-modes').innerHTML =
+    [['tout', 'Tous les modes']].concat(ids.map(i => [i, nom(i)]))
+    .map(([v, n]) => `<button data-v="${v}" aria-pressed="${v === glMode}">${esc(n)}`
+      + (v === 'tout' ? '' : ' · ' + cpt[v]) + '</button>').join('');
+  $('gl-modes').querySelectorAll('button').forEach(b => b.onclick = () => {
+    glMode = b.dataset.v; construireGlobal();
+  });
+}
+
 // Scores solo : une ligne par performance, pas une moyenne. Dix meilleures.
 function classementSolo(L, lignes){
   const perfs = (lignes || []).filter(r => r.points > 0)
+    .filter(r => glMode === 'tout' || r.mode === glMode)
     .sort((a,b) => b.points - a.points).slice(0, 10);
   if(!perfs.length){
-    L.innerHTML = '<div class="vide">Aucun score solo publié dans ce salon.</div>';
+    L.innerHTML = '<div class="vide">Aucun score publié dans ce salon'
+      + (glMode === 'tout' ? '' : ' pour ce mode') + '.</div>';
     return;
   }
   perfs.forEach((r,i) => {
@@ -3484,12 +3705,14 @@ function classementSolo(L, lignes){
     d.innerHTML = `<span class="pos">${i+1}</span>
       <span class="qui" style="color:${coulHash(r.pseudo)}">${esc(r.pseudo)}</span>
       <span class="moy ${i===0?'t-laiton':''}">${r.points} pts</span>
-      <span class="bu">précision ±${fmt(prec)} · ${r.piles} pile${r.piles>1?'s':''}
-        · ${libelleSig(r.config || '')}</span>`;
+      <span class="bu">${(SOLOS.find(s => s.id === r.mode) || {n:r.mode}).n}
+        · précision ±${fmt(prec)} · ${r.piles} pile${r.piles>1?'s':''}</span>`;
     L.appendChild(d);
   });
-  $('gl-note').textContent = 'Dix meilleures performances en Mode Solo. '
-    + 'Chaque ligne est une partie, pas une moyenne.';
+  const nomM = glMode === 'tout' ? 'tous modes confondus'
+    : (SOLOS.find(s => s.id === glMode) || {n:glMode}).n;
+  $('gl-note').textContent = 'Dix meilleures performances · ' + nomM
+    + ' · chaque ligne est une partie, pas une moyenne.';
 }
 
 /* ════════ SCORES D'ENTRAÎNEMENT ════════ */
@@ -3536,7 +3759,7 @@ function construireScores(){
 // les modes sont des réglages à part entière : on les choisit, on ne les lance pas
 // Les modes solo mis en avant dans le menu : les autres restent en test
 // tant qu'ils n'ont pas fait leurs preuves.
-const SOLO_MENU = ['solo', 'survie', 'defi', 'reflexe'];
+const SOLO_MENU = ['defi', 'solo', 'survie', 'reflexe'];
 
 function carteMode(m){
   const d = document.createElement('div');
@@ -3544,9 +3767,14 @@ function carteMode(m){
   d.dataset.mode = m.id;
   d.innerHTML = `<span class="coche">choisi</span>
     <div class="n">${m.n}</div><div class="d">${m.d}</div>`;
-  if(m.id === 'defi' && essaisRestants() <= 0){
-    d.classList.add('epuise');
-    d.innerHTML += '<div class="b"><span class="tag">épuisé · revenez demain</span></div>';
+  if(m.id === 'defi'){
+    d.classList.add('defi-carte');
+    const rest = essaisRestants();
+    d.innerHTML += `<div class="b"><span class="tag${rest ? ' vif' : ''}">`
+      + (rest ? (MAX_ESSAIS_DEFI - rest) + ' / ' + MAX_ESSAIS_DEFI + ' tentatives · '
+                + rest + ' restante' + (rest > 1 ? 's' : '')
+              : 'épuisé · revenez demain') + '</span></div>';
+    if(!rest) d.classList.add('epuise');
   }
   d.onclick = () => { MEM.joueurs = lireListe(); ouvrirFiche(m.id); };
   return d;
