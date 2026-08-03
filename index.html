@@ -23,6 +23,63 @@
   --cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
 }
+/* ─── Synthwave : rétro-futurisme, halos, contrastes violents ─── */
+html[data-da="synth"]{
+  --nuit:#0B0410; --ardoise:#160B22; --surface:#1B0E2A; --trait:#3A2050;
+  --bordDoux:rgba(255,60,140,.20); --ivoire:#F4E9FF; --gris:#9A85B4;
+  --laiton:#FFE94A; --signal:#FF3C8C; --vert:#00C9A7; --alerte:#00E6FF;
+  --s100:#00E6FF; --s50:#43F2B0; --s20:#FFE94A; --vertVif:#00E6FF;
+}
+html[data-da="synth"] body{
+  background:
+    repeating-linear-gradient(0deg,rgba(255,60,140,.05) 0 1px,transparent 1px 38px),
+    repeating-linear-gradient(90deg,rgba(0,230,255,.04) 0 1px,transparent 1px 38px),
+    radial-gradient(120% 70% at 50% 118%,rgba(255,60,140,.20),transparent 62%),
+    #0B0410;
+  background-attachment:fixed;
+}
+html[data-da="synth"] .f-chrono{text-shadow:0 0 8px currentColor,0 0 30px currentColor}
+html[data-da="synth"] .rond{box-shadow:0 0 20px currentColor}
+html[data-da="synth"] .pilule{box-shadow:0 0 18px rgba(255,60,140,.35)}
+html[data-da="synth"] .marque h1{text-shadow:0 0 14px rgba(255,60,140,.6)}
+
+/* ─── Rétro-futurisme : terminal à phosphore ambré, balayage cathodique ─── */
+html[data-da="retro"]{
+  --nuit:#0C0A06; --ardoise:#171208; --surface:#1E170B; --trait:#4A3A16;
+  --bordDoux:rgba(255,176,46,.22); --ivoire:#FFD79A; --gris:#A07C42;
+  --laiton:#FFB02E; --signal:#FF5B2E; --vert:#7BD46A; --alerte:#FFE9A8;
+  --s100:#FFE9A8; --s50:#7BD46A; --s20:#FFB02E; --vertVif:#7BD46A;
+}
+html[data-da="retro"] body{
+  background:
+    repeating-linear-gradient(180deg,rgba(255,176,46,.055) 0 1px,transparent 1px 3px),
+    radial-gradient(130% 95% at 50% 42%,rgba(255,176,46,.10),transparent 68%),
+    #0C0A06;
+  background-attachment:fixed;
+}
+html[data-da="retro"] .f-chrono{text-shadow:0 0 4px currentColor,0 0 18px currentColor}
+html[data-da="retro"] .rond{border-radius:10px;box-shadow:0 0 14px rgba(255,176,46,.24)}
+html[data-da="retro"] .pilule{border-radius:4px}
+html[data-da="retro"] .evt,html[data-da="retro"] .carte-verdict,
+html[data-da="retro"] .bouton{border-radius:4px}
+html[data-da="retro"] .marque h1{text-shadow:0 0 12px rgba(255,176,46,.45)}
+
+/* ─── Pop / Memphis : fond crème, ombres dures, couleurs franches ─── */
+html[data-da="pop"]{
+  --nuit:#FDF5E4; --ardoise:#F0E6D0; --surface:#FFFFFF; --trait:#141018;
+  --bordDoux:rgba(20,16,24,.22); --ivoire:#141018; --gris:#6B6560;
+  --laiton:#C87A0A; --signal:#FF4D6D; --vert:#00A79B; --alerte:#7B4DFF;
+  --s100:#7B4DFF; --s50:#00897E; --s20:#B8730A; --vertVif:#00A79B;
+}
+html[data-da="pop"] .rond,html[data-da="pop"] .bouton,
+html[data-da="pop"] .evt,html[data-da="pop"] .carte-verdict{
+  box-shadow:4px 4px 0 #141018;border-color:#141018}
+html[data-da="pop"] .rond{border-width:3px}
+html[data-da="pop"] .pilule{border-width:2px;box-shadow:3px 3px 0 #141018}
+html[data-da="pop"] .hairline{background:#141018;opacity:1;height:2px}
+html[data-da="pop"] .f-chrono{text-shadow:3px 3px 0 rgba(20,16,24,.15)}
+
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
@@ -63,7 +120,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .nav button:active{background:var(--ardoise)}
 
 .seg{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
-.seg button{flex:1;min-width:70px;padding:11px 5px;border:1px solid var(--bordDoux);
+.seg button{flex:1;min-width:0;min-width:70px;padding:11px 5px;border:1px solid var(--bordDoux);
   border-radius:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
   color:var(--gris);text-transform:uppercase}
 .seg button[aria-pressed="true"]{background:var(--ivoire);color:var(--nuit);border-color:var(--ivoire)}
@@ -470,6 +527,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .lat-l .ms{width:46px;text-align:right;color:var(--ivoire)}
 .lat-l.recent .ms{color:var(--laiton)}
 #test-mdp{text-transform:uppercase;letter-spacing:.2em}
+#cp-code{font-family:var(--mono);font-size:22px;letter-spacing:.42em;text-align:center}
 
 /* ─── trophées ─── */
 .tro{display:flex;gap:13px;align-items:flex-start;padding:13px 14px;margin-top:8px;
@@ -491,7 +549,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--laiton);margin-top:6px}
 .barre{height:4px;border-radius:999px;background:var(--ardoise);margin-top:6px;overflow:hidden}
 .barre i{display:block;height:100%;background:var(--laiton);border-radius:999px}
-.mdl{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.mdl{display:flex;gap:5px;flex-wrap:wrap;margin:14px 0 12px}
 .mdl button{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
   padding:5px 10px;border-radius:999px;border:1px solid var(--bordDoux);color:var(--gris)}
 .mdl button[aria-pressed="true"]{color:var(--laiton);border-color:var(--laiton)}
@@ -669,10 +727,23 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
 
     <div class="titre-sec">3 · Compte</div>
-    <div class="mod-saisie" style="display:flex;margin-top:8px">
-      <input id="cp-mail" type="email" placeholder="adresse@exemple.fr"
-             autocomplete="email" autocapitalize="off">
-      <button id="cp-envoyer">Lien</button>
+    <div id="cp-deconnecte">
+      <div class="mod-saisie" style="display:flex;margin-top:8px">
+        <input id="cp-mail" type="email" placeholder="adresse@exemple.fr"
+               autocomplete="email" autocapitalize="off" inputmode="email">
+        <button id="cp-envoyer">Code</button>
+      </div>
+      <div class="mod-saisie" style="display:flex;margin-top:8px" id="cp-bloc-code">
+        <input id="cp-code" type="text" placeholder="000000" inputmode="numeric"
+               autocomplete="one-time-code" maxlength="6">
+        <button id="cp-valider">Valider</button>
+      </div>
+    </div>
+    <div id="cp-connecte" style="display:none">
+      <div class="recap-b">
+        <button class="bouton fantome" id="cp-pseudo">Changer de pseudo</button>
+        <button class="bouton fantome" id="cp-sortir">Se déconnecter</button>
+      </div>
     </div>
     <div class="note" id="cp-compte">Aucun compte connecté sur cet appareil.</div>
 
@@ -740,6 +811,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="note" id="fi-note-duree">—</div></div>
 
+    <div class="bloc" id="fi-bloc-defi" style="display:none">
+      <div class="eyebrow">Vos résultats</div>
+      <div class="classement" id="fi-defi-liste"></div>
+      <div class="note" id="fi-defi-note">—</div>
+    </div>
     <div class="note" id="fi-note">—</div>
   </div>
   <div style="margin-top:12px"><button class="bouton" id="fi-jouer">Jouer</button></div>
@@ -757,6 +833,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <button data-v="collectif" aria-pressed="false">Précision</button>
   </div>
   <div class="mdl" id="gl-modes"></div>
+  <div class="hairline" style="margin-bottom:12px"></div>
   <div class="classement" id="gl-liste"></div>
   <div class="note" id="gl-note">—</div>
   <div class="recap-b">
@@ -826,6 +903,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button data-v="0" aria-pressed="false">Heure de traitement</button>
     </div>
     <div class="note" id="note-horo">—</div>
+
+    <div class="titre-sec">Apparence</div>
+    <div class="seg" id="seg-da">
+      <button data-v="instrument" aria-pressed="true">Origine</button>
+      <button data-v="retro" aria-pressed="false">Rétro</button>
+      <button data-v="synth" aria-pressed="false">Synthwave</button>
+      <button data-v="pop" aria-pressed="false">Pop</button>
+    </div>
+    <div class="note" id="note-da">—</div>
 
     <div class="titre-sec">Comptes et ligues</div>
     <div class="note">Fonctionnalité en préparation. Ce banc d'essai vérifie la
@@ -989,7 +1075,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'classique',
               evts:'aucun', maxTours:20, horo:true,
-              mode:'classique' };
+              mode:'classique', da:'instrument' };
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
 const RATE = { classique:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
@@ -1093,17 +1179,12 @@ const SOLOS = [
    astuce:"La zone se resserre aussi en montant. Le score est la marche la plus haute atteinte.",
    d:"Des cibles de plus en plus longues."},
 
-  {id:'fantome', n:'Le fantôme', tours:10, fam:'duel',
-   regle:"Vous rejouez exactement les cibles de votre meilleure partie. À chaque tour, le score que vous aviez fait ce jour-là s'affiche : il faut faire mieux.",
-   astuce:"Sans partie de référence, une séquence neuve est tirée et deviendra votre fantôme si le score est bon.",
-   d:"Rejouer sa meilleure partie contre soi-même."},
-
   {id:'sprint', n:'Contre-la-montre', tours:0, fam:'sprint',
    regle:"Trente secondes au compteur réel. Chaque cible fait une seconde. Enchaînez-en le plus possible : le décompte ne s'arrête jamais.",
    astuce:"Le temps entre deux tours compte aussi. Hésiter coûte une cible.",
    d:"Trente secondes pour enchaîner un maximum de cibles."},
 
-  {id:'nues', n:'Cibles nues', tours:10, fam:'score',
+  {id:'nues', n:'Aléa Secondes', tours:10, fam:'score',
    regle:"Les cibles ne tombent plus sur des secondes rondes : 2,41 s, 3,78 s. Compter dans sa tête ne sert plus à rien.",
    astuce:"Les points valent double, la difficulté n'a rien de comparable.",
    d:"Des cibles non rondes. Compter ne sert plus."},
@@ -1438,7 +1519,7 @@ const S = { joueurs:[], idx:0, sens:1, total:0, cible:100, cibleBase:100, tour:1
             fautes:{}, elimines:[], vies:3, points:0, chaine:0, meilleureChaine:0,
             zoneTour:0, enchere:null,
             derniereBlague:null, tableauDepart:[], nbSous:0, couleurs:{}, salon:null,
-            marche:1, zoneSolo:0, sequence:[], fantome:null, finSprint:0,
+            marche:1, zoneSolo:0, sequence:[], finSprint:0,
             bossIdx:0, pvBoss:0, pvMoi:0, gardeBoss:0, touches:0, critiques:0,
             phase:1, biaisPhase:0, latences:[] };
 
@@ -1556,7 +1637,7 @@ function cibleSuivante(total){
     // sous 25 PV, il accélère : les derniers coups sont les plus durs
     return total + Math.round(c * (S.pvBoss <= 25 ? 0.8 : 1));
   }
-  if(m === 'survie' || m === 'calibrage') return prochaineCible(total);
+  if(m === 'survie') return prochaineCible(total);
   if(m === 'compte'){
     const reste = Math.max(1, (CFG.maxTours || 10) - S.tour);
     const ecart = Math.max(20, Math.round((2000 - total) / reste));
@@ -1599,7 +1680,7 @@ function partieFinie(){
 /* ════════ MÉMOIRE PERSISTANTE ════════ */
 const CLE = 'krono.v1';
 const NEUF = () => ({joueurs:['Alexandre','Charles','Jean','Hugo'], cfg:null, profils:{},
-                     scores:[], connus:[], salon:null, defi:null,
+                     scores:[], connus:[], salon:null, defi:null, defis:{},
                      usage:{heures:{}, modes:{}, reflexes:[], parties:0}});
 let MEM = NEUF();
 
@@ -1907,8 +1988,28 @@ function majMem(){
     ? ns.length + ' profil' + (ns.length>1?'s':'') + ' · ' + t + ' tours enregistrés'
     : "Rien d'enregistré. Les profils se créent à la fin d'une partie.";
 }
+// Trois habillages : mêmes composants, palettes différentes.
+const DA_TXT = {
+  instrument:"L'apparence d'origine. Sobre et contrastée, pensée pour rester lisible à bout de bras dans une pièce sombre.",
+  retro:"Terminal à phosphore ambré : balayage cathodique, angles droits, une seule couleur chaude. Rétro-futurisme sobre, très lisible.",
+  synth:"Rétro-futurisme années 80 : halos, grille spatiale, chiffres électriques. Plus spectaculaire, un peu moins net.",
+  pop:"Fond clair, ombres dures, couleurs franches. Chaleureux et accessible, mais il éblouit dans le noir."
+};
+function appliquerDA(){
+  document.documentElement.dataset.da = CFG.da || 'instrument';
+  const n = $('note-da');
+  if(n) n.textContent = DA_TXT[CFG.da || 'instrument'];
+  const m = document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', CFG.da === 'pop' ? '#FDF5E4'
+                                : CFG.da === 'synth' ? '#0B0410'
+                                : CFG.da === 'retro' ? '#0C0A06' : '#0E1116');
+}
+segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA(); });
+
 function appliquerCfg(){
-  const m = {'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
+  appliquerDA();
+  const m = {'seg-da':CFG.da || 'instrument',
+             'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
              'seg-evt':CFG.evts, 'seg-fin':String(CFG.maxTours),
              'seg-horo':CFG.horo ? '1' : '0'};
   for(const id in m){ const e = $(id); if(!e) continue;
@@ -2122,7 +2223,7 @@ async function demarrerPartie(){
 function preparerSolo(){
   const m = CFG.mode;
   S.sequence = []; S.marche = 1; S.mort = false; S.finSprint = 0;
-  S.phase = 1; S.biaisPhase = 0; S.fantome = null; S.chutes = 0;
+  S.phase = 1; S.chutes = 0;
   S.defi = null; S.reussites = 0; S.debutSprint = 0; S.reflexes = [];
   const s = SOLO();
   CFG.maxTours = s && s.tours ? s.tours : 0;
@@ -2137,16 +2238,6 @@ function preparerSolo(){
   if(m === 'nues'){
     const r = graine(Date.now() & 0xffffff);
     for(let i = 0; i < 10; i++) S.sequence.push(80 + Math.floor(r() * 320));
-  }
-  if(m === 'fantome'){
-    const ref = (MEM.fantomes || {})[S.joueurs[0]];
-    if(ref && ref.sequence && ref.sequence.length){
-      S.sequence = ref.sequence.slice(); S.fantome = ref;
-    } else {
-      const r = graine(Date.now() & 0xffffff);
-      for(let i = 0; i < 10; i++) S.sequence.push(100 + Math.floor(r() * 3) * 100);
-    }
-    CFG.maxTours = S.sequence.length;
   }
   if(m === 'survie'){ S.zoneSurvie = ZONE_DEPART_SURVIE; S.chaineSurvie = 0; S.gainSurvie = null; }
   if(m === 'sprint'){ S.debutSprint = 0; S.sprintFini = false; }
@@ -2545,29 +2636,6 @@ function resoudre(valeur, delta, ecart){
       + ' · +' + pts + ' pts · moyenne ' + moy + ' ms';
     S.dernierMs = ms;
   }
-  else if(CFG.mode === 'calibrage'){
-    const parPhase = 5;
-    S.biaisPhase += delta;
-    const finPhase = S.tour % parPhase === 0;
-    const moy = Math.round(S.biaisPhase / parPhase);
-    couleur = Math.abs(delta) <= zone() ? 't-s50' : 't-s20';
-    if(finPhase){
-      S.phase = Math.min(3, S.phase + 1);
-      couleur = 't-laiton';
-      T.textContent = Math.abs(moy) < 2 ? 'Bien centré'
-        : 'Tu pars ' + fmt(Math.abs(moy)) + ' s trop ' + (moy < 0 ? 'tôt' : 'tard');
-      U.textContent = Math.abs(moy) < 2
-        ? 'phase ' + S.phase + ' · continue comme ça'
-        : 'phase ' + S.phase + ' · ' + (moy < 0 ? 'attends un souffle de plus'
-                                                : 'relâche un peu plus tôt');
-      S.points = Math.max(0, 100 - Math.abs(moy) * 4);
-      S.biaisPhase = 0;
-    } else {
-      T.textContent = delta === 0 ? 'Pile'
-        : fmt(Math.abs(delta)) + ' s trop ' + (delta < 0 ? 'tôt' : 'tard');
-      U.textContent = 'phase ' + S.phase + ' · tour ' + (S.tour % parPhase) + ' sur ' + parPhase;
-    }
-  }
   else if(estSolo(CFG.mode)){
     const doubles = CFG.mode === 'nues' ? 2 : 1;
     let pts;
@@ -2602,10 +2670,6 @@ function resoudre(valeur, delta, ecart){
     }
     S.points += pts;
     U.textContent += ' · total ' + S.points;
-    if(CFG.mode === 'fantome' && S.fantome && S.fantome.ecarts){
-      const e = S.fantome.ecarts[S.tour - 1];
-      if(e !== undefined) U.textContent += ' · le fantôme avait fait ±' + fmt(e);
-    }
     // on ne révèle qui l'on dépasse qu'au tout dernier tour : l'annoncer avant
     // gâche le suspense et parasite la lecture du score
     if(S.tour >= (CFG.maxTours || 10)){
@@ -3018,12 +3082,15 @@ function afficherFin(){
     });
     ecrireMem(); majMem();
     publierPartie();          // envoi au salon, sans bloquer l'affichage
+    publierPerf();            // et au compte, si l'on est connecté
   }
   // l'usage compte TOUTES les parties, abandons compris : c'est le taux
   // d'abandon qui est intéressant
   if(!S.usageNote){
     S.usageNote = true;
     noterUsage(CFG.mode, !abandonSolo);
+    if(CFG.mode === 'defi' && S.defi && !abandonSolo)
+      noterDefi(S.points, S.defi.mesure);
     if(CFG.mode === 'reflexe' && S.reflexes.length)
       noterReflexe(Math.round(S.reflexes.reduce((a,b) => a+b, 0) / S.reflexes.length));
     ecrireMem();
@@ -3170,14 +3237,6 @@ function afficherFin(){
          + (doubles.length > 3 ? 's' : '') : '');
     if(S.meilleureChaine > 1) l += ' · meilleure série ' + S.meilleureChaine + ' piles';
     if(propre) l = R.textContent;
-    // on garde la meilleure partie comme fantôme rejouable
-    if(S.sequence.length && CFG.mode !== 'fantome'){
-      MEM.fantomes = MEM.fantomes || {};
-      const anc = MEM.fantomes[nom];
-      if(!anc || S.points > anc.points)
-        MEM.fantomes[nom] = {points:S.points, mode:CFG.mode, d:Date.now(),
-                             sequence:S.sequence.slice(), ecarts:S.ecarts || []};
-    }
     R.textContent = l;
     if(!propre){
       rev.style.display = 'block';
@@ -3342,10 +3401,105 @@ function construireTrophees(){
     <span>${p.tours} tours · ${p.parties} partie${p.parties>1?'s':''}</span></span>`;
 }
 
+/* ════════ COMPTES ════════ */
+// Authentification par code à six chiffres. Le lien magique ouvrirait Safari
+// au lieu de l'application installée : le code se recopie et marche partout.
+const CLE_SESSION = 'krono.session';
+
+function lireSession(){
+  try{ return JSON.parse(localStorage.getItem(CLE_SESSION) || 'null'); }catch(e){ return null; }
+}
+function ecrireSession(s){
+  try{ s ? localStorage.setItem(CLE_SESSION, JSON.stringify(s))
+         : localStorage.removeItem(CLE_SESSION); }catch(e){}
+  SESSION = s;
+}
+let SESSION = null;
+
+async function auth(chemin, corps){
+  const r = await fetch(SUPABASE_URL + '/auth/v1/' + chemin, {
+    method:'POST',
+    headers:{apikey:SUPABASE_KEY, 'Content-Type':'application/json'},
+    body:JSON.stringify(corps)
+  });
+  const txt = await r.text();
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' ' + txt.slice(0, 160));
+  return txt ? JSON.parse(txt) : null;
+}
+
+// 1 — demander le code
+async function demanderCode(mail){
+  // sans create_user à false, Supabase envoie un code plutôt qu'un lien
+  await auth('otp', {email:mail, create_user:true});
+}
+
+// 2 — échanger le code contre une session
+async function verifierCode(mail, code){
+  const d = await auth('verify', {type:'email', email:mail, token:code});
+  if(!d || !d.access_token) throw new Error('Réponse inattendue du serveur.');
+  const s = {token:d.access_token, refresh:d.refresh_token,
+             id:d.user.id, email:d.user.email,
+             expire:Date.now() + (d.expires_in || 3600) * 1000};
+  ecrireSession(s);
+  return s;
+}
+
+// 3 — renouveler un jeton expiré
+async function rafraichirSession(){
+  const s = lireSession();
+  if(!s) return null;
+  if(Date.now() < s.expire - 60000){ SESSION = s; return s; }
+  try{
+    const d = await auth('token?grant_type=refresh_token', {refresh_token:s.refresh});
+    const n = {...s, token:d.access_token, refresh:d.refresh_token,
+               expire:Date.now() + (d.expires_in || 3600) * 1000};
+    ecrireSession(n);
+    return n;
+  }catch(e){ ecrireSession(null); return null; }
+}
+
+// appel authentifié : le jeton du joueur remplace la clé anonyme
+async function apiAuth(chemin, options){
+  const s = await rafraichirSession();
+  if(!s) throw new Error('Aucune session.');
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + chemin, {
+    ...options,
+    headers:{apikey:SUPABASE_KEY, Authorization:'Bearer ' + s.token,
+             'Content-Type':'application/json', Prefer:'return=representation',
+             ...(options && options.headers)}
+  });
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 160));
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+async function monProfil(){
+  const s = await rafraichirSession();
+  if(!s) return null;
+  const r = await apiAuth('profils?id=eq.' + s.id + '&select=pseudo');
+  return r && r[0] ? r[0].pseudo : null;
+}
+async function mesLigues(){
+  const s = await rafraichirSession();
+  if(!s) return [];
+  return await apiAuth('membres?joueur=eq.' + s.id + '&select=ligue,ligues(nom)') || [];
+}
+async function publierPerf(){
+  const s = await rafraichirSession();
+  if(!s || !estSolo(CFG.mode)) return;
+  const st = S.stats[S.joueurs[0]];
+  if(!st || !st.tours) return;
+  try{
+    await apiAuth('perfs', {method:'POST', body:JSON.stringify({
+      joueur:s.id, mode:CFG.mode, config:sigCourante(), score:S.points,
+      tours:st.tours, somme:st.ecart, biais:st.biais, carres:st.carres, piles:st.piles
+    })});
+  }catch(e){ /* silencieux : la partie locale compte de toute façon */ }
+}
+
 /* ════════ BANC D'ESSAI COMPTES ET LIGUES ════════ */
 // Rien n'est branché sur le jeu : cet écran sert à valider la configuration
 // Supabase avant d'écrire la moindre ligne d'authentification réelle.
-let sessionCp = null;
 
 function log(txt, cls){
   const J = $('cp-log');
@@ -3356,15 +3510,27 @@ function log(txt, cls){
 $('go-comptes').onclick = () => { majComptes(); montrer('comptes'); };
 $('cp-retour').onclick  = () => montrer('test');
 
-function majComptes(){
-  $('cp-etat').textContent = EN_LIGNE() ? 'clés présentes' : 'aucune clé';
+async function majComptes(){
+  $('cp-etat').textContent = EN_LIGNE() ? (SESSION ? 'connecté' : 'clés présentes') : 'aucune clé';
   $('cp-serveur').textContent = EN_LIGNE()
     ? 'URL configurée : ' + SUPABASE_URL.replace(/^https:\/\//, '')
-    : "Aucune clé Supabase dans index.html. Le banc d'essai ne peut rien tester.";
-  $('cp-compte').textContent = sessionCp
-    ? 'Connecté : ' + sessionCp.email + (sessionCp.pseudo ? ' · ' + sessionCp.pseudo : '')
-    : 'Aucun compte connecté sur cet appareil.';
+    : "Aucune clé Supabase dans index.html. Rien ne peut être testé.";
+  const s = await rafraichirSession();
+  $('cp-deconnecte').style.display = s ? 'none' : 'block';
+  $('cp-connecte').style.display   = s ? 'block' : 'none';
+  $('cp-bloc-code').style.display  = attenteCode ? 'flex' : 'none';
+  if(s){
+    let p = null;
+    try{ p = await monProfil(); }catch(e){}
+    $('cp-compte').textContent = 'Connecté : ' + s.email + (p ? ' · pseudo ' + p : '');
+    listerMesLigues();
+  } else {
+    $('cp-compte').textContent = attenteCode
+      ? 'Code envoyé à ' + mailEnCours + '. Saisissez-le ci-dessus.'
+      : 'Aucun compte connecté sur cet appareil.';
+  }
 }
+let attenteCode = false, mailEnCours = '';
 
 // 1 — le serveur répond-il ?
 $('cp-ping').onclick = async () => {
@@ -3394,23 +3560,90 @@ $('cp-verif').onclick = async () => {
     + (etat.some(x => x.includes('✗')) ? ' — exécutez le SQL du guide.' : ' — tout est en place.');
 };
 
-// 3 — lien magique
+// 3 — code à six chiffres
 $('cp-envoyer').onclick = async () => {
   const mail = ($('cp-mail').value || '').trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return log('Adresse invalide.', 'ko');
   if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
-  log('Demande de lien pour ' + mail + '…', 'info');
+  log('Envoi du code à ' + mail + '…', 'info');
   try{
-    const r = await fetch(SUPABASE_URL + '/auth/v1/otp', {
-      method:'POST',
-      headers:{apikey:SUPABASE_KEY, 'Content-Type':'application/json'},
-      body:JSON.stringify({email:mail, create_user:true})
-    });
-    if(!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 120));
-    log('Lien envoyé. Ouvrez votre boîte mail.', 'ok');
-    log("Si rien n'arrive : Authentication → Providers → Email doit être activé.", 'info');
+    await demanderCode(mail);
+    attenteCode = true; mailEnCours = mail;
+    log('Code envoyé. Il expire dans une heure.', 'ok');
+    majComptes();
+    $('cp-code').focus();
+  }catch(e){
+    log('Échec : ' + e.message, 'ko');
+    if(/422/.test(e.message)) log('Cause probable : le fournisseur Email est désactivé.', 'info');
+    if(/429/.test(e.message)) log("Trop d'envois. Le service intégré est plafonné.", 'info');
+  }
+};
+
+$('cp-valider').onclick = async () => {
+  const code = ($('cp-code').value || '').replace(/\D/g, '');
+  if(code.length !== 6) return log('Le code fait six chiffres.', 'ko');
+  log('Vérification…', 'info');
+  try{
+    const s = await verifierCode(mailEnCours, code);
+    attenteCode = false;
+    $('cp-code').value = '';
+    log('Connecté : ' + s.email, 'ok');
+    majComptes();
+    remonterScoresLocaux();
+  }catch(e){
+    log('Échec : ' + e.message, 'ko');
+    if(/403|otp_expired|invalid/i.test(e.message))
+      log('Code faux ou expiré. Demandez-en un nouveau.', 'info');
+  }
+};
+
+$('cp-sortir').onclick = () => {
+  ecrireSession(null); attenteCode = false;
+  log('Déconnecté.', 'info'); majComptes();
+};
+
+$('cp-pseudo').onclick = async () => {
+  const s = await rafraichirSession();
+  if(!s) return;
+  const p = await demanderNom('Votre pseudo',
+    'Visible par les membres de vos ligues.', [], true);
+  if(!p) return;
+  try{
+    await apiAuth('profils?id=eq.' + s.id,
+      {method:'PATCH', body:JSON.stringify({pseudo:p})});
+    log('Pseudo changé : ' + p, 'ok'); majComptes();
   }catch(e){ log('Échec : ' + e.message, 'ko'); }
 };
+
+// à la première connexion, les scores déjà enregistrés remontent
+async function remonterScoresLocaux(){
+  const s = await rafraichirSession();
+  if(!s) return;
+  const L = (MEM.scores || []).filter(e => !e.remonte);
+  if(!L.length) return log('Aucun score local à remonter.', 'info');
+  log('Remontée de ' + L.length + ' score(s)…', 'info');
+  let n = 0;
+  for(const e of L){
+    try{
+      await apiAuth('perfs', {method:'POST', body:JSON.stringify({
+        joueur:s.id, mode:e.bareme || 'solo', config:signature(e), score:e.p,
+        tours:e.tours || 0, somme:0, biais:0, carres:0, piles:0
+      })});
+      e.remonte = true; n++;
+    }catch(err){ break; }
+  }
+  ecrireMem();
+  log(n + ' score(s) remonté(s).', n ? 'ok' : 'ko');
+}
+
+async function listerMesLigues(){
+  try{
+    const r = await mesLigues();
+    $('cp-ligues').textContent = r.length
+      ? r.map(m => ((m.ligues && m.ligues.nom) || '—') + ' · ' + m.ligue).join('   |   ')
+      : "Vous n'appartenez à aucune ligue.";
+  }catch(e){ $('cp-ligues').textContent = 'Impossible de lister : ' + e.message.slice(0, 70); }
+}
 
 // 4 — ligues
 $('cp-creer').onclick = async () => {
@@ -3418,11 +3651,16 @@ $('cp-creer').onclick = async () => {
   const nom = await demanderNom('Nom de la ligue',
     'Un nom court, visible par tous les membres.', [], true);
   if(!nom) return;
+  const s = await rafraichirSession();
+  if(!s) return log("Connectez-vous d'abord.", 'ko');
   const code = nouveauCode();
   try{
-    await api('ligues', {method:'POST', body:JSON.stringify({code, nom})});
+    await apiAuth('ligues', {method:'POST',
+      body:JSON.stringify({code, nom, createur:s.id})});
+    await apiAuth('membres', {method:'POST',
+      body:JSON.stringify({ligue:code, joueur:s.id})});
     log('Ligue « ' + nom + ' » créée · code ' + code, 'ok');
-    listerLigues();
+    listerMesLigues();
   }catch(e){
     log('Échec : ' + e.message.slice(0, 140), 'ko');
     if(/row-level security|42501/i.test(e.message))
@@ -3437,18 +3675,15 @@ $('cp-rejoindre').onclick = async () => {
   try{
     const r = await api('ligues?code=eq.' + encodeURIComponent(code) + '&select=code,nom');
     if(!r || !r.length) return log('Aucune ligue avec ce code.', 'ko');
-    log('Ligue trouvée : ' + (r[0].nom || code) + '.', 'ok');
-    log("L'adhésion demande un compte connecté (table membres).", 'info');
+    const s = await rafraichirSession();
+    if(!s) return log("Connectez-vous d'abord.", 'ko');
+    await apiAuth('membres', {method:'POST',
+      body:JSON.stringify({ligue:code, joueur:s.id})});
+    log('Vous avez rejoint « ' + (r[0].nom || code) + ' ».', 'ok');
+    listerMesLigues();
   }catch(e){ log('Échec : ' + e.message.slice(0, 140), 'ko'); }
 };
-async function listerLigues(){
-  try{
-    const r = await api('ligues?select=code,nom&order=cree_le.desc&limit=10');
-    $('cp-ligues').textContent = r && r.length
-      ? r.map(l => (l.nom || '—') + ' · ' + l.code).join('   |   ')
-      : 'Aucune ligue sur ce serveur.';
-  }catch(e){ $('cp-ligues').textContent = 'Impossible de lister : ' + e.message.slice(0, 70); }
-}
+
 
 /* ════════ FICHE D'UN MODE ════════ */
 // Ouvrir un mode montre d'abord sa règle : on ne lance pas une partie sans
@@ -3509,6 +3744,8 @@ function ouvrirFiche(id){
       : 'Partie sans fin : vous arrêtez quand vous voulez.';
   }
 
+  $('fi-bloc-defi').style.display = id === 'defi' ? 'block' : 'none';
+  if(id === 'defi') construirePantheonDefi();
   if(imposeAff){
     const d = defiDuJour();
     const rest = essaisRestants();
@@ -3542,6 +3779,57 @@ $('fi-jouer').onclick = () => {
   construireModes(); construireTest(); rafraichir();
   demarrerPartie();
 };
+
+/* ════════ PANTHÉON DU DÉFI ════════ */
+// Le défi ne rejoint pas le panthéon général : son barème change chaque jour.
+// Il garde son propre historique, sur sa page.
+function noterDefi(score, mesure){
+  const j = jourCourant();
+  MEM.defis = MEM.defis || {};
+  const e = MEM.defis[j] || (MEM.defis[j] = {jour:j, essais:0, best:null,
+                                             mesure, nom:defiDuJour().n});
+  e.essais++;
+  // pour un écart, plus bas vaut mieux ; pour un compte, plus haut
+  const mieux = e.best === null ? true
+    : (mesure === 'ecart' || mesure === 'moyenne') ? score < e.best : score > e.best;
+  if(mieux) e.best = score;
+  // on ne garde que trente jours
+  const cles = Object.keys(MEM.defis).sort();
+  while(cles.length > 30) delete MEM.defis[cles.shift()];
+  ecrireMem();
+}
+function construirePantheonDefi(){
+  const L = $('fi-defi-liste');
+  const tout = MEM.defis || {};
+  const jours = Object.keys(tout).sort().reverse().slice(0, 10);
+  if(!jours.length){
+    L.innerHTML = '<div class="vide">Aucun défi joué pour l\'instant.</div>';
+    $('fi-defi-note').textContent = '';
+    return;
+  }
+  const dateFr = j => {
+    const s = String(j);
+    return s.slice(6,8) + '/' + s.slice(4,6);
+  };
+  L.innerHTML = jours.map((j,i) => {
+    const e = tout[j];
+    const val = e.best === null ? '—'
+      : (e.mesure === 'ecart' || e.mesure === 'moyenne') ? '±' + fmt(e.best) : e.best;
+    return `<div class="ligne">
+      <span class="pos">${dateFr(j)}</span>
+      <span class="qui">${esc(e.nom || 'Défi')}</span>
+      <span class="moy ${i===0?'t-laiton':''}">${val}</span>
+      <span class="bu">${e.essais} tentative${e.essais>1?'s':''}</span></div>`;
+  }).join('');
+  const faits = Object.keys(tout).length;
+  // série de jours consécutifs, en partant d'aujourd'hui
+  let serie = 0, cur = jourCourant();
+  while(tout[cur]){ serie++; const d = new Date(String(cur).slice(0,4),
+    +String(cur).slice(4,6)-1, +String(cur).slice(6,8) - 1);
+    cur = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); }
+  $('fi-defi-note').textContent = faits + ' défi' + (faits>1?'s':'') + ' joué'
+    + (faits>1?'s':'') + (serie > 1 ? ' · ' + serie + ' jours d\'affilée' : '');
+}
 
 /* ════════ SALON ════════ */
 function majEtatSalon(){
@@ -3608,7 +3896,8 @@ $('salon-rejoindre').onclick = async () => {
 
 /* ════════ PANTHÉON GLOBAL ════════ */
 let glFiltre = 'solo';
-let glMode = 'tout';
+let glMode = 'solo';
+const HORS_PANTHEON = ['defi'];   // le défi a son propre tableau
 $('go-global').onclick = () => { construireGlobal(); montrer('global'); };
 $('gl-retour').onclick = () => montrer('reglages');
 segmente('seg-gl', v => { glFiltre = v; construireGlobal(); });
@@ -3674,15 +3963,18 @@ function classementCollectif(L, lignes){
 
 // Les modes réellement joués dans ce salon, avec leur nombre de performances
 function construireOngletsModes(lignes){
+  // pas de « tous les modes » : les échelles de score ne sont pas comparables
   const cpt = {};
-  (lignes || []).filter(r => r.points > 0).forEach(r => cpt[r.mode] = (cpt[r.mode] || 0) + 1);
-  const ids = Object.keys(cpt).sort((a,b) => cpt[b] - cpt[a]);
-  if(!ids.includes(glMode)) glMode = 'tout';
-  const nom = id => (SOLOS.find(s => s.id === id) || MODES.find(m => m.id === id) || {n:id}).n;
-  $('gl-modes').innerHTML =
-    [['tout', 'Tous les modes']].concat(ids.map(i => [i, nom(i)]))
-    .map(([v, n]) => `<button data-v="${v}" aria-pressed="${v === glMode}">${esc(n)}`
-      + (v === 'tout' ? '' : ' · ' + cpt[v]) + '</button>').join('');
+  (lignes || []).filter(r => r.points > 0 && !HORS_PANTHEON.includes(r.mode))
+    .forEach(r => cpt[r.mode] = (cpt[r.mode] || 0) + 1);
+  const ordre = SOLOS.map(s => s.id).filter(id => !HORS_PANTHEON.includes(id));
+  const ids = ordre.filter(id => cpt[id]);
+  if(!ids.length) ids.push('solo');
+  if(!ids.includes(glMode)) glMode = ids[0];
+  const nom = id => (SOLOS.find(s => s.id === id) || {n:id}).n;
+  $('gl-modes').innerHTML = ids
+    .map(v => `<button data-v="${v}" aria-pressed="${v === glMode}">${esc(nom(v))}`
+      + ' · ' + (cpt[v] || 0) + '</button>').join('');
   $('gl-modes').querySelectorAll('button').forEach(b => b.onclick = () => {
     glMode = b.dataset.v; construireGlobal();
   });
@@ -3690,12 +3982,10 @@ function construireOngletsModes(lignes){
 
 // Scores solo : une ligne par performance, pas une moyenne. Dix meilleures.
 function classementSolo(L, lignes){
-  const perfs = (lignes || []).filter(r => r.points > 0)
-    .filter(r => glMode === 'tout' || r.mode === glMode)
+  const perfs = (lignes || []).filter(r => r.points > 0 && r.mode === glMode)
     .sort((a,b) => b.points - a.points).slice(0, 10);
   if(!perfs.length){
-    L.innerHTML = '<div class="vide">Aucun score publié dans ce salon'
-      + (glMode === 'tout' ? '' : ' pour ce mode') + '.</div>';
+    L.innerHTML = '<div class="vide">Aucun score publié dans ce salon pour ce mode.</div>';
     return;
   }
   perfs.forEach((r,i) => {
@@ -3709,8 +3999,7 @@ function classementSolo(L, lignes){
         · précision ±${fmt(prec)} · ${r.piles} pile${r.piles>1?'s':''}</span>`;
     L.appendChild(d);
   });
-  const nomM = glMode === 'tout' ? 'tous modes confondus'
-    : (SOLOS.find(s => s.id === glMode) || {n:glMode}).n;
+  const nomM = (SOLOS.find(s => s.id === glMode) || {n:glMode}).n;
   $('gl-note').textContent = 'Dix meilleures performances · ' + nomM
     + ' · chaque ligne est une partie, pas une moyenne.';
 }
@@ -3723,6 +4012,7 @@ $('gl-local').onclick  = () => { construirePantheon(); montrer('pantheon'); };
 segmente('seg-sc', v => { scFiltre = v; construireScores(); });
 
 function construireScores(){
+  // le défi a son propre tableau, sur sa page
   const sig = sigCourante();
   $('sc-config').textContent = libelleSig(sig);
   const L = $('sc-liste'); L.innerHTML = '';
@@ -3759,7 +4049,7 @@ function construireScores(){
 // les modes sont des réglages à part entière : on les choisit, on ne les lance pas
 // Les modes solo mis en avant dans le menu : les autres restent en test
 // tant qu'ils n'ont pas fait leurs preuves.
-const SOLO_MENU = ['defi', 'solo', 'survie', 'reflexe'];
+const SOLO_MENU = ['defi', 'solo', 'survie', 'reflexe', 'nues'];
 
 function carteMode(m){
   const d = document.createElement('div');
@@ -3964,11 +4254,13 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   const m = await lireMem();
   if(m){
     MEM = Object.assign(NEUF(), m);
-    if(m.cfg){ Object.assign(CFG, m.cfg); appliquerCfg(); }
+    if(m.cfg){ Object.assign(CFG, m.cfg); }
   }
+  appliquerCfg();   // toujours, pour poser le thème dès le premier lancement
   memoriser([...(MEM.joueurs || []), ...Object.keys(MEM.profils || {})]);
   majDatalist();
   S.salon = MEM.salon || null;
+  SESSION = lireSession();
   peupler(); majMem(); construireTest(); rafraichir(); majEtatSalon();
   viderFile();
 })();
