@@ -1378,7 +1378,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <input type="file" id="fichier" accept="application/json,.json" style="display:none">
     </div>
   </div>
-  <div style="margin-top:12px"><button class="bouton" id="commencer">Nouvelle partie</button></div>
 </section>
 
 <!-- ═══ FIN DE PARTIE ═══ -->
@@ -4573,7 +4572,6 @@ async function quitterPartie(){
 $('f-quitter').onclick = quitterPartie;
 
 /* ════════ PARTIE ════════ */
-$('commencer').onclick = () => demarrerPartie();
 async function demarrerPartie(){
   // dernier rempart : aucun chemin ne doit permettre une 4ᵉ tentative
   if(CFG.mode === 'defi' && essaisRestants() <= 0){
@@ -8207,6 +8205,15 @@ function construireModes(){
     S1.innerHTML = '';
     SOLO_MENU.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
       .forEach(m => S1.appendChild(carteMode(m)));
+    // Aventure est déjà jouable depuis la Boutique, mais pas encore assez
+    // stable pour rejoindre le menu principal : la carte l'annonce sans
+    // permettre de la lancer d'ici.
+    const av = document.createElement('div');
+    av.className = 'evt epuise';
+    av.innerHTML = `<div class="n">Aventure</div>
+      <div class="d">Le même chemin que la Survie, une autre économie.</div>
+      <div class="b"><span class="tag">bientôt disponible</span></div>`;
+    S1.appendChild(av);
   }
   const M = $('modes-menu'); M.innerHTML = '';
   MODES.filter(m => !m.test).forEach(m => M.appendChild(carteMode(m)));
