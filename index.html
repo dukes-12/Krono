@@ -2111,9 +2111,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
    ═══════════════════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://qnjcufneugvggrtcgmzw.supabase.co';
 // L'adresse publique de l'app : Google y renvoie l'utilisateur après connexion.
-// Doit être listée dans « Authorized JavaScript origins » côté Google ET dans
-// Supabase → Authentication → URL Configuration → Redirect URLs.
-const SITE_URL = 'https://krono.kronogame.workers.dev/';
+// Calculée au moment du clic plutôt que figée : sinon un test depuis
+// test-krono.kronogame.workers.dev renverrait quand même vers la production.
+// L'adresse obtenue doit être listée dans « Authorized JavaScript origins »
+// côté Google ET dans Supabase → Authentication → URL Configuration →
+// Redirect URLs — pour la prod ET pour l'adresse de test, chacune une fois.
+const siteUrl = () => location.origin + location.pathname;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuamN1Zm5ldWd2Z2dydGNnbXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE1MTcsImV4cCI6MjEwMTI1NzUxN30.Tjj_l-JJJ__VoLM-kVn6Z21RmdMCw9wbmi4fON5qS7g';
 
 /* ════════ RÉGLAGES ════════ */
@@ -6962,7 +6965,7 @@ function validerChamps(){
 const CLE_REPRISE = 'krono.reprise_auth';
 // Séparée de l'appel pour rester testable sans provoquer une vraie navigation.
 const urlAuthGoogle = () => SUPABASE_URL
-  + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(SITE_URL);
+  + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(siteUrl());
 $('cn-google-btn').onclick = () => {
   try{ localStorage.setItem(CLE_REPRISE,
     JSON.stringify({retour:AUTH_RETOUR, invitation:INVITATION})); }catch(e){}
