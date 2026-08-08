@@ -98,7 +98,7 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   background:rgba(14,17,22,.94);backdrop-filter:blur(14px);
   border-top:1px solid var(--bordDoux);
   padding:8px 6px calc(8px + env(safe-area-inset-bottom));
-  grid-template-columns:repeat(4,1fr);gap:2px}
+  grid-template-columns:repeat(5,1fr);gap:2px}
 .barre-bas.on{display:grid}
 .bb{display:flex;flex-direction:column;align-items:center;gap:4px;
   background:none;border:none;padding:6px 2px;cursor:pointer;color:var(--gris)}
@@ -1327,9 +1327,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="entete">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
     <div class="nav">
-      <button id="go-profil">Profil</button>
-      <button id="go-panth">Panthéon</button>
-      <button id="go-trophees">Trophées</button>
       <button id="go-test">Test</button>
     </div>
   </div>
@@ -1812,12 +1809,27 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran" id="trophees">
   <div class="entete">
     <div class="marque"><h1>TROPHÉES</h1><span id="tr-qui">—</span></div>
-    <div class="nav"><button id="tr-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
-  <div class="seg" id="seg-tr"></div>
-  <div class="classement" id="tr-liste"></div>
-  <div class="note" id="tr-note">—</div>
+  <div class="defile">
+    <div id="tr-hors" style="display:none">
+      <div class="garde">
+        <div class="em">🏆</div>
+        <div class="t">Des trophées à soi</div>
+        <div class="d">Les trophées suivent désormais votre compte, pas un
+          profil local sur ce seul téléphone. Connectez-vous pour les voir.</div>
+        <div class="b">
+          <button class="bouton" id="tr-creer-compte">Créer un compte</button>
+          <button class="bouton fantome" id="tr-connexion">J'ai déjà un compte</button>
+        </div>
+      </div>
+    </div>
+    <div id="tr-dans" style="display:none">
+      <div class="seg" id="seg-tr"></div>
+      <div class="classement" id="tr-liste"></div>
+      <div class="note" id="tr-note">—</div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══ SCORES D'ENTRAÎNEMENT ═══ -->
@@ -2084,10 +2096,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 <!-- ═══ BARRE DE NAVIGATION ═══ -->
 <nav class="barre-bas" id="barre-bas" role="tablist">
-  <button class="bb" id="bb-jouer"   role="tab" aria-selected="true"><span class="ic">▶</span><span class="lb">Jouer</span></button>
-  <button class="bb" id="bb-ligues"  role="tab" aria-selected="false"><span class="ic">🏆</span><span class="lb">Ligues</span></button>
-  <button class="bb" id="bb-panth"   role="tab" aria-selected="false"><span class="ic">📊</span><span class="lb">Panthéon</span></button>
-  <button class="bb" id="bb-profil"  role="tab" aria-selected="false"><span class="ic">👤</span><span class="lb">Profil</span></button>
+  <button class="bb" id="bb-jouer"    role="tab" aria-selected="true"><span class="ic">▶</span><span class="lb">Jouer</span></button>
+  <button class="bb" id="bb-ligues"   role="tab" aria-selected="false"><span class="ic">🏆</span><span class="lb">Ligues</span></button>
+  <button class="bb" id="bb-panth"    role="tab" aria-selected="false"><span class="ic">📊</span><span class="lb">Panthéon</span></button>
+  <button class="bb" id="bb-trophees" role="tab" aria-selected="false"><span class="ic">🥇</span><span class="lb">Trophées</span></button>
+  <button class="bb" id="bb-profil"   role="tab" aria-selected="false"><span class="ic">👤</span><span class="lb">Profil</span></button>
 </nav>
 
 <datalist id="prenoms"></datalist>
@@ -2257,12 +2270,12 @@ const SOLOS = [
    astuce:"Un pile élargit la zone de 4 centièmes, un écart de 3 centièmes ou moins de 3 — et dans les deux cas l'usure du tour est annulée. Deux bons coups d'affilée majorent le gain de moitié, trois le doublent. Trois piles au total, ou deux d'affilée, offrent une vie de rattrapage.",
    d:"La zone rétrécit. Une sortie et c'est fini."},
 
-  {id:'escalier', n:"L'escalier", tours:0, fam:'escalier',
+  {id:'escalier', n:"L'escalier", tours:0, fam:'escalier', desactive:1,
    regle:"Les cibles s'allongent : 1 s, puis 1,5 s, puis 2 s. Rester dans la zone fait monter d'une marche, la rater fait redescendre. Trois chutes et la partie s'arrête.",
    astuce:"La zone se resserre aussi en montant. Le score est la marche la plus haute atteinte.",
    d:"Des cibles de plus en plus longues."},
 
-  {id:'sprint', n:'Contre-la-montre', tours:0, fam:'sprint',
+  {id:'sprint', n:'Contre-la-montre', tours:0, fam:'sprint', desactive:1,
    regle:"Trente secondes au compteur réel. Chaque cible fait une seconde. Enchaînez-en le plus possible : le décompte ne s'arrête jamais.",
    astuce:"Le temps entre deux tours compte aussi. Hésiter coûte une cible.",
    d:"Trente secondes pour enchaîner un maximum de cibles."},
@@ -2272,7 +2285,7 @@ const SOLOS = [
    astuce:"Les points valent double, la difficulté n'a rien de comparable.",
    d:"Des cibles non rondes. Compter ne sert plus."},
 
-  {id:'solo2', n:'Solo · enchaîné', tours:10, fam:'score',
+  {id:'solo2', n:'Solo · enchaîné', tours:10, fam:'score', desactive:1,
    regle:"Comme le solo classique, mais les frôlements s'enchaînent : le premier vaut 50, le deuxième 60, le troisième 70, et ainsi de suite.",
    astuce:"Les piles gardent leur multiplicateur. Un tour hors zone remet les deux compteurs à zéro.",
    d:"Variante : les frôlements s'enchaînent aussi."},
@@ -3756,8 +3769,8 @@ const ecranJeu = () => 'fluide';
 // Les quatre écrans qui portent la barre du bas. Partout ailleurs — en partie,
 // dans une fiche, dans l'onglet Test — elle disparaît : la barre sert à
 // naviguer entre les grandes sections, pas à interrompre une partie.
-const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', profil:'profil'};
-const ECRANS_BARRE = ['reglages', 'ligues', 'pantheon', 'profil', 'ligue'];
+const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', trophees:'trophees', profil:'profil'};
+const ECRANS_BARRE = ['reglages', 'ligues', 'pantheon', 'trophees', 'profil', 'ligue'];
 
 function montrer(id){
   const ecrans = document.querySelectorAll('.ecran');
@@ -4454,16 +4467,16 @@ $('fichier').onchange = ev => {
 /* ════════ NAVIGATION ════════ */
 // les réglages sont fermés pendant une partie : on en sort par « Quitter »
 // « Panthéon » ouvre le salon s'il y en a un, le local sinon
-$('go-panth').onclick = () => {
+function ouvrirPantheon(){
   if(S.salon && EN_LIGNE()){ construireGlobal(); montrer('global'); }
   else { construirePantheon(); montrer('pantheon'); }
-};
+}
 $('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage();
   construireSvOpts(); construireBioEssai(); construireBioTest(); construireTest();
   montrer('test'); };
 $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
-$('recap-panth').onclick  = () => $('go-panth').onclick();
+$('recap-panth').onclick  = () => ouvrirPantheon();
 $('recap-fermer').onclick = () => montrer('reglages');
 // Saut de tour : réservé au mode invincible. Le tour est compté comme joué,
 // sans usure ni score — c'est un déplacement, pas une partie.
@@ -6515,28 +6528,56 @@ function construirePantheon(){
 
 /* ════════ TROPHÉES ════════ */
 let trQui = null;
-$('go-trophees').onclick = () => { construireTrophees(); montrer('trophees'); };
-$('tr-retour').onclick   = () => montrer('reglages');
 
-function construireTrophees(){
-  const noms = Object.keys(MEM.profils).filter(n => MEM.profils[n].tours > 0);
-  if(!noms.includes(trQui)) trQui = noms[0] || null;
-  $('seg-tr').innerHTML = noms.slice(0, 6).map(n =>
-    `<button data-v="${esc(n)}" aria-pressed="${n === trQui}">${esc(n)}</button>`).join('');
-  $('seg-tr').querySelectorAll('button').forEach(b => b.onclick = () => {
-    trQui = b.dataset.v; construireTrophees();
+// Agrège toutes les performances solo publiées sous un compte, dans la même
+// forme que le profil local (MEM.profils[nom]) attendu par etatTrophee() —
+// c'est ce qui permet de réutiliser la table TROPHEES telle quelle.
+// « minutes » et « gorgees » restent à zéro : ce sont des concepts de soirée,
+// qu'un compte solo ne peut structurellement jamais alimenter — le trophée
+// « La minute » et « Bon public » resteront donc toujours verrouillés ici,
+// ce qui est cohérent avec la règle du jeu, pas un manque.
+async function agregerPerfs(uid){
+  const lignes = await apiAuth('perfs?joueur=eq.' + uid
+    + '&select=score,tours,somme,biais,carres,piles,serie') || [];
+  if(!lignes.length) return null;
+  const p = {parties:lignes.length, tours:0, somme:0, biais:0, carres:0,
+             piles:0, serie:0, meilleurScore:0, minutes:0, gorgees:0, culs:0, configs:{}};
+  lignes.forEach(r => {
+    p.tours  += r.tours  || 0; p.somme += r.somme || 0;
+    p.biais  += r.biais  || 0; p.carres += r.carres || 0;
+    p.piles  += r.piles  || 0;
+    p.serie = Math.max(p.serie, r.serie || 0);
+    p.meilleurScore = Math.max(p.meilleurScore, r.score || 0);
   });
+  return p;
+}
 
-  const L = $('tr-liste'); L.innerHTML = '';
-  if(!trQui){
-    $('tr-qui').textContent = '';
-    L.innerHTML = '<div class="vide">Aucun profil enregistré.<br>'
-      + 'Terminez une partie pour débloquer vos premiers trophées.</div>';
+async function construireTrophees(){
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  $('tr-hors').style.display = s ? 'none' : 'block';
+  $('tr-dans').style.display = s ? 'block' : 'none';
+  if(!s) return;
+  // un compte est une seule identité : plus besoin de choisir entre plusieurs
+  // profils locaux, l'ancien sélecteur disparaît
+  $('seg-tr').innerHTML = '';
+  const L = $('tr-liste'); L.innerHTML = '<div class="vide">Chargement…</div>';
+  let pseudo = null;
+  try{ const pr = await monProfil(); pseudo = pr && pr.pseudo; }catch(e){}
+  $('tr-qui').textContent = pseudo || emailVersIdent(s.email);
+  let p = null;
+  try{ p = await agregerPerfs(s.id); }
+  catch(e){
+    L.innerHTML = '';
+    $('tr-note').textContent = messageCompte(e);
+    return;
+  }
+  L.innerHTML = '';
+  if(!p){
+    L.innerHTML = '<div class="vide">Aucune partie solo publiée sous ce compte pour l\'instant.<br>'
+      + 'Terminez une partie solo pour débloquer vos premiers trophées.</div>';
     $('tr-note').textContent = '';
     return;
   }
-  $('tr-qui').textContent = trQui;
-  const p = MEM.profils[trQui];
   let acquis = 0, or = 0;
 
   TROPHEES.forEach(tr => {
@@ -6709,7 +6750,8 @@ async function publierPerf(){
   try{
     await apiAuth('perfs', {method:'POST', body:JSON.stringify({
       joueur:s.id, mode:CFG.mode, config:sigCourante(), score:S.points,
-      tours:st.tours, somme:st.ecart, biais:st.biais, carres:st.carres, piles:st.piles
+      tours:st.tours, somme:st.ecart, biais:st.biais, carres:st.carres, piles:st.piles,
+      serie:S.meilleureChaine || 0
     })});
   }catch(e){ /* silencieux : la partie locale compte de toute façon */ }
 }
@@ -6725,7 +6767,6 @@ $('fin-boutique').onclick = () => { construireBoutique(); montrer('boutique'); }
 $('go-boutique').onclick = () => { construireBoutique(); montrer('boutique'); };
 $('bo-partir').onclick = () => { CFG.mode = 'aventure'; MEM.cfg = {...CFG};
   ecrireMem(); demarrerPartie(); };
-$('go-profil').onclick = () => { construireProfil(); montrer('profil'); };
 $('pr-retour').onclick = () => montrer('reglages');
 
 async function construireProfil(){
@@ -6888,7 +6929,7 @@ function messageCompte(e){
   if(/otp_expired|403/.test(m))
     return "Ce code n'est plus valable. Demandez-en un nouveau.";
   if(/invalid|400/.test(m))
-    return "Code refusé. Vérifiez les six chiffres, ou demandez-en un nouveau.";
+    return "Requête refusée par le serveur. Si ça persiste, un réglage côté Supabase manque probablement (voir OPERATIONS-SQL-MANUELLES.md).";
   if(/422/.test(m))
     return "Adresse refusée par le serveur. Vérifiez qu'elle est bien écrite.";
   if(/401/.test(m))
@@ -6963,6 +7004,7 @@ async function apresConnexion(){
     if(s2) await rejoindreLigue(code, s2);
     await ouvrirLigues();
   } else if(AUTH_RETOUR === 'ligues') await ouvrirLigues();
+  else if(AUTH_RETOUR === 'trophees'){ await construireTrophees(); montrer('trophees'); }
   if(n) choisir('Scores retrouvés',
     n + ' partie' + (n > 1 ? 's' : '') + ' locale'
     + (n > 1 ? 's' : '') + ' rattachée' + (n > 1 ? 's' : '')
@@ -7280,7 +7322,8 @@ async function rejoindreLigue(code, s){
 // En fonction plutôt qu'en const : SOLO_MENU est déclarée plus loin dans ce
 // fichier, l'appeler ici avant son initialisation ferait planter le script.
 const modesLigue = () => SOLOS
-  .filter(s => (!s.labo || SOLO_MENU.includes(s.id)) && s.id !== 'aventure')
+  .filter(s => (!s.labo || SOLO_MENU.includes(s.id))
+            && s.id !== 'aventure' && s.id !== 'defi' && !s.desactive)
   .map(s => s.id);
 
 async function ouvrirLigue(code, nom, embleme){
@@ -7392,7 +7435,10 @@ $('lgs-connexion').onclick    = () => ouvrirAuth('connexion', 'ligues');
 // la barre du bas
 $('bb-jouer').onclick  = () => { construireModes(); montrer('reglages'); };
 $('bb-ligues').onclick = () => ouvrirLigues();
-$('bb-panth').onclick  = () => { construirePantheon(); montrer('pantheon'); };
+$('bb-panth').onclick  = () => ouvrirPantheon();
+$('bb-trophees').onclick = () => { construireTrophees(); montrer('trophees'); };
+$('tr-creer-compte').onclick = () => ouvrirAuth('creer', 'trophees');
+$('tr-connexion').onclick    = () => ouvrirAuth('connexion', 'trophees');
 $('bb-profil').onclick = () => { construireProfil(); montrer('profil'); };
 
 $('lg-renommer').onclick = async () => {
@@ -8204,7 +8250,7 @@ function construireTest(){
       M.appendChild(d);
     });
   };
-  cartesSolo('liste-solos', SOLOS.filter(s => !s.labo));
+  cartesSolo('liste-solos', SOLOS.filter(s => !s.labo && !s.desactive));
   cartesSolo('liste-labo',  SOLOS.filter(s =>  s.labo));
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
