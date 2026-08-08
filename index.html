@@ -126,7 +126,7 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 .blason{width:52px;height:52px;flex-shrink:0;border-radius:14px;
   display:flex;align-items:center;justify-content:center;font-size:25px;
   border:1px solid currentColor}
-.lg-carte .info{flex:1;min-width:0}
+.lg-carte .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .lg-carte .nm{font-size:21px;font-weight:700;letter-spacing:.03em;
   text-transform:uppercase;line-height:1.05;color:var(--ivoire);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -167,6 +167,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .bouton.fantome{background:none;color:var(--gris);border:1px solid var(--bordDoux);
   font-size:14px;letter-spacing:.14em;padding:12px;border-radius:12px}
 .bouton.or{background:var(--laiton);color:var(--nuit)}
+.bouton.danger{color:var(--signal);border-color:rgba(220,59,42,.4)}
 .bouton.google{background:#fff;color:#3C4043;display:flex;align-items:center;
   justify-content:center;gap:10px;font-size:14px;letter-spacing:.04em;
   text-transform:none;font-weight:600;margin-top:12px;width:100%}
@@ -392,6 +393,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border-bottom:1px solid var(--bordDoux)}
 .lg-rang .p{font-family:var(--mono);font-size:12px;opacity:.5;width:22px}
 .lg-rang{flex-wrap:wrap}
+.lg-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;background:var(--ardoise);
+  font-family:var(--mono);font-size:10px;color:var(--laiton);border:1px solid var(--bordDoux)}
+.lg-av img{width:100%;height:100%;object-fit:cover}
 .lg-rang .n{flex:1;font-size:15px}
 .lg-rang .st{flex-basis:100%;font-family:var(--mono);font-size:10px;
   letter-spacing:.08em;color:var(--gris);padding-left:32px;margin-top:3px}
@@ -1663,6 +1668,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button class="bouton fantome" id="lg-renommer" style="display:none">Renommer la ligue</button>
       <button class="bouton fantome" id="lg-partager">Inviter dans cette ligue</button>
       <button class="bouton fantome" id="lg-quitter">Quitter la ligue</button>
+      <button class="bouton fantome danger" id="lg-supprimer" style="display:none">Supprimer la ligue</button>
     </div>
   </div>
 </section>
@@ -4453,7 +4459,8 @@ $('go-panth').onclick = () => {
   else { construirePantheon(); montrer('pantheon'); }
 };
 $('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage();
-  construireSvOpts(); construireBioEssai(); montrer('test'); };
+  construireSvOpts(); construireBioEssai(); construireBioTest(); construireTest();
+  montrer('test'); };
 $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
 $('recap-panth').onclick  = () => $('go-panth').onclick();
@@ -6685,13 +6692,14 @@ async function apiAuth(chemin, options){
 async function monProfil(){
   const s = await rafraichirSession();
   if(!s) return null;
-  const r = await apiAuth('profils?id=eq.' + s.id + '&select=pseudo');
-  return r && r[0] ? r[0].pseudo : null;
+  const r = await apiAuth('profils?id=eq.' + s.id + '&select=pseudo,tag');
+  return r && r[0] ? r[0] : null;
 }
 async function mesLigues(){
   const s = await rafraichirSession();
   if(!s) return [];
-  return await apiAuth('membres?joueur=eq.' + s.id + '&select=ligue,ligues(nom)') || [];
+  return await apiAuth('membres?joueur=eq.' + s.id
+    + '&select=ligue,ligues(nom,embleme)') || [];
 }
 async function publierPerf(){
   const s = await rafraichirSession();
@@ -6725,7 +6733,8 @@ async function construireProfil(){
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   let distant = null;
   if(s){ try{ distant = await monProfil(); }catch(e){} }
-  const nom = p.pseudo || distant || (MEM.joueurs && MEM.joueurs[0]) || 'Invité';
+  const nom = p.pseudo || (distant && distant.pseudo)
+    || (MEM.joueurs && MEM.joueurs[0]) || 'Invité';
 
   $('pr-pseudo').textContent = nom;
   $('pr-pseudo').style.color = p.couleur || coulHash(nom);
@@ -6757,7 +6766,7 @@ async function construireProfil(){
   $('pr-ligue').style.display = S.salon ? 'block' : 'none';
 }
 
-// photo : redimensionnée à 256 px et stockée en local, jamais envoyée
+// photo : redimensionnée à 256 px avant tout envoi, synchronisée au compte
 $('pr-photo').onclick = () => $('pr-fichier').click();
 $('pr-fichier').onchange = async ev => {
   const f = ev.target.files && ev.target.files[0];
@@ -6766,6 +6775,11 @@ $('pr-fichier').onchange = async ev => {
     const url = await redimensionner(f, 256);
     monPro().photo = url;
     await ecrireMem(); construireProfil();
+    // si un compte existe, la photo suit le pseudo vers le serveur — c'est ce
+    // qui permet à la photo d'apparaître dans le panthéon d'une ligue
+    const s = EN_LIGNE() ? await rafraichirSession() : null;
+    if(s){ try{ await apiAuth('profils?id=eq.' + s.id,
+      {method:'PATCH', body:JSON.stringify({photo:url})}); }catch(e){} }
   }catch(e){
     choisir('Image illisible', "Ce fichier n'a pas pu être lu.", [{label:'Fermer', val:true}]);
   }
@@ -6794,6 +6808,9 @@ function redimensionner(fichier, taille){
 }
 $('pr-effacer-photo').onclick = async () => {
   monPro().photo = null; await ecrireMem(); construireProfil();
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  if(s){ try{ await apiAuth('profils?id=eq.' + s.id,
+    {method:'PATCH', body:JSON.stringify({photo:null})}); }catch(e){} }
 };
 
 $('pr-nom').onclick = async () => {
@@ -6911,9 +6928,11 @@ async function majCompte(){
   $('cn-dans').style.display = s ? 'block' : 'none';
   if(!s) return;
   $('cn-ident-vu').textContent = emailVersIdent(s.email);
-  let pseudo = null;
-  try{ pseudo = await monProfil(); }catch(e){}
-  $('cn-pseudo').textContent = pseudo || monPro().pseudo || 'Sans pseudo';
+  let profilServeur = null;
+  try{ profilServeur = await monProfil(); }catch(e){}
+  const nomAff = (profilServeur && profilServeur.pseudo) || monPro().pseudo || 'Sans pseudo';
+  $('cn-pseudo').textContent = nomAff
+    + (profilServeur && profilServeur.tag ? ' #' + profilServeur.tag : '');
   if(INVITATION){
     const code = INVITATION; INVITATION = null;
     const deja = (await mesLigues().catch(() => [])).some(x => x.ligue === code);
@@ -7254,7 +7273,15 @@ async function rejoindreLigue(code, s){
 }
 
 /* ─── classement d'une ligue ─── */
-const MODES_LIGUE = ['solo', 'nues', 'survie', 'reflexe'];
+// Tous les modes solo qui publient un score. Le laboratoire et l'Aventure ont
+// leurs propres économies de points, hors classement — sauf un mode « labo »
+// qui aurait été promu au menu principal (Cascade, depuis la v64) : il reste
+// alors dans le classement, puisque les joueurs le pratiquent normalement.
+// En fonction plutôt qu'en const : SOLO_MENU est déclarée plus loin dans ce
+// fichier, l'appeler ici avant son initialisation ferait planter le script.
+const modesLigue = () => SOLOS
+  .filter(s => (!s.labo || SOLO_MENU.includes(s.id)) && s.id !== 'aventure')
+  .map(s => s.id);
 
 async function ouvrirLigue(code, nom, embleme){
   LG_COURANTE = {code, nom, embleme, createur:null, moi:null};
@@ -7279,10 +7306,12 @@ async function ouvrirLigue(code, nom, embleme){
     const r = await apiAuth('ligues?code=eq.' + code + '&select=createur');
     LG_COURANTE.moi = s && s.id;
     LG_COURANTE.createur = r && r[0] && r[0].createur;
-    if(s && r && r[0] && r[0].createur === s.id)
+    if(s && r && r[0] && r[0].createur === s.id){
       $('lg-renommer').style.display = 'block';
+      $('lg-supprimer').style.display = 'block';
+    }
   }catch(e){ /* sans réseau, pas de renommage : le reste marche */ }
-  $('seg-lg').innerHTML = MODES_LIGUE.map(id => {
+  $('seg-lg').innerHTML = modesLigue().map(id => {
     const m = SOLOS.find(s => s.id === id) || {n:id};
     return `<button data-v="${id}" aria-pressed="${id === LG_MODE}">${esc(m.n)}</button>`;
   }).join('');
@@ -7303,7 +7332,7 @@ async function chargerClassement(){
   try{
     const s = await rafraichirSession();
     const membres = await apiAuth('membres?ligue=eq.' + LG_COURANTE.code
-      + '&select=joueur,profils(pseudo)') || [];
+      + '&select=joueur,profils(pseudo,photo,tag)') || [];
     if(!membres.length){
       $('lg-note').textContent = 'Personne dans cette ligue pour le moment.';
       return;
@@ -7321,6 +7350,8 @@ async function chargerClassement(){
     const rangs = membres.map(m => ({
       id:m.joueur,
       nom:(m.profils && m.profils.pseudo) || 'Sans pseudo',
+      tag:m.profils && m.profils.tag,
+      photo:m.profils && m.profils.photo,
       ...(par[m.joueur] || {score:0, parties:0, somme:0, tours:0})
     })).sort((a, b) => b.score - a.score);
     const mode = SOLOS.find(x => x.id === LG_MODE) || {n:LG_MODE};
@@ -7336,9 +7367,12 @@ async function chargerClassement(){
         ? r.parties + ' partie' + (r.parties > 1 ? 's' : '')
           + (prec ? ' · précision ± ' + prec : '')
         : "n'a pas encore joué ce mode";
+      const av = r.photo ? `<img src="${r.photo}">` : esc((r.nom || '?')[0].toUpperCase());
+      const nomAff = esc(r.nom) + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
       return `<div class="lg-rang${s && r.id === s.id ? ' moi' : ''}">
         <span class="p">${r.parties ? i + 1 : '—'}</span>
-        <span class="n">${esc(r.nom)}</span>
+        <span class="lg-av">${av}</span>
+        <span class="n">${nomAff}</span>
         <span class="s">${r.parties ? r.score : '·'}</span>
         <span class="st">${st}</span>
       </div>`;
@@ -7387,6 +7421,19 @@ $('lg-partager').onclick = async () => {
   if(r === 'copié') $('lg-note').textContent = 'Invitation copiée · code '
     + LG_COURANTE.code;
 };
+$('lg-supprimer').onclick = async () => {
+  if(!LG_COURANTE) return;
+  if(!await demander('Supprimer « ' + LG_COURANTE.nom + ' » ?',
+    'Définitif : la ligue disparaît pour tous ses membres, avec son classement. '
+    + 'Leurs parties solo restent sur leur compte, seule la ligue est effacée.',
+    'Supprimer')) return;
+  try{
+    await apiAuth('ligues?code=eq.' + LG_COURANTE.code, {method:'DELETE'});
+    await ouvrirLigues();
+  }catch(e){
+    choisir('Suppression impossible', messageCompte(e), [{label:'Fermer', val:true}]);
+  }
+};
 $('lg-quitter').onclick = async () => {
   if(!LG_COURANTE) return;
   if(!await demander('Quitter « ' + LG_COURANTE.nom + ' » ?',
@@ -7397,7 +7444,7 @@ $('lg-quitter').onclick = async () => {
     await apiAuth('membres?ligue=eq.' + LG_COURANTE.code + '&joueur=eq.' + s.id,
       {method:'DELETE'});
   }catch(e){}
-  montrer('compte'); majCompte();
+  await ouvrirLigues();
 };
 
 // à la première connexion, ce qui a été joué avant remonte d'un coup
@@ -7460,7 +7507,7 @@ async function majComptes(){
     let p = null;
     try{ p = await monProfil(); }catch(e){}
     $('cp-compte').textContent = 'Connecté : ' + emailVersIdent(s.email)
-      + (p ? ' · pseudo ' + p : '');
+      + (p && p.pseudo ? ' · pseudo ' + p.pseudo + (p.tag ? ' #' + p.tag : '') : '');
     listerMesLigues();
   } else {
     $('cp-compte').textContent = 'Aucun compte connecté sur cet appareil.';
@@ -8179,7 +8226,17 @@ function construireTest(){
 const MDP_TEST = 'TEST12';
 let testOuvert = false;
 
+const COMPTES_TEST_AUTORISES = ['allongueville1@gmail.com'];
+// true si la session courante est un compte Google et figure dans la liste.
+// Un compte identifiant/mot de passe a une adresse @krono.local fictive, donc
+// il ne peut jamais matcher ici — seule une vraie connexion Google le peut.
+const compteTestAutorise = () => !!(SESSION && SESSION.email
+  && COMPTES_TEST_AUTORISES.includes(SESSION.email.toLowerCase()));
+
 function verrouTest(){
+  // le mot de passe reste une porte de secours ; un compte Google autorisé
+  // déverrouille directement, sans rien taper
+  if(compteTestAutorise()) testOuvert = true;
   $('test-verrou').style.display = testOuvert ? 'none' : 'block';
   $('test-contenu').style.display = testOuvert ? 'block' : 'none';
   if(!testOuvert){ $('test-mdp').value = ''; $('test-err').textContent = ''; }
