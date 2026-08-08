@@ -89,6 +89,66 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .ecran{display:none;flex-direction:column;height:100%;padding:18px 20px}
 .ecran.actif{display:flex}
+/* les écrans à onglets laissent la place à la barre du bas */
+.ecran.avec-barre{padding-bottom:0}
+.ecran.avec-barre .defile{padding-bottom:76px}
+
+/* ─── barre de navigation fixe ─── */
+.barre-bas{display:none;position:absolute;left:0;right:0;bottom:0;z-index:40;
+  background:rgba(14,17,22,.94);backdrop-filter:blur(14px);
+  border-top:1px solid var(--bordDoux);
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  grid-template-columns:repeat(4,1fr);gap:2px}
+.barre-bas.on{display:grid}
+.bb{display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:none;border:none;padding:6px 2px;cursor:pointer;color:var(--gris)}
+.bb .ic{font-size:19px;line-height:1}
+.bb .lb{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase}
+.bb[aria-selected="true"]{color:var(--laiton)}
+.bb:active{opacity:.6}
+
+/* ─── garde : écran quand on n'est pas connecté ─── */
+.garde{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:22px 18px;margin-top:14px;text-align:center}
+.garde .em{font-size:34px;line-height:1}
+.garde .t{font-size:24px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;margin-top:10px}
+.garde .d{font-family:var(--mono);font-size:11.5px;line-height:1.7;
+  color:var(--gris);margin-top:9px}
+.garde .b{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+
+/* ─── cartes de ligue ─── */
+.lg-carte{display:flex;align-items:center;gap:13px;padding:13px 14px;margin-top:9px;
+  border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface);
+  cursor:pointer;text-align:left;width:100%}
+.lg-carte:active{opacity:.7}
+.blason{width:52px;height:52px;flex-shrink:0;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:25px;
+  border:1px solid currentColor}
+.lg-carte .info{flex:1;min-width:0}
+.lg-carte .nm{font-size:21px;font-weight:700;letter-spacing:.03em;
+  text-transform:uppercase;line-height:1.05;color:var(--ivoire);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-carte .mb{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  color:var(--gris);margin-top:5px}
+.lg-carte .fl{color:var(--gris);font-size:22px;flex-shrink:0}
+.lg-vide{border:1px dashed var(--bordDoux);border-radius:var(--r);padding:20px 16px;
+  text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.7;
+  color:var(--gris);margin-top:12px}
+
+/* ─── en-tête d'une ligue ─── */
+.lg-tete{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.lg-tete .blason{width:60px;height:60px;font-size:29px}
+.lg-tete .nm{font-size:26px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.lg-tete .sb{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  color:var(--gris);margin-top:6px}
+/* choix du blason à la création */
+.embl-grille{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}
+.embl-grille button{aspect-ratio:1;border:1px solid var(--bordDoux);border-radius:11px;
+  background:var(--ardoise);font-size:21px;cursor:pointer}
+.embl-grille button[aria-pressed="true"]{border-color:var(--laiton);
+  background:rgba(201,162,39,.14)}
 
 .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;
   letter-spacing:.22em;text-transform:uppercase;color:var(--gris)}
@@ -107,6 +167,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .bouton.fantome{background:none;color:var(--gris);border:1px solid var(--bordDoux);
   font-size:14px;letter-spacing:.14em;padding:12px;border-radius:12px}
 .bouton.or{background:var(--laiton);color:var(--nuit)}
+.bouton.google{background:#fff;color:#3C4043;display:flex;align-items:center;
+  justify-content:center;gap:10px;font-size:14px;letter-spacing:.04em;
+  text-transform:none;font-weight:600;margin-top:12px;width:100%}
+.ou-separateur{display:flex;align-items:center;gap:12px;margin-top:16px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--gris);
+  text-transform:uppercase}
+.ou-separateur::before,.ou-separateur::after{content:'';flex:1;height:1px;
+  background:var(--bordDoux)}
 
 .nav{display:flex;gap:5px;align-items:center;justify-content:flex-end;
   flex-wrap:wrap;flex-shrink:0}
@@ -161,6 +229,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 /* ─── écran prêt ─── */
 .tete{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.det-haut{margin-bottom:12px}
+.det-retour{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--laiton);background:none;border:none;
+  padding:6px 0;cursor:pointer}
+.det-retour:active{opacity:.6}
 .joueur{font-size:clamp(38px,13vw,58px);font-weight:700;letter-spacing:.04em;
   text-transform:uppercase;line-height:1;margin-top:14px;text-align:center}
 .centre{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px}
@@ -297,6 +370,54 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   margin-top:26px;text-align:center;padding:0 20px}
 .titre-sec{font-family:var(--mono);font-size:10px;letter-spacing:.22em;
   text-transform:uppercase;color:var(--laiton);margin-top:16px;opacity:.85}
+/* ─── comptes et ligues ─── */
+.cn-etape{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:15px;margin-top:10px}
+.cn-etape.faite{border-color:var(--laiton);opacity:.6}
+.cn-num{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--laiton)}
+.cn-t{font-size:15px;font-weight:600;margin-top:5px}
+.cn-d{font-size:13px;opacity:.72;margin-top:5px;line-height:1.45}
+.cn-saisie{display:flex;gap:8px;margin-top:11px}
+.cn-saisie input{flex:1;min-width:0}
+.lg-l{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:13px 15px;margin-top:9px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lg-l:active{border-color:var(--laiton)}
+.lg-n{font-size:15px;font-weight:600}
+.lg-c{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+  color:var(--laiton);margin-top:4px}
+.lg-fl{opacity:.4;font-size:18px}
+.lg-rang{display:flex;align-items:baseline;gap:10px;padding:11px 4px;
+  border-bottom:1px solid var(--bordDoux)}
+.lg-rang .p{font-family:var(--mono);font-size:12px;opacity:.5;width:22px}
+.lg-rang{flex-wrap:wrap}
+.lg-rang .n{flex:1;font-size:15px}
+.lg-rang .st{flex-basis:100%;font-family:var(--mono);font-size:10px;
+  letter-spacing:.08em;color:var(--gris);padding-left:32px;margin-top:3px}
+.lg-rang.moi .st{color:#9AA5B4}
+.lg-rang .s{font-family:var(--mono);font-size:15px;color:var(--laiton)}
+.lg-rang.moi{background:rgba(201,162,39,.07);border-radius:6px}
+/* ─── boutique de l'Aventure ─── */
+.bo-tete{display:flex;align-items:baseline;gap:12px;margin-top:6px}
+.bo-xp{font-family:var(--mono);font-size:26px;color:var(--laiton);
+  letter-spacing:.04em}
+.bo-l{border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:13px 15px;margin-top:9px;position:relative}
+.bo-l.porte{border-color:var(--laiton);background:rgba(201,162,39,.07)}
+.bo-n{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.bo-eq{font-family:var(--mono);font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--laiton);border:1px solid var(--laiton);
+  border-radius:4px;padding:2px 6px}
+.bo-d{font-size:13px;opacity:.72;margin-top:5px;line-height:1.45}
+.bo-s{font-family:var(--mono);font-size:11px;color:var(--laiton);
+  margin-top:7px;letter-spacing:.04em}
+.bo-b{margin-top:11px}
+.bo-b button{font:inherit;font-size:13px;padding:8px 16px;border-radius:8px;
+  border:1px solid var(--bordDoux);background:transparent;color:inherit;
+  cursor:pointer}
+.bo-b button:disabled{opacity:.35;cursor:default}
+.bo-l.porte .bo-b button{border-color:var(--laiton);color:var(--laiton)}
 .evt{border:1px solid var(--bordDoux);border-radius:var(--r);
   background:var(--surface);padding:14px 15px;margin-top:9px}
 .evt.actif{border-color:var(--laiton);background:rgba(201,162,39,.06)}
@@ -377,6 +498,19 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* un débord de 60 % : aucune rotation ni mise à l'échelle ne peut faire
    apparaître le bord de la couche */
 
+#fluide[data-biome="cascade"]{background:
+  radial-gradient(130% 90% at 50% 20%,rgba(63,184,212,.18),transparent 62%),
+  linear-gradient(180deg,#06222E 0%,#04141C 60%,#020A10 100%)}
+#fluide[data-biome="cascade"] .fond-anim i:nth-child(1){background:
+  repeating-linear-gradient(180deg,rgba(120,220,240,.16) 0 2px,transparent 2px 16px);
+  animation:chuteEau 1.1s linear infinite}
+#fluide[data-biome="cascade"] .fond-anim i:nth-child(2){background:
+  repeating-linear-gradient(180deg,rgba(160,235,255,.10) 0 3px,transparent 3px 26px),
+  radial-gradient(ellipse 70% 16% at 50% 100%,rgba(63,184,212,.30),transparent 72%);
+  animation:chuteEau 1.7s linear infinite}
+@keyframes chuteEau{from{background-position:0 0}to{background-position:0 16px}}
+#fluide.mode-cascade #f-chrono{text-shadow:0 0 20px rgba(63,184,212,.45)}
+#fluide.mode-cascade .f-sprint.on{color:#7BE3F0;border-color:#3FB8D4}
 #fluide[data-biome="jungle"] .fond-anim i:nth-child(1){background:
   radial-gradient(ellipse 22% 30% at 8% 2%,rgba(40,120,70,.42),transparent 72%),
   radial-gradient(ellipse 18% 24% at 90% 0%,rgba(50,140,85,.38),transparent 72%),
@@ -642,7 +776,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .cine-toundra::before{background:radial-gradient(circle at 50% 50%,transparent 20%,var(--cin) 90%);
   animation:cinGel 1.1s ease-out}
 @keyframes cinGel{0%{opacity:.6;transform:scale(1.5)}100%{opacity:0;transform:scale(1)}}
-.cine-ocean::before{background:linear-gradient(0deg,var(--cin),transparent 70%);
+.cine-ocean::before{background:linear-gradient(0deg,
+    transparent 0%, var(--cin) 22%, var(--cin) 46%, transparent 82%);
   animation:cinVague 1.1s cubic-bezier(.3,.9,.4,1)}
 @keyframes cinVague{0%{opacity:.6;transform:translateY(100%)}
   55%{opacity:.45;transform:translateY(-10%)}100%{opacity:0;transform:translateY(-40%)}}
@@ -713,6 +848,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--alerte);opacity:.55;pointer-events:none;z-index:6}
 .triche-ind.on{display:block}
+/* Outils du mode invincible : collés au bord droit, écrits à la verticale,
+   pour ne rien recouvrir de la zone de jeu. */
+.outil-t{display:none;position:absolute;right:0;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--alerte);background:rgba(0,0,0,.4);border:1px solid var(--alerte);
+  border-right:none;border-radius:9px 0 0 9px;padding:12px 5px;opacity:.6;
+  z-index:7;cursor:pointer;writing-mode:vertical-rl;text-orientation:mixed}
+.outil-t.on{display:block}
+.outil-t:active{opacity:1}
+#f-saut{top:44%}
+#f-tour-choix{top:calc(44% + 118px)}
 @keyframes flash{0%{opacity:0}30%{opacity:.28}100%{opacity:0}}
 /* Désert : le chiffre se dérobe régulièrement */
 .f-chrono.clignote{animation:clign 2.2s ease-in-out infinite}
@@ -747,15 +893,20 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   100%{background-position:0 0,0 0,140px -70px}}
 /* la bourrasque : deux secondes où l'on ne voit presque plus rien */
 .bourrasque{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:0;
+  background-repeat:no-repeat;
   background:
-    linear-gradient(112deg,rgba(240,248,255,.86),rgba(220,238,250,.6) 40%,rgba(240,248,255,.86)),
-    repeating-linear-gradient(112deg,transparent 0 5px,rgba(255,255,255,.4) 5px 7px)}
+    /* un nuage ovale et feutré, pas une bande droite : dégradé radial très
+       étiré, avec beaucoup de paliers pour que le bord reste doux */
+    radial-gradient(ellipse 46% 130% at 50% 50%,
+      rgba(240,248,255,.68) 0%, rgba(240,248,255,.5) 30%,
+      rgba(240,248,255,.24) 58%, transparent 82%),
+    repeating-linear-gradient(112deg,transparent 0 5px,rgba(255,255,255,.22) 5px 7px)}
 .bourrasque.on{animation:rafale 2.1s cubic-bezier(.3,.7,.4,1)}
 @keyframes rafale{
-  0%{opacity:0;background-position:-60vw 0,-60vw 0}
-  22%{opacity:.82}
-  62%{opacity:.72}
-  100%{opacity:0;background-position:60vw 0,60vw 0}}
+  0%{opacity:0;background-position:-70vw 0,-60vw 0}
+  30%{opacity:.9}
+  70%{opacity:.75}
+  100%{opacity:0;background-position:70vw 0,60vw 0}}
 /* Abysses : plus rien que le chiffre */
 #fluide.noir-total .f-tete-j,#fluide.noir-total .f-obj,
 #fluide.noir-total .solo-actions,#fluide.noir-total .tete,
@@ -803,15 +954,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #fluide .tete{position:relative}
 .f-sprint.urgent{color:var(--signal);animation:presse .6s ease-in-out infinite}
 @keyframes presse{0%,100%{opacity:1}50%{opacity:.45}}
-.f-tete-j{margin-top:26px;flex-shrink:0}
+.f-tete-j{margin-top:var(--tete-mt, 26px);flex-shrink:0}
 .f-nom-l{height:54px;display:flex;align-items:center;justify-content:center}
 .f-badges{min-height:38px;display:flex;align-items:center;justify-content:center;
   gap:6px;flex-wrap:wrap;overflow:hidden;padding-top:7px}
 .f-badges .bouclier{margin-left:0}
 .f-nom{font-size:clamp(26px,8vw,38px);max-width:100%;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
-.f-obj{text-align:center;margin-top:18px;font-family:var(--mono);
-  height:80px;flex-shrink:0}
+.f-obj{text-align:center;margin-top:var(--obj-mt, 18px);font-family:var(--mono);
+  height:var(--obj-h, 80px);flex-shrink:0}
+
 .f-obj b{font-size:30px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
 .f-obj em{display:block;font-style:normal;font-size:12px;letter-spacing:.15em;
   color:var(--gris);text-transform:uppercase;margin-top:7px}
@@ -827,12 +979,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* Le chiffre est ancré au centre géométrique du bloc et n'en bouge jamais.
    Tout le reste est positionné par rapport à lui, en absolu : aucune longueur
    de texte ne peut donc le déplacer. */
-.f-chrono{position:absolute;top:50%;left:50%;
+.f-chrono{position:absolute;top:var(--chr-y, 50%);left:50%;
   transform:translate(-50%,-50%);
   line-height:1;white-space:nowrap;margin:0}
+/* l'anneau suit le chiffre : il reste centré sur lui, pas sur le bloc */
 /* survie : la zone devient un anneau qui se resserre autour du chiffre */
 .anneau{display:none;position:absolute;width:min(92vw,340px);height:min(92vw,340px);
-  top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;
+  top:var(--chr-y, 50%);left:50%;transform:translate(-50%,-50%);pointer-events:none;
   opacity:.42;z-index:0}
 /* au-dessus de l anneau de biome, mais leur positionnement reste absolu */
 .f-chrono,.f-ecart,.f-gain{z-index:1}
@@ -848,6 +1001,26 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
              linear-gradient(0deg,rgba(255,80,80,.12),transparent 18%);
   animation:pulseAlerte 1.5s ease-in-out infinite}
 @keyframes pulseAlerte{0%,100%{opacity:.55}50%{opacity:1}}
+/* Chantier : une poutrelle passe devant le chiffre des dixièmes */
+.dixieme-masque{opacity:.28}
+/* Mine : le grisou souffle la lampe. Tout s'éteint sauf le bouton de départ
+   et le chrono, qui luit faiblement dans le noir. */
+#fluide.flou-eau #f-chrono{filter:blur(3.5px);transition:filter .3s;
+  text-shadow:0 0 18px rgba(63,184,212,.5)}
+.voile-noir{display:none;position:absolute;inset:0;background:#000;z-index:8;
+  pointer-events:none;animation:nuitMine .35s ease-out}
+.voile-noir.on{display:block}
+@keyframes nuitMine{from{opacity:0}to{opacity:1}}
+#fluide.noir-mine .f-centre{position:relative;z-index:9}
+#fluide.noir-mine .f-boutons{position:relative;z-index:9}
+/* le verdict passe au-dessus du noir : on doit pouvoir lire son résultat même
+   la lampe éteinte, sinon le tour devient incompréhensible */
+#fluide.noir-mine .f-verdict{position:relative;z-index:9}
+#fluide.noir-mine .anneau{opacity:0}
+#fluide.noir-mine #f-gauche{opacity:0;pointer-events:none}
+#fluide.noir-mine #f-chrono{color:rgba(200,155,90,.34) !important;
+  text-shadow:0 0 22px rgba(200,155,90,.5), 0 0 60px rgba(200,155,90,.22)}
+#fluide.noir-mine #f-droite{box-shadow:0 0 40px rgba(200,155,90,.28)}
 #fluide.zone-critique{background:
   radial-gradient(120% 70% at 50% 55%,rgba(220,59,42,.13),transparent 66%)}
 .pari-b{display:none;margin-top:8px;pointer-events:none;font-family:var(--mono);font-size:10.5px;
@@ -860,8 +1033,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   /* la police se réduit si la phrase est longue : c'est elle qui s'adapte,
      jamais le chiffre */
   font-size:clamp(13px, 4.2vw, 17px);
-  line-height:1.25;text-align:center;padding:0 18px;visibility:hidden;
-  height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  line-height:1.25;text-align:center;padding:0 18px;
+  height:38px;flex-shrink:0;display:none;align-items:center;justify-content:center}
+/* display:none et non visibility:hidden : sinon la ligne réserve ses 38 px
+   dans tous les modes, y compris ceux qui ne l'utilisent jamais */
+.f-gain.on{display:flex}
 .f-gain.on{visibility:visible}
 .pv-bloc{display:none;position:absolute;bottom:4px;left:50%;
   transform:translateX(-50%);
@@ -886,16 +1062,43 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .f-chrono.attente{color:var(--trait);animation:respire 1.4s ease-in-out infinite}
 @keyframes respire{0%,100%{opacity:.5}50%{opacity:1}}
 .f-ecart{font-family:var(--mono);font-size:15px;letter-spacing:.06em;color:var(--gris);
-  height:22px;flex-shrink:0;
+  height:24px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;text-align:center}
-.f-verdict{height:192px;flex-shrink:0;text-align:center;padding:0 6px 2px;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  gap:14px;overflow:hidden}
-/* Écart, phrase de gain, verdict et ligne de détail sont TOUS dans ce bloc, en
-   flux normal : aucun recouvrement n'est structurellement possible.
-   Le contenu est calé en bas (flex-end) pour occuper l'espace juste au-dessus
-   des boutons, qui restait vide. La place vient de « tenu X s » et de la
-   punchline, absents en Survie. */
+.f-verdict{flex-shrink:0;text-align:center;padding:0 6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:var(--verdict-gap, 10px);overflow:hidden;
+  justify-content:var(--verdict-just, center);
+  /* la hauteur est fixée par mode, plus bas : chaque mode n'affiche pas les
+     mêmes lignes, donc chacun a besoin d'une boîte différente */
+  height:var(--verdict-h, 150px)}
+/* ════════════════════════════════════════════════════════════════════════
+   GÉOMÉTRIE PAR MODE — le seul endroit à modifier
+
+   Chaque mode n'affiche pas les mêmes lignes, donc chacun a sa propre boîte.
+   Pour ajuster un mode, on ne touche QU'À SA LIGNE ici : aucun autre mode
+   n'est impacté.
+
+     --tete-mt   marge au-dessus du cartouche du joueur
+     --obj-mt    marge au-dessus de l'objectif
+     --chr-y     ancrage vertical du chiffre et de l'anneau
+     --verdict-h hauteur de la boîte de verdict
+     --verdict-gap  espacement entre les lignes du verdict
+     --verdict-just alignement vertical du contenu du verdict
+
+   Lignes réellement affichées dans le verdict, par mode :
+     soirée   écart · verdict · détail · punchline
+     survie   écart · phrase de gain · verdict · détail
+     réflexe  écart · verdict · détail
+     combat   verdict · détail
+   ════════════════════════════════════════════════════════════════════════ */
+#fluide{--tete-mt:26px; --obj-mt:18px; --obj-h:80px; --chr-y:50%; --verdict-h:176px;
+        --verdict-gap:10px; --verdict-just:center}
+#fluide.mode-survie  {--tete-mt:34px; --obj-mt:26px; --obj-h:64px; --chr-y:56%; --verdict-h:192px;
+        --verdict-gap:14px; --verdict-just:flex-end}
+#fluide.mode-reflexe {--tete-mt:26px; --obj-mt:18px; --obj-h:80px; --chr-y:50%; --verdict-h:132px}
+#fluide.mode-combat  {--tete-mt:26px; --obj-mt:18px; --obj-h:80px; --chr-y:48%; --verdict-h:120px}
+#fluide.mode-cascade {--tete-mt:26px; --obj-mt:20px; --obj-h:70px; --chr-y:52%; --verdict-h:150px}
+
 .f-verdict .titre{font-size:22px;font-weight:700;letter-spacing:.05em;
   text-transform:uppercase;line-height:1.12;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -934,9 +1137,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   line-height:1.35;color:var(--laiton);margin-top:9px;font-style:italic}
 .blague:empty{display:none}
 .f-blague{text-align:center;padding:0 8px;margin-top:0;font-size:14.5px;
-  line-height:1.3;visibility:hidden;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.f-blague.on{visibility:visible}
+  line-height:1.3;display:none;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.f-blague.on{display:-webkit-box}
 /* ─── scores d'entraînement ─── */
 .sc-conf{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--gris);width:100%;padding-left:29px;margin-top:-2px}
@@ -1014,8 +1217,18 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .lat-l .bar i{display:block;height:100%;border-radius:999px;background:var(--laiton)}
 .lat-l .ms{width:46px;text-align:right;color:var(--ivoire)}
 .lat-l.recent .ms{color:var(--laiton)}
+.dtab{width:100%;border-collapse:collapse;margin-top:12px;font-family:var(--mono);font-size:11px}
+.dtab th{color:var(--gris);text-align:right;padding:6px 8px;font-weight:500;
+  letter-spacing:.08em;border-bottom:1px solid var(--laiton);white-space:nowrap}
+.dtab th:first-child{text-align:left}
+.dtab td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--bordDoux);
+  color:#C3BCAE;white-space:nowrap}
+.dtab td:first-child{text-align:left;color:var(--gris)}
+.dtab tr.recent td{color:var(--ivoire)}
+.dtab tr.recent td:last-child{color:var(--laiton)}
+.dtab .u{color:var(--gris);font-size:9px;margin-left:2px}
 #test-mdp{text-transform:uppercase;letter-spacing:.2em}
-#cp-code{font-family:var(--mono);font-size:22px;letter-spacing:.42em;text-align:center}
+/* ancien style code OTP retiré */
 
 /* ─── trophées ─── */
 .tro{display:flex;gap:13px;align-items:flex-start;padding:13px 14px;margin-top:8px;
@@ -1186,6 +1399,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="recap-b">
     <button class="bouton" id="rejouer">Rejouer</button>
   </div>
+  <div class="recap-b" id="fin-cn" style="display:none">
+    <button class="bouton fantome" id="fin-compte">Comparer avec des amis</button>
+  </div>
+  <div class="recap-b" id="fin-bo" style="display:none">
+    <button class="bouton fantome" id="fin-boutique">Boutique · dépenser l'expérience</button>
+  </div>
   <div class="recap-b">
     <button class="bouton fantome" id="recap-panth">Panthéon</button>
     <button class="bouton fantome" id="recap-fermer">Retour au menu</button>
@@ -1260,7 +1479,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="titre-sec">Compte</div>
     <div class="note" id="pr-compte-note">—</div>
     <div class="recap-b">
-      <button class="bouton fantome" id="pr-connexion">Se connecter</button>
+      <button class="bouton" id="pr-creer-compte">Créer un compte</button>
+      <button class="bouton fantome" id="pr-connexion">J'ai déjà un compte</button>
     </div>
   </div>
 </section>
@@ -1288,14 +1508,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="titre-sec">3 · Compte</div>
     <div id="cp-deconnecte">
       <div class="mod-saisie" style="display:flex;margin-top:8px">
-        <input id="cp-mail" type="email" placeholder="adresse@exemple.fr"
-               autocomplete="email" autocapitalize="off" inputmode="email">
-        <button id="cp-envoyer">Code</button>
+        <input id="cp-ident" type="text" placeholder="identifiant"
+               autocomplete="username" autocapitalize="off">
       </div>
-      <div class="mod-saisie" style="display:flex;margin-top:8px" id="cp-bloc-code">
-        <input id="cp-code" type="text" placeholder="000000" inputmode="numeric"
-               autocomplete="one-time-code" maxlength="6">
-        <button id="cp-valider">Valider</button>
+      <div class="mod-saisie" style="display:flex;margin-top:8px">
+        <input id="cp-pass" type="password" placeholder="mot de passe"
+               autocomplete="current-password" minlength="8">
+      </div>
+      <div class="mod-saisie" style="display:flex;gap:8px;margin-top:8px">
+        <button id="cp-cr-btn">Créer</button>
+        <button id="cp-lg-btn">Connecter</button>
       </div>
     </div>
     <div id="cp-connecte" style="display:none">
@@ -1315,6 +1537,161 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
     <div class="titre-sec">Journal</div>
     <div class="journal" id="cp-log"></div>
+  </div>
+</section>
+
+<!-- ═══ COMPTE ET LIGUES ═══ -->
+<section class="ecran" id="compte">
+  <div class="entete">
+    <div class="marque"><h1>COMPTE</h1><span id="cn-etat">hors ligne</span></div>
+    <div class="nav"><button id="cn-retour">Profil</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+
+    <div id="cn-hors">
+      <div class="cn-etape">
+        <div class="cn-t" id="cn-t-1">Créer un compte</div>
+        <div class="cn-d" id="cn-d-1">Un identifiant unique et un mot de passe,
+          c'est tout. Aucun e-mail n'est envoyé.</div>
+        <div class="cn-saisie">
+          <input id="cn-ident" type="text" placeholder="Identifiant de compte (unique)"
+                 autocomplete="username" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="cn-saisie" style="margin-top:8px">
+          <input id="cn-pass" type="password" placeholder="Mot de passe (8 caractères min)"
+                 autocomplete="current-password" minlength="8">
+        </div>
+        <div class="recap-b" style="margin-top:14px;display:flex;gap:10px">
+          <button class="bouton" id="cn-creer-btn">Créer un compte</button>
+          <button class="bouton fantome" id="cn-login-btn">Se connecter</button>
+        </div>
+        <div class="ou-separateur"><span>ou</span></div>
+        <button class="bouton google" id="cn-google-btn">
+          <svg viewBox="0 0 18 18" width="18" height="18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.61z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.19l-2.9-2.26c-.81.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.69A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.69V4.98H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.02l2.97-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.98L3.95 7.3C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+          <span>Continuer avec Google</span>
+        </button>
+      </div>
+      <div class="note" id="cn-msg"></div>
+    </div>
+
+    <div id="cn-dans" style="display:none">
+      <div class="cn-etape faite">
+        <div class="cn-num">connecté</div>
+        <div class="cn-t" id="cn-pseudo">—</div>
+        <div class="cn-d" id="cn-ident-vu">—</div>
+        <div class="recap-b" style="margin-top:12px">
+          <button class="bouton fantome" id="cn-nom">Changer de pseudo</button>
+          <button class="bouton fantome" id="cn-sortir">Se déconnecter</button>
+        </div>
+      </div>
+
+      <div class="titre-sec">Mes ligues</div>
+      <div class="note" id="cn-lg-note">Elles vivent dans l'onglet Ligues, en bas
+        de l'écran.</div>
+      <div class="recap-b" style="margin-top:12px">
+        <button class="bouton fantome" id="cn-ligues-aller">Voir mes ligues</button>
+      </div>
+
+      <div class="titre-sec">Ce qui est stocké</div>
+      <div class="note">Votre adresse, votre pseudo et vos scores solo. Rien
+        d'autre : ni nom réel, ni identifiant d'appareil, ni position. La photo
+        de profil ne quitte jamais le téléphone. Supprimer le compte efface tout,
+        y compris les scores publiés.</div>
+      <div style="margin-top:10px">
+        <button class="bouton fantome" id="cn-supprimer">Supprimer mon compte</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MES LIGUES ═══ -->
+<section class="ecran" id="ligues">
+  <div class="entete">
+    <div class="marque"><h1>LIGUES</h1><span id="lgs-etat">hors ligne</span></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+
+    <!-- non connecté : les deux chemins -->
+    <div id="lgs-hors" style="display:none">
+      <div class="garde">
+        <div class="em">🏆</div>
+        <div class="t">Jouer à plusieurs</div>
+        <div class="d">Une ligue compare vos parties solo avec vos amis, sur la
+          durée. Il faut un compte pour que vos scores vous suivent d'un
+          téléphone à l'autre.</div>
+        <div class="b">
+          <button class="bouton" id="lgs-creer-compte">Créer un compte</button>
+          <button class="bouton fantome" id="lgs-connexion">J'ai déjà un compte</button>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px">Sans compte, le jeu reste
+        entièrement jouable : le panthéon local garde vos scores sur ce
+        téléphone.</div>
+    </div>
+
+    <!-- connecté : la liste -->
+    <div id="lgs-dans" style="display:none">
+      <div class="note" id="lgs-note">—</div>
+      <div id="lgs-liste"></div>
+      <div class="recap-b" style="margin-top:16px">
+        <button class="bouton" id="lgs-creer">Créer une ligue</button>
+        <button class="bouton fantome" id="lgs-rejoindre">Rejoindre avec un code</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CLASSEMENT D'UNE LIGUE ═══ -->
+<section class="ecran" id="ligue">
+  <div class="entete">
+    <div class="marque"><h1 id="lg-titre">LIGUE</h1><span id="lg-code">—</span></div>
+    <div class="nav"><button id="lg-retour">Ligues</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="lg-tete">
+      <span class="blason" id="lg-blason">🏆</span>
+      <div><div class="nm" id="lg-nom">—</div>
+        <div class="sb" id="lg-sous">—</div></div>
+    </div>
+    <div class="seg" id="seg-lg" style="margin-bottom:8px"></div>
+    <div class="note" id="lg-note">—</div>
+    <div id="lg-classement"></div>
+    <div class="recap-b" style="margin-top:16px">
+      <button class="bouton fantome" id="lg-renommer" style="display:none">Renommer la ligue</button>
+      <button class="bouton fantome" id="lg-partager">Inviter dans cette ligue</button>
+      <button class="bouton fantome" id="lg-quitter">Quitter la ligue</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOUTIQUE DE L'AVENTURE ═══ -->
+<section class="ecran" id="boutique">
+  <div class="entete">
+    <div class="marque"><h1>BOUTIQUE</h1><span>aventure</span></div>
+    <div class="nav"><button id="bo-retour">Retour</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="bo-tete"><span class="bo-xp" id="bo-xp">0 xp</span></div>
+    <div class="note" id="bo-resume">—</div>
+
+    <div class="titre-sec">Armes</div>
+    <div class="note">Les dégâts décident du nombre de coups qu'il faut pour
+      abattre un gardien. Le multiplicateur s'applique à toute l'expérience
+      gagnée, y compris en marchant.</div>
+    <div id="bo-armes"></div>
+
+    <div class="titre-sec">Armures</div>
+    <div class="note">L'armure élargit la zone de départ. C'est le seul moyen
+      d'allonger une expédition : en Aventure, le terrain ne se regagne jamais.</div>
+    <div id="bo-armures"></div>
+
+    <div class="recap-b" style="margin-top:18px">
+      <button class="bouton" id="bo-partir">Repartir en expédition</button>
+    </div>
   </div>
 </section>
 
@@ -1494,6 +1871,18 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
     <div class="note" id="note-horo">—</div>
 
+    <div class="titre-sec">Arrondi du chrono</div>
+    <div class="seg" id="seg-arrondi">
+      <button data-v="proche" aria-pressed="true">Au plus près</button>
+      <button data-v="sup" aria-pressed="false">Centième supérieur</button>
+    </div>
+    <div class="note" id="note-arrondi">—</div>
+
+    <div class="titre-sec">Dix derniers appuis · détail du traitement</div>
+    <div class="note">Heure de l'appui, délai que JavaScript a mis à le traiter,
+      et temps effectivement retranché au chrono selon le mode choisi.</div>
+    <div id="test-delais"></div>
+
     <div class="titre-sec">Survie · essayer un biome</div>
     <div class="note">Lance une partie de trente tours au biome choisi, en
       invincible. Les scores ne sont pas enregistrés.</div>
@@ -1502,6 +1891,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button data-v="discret" aria-pressed="false">Intro discrète</button>
     </div>
     <div class="bio-essai" id="bio-essai"></div>
+
+    <div class="titre-sec">Décors en essai · dix propositions</div>
+    <div class="note">Les dix décors du document de propositions, hors
+      progression : ils ne se déclenchent que d'ici et n'apparaissent jamais
+      dans une partie normale. Trente tours en invincible, un malus et un bonus
+      chacun. Les scores ne sont pas enregistrés.</div>
+    <div class="bio-essai" id="bio-test"></div>
 
     <div class="titre-sec">Mode Survie · options</div>
     <div class="note">Chaque option peut être coupée pour juger de son utilité.</div>
@@ -1532,9 +1928,24 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div id="liste-soirees"></div>
 
     <div class="titre-sec">Modes solo</div>
-    <div class="note">Huit modes, chacun mesure une compétence différente.
+    <div class="note">Chacun mesure une compétence différente.
       « Lancer » démarre immédiatement une partie.</div>
     <div id="liste-solos"></div>
+
+    <div class="titre-sec">Aventure</div>
+    <div class="note">Les mêmes décors que la Survie, privés de tous leurs
+      bonus. L'expérience se garde entre les parties : elle s'achète en armes,
+      qui abattent les gardiens plus vite, et en armures, qui élargissent la
+      zone de départ.</div>
+    <div style="margin-top:10px">
+      <button class="bouton fantome" id="go-boutique">Ouvrir la boutique</button>
+    </div>
+
+    <div class="titre-sec">Laboratoire · dix modes sans décor</div>
+    <div class="note">Les dix propositions, implémentées telles quelles et
+      volontairement sans habillage : ce qui est jugé ici, c'est le geste.
+      Toucher le nom ouvre la règle complète.</div>
+    <div id="liste-labo"></div>
 
     <div class="titre-sec">Événements</div>
     <div class="note">« Lancer » force l'événement sur le tour suivant. Si aucune partie
@@ -1612,11 +2023,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="eclair" id="f-eclair"></div>
   <div class="bourrasque" id="f-bourrasque"></div>
   <div class="cine" id="f-cine"></div>
+  <button class="outil-t" id="f-saut">tour suivant ›</button>
+  <button class="outil-t" id="f-tour-choix">aller au tour…</button>
+  <div class="voile-noir" id="f-voile-noir"></div>
   <div class="triche-ind" id="f-triche">mode test · invincible</div>
 </section>
 
 <!-- ═══ RÉSULTAT ═══ -->
 <section class="ecran" id="resultat">
+  <div class="det-haut">
+    <button class="det-retour" id="det-retour">‹ Retour à la partie</button>
+  </div>
   <div class="tete">
     <span class="pilule" id="res-nom" style="font-size:19px">Joueur</span>
     <span class="eyebrow" id="res-cible">Objectif 1,00</span>
@@ -1659,6 +2076,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
 </section>
 
+<!-- ═══ BARRE DE NAVIGATION ═══ -->
+<nav class="barre-bas" id="barre-bas" role="tablist">
+  <button class="bb" id="bb-jouer"   role="tab" aria-selected="true"><span class="ic">▶</span><span class="lb">Jouer</span></button>
+  <button class="bb" id="bb-ligues"  role="tab" aria-selected="false"><span class="ic">🏆</span><span class="lb">Ligues</span></button>
+  <button class="bb" id="bb-panth"   role="tab" aria-selected="false"><span class="ic">📊</span><span class="lb">Panthéon</span></button>
+  <button class="bb" id="bb-profil"  role="tab" aria-selected="false"><span class="ic">👤</span><span class="lb">Profil</span></button>
+</nav>
+
 <datalist id="prenoms"></datalist>
 <div class="modale" id="modale">
   <div class="mb">
@@ -1685,26 +2110,39 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
    Vider ces deux valeurs désactive entièrement le mode en ligne.
    ═══════════════════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://qnjcufneugvggrtcgmzw.supabase.co';
+// L'adresse publique de l'app : Google y renvoie l'utilisateur après connexion.
+// Doit être listée dans « Authorized JavaScript origins » côté Google ET dans
+// Supabase → Authentication → URL Configuration → Redirect URLs.
+const SITE_URL = 'https://krono.kronogame.workers.dev/';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuamN1Zm5ldWd2Z2dydGNnbXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE1MTcsImV4cCI6MjEwMTI1NzUxN30.Tjj_l-JJJ__VoLM-kVn6Z21RmdMCw9wbmi4fON5qS7g';
 
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'classique',
               evts:'aucun', maxTours:20, horo:true,
               mode:'classique', da:'instrument', lat:'materiel', minutes:false,
+              arrondi:'proche',   // 'proche' = au plus près · 'sup' = centième supérieur
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
-      ambiance:true, bloquer:true, fonds:true} };
+      ambiance:true, bloquer:true, fonds:true, flouOcean:false} };
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
 const RATE = { classique:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
 const ZONE_DEPART_SURVIE = 30;
 // Le plafond ne bouge pas avant le tour 60 : les longues parties restent
 // possibles, mais elles finissent par se refermer.
+const PILES_PAR_PALIER_PLAFOND = 5;   // tous les 5 piles, le plafond monte de
+const BONUS_PLAFOND = 5;              // cinq centièmes, sans jamais redescendre
+const BONUS_PLAFOND_MAX = 40;         // borne : au plus +0,40 sur une partie
+function bonusPlafondPiles(){
+  const piles = (S && S.pilesSurvie) || 0;
+  return Math.min(BONUS_PLAFOND_MAX,
+    Math.floor(piles / PILES_PAR_PALIER_PLAFOND) * BONUS_PLAFOND);
+}
 function plafondSurvie(tour){
   const base = tour >= 100 ? 35 : tour >= 60 ? 40 : 50;
   // l'Aurore relève le plafond : c'est le palier de récompense
   const b = CFG.mode === 'survie' && CFG.sv && CFG.sv.biomes ? biomeDe(tour) : null;
-  return base + ((b && b.eff && b.eff.plafond) || 0);
+  return base + ((b && b.eff && b.eff.plafond) || 0) + bonusPlafondPiles();
 }
 const ZONE_MAX_SURVIE = 50;          // valeur de référence pour l'anneau
 const ZONE_CRITIQUE = 8;             // en dessous, l'écran change de registre
@@ -1840,8 +2278,505 @@ const SOLOS = [
    astuce:"Dix manches. Sur un écran tactile, l'affichage ajoute 30 à 60 ms : sous 300 ms, c'est déjà exceptionnel.",
    d:"Le bouton surgit au hasard. Vitesse pure."}
 ];
+SOLOS.push({id:'aventure', n:'Aventure', tours:0, fam:'aventure', test:1,
+  regle:"Le même chemin que la Survie, mais une autre économie. Les décors ne "
+    + "donnent plus rien : il ne reste que leurs malus. Chaque cible touchée "
+    + "rapporte de l'expérience, et un frôlement annule l'usure du tour. Tous "
+    + "les dix-huit pas, un gardien barre la route.",
+  astuce:"L'expérience se garde entre les parties et s'achète en armes et en "
+    + "armure : l'arme accélère les gardiens et majore tous les gains, "
+    + "l'armure élargit la zone de départ. Perdre ne fait rien perdre.",
+  d:"Aventure · expérience, armes, armures et gardiens."});
 const estSolo = id => SOLOS.some(s => s.id === id);
 const SOLO = () => SOLOS.find(s => s.id === CFG.mode);
+
+/* ════════ LABORATOIRE · DIX MODES ════════ */
+// Dix mécaniques proposées, implémentées sans aucun décor : l'objectif est de
+// juger le geste, pas l'habillage. Chaque mode se décrit entièrement dans cette
+// table et se branche sur le moteur par sept points seulement — cibleSuivante,
+// zoneDe, partieFinie, resoudre, afficherFin, boucleChiffres et arreter.
+// Aucun d'eux n'apparaît dans le menu : ils vivent dans l'onglet Test.
+
+// Trois cadrans, du plus tolérant au plus sévère, mais aucun n'est hors de
+// portée d'une main humaine : sous vingt millièmes, on ne mesure plus que le
+// bruit de l'écran tactile. La difficulté vient du budget d'erreurs, pas d'un
+// seuil impossible.
+const BRAQUAGE = [
+  {n:'Le pêne',     ms:2000, tol:60},
+  {n:'Le barillet', ms:3500, tol:40},
+  {n:'Le coffre',   ms:5000, tol:25}
+];
+const ALARME_MAX = 3;
+const cadranCourant = () =>
+  Math.min(BRAQUAGE.length - 1, (S.lab && S.lab.cadran) || 0);
+const MAREE = [100,150,200,250,300,250,200,150,100,150,200,250];
+// deux modes se jouent sans jamais arrêter le chrono : chaque appui est un tour
+const ENCHAINES = {cascade:{n:10, pas:100}};
+const REMISE_A_ZERO = ['nues','braquage','sniper','cascade'];
+
+const moyEcarts = () => {
+  const L = S.ecarts || [];
+  return L.length ? L.reduce((a,b) => a+b, 0) / L.length : 0;
+};
+const ecartType = L => {
+  if(L.length < 2) return 0;
+  const m = L.reduce((a,b) => a+b, 0) / L.length;
+  return Math.sqrt(L.reduce((a,b) => a + (b-m)*(b-m), 0) / L.length);
+};
+const coulEcart = (e, a, b, c) =>
+  e === 0 ? 't-s100' : e <= a ? 't-s50' : e <= b ? 't-s20' : e <= c ? 't-vert' : 't-s0';
+const signe = d => d > 0 ? '+' : d < 0 ? '−' : '±';
+// millièmes : le braquage et le sniper se jouent sous le centième
+const fmtMs = ms => (ms/1000).toFixed(3).replace('.', ',');
+
+const LABOS = [
+
+/* ─── 1 · Cascade ────────────────────────────────────────────────── */
+{id:'cascade', n:'Cascade', tours:10,
+ d:"Le chrono tourne dix secondes. Un appui à chaque seconde.",
+ regle:"Le chrono part et ne s'arrête plus. Il faut appuyer à chaque seconde "
+   + "pleine — 1,00 puis 2,00 puis 3,00 — jusqu'à dix. Aucun écran de repos "
+   + "entre deux appuis : c'est un seul geste répété dix fois.",
+ astuce:"C'est le tour du chronomètre de l'iPhone. L'erreur ne se rattrape pas : "
+   + "un appui en retard laisse le chrono devant, il faut viser la seconde "
+   + "suivante, pas compenser.",
+ cible:() => ((S.lab.laps || []).length + 1) * 100,
+ zone:() => 15,
+ tour(c){
+   const L = S.lab.laps, ecarts = L.map((v,i) => Math.abs(v - (i+1)*100));
+   const somme = ecarts.reduce((a,b) => a+b, 0);
+   S.points = Math.max(0, 1000 - somme * 5);
+   const pires = ecarts.filter(e => e > 10).length;
+   return {pts:0, couleur:coulEcart(Math.round(somme/L.length), 3, 6, 12),
+     titre:S.points + ' points',
+     sous:'dix appuis · écart cumulé ' + fmt(somme)
+        + (pires ? ' · ' + pires + ' appui' + (pires>1?'s':'') + ' à plus d\'un dixième' : ' · aucun décrochage')};
+ },
+ fini:() => (S.lab.laps || []).length >= 10,
+ fin:() => {
+   const L = S.lab.laps || [], e = L.map((v,i) => Math.abs(v - (i+1)*100));
+   const somme = e.reduce((a,b) => a+b, 0);
+   return {t:S.points + ' points',
+     r:'Cascade · écart cumulé ' + fmt(somme) + ' sur dix appuis · '
+       + 'le plus juste ± ' + fmt(Math.min(...e)) + ', le pire ± ' + fmt(Math.max(...e)),
+     rev:{t:'La dérive', s:L.length
+       ? 'Premier appui ± ' + fmt(e[0]) + ', dernier ± ' + fmt(e[e.length-1]) + '. '
+         + (e[e.length-1] > e[0] + 5
+            ? 'La main dérive : chaque retard s\'ajoute au suivant au lieu d\'être corrigé.'
+            : 'La cadence tient jusqu\'au bout, c\'est le plus dur de ce mode.')
+       : ''}};
+ }},
+
+/* ─── 2 · Le Braquage ────────────────────────────────────────────── */
+{id:'braquage', n:'Le Braquage', tours:0,
+ d:"Trois cadrans à forcer, trois erreurs avant l'alarme.",
+ regle:"Un coffre à trois cadrans, de plus en plus sévères : le pêne demande "
+   + "2,000 s à ± 0,060, le barillet 3,500 s à ± 0,040, le coffre 5,000 s à "
+   + "± 0,025. Tout se joue à l'aveugle et se mesure au millième. Un cadran "
+   + "manqué ne termine rien : on le retente, mais l'alarme monte d'un cran. "
+   + "Trois crans et l'on se fait prendre.",
+ astuce:"Chaque cadran rapporte d'autant plus qu'on tombe près du centre : "
+   + "200 points au bord de la tolérance, 500 en plein milieu. Ouvrir le coffre "
+   + "sans déclencher l'alarme une seule fois double presque le score.",
+ // le coffre ouvert, cibleSuivante est encore appelée une fois : on borne
+ cible:() => Math.round(BRAQUAGE[cadranCourant()].ms / 10),
+ zone:() => Math.max(1, Math.round(BRAQUAGE[cadranCourant()].tol / 10)),
+ aveugle:true,
+ tour(c){
+   const cad = BRAQUAGE[S.lab.cadran];
+   const dms = Math.round(c.ms) - cad.ms, abs = Math.abs(dms);
+   if(abs <= cad.tol){
+     // au bord de la tolérance 200 points, au centre exact 500
+     const pts = 200 + Math.round((1 - abs / cad.tol) * 300);
+     S.points += pts;
+     S.lab.cadrans.push({n:cad.n, dms, pts});
+     S.lab.cadran++;
+     if(S.lab.cadran >= BRAQUAGE.length){
+       S.lab.ouvert = true;
+       const propre = S.lab.alarme === 0;
+       if(propre) S.points += 500;
+       return {pts:0, couleur:'t-s100',
+         titre:'Le coffre est ouvert',
+         sous:propre ? 'sans une seule alarme · prime de 500 · total ' + S.points
+                     : S.lab.alarme + ' alarme'
+                       + (S.lab.alarme > 1 ? 's' : '') + ' au compteur · total ' + S.points};
+     }
+     return {pts:0, couleur:abs <= cad.tol / 3 ? 't-s100' : 't-s50',
+       titre:cad.n + ' cède · +' + pts,
+       sous:signe(dms) + fmtMs(abs) + ' s pour ± ' + fmtMs(cad.tol)
+          + ' · au suivant : ' + BRAQUAGE[S.lab.cadran].n.toLowerCase()
+          + ' à ± ' + fmtMs(BRAQUAGE[S.lab.cadran].tol)};
+   }
+   S.lab.alarme++;
+   if(S.lab.alarme >= ALARME_MAX) S.mort = true;
+   return {pts:0, couleur:'t-signal',
+     titre:S.mort ? 'Pris sur le fait' : 'Alarme · cran ' + S.lab.alarme,
+     sous:signe(dms) + fmtMs(abs) + ' s pour ± ' + fmtMs(cad.tol)
+        + (S.mort ? ' · trois crans, le casse est fini'
+                  : ' · ' + (ALARME_MAX - S.lab.alarme) + ' erreur'
+                    + (ALARME_MAX - S.lab.alarme > 1 ? 's' : '')
+                    + ' avant la fin · on retente ' + cad.n.toLowerCase())};
+ },
+ fini:() => S.mort === true || S.lab.ouvert === true,
+ fin:() => {
+   const C = S.lab.cadrans || [];
+   return {t:S.lab.ouvert ? 'Coffre ouvert' : C.length + ' cadran'
+             + (C.length > 1 ? 's' : '') + ' sur 3',
+     r:'Le Braquage · ' + (C.map(x => x.n.toLowerCase() + ' ' + signe(x.dms)
+         + fmtMs(Math.abs(x.dms))).join(' · ') || 'aucun cadran forcé')
+       + ' · ' + S.lab.alarme + ' alarme' + (S.lab.alarme > 1 ? 's' : '')
+       + ' · ' + S.points + ' points',
+     rev:{t:'Ce que ça demande', s:S.lab.ouvert
+       ? (S.lab.alarme === 0
+          ? 'Trois cadrans du premier coup. À ± 0,025 sur cinq secondes, il n\'y a plus de méthode de comptage qui tienne : c\'est de la mémoire de geste.'
+          : 'Le coffre s\'ouvre. Les erreurs coûtent des points, pas la partie — c\'est ce qui rend le troisième cadran jouable.')
+       : 'Trois erreurs. Le cadran qui bloque se retente autant qu\'on veut dans la limite du budget : mieux vaut viser large et régulier que juste une fois sur trois.'}};
+ }},
+
+/* ─── 3 · Le Duel ────────────────────────────────────────────────── */
+{id:'duelf', n:'Le Duel', tours:10,
+ d:"Face au fantôme de votre meilleure partie, tour par tour.",
+ regle:"Dix cibles d'une seconde. À chaque tour, votre écart est comparé à celui "
+   + "que vous aviez réalisé au même tour lors de votre meilleure partie. Le "
+   + "plus proche de la cible prend le point.",
+ astuce:"Sans fantôme enregistré, un adversaire moyen est généré pour la première "
+   + "partie. Toute partie gagnée devient le nouveau fantôme.",
+ cible:t => t + 100,
+ zone:() => 25,
+ tour(c){
+   const g = S.lab.fantome[S.tour - 1];
+   const gagne = c.ecart < g, nul = c.ecart === g;
+   if(gagne) S.lab.mesPoints++; else if(!nul) S.lab.sesPoints++;
+   S.points = S.lab.mesPoints;
+   return {pts:0, couleur:gagne ? 't-s100' : nul ? 't-s20' : 't-s0',
+     titre:gagne ? 'Point pour vous' : nul ? 'Égalité' : 'Point pour le fantôme',
+     sous:'vous ± ' + fmt(c.ecart) + ' · fantôme ± ' + fmt(g)
+        + ' · score ' + S.lab.mesPoints + ' – ' + S.lab.sesPoints};
+ },
+ fin:() => {
+   const m = S.lab.mesPoints, s = S.lab.sesPoints;
+   if(m > s){
+     const L = MEM.labo = MEM.labo || {};
+     L.fantome = (S.ecarts || []).slice(0, 10);
+     ecrireMem();
+   }
+   return {t:m + ' – ' + s,
+     r:'Le Duel · ' + (m > s ? 'vous battez votre fantôme, il est remplacé'
+       : m === s ? 'match nul, le fantôme reste en place'
+       : 'le fantôme tient bon') + ' · écart moyen ± ' + fmt(Math.round(moyEcarts()))};
+ }},
+
+/* ─── 4 · Marée ──────────────────────────────────────────────────── */
+{id:'maree', n:'Marée', tours:12,
+ d:"La cible monte et redescend : 1 s, 1,5 s, 2 s, 2,5 s, 3 s, puis retour.",
+ regle:"Douze cibles dont la durée suit une marée : elle monte jusqu'à trois "
+   + "secondes puis redescend, et remonte. Le barème est le même à chaque "
+   + "palier, mais une cible longue se rate plus largement qu'une courte.",
+ astuce:"Le piège est le retournement : après quatre cibles qui s'allongent, "
+   + "la main continue d'allonger. Les deux tours qui suivent le sommet sont "
+   + "les plus ratés du mode.",
+ cible:t => t + MAREE[Math.min(MAREE.length - 1, S.lab.pas)],
+ zone:() => 20 + Math.round(MAREE[Math.min(MAREE.length - 1, S.lab.pas)] / 25),
+ tour(c){
+   const p = c.ecart === 0 ? 100 : c.ecart <= 3 ? 50 : c.ecart <= this.zone() ? 20 : 0;
+   const d = MAREE[Math.min(MAREE.length - 1, S.lab.pas)];
+   const monte = S.lab.pas + 1 < MAREE.length && MAREE[S.lab.pas + 1] > d;
+   S.lab.pas++;
+   return {pts:p, couleur:coulEcart(c.ecart, 3, this.zone(), this.zone()),
+     titre:p ? '+' + p + ' points' : 'Hors zone',
+     sous:'cible ' + fmt(d) + ' · écart ' + signe(c.delta) + fmt(c.ecart)
+        + ' · la marée ' + (monte ? 'monte' : 'redescend')
+        + ' · total ' + (S.points + p)};
+ },
+ fin:() => ({t:S.points + ' points',
+   r:'Marée · écart moyen ± ' + fmt(Math.round(moyEcarts())) + ' sur douze paliers'})},
+
+/* ─── 5 · Le Sniper ──────────────────────────────────────────────── */
+{id:'sniper', n:'Le Sniper', tours:1,
+ d:"Une cible, un tir, au millième. Rien d'autre.",
+ regle:"Quatre secondes exactement, à l'aveugle, une seule tentative. Le score "
+   + "est votre écart au millième de seconde. Il n'y a pas de zone sûre, pas de "
+   + "seconde chance, pas de moyenne qui rattrape.",
+ astuce:"C'est le mode le plus court du jeu et le plus difficile à améliorer : "
+   + "sans répétition, il n'y a rien à corriger en cours de route.",
+ cible:t => t + 400,
+ zone:() => 10,
+ aveugle:true,
+ tour(c){
+   const abs = Math.abs(Math.round(c.ms) - 4000);
+   S.points = Math.max(0, 1000 - abs);
+   return {pts:0, couleur:abs <= 20 ? 't-s100' : abs <= 60 ? 't-s50'
+                        : abs <= 150 ? 't-s20' : 't-s0',
+     titre:signe(Math.round(c.ms) - 4000) + fmtMs(abs) + ' s',
+     sous:(abs <= 20 ? 'tir de précision' : abs <= 60 ? 'bon tir'
+         : abs <= 150 ? 'tir correct' : 'raté') + ' · ' + S.points + ' points'};
+ },
+ fin:() => {
+   const abs = 1000 - S.points;
+   return {t:signe(0) + fmtMs(abs) + ' s',
+     r:'Le Sniper · 4,000 s visé · ' + S.points + ' points',
+     rev:{t:'Ce que ça vaut', s:abs <= 20
+       ? 'Sous vingt millièmes sur un seul tir à l\'aveugle. C\'est au niveau du bruit de l\'écran tactile : impossible de faire nettement mieux.'
+       : abs <= 60 ? 'Bon tir. Compter quatre secondes de tête donne typiquement 100 à 200 millièmes d\'erreur.'
+       : 'L\'horloge interne dérive vite au-delà de trois secondes. Un rythme régulier bat le comptage mental.'}};
+ }},
+
+/* ─── 6 · Ricochet ───────────────────────────────────────────────── */
+{id:'ricochet', n:'Ricochet', tours:0,
+ d:"Chaque réussite raccourcit la cible suivante. Jusqu'où descendez-vous ?",
+ regle:"La première cible fait deux secondes. Chaque réussite raccourcit la "
+   + "suivante d'un cinquième : 2,00 puis 1,60 puis 1,30, et ainsi de suite. "
+   + "Une sortie de zone arrête tout. Le score est le nombre de ricochets.",
+ astuce:"La zone se resserre avec la cible, donc la difficulté double à chaque "
+   + "palier. Le plancher est à 0,25 s, personne n'y arrive.",
+ cible:t => t + (S.lab.duree || 200),
+ zone:() => Math.max(4, Math.round((S.lab.duree || 200) * 0.12)),
+ tour(c){
+   const ok = c.ecart <= this.zone();
+   if(ok){
+     S.lab.ricochets++; S.points = S.lab.ricochets;
+     S.lab.duree = Math.max(25, Math.round((S.lab.duree * 0.8) / 5) * 5);
+   } else S.mort = true;
+   return {pts:0, couleur:ok ? (c.ecart <= 3 ? 't-s100' : 't-s50') : 't-signal',
+     titre:ok ? 'Ricochet ' + S.lab.ricochets : 'La pierre coule',
+     sous:ok ? 'prochaine cible ' + fmt(S.lab.duree) + ' · zone ± ' + fmt(this.zone())
+             : 'écart ± ' + fmt(c.ecart) + ' pour une zone de ± ' + fmt(this.zone())};
+ },
+ fini:() => S.mort === true,
+ fin:() => ({t:S.points + ' ricochet' + (S.points > 1 ? 's' : ''),
+   r:'Ricochet · dernière cible tenue ' + fmt(Math.round((S.lab.duree || 200) / 0.8))
+     + ' · zone finale ± ' + fmt(Math.max(4, Math.round((S.lab.duree || 200) * 0.12)))})},
+
+/* ─── 7 · Le Vertige ─────────────────────────────────────────────── */
+{id:'vertige', n:'Le Vertige', tours:0,
+ d:"La cible double à chaque palier : 1 s, 2 s, 4 s, 8 s, 16 s…",
+ regle:"Chaque palier double la durée à tenir, toujours à l'aveugle. La zone "
+   + "double aussi, donc la difficulté reste théoriquement constante — sauf que "
+   + "l'horloge interne, elle, ne suit pas. Un palier raté termine la partie.",
+ astuce:"Au-delà de huit secondes, compter ne marche plus : la dérive du "
+   + "comptage mental dépasse la zone. Le score est le palier atteint.",
+ cible:t => t + (S.lab.duree || 100),
+ zone:() => Math.max(8, Math.round((S.lab.duree || 100) * 0.06)),
+ aveugle:true,
+ tour(c){
+   const ok = c.ecart <= this.zone();
+   if(ok){
+     S.lab.palier++; S.points = S.lab.palier;
+     S.lab.duree = Math.min(6400, S.lab.duree * 2);
+   } else S.mort = true;
+   return {pts:0, couleur:ok ? (c.ecart <= this.zone()/3 ? 't-s100' : 't-s50') : 't-signal',
+     titre:ok ? 'Palier ' + S.lab.palier + ' franchi' : 'Le vide',
+     sous:ok ? 'prochain palier ' + fmt(S.lab.duree) + ' · zone ± ' + fmt(this.zone())
+             : 'écart ± ' + fmt(c.ecart) + ' pour une zone de ± ' + fmt(this.zone())};
+ },
+ fini:() => S.mort === true,
+ fin:() => ({t:'Palier ' + S.points,
+   r:'Le Vertige · dernière durée tenue ' + fmt(Math.round((S.lab.duree || 100) / 2))
+     + ' · écart moyen ± ' + fmt(Math.round(moyEcarts())),
+   rev:{t:'Où ça casse', s:S.points >= 5
+     ? 'Au-delà de seize secondes, aucune méthode de comptage ne tient : la dérive est de l\'ordre de 5 % de la durée.'
+     : 'Les premiers paliers se comptent. Le mode ne commence vraiment qu\'à huit secondes.'}})},
+
+/* ─── 8 · Origami ───────────────────────────────────────────────── */
+{id:'origami', n:'Origami', tours:0,
+ d:"Un pli par tour. Le motif se complète si l'on reste précis.",
+ regle:"Huit plis à faire, un par tour, sur des cibles d'une seconde. Un écart "
+   + "de 3 centièmes ou moins pose un pli. Rester dans la zone ne pose rien mais "
+   + "n'abîme rien. Sortir de la zone défait le dernier pli.",
+ astuce:"C'est le seul mode où l'on peut reculer sans perdre : le motif se "
+   + "termine quand les huit plis tiennent en même temps.",
+ cible:t => t + 100,
+ zone:() => 22,
+ tour(c){
+   let titre, coul;
+   if(c.ecart <= 3){
+     S.lab.plis = Math.min(8, S.lab.plis + 1);
+     titre = 'Pli ' + S.lab.plis + ' posé'; coul = 't-s100';
+   } else if(c.ecart <= this.zone()){
+     titre = 'Pli hésitant'; coul = 't-s20';
+   } else {
+     S.lab.plis = Math.max(0, S.lab.plis - 1);
+     titre = 'Le papier se déplie'; coul = 't-signal';
+   }
+   S.points = S.lab.plis;
+   const motif = '▲'.repeat(S.lab.plis) + '△'.repeat(8 - S.lab.plis);
+   return {pts:0, couleur:coul,
+     titre, sous:motif + ' · ' + S.lab.plis + ' pli' + (S.lab.plis > 1 ? 's' : '')
+        + ' sur 8 · écart ± ' + fmt(c.ecart)};
+ },
+ fini:() => S.lab.plis >= 8 || S.tour >= 20,
+ fin:() => ({t:S.lab.plis >= 8 ? 'Motif achevé' : S.lab.plis + ' plis sur 8',
+   r:'Origami · ' + S.tour + ' tour' + (S.tour > 1 ? 's' : '')
+     + ' · écart moyen ± ' + fmt(Math.round(moyEcarts()))
+     + (S.lab.plis >= 8 ? ' · terminé en ' + S.tour + ' tours' : ' · vingt tours au maximum')})}
+
+];
+
+const LAB = () => LABOS.find(l => l.id === CFG.mode);
+LABOS.forEach(l => SOLOS.push({id:l.id, n:l.n, tours:l.tours || 0, fam:'labo',
+  regle:l.regle, astuce:l.astuce, d:l.d, labo:1}));
+
+function initLabo(){
+  const l = LAB();
+  S.lab = {laps:[], cadrans:[], cadran:0, alarme:0, ouvert:false,
+           duree:100, ricochets:0, palier:0, plis:0,
+           pas:0, mesPoints:0, sesPoints:0, fantome:[]};
+  S.mort = false;
+  if(!l) return;
+  if(l.id === 'ricochet') S.lab.duree = 200;
+  if(l.id === 'vertige')  S.lab.duree = 100;
+  if(l.id === 'duelf'){
+    const g = ((MEM.labo || {}).fantome || []).slice(0, 10);
+    // sans fantôme enregistré, un adversaire moyen : écarts de 0 à 11 centièmes
+    S.lab.fantome = g.length === 10 ? g
+      : Array.from({length:10}, () => Math.floor(Math.random() * 12));
+  }
+}
+
+// position du balancier plutôt que temps écoulé
+
+/* ════════ MODE AVENTURE ════════ */
+// Même chemin que la Survie — les mêmes biomes, le même rétrécissement — mais
+// une économie différente : aucun bonus de décor, seulement les malus ; chaque
+// bon coup rapporte de l'expérience ; l'expérience s'achète en armes et en
+// armure, qui se gardent d'une partie à l'autre. À la fin de chaque biome, un
+// gardien. Perdre n'efface rien : on revient à la boutique plus riche.
+
+const AVT = () => CFG.mode === 'aventure';
+// les clés d'effet qui aident le joueur : neutralisées en Aventure
+const BONUS_BIOME = ['zoneDep','pile','demiUsure','seuil','vies','viesGardees',
+                     'doubleAveugle','majGain','pari','plafond','plafondDepart',
+                     'paradis','reset'];
+
+const ARMES = [
+  {id:'baton',  n:'Bâton ferré',    prix:0,    degats:10, xp:1.0,
+   d:"Ce qu'on ramasse par terre. Il tape, c'est déjà ça."},
+  {id:'dague',  n:'Dague de verre', prix:60,   degats:14, xp:1.1,
+   d:"Légère et précise. Elle récompense la main sûre."},
+  {id:'epee',   n:'Épée d\'acier',  prix:180,  degats:20, xp:1.25,
+   d:"L'arme d'équilibre : assez lourde pour compter, assez vive pour durer."},
+  {id:'hache',  n:'Hache lourde',   prix:400,  degats:28, xp:1.4,
+   d:"Deux coups bien placés valent mieux que six approximatifs."},
+  {id:'lame',   n:'Lame du temps',  prix:900,  degats:40, xp:1.6,
+   d:"Elle coupe la seconde en deux. Les gardiens tombent en trois coups."}
+];
+const ARMURES = [
+  {id:'tunique', n:'Tunique',        prix:0,    zone:0, d:"Du tissu. Aucune marge."},
+  {id:'cuir',    n:'Cuir bouilli',   prix:80,   zone:2, d:"Deux centièmes de marge en plus, tout au long de la partie."},
+  {id:'mailles', n:'Cotte de mailles', prix:220, zone:4, d:"Quatre centièmes. On sent la différence dès le deuxième biome."},
+  {id:'plates',  n:'Harnois',        prix:500,  zone:6, d:"Six centièmes. La partie change de longueur."},
+  {id:'chrono',  n:'Plastron d\'horloger', prix:1000, zone:9,
+   d:"Neuf centièmes. Le dernier palier : au-delà, le jeu n'aurait plus d'intérêt."}
+];
+const avtMem = () => (MEM.avt = MEM.avt || {xp:0, arme:'baton', armure:'tunique',
+                                            meilleur:0, gardiens:0, parties:0});
+const monArme   = () => ARMES.find(a => a.id === avtMem().arme)     || ARMES[0];
+const monArmure = () => ARMURES.find(a => a.id === avtMem().armure) || ARMURES[0];
+
+const ZONE_AVT = 24;
+// nombre de tours de marche avant que le gardien du décor ne se montre
+const TOURS_AVT = 18;
+const GARDIENS = ['Le Guetteur des lianes', 'La Foudre nouée', 'Le Récif affamé',
+  'Le Vent de sable', 'Le Silence blanc', 'Ce qui dort sous la pierre',
+  'La Ville sans nom', 'Le Grand Balancier', 'La Chose des fosses',
+  'Le Premier Jour', 'La Faille', 'Ce qui reste', 'Le Marcheur des eaux',
+  'Le Chef de gare', 'Le Jardin dur', 'Le Silence radio', 'Le Portier',
+  'Le Dernier Gardien'];
+const gardienNom = () => GARDIENS[Math.min(GARDIENS.length - 1,
+                                           S.avt ? S.avt.gardiens : 0)];
+// le gardien apparaît au dernier tour de chaque biome
+const estGardien = tour => tour % TOURS_BIOME === 0;
+const pvGardien = tour => 40 + 25 * Math.floor((tour - 1) / TOURS_BIOME);
+
+function initAventure(){
+  const A = avtMem();
+  S.avt = {xp:0, zoneDepart:ZONE_AVT + monArmure().zone,
+           zone:ZONE_AVT + monArmure().zone, pvBoss:0, ratesBoss:0,
+           gardiens:0, coups:0, enCombat:false, pas:0, journal:[]};
+  // sans cette remise à zéro, la partie suivante croit changer de décor et
+  // affiche la carte du biome, qui verrouille le départ
+  S.biome = null; S.boucleFaite = false;
+  S.mort = false;
+  S.points = 0;
+}
+// l'usure du terrain : lente au début, sévère au fond des biomes
+const usureAvt = tour => 1 + Math.floor(tour / 60) + (effB('usure') ? 1 : 0);
+
+function entrerCombat(){
+  S.avt.enCombat = true;
+  S.avt.pvBoss = pvGardien(S.tour);
+  S.avt.ratesBoss = 0;
+  S.avt.coups = 0;
+}
+
+/* ─── écran de boutique ─── */
+function construireBoutique(){
+  const A = avtMem();
+  $('bo-xp').textContent = A.xp + ' xp';
+  $('bo-resume').textContent = A.parties
+    ? A.parties + ' expédition' + (A.parties > 1 ? 's' : '') + ' · meilleur tour atteint '
+      + A.meilleur + ' · ' + A.gardiens + ' gardien' + (A.gardiens > 1 ? 's' : '') + ' abattu'
+      + (A.gardiens > 1 ? 's' : '')
+    : "Première expédition. Le bâton et la tunique sont fournis.";
+  const ligne = (o, type, porte) => {
+    const possede = (A.achats || []).includes(o.id) || o.prix === 0;
+    const abordable = A.xp >= o.prix;
+    return `<div class="bo-l${porte ? ' porte' : ''}" data-t="${type}" data-id="${o.id}">
+      <div class="bo-n">${esc(o.n)}${porte ? '<span class="bo-eq">équipé</span>' : ''}</div>
+      <div class="bo-d">${esc(o.d)}</div>
+      <div class="bo-s">${type === 'arme'
+        ? o.degats + ' dégâts · expérience ×' + o.xp.toFixed(2).replace('.', ',')
+        : 'zone de départ ' + (o.zone ? '+ ' + fmt(o.zone) : 'de base')}</div>
+      <div class="bo-b"><button ${possede ? '' : abordable ? '' : 'disabled'}>${
+        porte ? 'Équipé' : possede ? 'Équiper' : o.prix + ' xp'}</button></div>
+    </div>`;
+  };
+  $('bo-armes').innerHTML   = ARMES.map(o => ligne(o, 'arme', A.arme === o.id)).join('');
+  $('bo-armures').innerHTML = ARMURES.map(o => ligne(o, 'armure', A.armure === o.id)).join('');
+  [...document.querySelectorAll('#boutique .bo-l button')].forEach(b => {
+    b.onclick = async () => {
+      const l = b.closest('.bo-l'), type = l.dataset.t, id = l.dataset.id;
+      const o = (type === 'arme' ? ARMES : ARMURES).find(x => x.id === id);
+      const A = avtMem();
+      A.achats = A.achats || [];
+      if(!A.achats.includes(o.id) && o.prix > 0){
+        if(A.xp < o.prix) return;
+        A.xp -= o.prix; A.achats.push(o.id);
+      }
+      if(type === 'arme') A.arme = o.id; else A.armure = o.id;
+      await ecrireMem();
+      construireBoutique();
+    };
+  });
+}
+
+// cascade : le chrono ne s'arrête jamais, chaque appui vaut un tour
+function tourEnchaine(t){
+  const E = ENCHAINES[CFG.mode];
+  const cs = enCentiemes(t - S.t0);
+  const L = S.lab.laps;
+  L.push(cs);
+  vibrer(12);
+  if(L.length >= E.n){
+    S.encours = false;
+    purgerMinuteries();
+    S.tour = E.n; S.cible = E.n * E.pas;
+    $('f-sprint').classList.remove('on', 'urgent');
+    afficherResultat(cs);
+    return;
+  }
+  S.tour = L.length + 1;
+  S.cible = (L.length + 1) * E.pas;
+  const e = cs - L.length * E.pas;
+  const el = $('f-sprint');
+  el.textContent = L.length + '/' + E.n + ' · ' + signe(e) + fmt(Math.abs(e));
+  el.classList.toggle('urgent', Math.abs(e) > 8);
+  // l'objectif suit sans repasser par fluidePret, qui remettrait la phase à
+  // zéro. Seul le texte change : rien n'apparaît ni ne disparaît en cours de
+  // mesure, sinon la mise en page bouge et le chiffre paraît sauter.
+  $('f-tour').textContent = 'Appui ' + (L.length + 1) + ' / ' + E.n;
+  $('f-obj-cible').textContent = fmt(S.cible);
+}
 
 // générateur déterministe : la même date produit partout la même séquence
 function graine(n){
@@ -2017,12 +2952,106 @@ const BIOMES = [
    malus:null, bonus:'Plafond de zone relevé de 5 centièmes',
    eff:{plafond:5}}
 ];
-const effB = c => { const b = biomeCourant(); return (b && b.eff && b.eff[c]) || 0; };
-const biomeCourant = () => CFG.mode === 'survie' && CFG.sv && CFG.sv.biomes
-  ? biomeDe(S.tour) : null;
+const effB = c => {
+  // Aventure : les décors ne donnent plus rien, ils ne font que gêner
+  if(CFG.mode === 'aventure' && BONUS_BIOME.includes(c)) return 0;
+  const b = biomeCourant(); return (b && b.eff && b.eff[c]) || 0;
+};
+
+/* ════════ DÉCORS EN ESSAI ════════ */
+// Les dix décors du document de propositions. Ils ne sont PAS dans la
+// progression : on ne peut les atteindre que depuis l'onglet Test, par un décor
+// forcé. Chacun ne garde qu'un malus et qu'un bonus — le document en proposait
+// trois de chaque, mais trois effets simultanés rendent un décor illisible.
+const BIOMES_TEST = [
+  {id:'cite', n:'Cité engloutie', accent:'#6FD3E8', halo:'rgba(111,211,232,.16)',
+   fond:'rgba(6,32,43,.82)', gamme:[164.81, 196.00, 246.94, 329.63],
+   d:"Des tours brisées défilent au fond de l'eau.",
+   malus:'La pression use un centième de plus par tour',
+   bonus:'Un frôlement rapporte 5 au lieu de 3',
+   eff:{usure:1, frole:5}},
+
+  {id:'chantier', n:'Chantier', accent:'#FFB020', halo:'rgba(255,176,32,.16)',
+   fond:'rgba(42,28,6,.8)', gamme:[130.81, 174.61, 196.00, 261.63],
+   d:"Grues et poutrelles se croisent en fond.",
+   malus:'Un tour sur cinq, le chiffre des dixièmes est masqué',
+   bonus:'La zone ne descend jamais sous 0,08',
+   eff:{dixiemes:5, plancher:8}},
+
+  {id:'serre', n:'Serre', accent:'#7BE3A0', halo:'rgba(123,227,160,.15)',
+   fond:'rgba(10,36,22,.78)', gamme:[196.00, 246.94, 293.66, 392.00],
+   d:"Des plantes poussent lentement sur les bords.",
+   malus:'Buée permanente sur le chiffre',
+   bonus:'Usure divisée par deux',
+   eff:{voile:true, demiUsure:true}},
+
+  {id:'mine', n:'Mine', accent:'#C89B5A', halo:'rgba(200,155,90,.15)',
+   fond:'rgba(30,20,8,.82)', gamme:[146.83, 174.61, 220.00, 293.66],
+   d:"Des wagonnets passent au premier plan.",
+   malus:'Le grisou souffle la lampe · noir complet, entre un tour sur trois et un sur huit',
+   bonus:'Un pile rapporte 7 centièmes',
+   eff:{noirMine:true, pile:7}},
+
+  {id:'autoroute', n:'Autoroute', accent:'#FF6B4A', halo:'rgba(255,107,74,.15)',
+   fond:'rgba(11,10,22,.86)', gamme:[123.47, 155.56, 207.65, 246.94],
+   d:"Des phares défilent en sens inverse.",
+   malus:'Un klaxon éclate à contretemps',
+   bonus:'Zone remise à 0,25 en entrant',
+   eff:{klaxon:true, reset:25}},
+
+  {id:'biblio', n:'Bibliothèque', accent:'#D8C89A', halo:'rgba(216,200,154,.14)',
+   fond:'rgba(28,22,8,.8)', gamme:[220.00, 261.63, 311.13, 415.30],
+   d:"Des rayonnages glissent doucement.",
+   malus:'Silence total · aucun son, aucune vibration',
+   bonus:'Le frôlement passe à 4 centièmes',
+   eff:{muet:true, seuil:4}},
+
+  {id:'volcan', n:'Volcan', accent:'#FF4530', halo:'rgba(255,69,48,.17)',
+   fond:'rgba(26,6,4,.86)', gamme:[138.59, 164.81, 207.65, 277.18],
+   d:"Des coulées descendent en arrière-plan.",
+   malus:'Les cendres font clignoter le chiffre',
+   bonus:'Un pile rapporte 8 centièmes',
+   eff:{clignote:true, pile:8}},
+
+  {id:'aero', n:'Aérodrome', accent:'#9FD8FF', halo:'rgba(159,216,255,.15)',
+   fond:'rgba(10,24,38,.8)', gamme:[174.61, 220.00, 261.63, 349.23],
+   d:"Des avions traversent lentement le ciel.",
+   malus:'Décollage forcé après cinq secondes',
+   bonus:'Zone remise à 0,30 en entrant',
+   eff:{urgence:5, reset:30}},
+
+  {id:'cirque', n:'Cirque', accent:'#FF7BC8', halo:'rgba(255,123,200,.16)',
+   fond:'rgba(38,7,26,.84)', gamme:[184.997, 233.08, 277.18, 369.99],
+   d:"Un chapiteau et des projecteurs tournent.",
+   malus:'Un projecteur laisse le reste dans la pénombre',
+   bonus:'Deux vies possibles au lieu d\'une',
+   eff:{penombre:true, vies:2}},
+
+  {id:'banquise', n:'Banquise', accent:'#BFEFFF', halo:'rgba(191,239,255,.14)',
+   fond:'rgba(12,28,36,.8)', gamme:[196.00, 246.94, 293.66, 392.00],
+   d:"Des blocs de glace dérivent lentement.",
+   malus:'Le gel ajoute 30 ms à chaque appui',
+   bonus:'L\'usure ne dépasse jamais 2 centièmes',
+   eff:{gel:30, usureMax:2}}
+];
+const estBiomeTest = id => BIOMES_TEST.some(b => b.id === id);
+const biomeParId = id => BIOMES.find(b => b.id === id)
+                      || BIOMES_TEST.find(b => b.id === id) || null;
+
+const biomeCourant = () => {
+  if(!CFG.sv || !CFG.sv.biomes) return null;
+  // Aventure : on ne change de décor qu'en abattant le gardien, jamais au
+  // milieu d'un combat — sinon le sol changerait sous les pieds du joueur
+  if(CFG.mode === 'aventure')
+    return S.avt ? BIOMES[Math.min(BIOMES.length - 1, S.avt.gardiens)] : BIOMES[0];
+  return CFG.mode === 'survie' ? biomeDe(S.tour) : null;
+};
 const TOURS_BIOME = 30;
-const biomeDe = tour => BIOMES[Math.min(BIOMES.length - 1,
-                                        Math.floor((tour - 1) / TOURS_BIOME))];
+// S.biomeForce n'est posé que par l'onglet Test : en partie normale, le décor
+// reste strictement dérivé du numéro de tour, donc identique pour tout le monde.
+const biomeDe = tour => S.biomeForce
+  ? (biomeParId(S.biomeForce) || BIOMES[0])
+  : BIOMES[Math.min(BIOMES.length - 1, Math.floor((tour - 1) / TOURS_BIOME))];
 
 // Effets visuels propres au biome : clignotement, néons, noir total, flash.
 // Boucles d'effets ponctuels. Elles tournent en continu, indépendamment des
@@ -2046,6 +3075,10 @@ function arreterToutesBoucles(){ Object.keys(boucles).forEach(arreterBoucleEffet
 function appliquerEffetsBiome(){
   const F = $('fluide');
   F.classList.toggle('noir-total', !!effB('noir'));
+  // Océan : option à l'essai · le chiffre est flou, comme sous l'eau
+  const sousEau = !!(CFG.sv && CFG.sv.flouOcean)
+                  && biomeCourant() && biomeCourant().id === 'ocean';
+  F.classList.toggle('flou-eau', sousEau);
   const C = $('f-chrono');
   if(effB('neons')) C.style.color = S.tour % 2 ? '#FF3C8C' : '#00E6FF';
   else C.style.removeProperty('color');
@@ -2090,8 +3123,8 @@ function majBiome(){
   const F = $('fluide');
   // une partie terminée ne change plus de décor : la carte masquerait
   // l'écran de fin et bloquerait le bouton
-  const actif = CFG.mode === 'survie' && S.partie && CFG.sv && CFG.sv.biomes
-              && !partieFinie();
+  const actif = (CFG.mode === 'survie' || CFG.mode === 'aventure')
+              && S.partie && CFG.sv && CFG.sv.biomes && !partieFinie();
   if(!actif){
     F.removeAttribute('data-biome');
     F.style.removeProperty('--bio-accent');
@@ -2101,7 +3134,7 @@ function majBiome(){
     S.biome = null;
     return;
   }
-  const b = biomeDe(S.tour);
+  const b = biomeCourant() || biomeDe(S.tour);
   if(S.biome === b.id) return;
   if(S.retourDetail){ S.retourDetail = false; return; }
   const change = S.biome !== null && S.biome !== undefined;
@@ -2212,6 +3245,7 @@ function bip(freq, duree, vol){
   }catch(e){}
 }
 function sonSurvie(quoi){
+  if(muet()) return;
   ({pile:  () => { bip(880, .12, .06); setTimeout(() => bip(1320, .16, .05), 90); },
     bon:   () => bip(660, .10, .045),
     passe: () => bip(392, .08, .03),
@@ -2394,7 +3428,12 @@ function lancerBattement(){
   battement = setTimeout(tic, 900);
 }
 function arreterBattement(){ if(battement){ clearTimeout(battement); battement = null; } }
-function vibrerSv(ms){ if(CFG.sv && CFG.sv.vibr) vibrer(ms); }
+// Bibliothèque : plus aucun retour, ni sonore ni haptique
+const muet = () => !!effB('muet');
+// Chantier : l'échafaudage est une promesse, elle doit tenir sur tous les
+// chemins qui rognent la zone — usure, vie consommée, sortie encaissée.
+const plancherZone = () => Math.max(1, effB('plancher') || 1);
+function vibrerSv(ms){ if(CFG.sv && CFG.sv.vibr && !muet()) vibrer(ms); }
 
 /* ════════ COMBAT ════════ */
 // Chaque boss est une combinaison de trois variables : largeur de garde,
@@ -2489,9 +3528,34 @@ const BILAN = [
   [300,  "Passable. Le chrono, lui, s'est bien amusé."],
   [0,    "Bonne nouvelle : tu bats Jean. Mauvaise nouvelle : de peu."]
 ];
-const bilan = p => (BILAN.find(b => p >= b[0]) || BILAN[BILAN.length-1])[1];
+const bilan = p => {
+  const b = BILAN.find(x => p >= x[0]) || BILAN[BILAN.length-1];
+  return (MASQUER_JEAN && nommeJean(b[1]) && BILAN_NEUTRE[b[0]]) || b[1];
+};
 
 // une blague seulement sur les extrêmes, et jamais deux fois la même catégorie
+const MASQUER_JEAN = true;                 // Jean est en veille, pas supprimé
+const nommeJean = s => /Jean/.test(s || '');
+// écarte de l'affichage les répliques qui nomment Jean ; si la liste se vide,
+// on retombe sur une phrase neutre plutôt que sur du vide
+function sansJean(L, secours){
+  if(!MASQUER_JEAN) return L;
+  const f = L.filter(s => !nommeJean(s));
+  return f.length ? f : [secours || ''];
+}
+// la série de piles : toutes les variantes nomment Jean, donc en veille on
+// fabrique une phrase neutre à partir de la longueur de la série
+function motSerie(chaine){
+  const i = Math.min(chaine, 6) - 2;
+  if(!MASQUER_JEAN) return MOTS_SERIE[i];
+  return Math.min(chaine, 6) + " d'affilée. La main est chaude.";
+}
+// bilan de fin : deux paliers sur cinq nomment Jean, remplacés en veille
+const BILAN_NEUTRE = {
+  1400: "Solide. Le genre de score dont on parle en soirée.",
+  0:    "Bonne nouvelle : c'est un début. Le chrono, lui, s'est bien amusé."
+};
+
 function blague(ecart){
   const z = zone();
   let cat = null;
@@ -2501,7 +3565,7 @@ function blague(ecart){
   else if(ecart > z * 2)   cat = 'mauvais';
   if(!cat || cat === S.derniereBlague){ S.derniereBlague = cat; return ''; }
   S.derniereBlague = cat;
-  const L = BLAGUES[cat];
+  const L = sansJean(BLAGUES[cat], '');
   return L[Math.floor(Math.random() * L.length)];
 }
 
@@ -2661,7 +3725,7 @@ const S = { joueurs:[], idx:0, sens:1, total:0, cible:100, cibleBase:100, tour:1
             derniereBlague:null, tableauDepart:[], nbSous:0, couleurs:{}, salon:null,
             marche:1, zoneSolo:0, sequence:[], finSprint:0,
             bossIdx:0, pvBoss:0, pvMoi:0, gardeBoss:0, touches:0, critiques:0,
-            phase:1, biaisPhase:0, latences:[] };
+            phase:1, biaisPhase:0, latences:[], delais:[] };
 
 const $ = id => document.getElementById(id);
 // Au-delà de la minute, un nombre à trois chiffres devient étroit :
@@ -2680,10 +3744,29 @@ const culs = n => n + (n>1 ? ' culs secs' : ' cul sec');
 const x2   = n => CFG.gor === 'gros' ? n*2 : n;
 const ecranJeu = () => 'fluide';
 // filet de sécurité : un identifiant inconnu masquerait tous les écrans
+// Les quatre écrans qui portent la barre du bas. Partout ailleurs — en partie,
+// dans une fiche, dans l'onglet Test — elle disparaît : la barre sert à
+// naviguer entre les grandes sections, pas à interrompre une partie.
+const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', profil:'profil'};
+const ECRANS_BARRE = ['reglages', 'ligues', 'pantheon', 'profil', 'ligue'];
+
 function montrer(id){
   const ecrans = document.querySelectorAll('.ecran');
   if(![...ecrans].some(e => e.id === id)) id = S.partie ? ecranJeu() : 'reglages';
-  ecrans.forEach(e => e.classList.toggle('actif', e.id === id));
+  ecrans.forEach(e => {
+    const actif = e.id === id;
+    e.classList.toggle('actif', actif);
+    e.classList.toggle('avec-barre', actif && ECRANS_BARRE.includes(e.id));
+  });
+  const B = $('barre-bas');
+  if(B){
+    B.classList.toggle('on', ECRANS_BARRE.includes(id));
+    // l'écran d'une ligue reste sous l'onglet Ligues
+    const onglet = id === 'ligue' ? 'ligues'
+      : Object.keys(ONGLETS).find(k => ONGLETS[k] === id);
+    B.querySelectorAll('.bb').forEach(b =>
+      b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
+  }
 }
 
 // horodatage matériel de l'événement quand il est fiable : supprime le délai
@@ -2703,6 +3786,7 @@ function tempsEvt(ev){
   if(fiable){
     S.latence = Math.max(0, Math.round(now - ev.timeStamp));
     noterLatence(S.latence);
+    noterDelai(ev.timeStamp, S.latence);
   }
   if(CFG.lat === 'brut') return now;
   if(CFG.lat === 'fixe') return (fiable ? ev.timeStamp : now) - LAT_FIXE;
@@ -2779,6 +3863,9 @@ function idxSuivant(){
 // cible : trajectoire imposée en « compte est bon », seconde pleine sinon
 function cibleSuivante(total){
   const m = CFG.mode;
+  // laboratoire : chaque mode décrit sa propre trajectoire
+  const lb = LAB();
+  if(lb) return lb.cible(total);
   // séquence figée : défi du jour, fantôme, cibles nues
   if(S.sequence.length){
     const d = S.sequence[Math.min(S.tour - 1, S.sequence.length - 1)];
@@ -2816,7 +3903,13 @@ function cibleSuivante(total){
 
 // handicap : plus on est précis au panthéon, plus la zone se resserre
 function zoneDe(nom){
+  const lb = LAB();
+  if(lb) return lb.zone();
   // survie : la zone se resserre, mais bien viser la fait respirer
+  if(CFG.mode === 'aventure'){
+    if(!S.avt) return ZONE_AVT;
+    return Math.max(1, S.avt.enCombat ? Math.ceil(S.avt.zone / 2) : S.avt.zone);
+  }
   if(CFG.mode === 'survie') return Math.max(1, S.zoneSurvie);
   // escalier : plus la marche est haute, plus la zone est étroite
   if(CFG.mode === 'escalier') return Math.max(8, 34 - (S.marche - 1) * 2);
@@ -2832,10 +3925,13 @@ function zoneDe(nom){
 
 function partieFinie(){
   const m = CFG.mode;
+  const lb = LAB();
+  if(lb) return lb.fini ? lb.fini() : !!(CFG.maxTours && S.tour >= CFG.maxTours);
   // l'essai s'arrête dès que le trentième tour est joué : la condition est
   // évaluée avant l'incrément du tour, d'où le >=
   if(m === 'survie') return S.mort === true
     || !!(S.essaiBiome && S.tour >= S.essaiBiome.fin);
+  if(m === 'aventure') return S.mort === true;
   if(m === 'escalier') return S.chutes >= 3;
   if(m === 'combat')   return S.pvBoss <= 0 || S.pvMoi <= 0;
   // le sprint se joue sur du temps réel, pas sur le chrono du jeu
@@ -3137,7 +4233,8 @@ segmente('seg-aff',  v => CFG.aff = v);
 segmente('seg-diff', v => CFG.diff = v);
 segmente('seg-gor',  v => CFG.gor = v);
 segmente('seg-evt',  v => CFG.evts = v);
-segmente('seg-horo', v => { CFG.horo = v === '1'; MEM.cfg = {...CFG}; ecrireMem(); });
+segmente('seg-horo', v => { CFG.horo = v === '1'; MEM.cfg = {...CFG}; ecrireMem(); majLatence(); });
+segmente('seg-arrondi', v => { CFG.arrondi = v; MEM.cfg = {...CFG}; ecrireMem(); majLatence(); });
 segmente('seg-fin',  v => CFG.maxTours = +v);
 
 function rafraichir(){
@@ -3358,6 +4455,60 @@ $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
 $('recap-panth').onclick  = () => $('go-panth').onclick();
 $('recap-fermer').onclick = () => montrer('reglages');
+// Saut de tour : réservé au mode invincible. Le tour est compté comme joué,
+// sans usure ni score — c'est un déplacement, pas une partie.
+$('f-saut').onclick = ev => {
+  ev.stopPropagation();
+  if(!S.partie || S.encours) return;
+  if(!(CFG.mode === 'survie' && CFG.sv && CFG.sv.triche)) return;
+  S.total = S.cible;
+  S.tour++;
+  S.cible = S.cibleBase = cibleSuivante(S.total);
+  S.dernier = null; S.finDeTour = null; S.enAttente = S.cible;
+  if(partieFinie()){ afficherFin(); return; }
+  // si le saut franchit une frontière de décor, on le repeint sans carte
+  if(biomeCourant() && S.biome !== biomeCourant().id){
+    S.biome = null; majBiome(); verrouillerDepart(false);
+  }
+  fluidePhase('repos');
+  fluidePret();
+};
+// Choisir son tour : le même déplacement que le saut, mais en une fois. Le
+// chrono suit, sinon la cible se retrouverait derrière lui.
+$('f-tour-choix').onclick = async ev => {
+  ev.stopPropagation();
+  if(!S.partie || S.encours) return;
+  if(!(CFG.mode === 'survie' && CFG.sv && CFG.sv.triche)) return;
+  const b = biomeCourant();
+  const rep = await demanderNom('Aller à quel tour ?',
+    'Tour actuel : ' + S.tour + (b ? ' · ' + b.n : '')
+    + '. Les décors changent tous les ' + TOURS_BIOME + ' tours.', [], true);
+  const cible = parseInt(String(rep || '').replace(/\D/g, ''), 10);
+  if(!cible || cible < 1) return;
+  if(cible > 9999) return choisir('Trop loin',
+    'Le compteur s\'arrête à 9999.', [{label:'Fermer', val:true}]);
+  allerAuTour(cible);
+};
+
+function allerAuTour(cible){
+  const pas = cible - S.tour;
+  S.tour = cible;
+  // le chrono avance d'autant de secondes que de tours franchis : la cible
+  // doit rester devant lui, dans le sens où il va
+  if(pas > 0) S.total += pas * 100;
+  else S.total = Math.max(0, S.total + pas * 100);
+  S.cible = S.cibleBase = cibleSuivante(S.total);
+  S.dernier = null; S.finDeTour = null; S.enAttente = S.cible;
+  S.zoneSurvie = Math.min(plafondSurvie(S.tour), Math.max(1, S.zoneSurvie));
+  if(S.essaiBiome) S.essaiBiome = null;   // on quitte le cadre de l'essai
+  if(partieFinie()){ afficherFin(); return; }
+  // le décor de destination doit s'afficher tout de suite, sans carte ni
+  // verrou : on repeint comme au premier tour d'une partie
+  S.biome = null; majBiome();
+  verrouillerDepart(false);
+  fluidePhase('repos');
+  fluidePret();
+}
 $('fin-menu').onclick     = () => { S.essaiBiome = null; montrer('reglages'); };
 // un essai de biome ramène là d'où il vient
 $('fin-test').onclick     = () => {
@@ -3421,6 +4572,9 @@ async function demarrerPartie(){
                                  piles:0, biais:0, carres:0, minutes:0}; S.jetons[n] = 0; });
   S.idx = 0; S.sens = 1; S.total = 0; S.tour = 1; S.contre = 0;
   S.historique = []; S.enregistre = false; S.partie = true;
+  // une partie relancée pendant qu'un chrono tourne laissait S.encours à vrai :
+  // l'écran repartait en pensant être en pleine mesure
+  S.encours = false;
   S.evt = null; S.force = null; S.dernierEvt = -9; S.duel = null; S.prochain = null;
   S.fautes = {}; S.elimines = []; S.vies = 3;
   S.points = 0; S.chaine = 0; S.meilleureChaine = 0; S.chaineFrole = 0;
@@ -3433,6 +4587,17 @@ async function demarrerPartie(){
   S.tropheesAvant = {}; S.gagnes = []; S.abandon = false; S.ecarts = []; S.usageNote = false;
   j.forEach(n => S.tropheesAvant[n] = trophees(n).map(x => x.tr.id + ':' + x.e.rang));
   S.zoneTour = 0; S.enchere = null;
+  // Sans cette remise à zéro, un aller-retour vers l'écran de détails laissait
+  // majBiome se croire en « retour » au premier tour de la partie suivante :
+  // il sautait son tour, et le décor de l'essai précédent restait affiché
+  // jusqu'au premier chrono lancé.
+  S.retourDetail = false;
+  S.alerteTour = false;
+  $('fluide').classList.remove('alerte-tour', 'zone-critique', 'noir-mine');
+  $('f-voile-noir').classList.remove('on');
+  $('f-critique').classList.remove('on');
+  $('f-critique').textContent = '';
+  $('f-anneau').classList.remove('critique');
   if(estSolo(CFG.mode)){
     S.joueurs = [j[0]];
     S.tableauDepart = scoresDe(sigCourante()).map(e => ({n:e.n, p:e.p}));
@@ -3457,6 +4622,9 @@ function preparerSolo(){
   S.defi = null; S.reussites = 0; S.debutSprint = 0; S.reflexes = [];
   const s = SOLO();
   CFG.maxTours = s && s.tours ? s.tours : 0;
+  if(LAB()) initLabo();
+  if(m === 'aventure') initAventure();
+  if(m !== 'survie') S.biomeForce = null;
 
   if(m === 'defi'){
     consommerEssai();
@@ -3470,7 +4638,7 @@ function preparerSolo(){
     for(let i = 0; i < 10; i++) S.sequence.push(80 + Math.floor(r() * 320));
   }
   if(m === 'survie'){
-    S.biome = null; S.essaiBiome = null;
+    S.biome = null; S.essaiBiome = null; S.biomeForce = null;
     S.boucleFaite = false;
     S.zoneSurvie = ZONE_DEPART_SURVIE + effB('zoneDep');
     S.chaineSurvie = 0; S.gainSurvie = null; S.sautTour = false;
@@ -3496,8 +4664,12 @@ function preparerSolo(){
 
 function tirerEvenement(){
   S.evt = null;
-  // invariant : la cible reste toujours à plus de 0,50 s devant le chrono
-  if(S.cibleBase - S.total <= (CFG.mode === 'compte' ? 5 : 50))
+  // Invariant : la cible reste à plus de 0,50 s devant le chrono, dans le sens
+  // où il va. En marche arrière, « devant » veut dire en dessous — sans cette
+  // distinction, la cible héritée du décor précédent restait au-dessus d'un
+  // chrono qui descend, et le tour était injouable.
+  const marge = rebours() ? S.total - S.cibleBase : S.cibleBase - S.total;
+  if(marge <= (CFG.mode === 'compte' ? 5 : 50))
     S.cibleBase = cibleSuivante(S.total);
   S.cible = S.cibleBase;
   if(S.force){ S.evt = S.force; S.force = null; }
@@ -3529,8 +4701,21 @@ async function afficherPret(){
 }
 const estMinute = c => c > 0 && c % 6000 === 0;
 
+// Conversion millisecondes → centièmes, unique pour tout le jeu.
+//   'proche' : arrondi au centième le plus près (Math.round)
+//   'sup'    : dès qu'un millième dépasse, on monte au centième supérieur.
+//              Le chrono ne sous-estime alors jamais le temps réellement écoulé.
+// On travaille sur des dixièmes de milliseconde pour absorber le bruit flottant
+// de performance.now : sans ce garde, 200,0000000003 ms basculerait à 21
+// centièmes en mode supérieur.
+function enCentiemes(ms){
+  if(CFG.arrondi === 'sup') return Math.ceil((Math.round(ms * 10) / 10) / 10);
+  return Math.round(ms / 10);
+}
+
 function compteursMode(p){
-  $(p+'minute').classList.toggle('on', estMinute(S.cible));
+  // la minute pile est un événement de soirée : rien à faire boire en solo
+  $(p+'minute').classList.toggle('on', !estSolo(CFG.mode) && estMinute(S.cible));
   const v = $(p+'vies'), nom = S.joueurs[S.idx];
   let t = '';
   if(CFG.mode === 'coop')        t = S.vies + ' vie' + (S.vies>1?'s':'');
@@ -3539,8 +4724,11 @@ function compteursMode(p){
   const md = CFG.mode;
   const V = $('f-vie-ind');
   V.classList.toggle('on', md === 'survie' && S.partie);
-  $('f-triche').classList.toggle('on',
-    md === 'survie' && S.partie && !!(CFG.sv && CFG.sv.triche));
+  const invincible = md === 'survie' && S.partie && !!(CFG.sv && CFG.sv.triche);
+  $('f-triche').classList.toggle('on', invincible);
+  // en invincible, on doit pouvoir traverser un décor sans le jouer
+  $('f-saut').classList.toggle('on', invincible && !S.encours);
+  $('f-tour-choix').classList.toggle('on', invincible && !S.encours);
   if(md === 'survie' && S.partie){
     V.classList.toggle('pleine', S.vies > 0);
     V.classList.toggle('vide', !S.vies);
@@ -3605,22 +4793,37 @@ function demarrer(ev){
     lancerReflexe();
     return;
   }
-  if(CFG.mode === 'nues') S.total = 0;   // chaque tour repart de zéro
+  if(REMISE_A_ZERO.includes(CFG.mode)) S.total = 0;   // chaque tour repart de zéro
   if(CFG.mode === 'survie' && !battement){
     lancerBattement(); lancerMusique(); lancerAmbiance();
+  }
+  // Cascade : le compteur d'appuis est posé AVANT le départ. Le faire
+  // apparaître au premier appui décalait la mise en page en pleine mesure,
+  // ce qui se voyait comme une saccade sur la première seconde.
+  if(ENCHAINES[CFG.mode]){
+    const el = $('f-sprint');
+    el.classList.add('on'); el.classList.remove('urgent');
+    el.textContent = '0/' + ENCHAINES[CFG.mode].n + ' · ±0,00';
   }
   S.t0 = t; S.encours = true;
   S.saccadeAt = undefined; S.saccadeVal = undefined;
   S.totalAvantTour = S.total; S.cibleAvantTour = S.cible;   // pour la Faille
   calerChrono();          // la taille est figée pour tout le tour
   if(CFG.mode === 'sprint' && !S.debutSprint){ S.debutSprint = t; boucleSprint(); }
+  // Autoroute : un klaxon éclate à un moment imprévisible de la course
+  if(effB('klaxon') && !muet()){
+    attendre(400 + Math.floor(Math.random() * 1600), () => {
+      if(!S.encours) return;
+      bip(180, .22, .09); vibrer(45);
+    });
+  }
   fluidePhase('course');
   if(CFG.aff === 'visible' && S.evt !== 'yeux' && !S.aveugleTour) boucleChiffres();
 }
 function boucleChiffres(){
   if(!S.encours) return;
   const ecoule = performance.now() - S.t0;
-  let cs = Math.round(ecoule / 10);
+  let cs = enCentiemes(ecoule);
   // Marais : l'affichage n'avance que par bonds de 13 centièmes, à cadence
   // irrégulière. La mesure interne, elle, reste rigoureusement exacte.
   if(CFG.mode === 'survie' && effB('saccade')){
@@ -3630,7 +4833,8 @@ function boucleChiffres(){
     }
     cs = S.saccadeVal !== undefined ? S.saccadeVal : cs;
   }
-  $('f-chrono').textContent = affChrono(valeurAtteinte(cs));
+  const txt = affChrono(valeurAtteinte(cs));
+  $('f-chrono').textContent = S.dixiemesTour ? masquerDixiemes(txt) : txt;
   requestAnimationFrame(boucleChiffres);
 }
 // sprint : un décompte visible en permanence, même entre deux tours
@@ -3651,11 +4855,18 @@ function boucleSprint(){
 function arreter(ev){
   if(!S.encours) return;
   if(ev) ev.preventDefault();
-  const t = tempsEvt(ev);
-  if(t - verrou < 120) return;
-  verrou = t; S.encours = false;
+  const brut = tempsEvt(ev);
+  if(brut - verrou < 120) return;
+  verrou = brut;
+  // Banquise : le gel ajoute un retard fixe à la mesure. Il est annoncé, donc
+  // rattrapable en anticipant — c'est un décalage constant, pas un aléa. Le
+  // verrou anti-rebond, lui, reste sur l'heure réelle de l'appui.
+  const t = brut + effB('gel');
+  S.msBrut = t - S.t0;              // mesure brute, pour les modes au millième
+  if(ENCHAINES[CFG.mode]){ tourEnchaine(t); return; }
+  S.encours = false;
   purgerMinuteries(); vibrer(18);
-  afficherResultat(valeurAtteinte(Math.round((t - S.t0)/10)));
+  afficherResultat(valeurAtteinte(enCentiemes(t - S.t0)));
 }
 addEventListener('keydown', ev => {
   if(ev.code !== 'Space' && ev.code !== 'Enter') return;
@@ -3689,6 +4900,11 @@ function peine(nom, n){
 function reglesBiome(b, tour){
   const suivant = (Math.floor(((tour || S.tour) - 1) / TOURS_BIOME) + 1) * TOURS_BIOME + 1;
   const idx = BIOMES.indexOf(b);
+  if(idx === -1) return {           // décor en essai : hors de toute progression
+    titre:b.n, accent:b.accent, d:b.d, plage:'Décor en essai · hors progression',
+    malus:b.malus, bonus:b.bonus,
+    suite:'Il ne se déclenche que depuis l\'onglet Test'
+  };
   return {
     titre:b.n, accent:b.accent, d:b.d,
     plage:'Tours ' + (idx * TOURS_BIOME + 1) + ' à '
@@ -3771,7 +4987,9 @@ function resoudre(valeur, delta, ecart){
   const st = S.stats[joueur];
   const T = $('ver-titre'), U = $('ver-sous');
   const mult = S.evt === 'double' ? 2 : 1;
-  const minutePile = estMinute(valeur);
+  // en solo, tomber pile sur une minute n'a plus d'effet ni d'affichage :
+  // il n'y a personne à faire boire. Réservé aux modes soirée.
+  const minutePile = estMinute(valeur) && !estSolo(CFG.mode);
   let couleur = 't-vert', avance = true;
 
   /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
@@ -3816,6 +5034,92 @@ function resoudre(valeur, delta, ecart){
       st.culs += S.contre; S.contre = 0;
     }
   }
+  /* ─── aventure : marcher, encaisser l'usure, puis affronter le gardien ─── */
+  else if(AVT()){
+    const A = S.avt, arme = monArme();
+    const z = zone();
+    if(A.enCombat){
+      /* ── le gardien ── */
+      if(ecart <= z){
+        const critique = ecart === 0;
+        const d = Math.round(arme.degats * (critique ? 2 : 1));
+        A.pvBoss = Math.max(0, A.pvBoss - d);
+        A.coups++;
+        A.xp += Math.round((critique ? 8 : 4) * arme.xp);
+        couleur = critique ? 't-s100' : 't-s50';
+        T.textContent = critique ? 'Coup critique · −' + d : 'Touché · −' + d;
+        U.textContent = A.pvBoss > 0
+          ? gardienNom() + ' · ' + A.pvBoss + ' points de vie · ' + arme.n.toLowerCase()
+          : gardienNom() + ' tombe';
+        if(A.pvBoss <= 0){
+          const prime = 40 + 30 * A.gardiens;
+          A.xp += Math.round(prime * arme.xp);
+          A.gardiens++; A.pas = 0; A.enCombat = false; A.ratesBoss = 0;
+          // un souffle, pas une remise à neuf : le terrain ne se regagne pas
+          A.zone = Math.min(A.zoneDepart, A.zone + 3);
+          couleur = 't-s100';
+          T.textContent = 'Gardien abattu en ' + A.coups + ' coup'
+            + (A.coups > 1 ? 's' : '');
+          U.textContent = '+' + Math.round(prime * arme.xp) + ' xp · le chemin '
+            + 'reprend · zone ± ' + fmt(A.zone);
+          A.coups = 0;
+        }
+      } else {
+        A.ratesBoss++;
+        couleur = 't-signal';
+        if(A.ratesBoss >= 3){
+          S.mort = true;
+          T.textContent = gardienNom() + ' vous met à terre';
+          U.textContent = 'trois coups manqués · l\'expédition s\'arrête';
+        } else {
+          T.textContent = 'Coup manqué';
+          U.textContent = (3 - A.ratesBoss) + ' erreur'
+            + (3 - A.ratesBoss > 1 ? 's' : '') + ' avant la chute · garde ± ' + fmt(z);
+        }
+      }
+    }
+    else if(ecart > z){
+      /* ── sortie de zone : fin de l'expédition ── */
+      S.mort = true;
+      couleur = 't-signal';
+      T.textContent = 'Le terrain se dérobe';
+      U.textContent = 'écart ± ' + fmt(ecart) + ' pour une zone de ± ' + fmt(z)
+        + ' · ' + A.xp + ' xp ramenés';
+    }
+    else {
+      /* ── marche ── */
+      const gain = ecart === 0 ? 12 : ecart <= 3 ? 6 : 2;
+      const g = Math.round(gain * arme.xp);
+      A.xp += g;
+      A.pas++;
+      const tientLeTerrain = ecart <= 3;
+      const u = usureAvt(S.tour);
+      if(!tientLeTerrain) A.zone = Math.max(1, A.zone - u);
+      couleur = ecart === 0 ? 't-s100' : ecart <= 3 ? 't-s50' : 't-s20';
+      T.textContent = '+' + g + ' xp';
+      U.textContent = (tientLeTerrain
+          ? 'tu tiens le terrain · zone ± ' + fmt(A.zone)
+          : 'le terrain s\'use de ' + fmt(u) + ' · zone ± ' + fmt(A.zone))
+        + ' · ' + A.xp + ' xp';
+      if(A.pas >= TOURS_AVT){
+        entrerCombat();
+        T.textContent = gardienNom() + ' barre le chemin';
+        U.textContent = A.pvBoss + ' points de vie · garde ± '
+          + fmt(Math.ceil(A.zone / 2)) + ' · ' + arme.n.toLowerCase()
+          + ' à ' + arme.degats + ' dégâts';
+        couleur = 't-alerte';
+      }
+    }
+    S.points = A.xp;
+  }
+  /* ─── laboratoire : chaque mode écrit lui-même son verdict ─── */
+  else if(LAB()){
+    const r = LAB().tour({ecart, delta, valeur, ms:S.msBrut || (valeur - S.total) * 10});
+    S.points += (r.pts || 0);
+    couleur = r.couleur;
+    T.textContent = r.titre;
+    U.textContent = r.sous;
+  }
   /* ─── entraînement solo : aucune gorgée, un score ─── */
   else if(CFG.mode === 'survie'){
     // Station : un tour sur cinq, la zone est amputée de moitié pour ce tour
@@ -3841,7 +5145,7 @@ function resoudre(valeur, delta, ecart){
     else if(v.code === 'rate'){
       if(CFG.sv && CFG.sv.triche){
         // banc d'essai : on encaisse la sortie de zone sans mourir
-        S.zoneSurvie = Math.max(2, S.zoneSurvie - 2);
+        S.zoneSurvie = Math.max(Math.max(2, plancherZone()), S.zoneSurvie - 2);
         S.chaineSurvie = 0; S.gainSurvie = null;
         couleur = 't-s20';
         T.textContent = 'Sortie encaissée';
@@ -3850,7 +5154,8 @@ function resoudre(valeur, delta, ecart){
       else if(S.vies > 0){
         // seconde chance : on survit, mais la zone est amputée de moitié
         S.vies--;
-        S.zoneSurvie = Math.max(2, Math.round(S.zoneSurvie / 2));
+        S.zoneSurvie = Math.max(Math.max(2, plancherZone()),
+                                Math.round(S.zoneSurvie / 2));
         S.chaineSurvie = 0; S.gainSurvie = null;
         couleur = 't-s20';
         T.textContent = 'Rattrapé de justesse';
@@ -3884,7 +5189,7 @@ function resoudre(valeur, delta, ecart){
       const punir = effB('enfer') && ecart === 0;
       if(punir)                bonus = 0;
       else if(ecart === 0)     bonus = effB('pile') || 4;
-      else if(ecart <= seuilB) bonus = 3;
+      else if(ecart <= seuilB) bonus = effB('frole') || 3;   // Cité engloutie
       if(bonus && alerte) bonus = Math.max(bonus, 8);       // Station : tour d'alerte
       if(bonus && effB('majGain')) bonus = Math.round(bonus * 1.5);   // Ruines
       // Spatial : un tour joué à l'aveugle et réussi vaut double
@@ -3910,17 +5215,22 @@ function resoudre(valeur, delta, ecart){
       let usureBase = Math.max(1,
         (S.tour < 10 ? 1 : S.tour < 20 ? 2 : 3) + effB('usure'));
       if(effB('demiUsure')) usureBase = Math.max(1, Math.round(usureBase / 2));
+      // Banquise : quoi qu'il arrive, le terrain ne fond jamais plus vite
+      if(effB('usureMax')) usureBase = Math.min(usureBase, effB('usureMax'));
       if(punir) usureBase += 4;      // Enfer : le pile coûte quatre de plus
       // Ruines : l'usure ne s'annule jamais, même sur un bon coup
       const usure = (bonus && !effB('effritement')) ? 0 : usureBase;
       const avant = S.zoneSurvie;
 
-      // palier tous les dix tours : cinq centièmes rendus
+      // palier tous les dix tours : cinq centièmes rendus. Actif d'office, sauf
+      // en difficulté hard où la partie doit rester tranchante.
       let palier = 0;
-      if(CFG.sv.paliers && S.tour % PALIER_SURVIE === 0) palier = 5;
+      if(CFG.diff !== 'hard' && S.tour % PALIER_SURVIE === 0) palier = 5;
 
       const plaf = plafondSurvie(S.tour);
-      S.zoneSurvie = Math.max(1, Math.min(plaf, S.zoneSurvie - usure + bonus + palier));
+      // Chantier : l'échafaudage tient, la zone ne descend pas sous son plancher
+      S.zoneSurvie = Math.max(plancherZone(),
+                              Math.min(plaf, S.zoneSurvie - usure + bonus + palier));
 
       const delta = S.zoneSurvie - avant;
       S.gainSurvie = delta;
@@ -4212,15 +5522,15 @@ function resoudre(valeur, delta, ecart){
   dessinerFilm();
 
   // cibles nues : chaque tour est indépendant, le chrono ne cumule pas
-  if(avance){ S.total = CFG.mode === 'nues' ? 0 : valeur;
+  if(avance){ S.total = REMISE_A_ZERO.includes(CFG.mode) ? 0 : valeur;
               S.enAttente = cibleSuivante(S.total); }
   else       { S.enAttente = S.cible; }
   S.finDeTour = {avance};
   const pioche = L => L[Math.floor(Math.random() * L.length)];
   let mot;
   if(CFG.mode === 'defi' || CFG.mode === 'reflexe')  mot = '';
-  else if(minutePile)                               mot = pioche(MOTS_MINUTE);
-  else if(estSolo(CFG.mode) && S.chaine >= 2)     mot = MOTS_SERIE[Math.min(S.chaine, 6) - 2];
+  else if(minutePile)                               mot = pioche(sansJean(MOTS_MINUTE, 'La minute pile.'));
+  else if(estSolo(CFG.mode) && S.chaine >= 2)     mot = motSerie(S.chaine);
   else                                              mot = blague(ecart);
   if(estSolo(CFG.mode) && S.chaine >= 2) S.derniereBlague = 'serie';
   $('ver-blague').textContent = mot;
@@ -4407,7 +5717,11 @@ function fluidePret(){
   if(CFG.mode === 'survie' && S.partie && CFG.sv && CFG.sv.son && CFG.sv.musique
      && !musique) lancerMusique();
   // Spatial : un tour sur trois se joue sans chrono
-  S.aveugleTour = !!(effB('aveugle') && S.tour % effB('aveugle') === 0);
+  S.aveugleTour = !!(effB('aveugle') && S.tour % effB('aveugle') === 0)
+                  || !!(LAB() && LAB().aveugle);
+  // Chantier : un tour sur cinq, la poutrelle passe devant les dixièmes
+  S.dixiemesTour = !!(effB('dixiemes') && S.tour % effB('dixiemes') === 0);
+  majNoirMine();
   // Station : un tour sur cinq passe en alerte, annoncé avant le départ
   S.alerteTour = !!(effB('alerte') && S.tour % effB('alerte') === 0);
   $('fluide').classList.toggle('alerte-tour', !!S.alerteTour);
@@ -4438,6 +5752,24 @@ function fluidePret(){
       + (S.defi.essais > 1 ? ' · essai ' + S.tour + '/' + S.defi.essais : '');
   }
   else if(m === 'reflexe')  $('f-tour').textContent = 'Manche ' + S.tour + ' / 10';
+  else if(AVT()){
+    $('f-tour').textContent = S.avt && S.avt.enCombat
+      ? gardienNom()
+      : 'Tour ' + S.tour + ' · ' + Math.max(0, TOURS_AVT - (S.avt ? S.avt.pas : 0))
+        + ' pas avant le gardien';
+  }
+  else if(LAB()){
+    const lb = LAB();
+    $('f-tour').textContent =
+        lb.id === 'braquage' ? 'Cadran ' + Math.min(3, S.lab.cadran + 1) + ' / 3'
+                               + ' · alarme ' + S.lab.alarme + ' / ' + ALARME_MAX
+      : lb.id === 'ricochet' ? 'Ricochet ' + S.lab.ricochets
+      : lb.id === 'vertige'  ? 'Palier ' + (S.lab.palier + 1)
+      : lb.id === 'origami'  ? S.lab.plis + ' pli' + (S.lab.plis>1?'s':'') + ' sur 8'
+      : lb.id === 'duelf'    ? S.lab.mesPoints + ' – ' + S.lab.sesPoints
+      : ENCHAINES[lb.id]     ? 'Appui ' + S.tour + ' / ' + ENCHAINES[lb.id].n
+      : 'Tour ' + S.tour + ' / ' + (lb.tours || '∞');
+  }
   else if(m === 'combat')   $('f-tour').textContent = bossCourant().n;
   else $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}`
                                               : 'Tour ' + S.tour;
@@ -4461,6 +5793,23 @@ function fluidePret(){
   else if(CFG.mode === 'survie'){
     if(rebours()) $('f-obj-tenir').textContent = 'le chrono descend';
     else $('f-obj-tenir').textContent = '';
+  }
+  else if(AVT()){
+    $('f-obj-tenir').textContent = S.avt && S.avt.enCombat
+      ? 'garde ± ' + fmt(zone()) + ' · ' + S.avt.pvBoss + ' pv'
+      : 'zone ± ' + fmt(zone()) + ' · ' + (S.avt ? S.avt.xp : 0) + ' xp';
+  }
+  else if(LAB()){
+    const lb = LAB();
+    $('f-obj-tenir').textContent =
+        lb.id === 'cascade'  ? 'dix appuis, le chrono ne s\'arrête pas'
+      : lb.id === 'braquage' ? BRAQUAGE[cadranCourant()].n + ' · ± '
+                               + fmtMs(BRAQUAGE[cadranCourant()].tol) + ' s'
+      : lb.id === 'sniper'   ? 'un seul tir, à l\'aveugle, au millième'
+      : lb.id === 'duelf'    ? 'fantôme à ± ' + fmt(S.lab.fantome[S.tour-1] || 0)
+                               + ' sur ce tour'
+      : fmt(S.cible - S.total) + ' s à tenir · zone ± ' + fmt(zone());
+    if(ENCHAINES[lb.id]) $('f-obj-cible').textContent = fmt(ENCHAINES[lb.id].pas);
   }
   else $('f-obj-tenir').textContent = CFG.mode === 'reflexe'
     ? 'touche le bouton dès qu\'il apparaît'
@@ -4512,6 +5861,36 @@ function majAnneau(){
     ? 'Zone critique · ± ' + fmt(z) + (S.vies ? ' · ' + S.vies + ' vie' : '') : '';
 }
 
+// Chantier : la poutrelle ne cache qu'un chiffre, celui des dixièmes. Le reste
+// du nombre continue de défiler — c'est ce qui rend le masque supportable.
+function masquerDixiemes(txt){
+  const i = txt.indexOf(',');
+  if(i < 0 || i + 1 >= txt.length) return txt;
+  return txt.slice(0, i + 1) + '▮' + txt.slice(i + 2);
+}
+
+// Mine : le grisou souffle la lampe à intervalle irrégulier, entre trois et
+// huit tours. Le tirage se fait à l'avance pour que le tour noir soit annoncé
+// par l'écran lui-même, pas découvert au milieu de la mesure.
+function prochainNoir(tour){ return tour + 3 + Math.floor(Math.random() * 6); }
+function majNoirMine(){
+  const actif = !!effB('noirMine') && S.partie;
+  if(!actif){
+    S.noirTour = false;
+    $('fluide').classList.remove('noir-mine');
+    $('f-voile-noir').classList.remove('on');
+    S.prochainNoirTour = undefined;
+    return;
+  }
+  if(S.prochainNoirTour === undefined) S.prochainNoirTour = prochainNoir(S.tour - 1);
+  if(S.tour >= S.prochainNoirTour){
+    S.noirTour = true;
+    S.prochainNoirTour = prochainNoir(S.tour);
+  } else S.noirTour = false;
+  $('fluide').classList.toggle('noir-mine', S.noirTour);
+  $('f-voile-noir').classList.toggle('on', S.noirTour);
+}
+
 // Horlogerie : le chiffre montré n'est plus le temps écoulé mais le temps qui
 // reste avant la cible. Il descend vers zéro, et c'est sur zéro qu'on appuie.
 // La mesure interne, elle, ne change pas d'un iota.
@@ -4538,11 +5917,36 @@ function calerChrono(){
 
 function fluidePhase(ph){
   S.fPhase = ph; S.fPhaseAt = performance.now();
+  // le saut de tour n'a de sens qu'à l'arrêt : un chrono lancé doit aller au bout
+  if($('f-saut') && ph !== 'repos'){
+    $('f-saut').classList.remove('on'); $('f-tour-choix').classList.remove('on');
+  }
+  // Station : le cadre rouge est un avertissement, il a été lu au moment du
+  // départ. Le laisser pulser pendant la mesure parasitait la lecture du
+  // chiffre et donnait l'impression qu'il ne partait plus.
+  if(ph === 'course') $('fluide').classList.remove('alerte-tour');
   montrer('fluide');
+  // chaque mode a sa propre géométrie de texte : Survie seul reçoit la
+  // classe qui déplace le chiffre, l'objectif et le bloc verdict
+  // une classe par mode : la géométrie du texte est déclarée en CSS, une
+  // ligne par mode, sans qu'aucun mode n'en impacte un autre
+  const F = $('fluide');
+  ['survie','reflexe','combat','cascade'].forEach(m =>
+    F.classList.toggle('mode-' + m, CFG.mode === m));
   majBiome();
   majAnneau();
-  // le décompte du sprint ne doit jamais survivre à un changement de mode
-  if(CFG.mode !== 'sprint') $('f-sprint').classList.remove('on');
+  // Cascade a son propre décor : une chute d'eau, hors du système de biomes.
+  // On le pose APRÈS majBiome, qui efface data-biome pour tout mode hors survie.
+  if(CFG.mode === 'cascade'){
+    F.setAttribute('data-biome', 'cascade');
+    $('f-fond').classList.add('on');
+  } else if(CFG.mode !== 'survie'){
+    $('f-fond').classList.remove('on');
+  }
+  // le décompte du sprint ne doit jamais survivre à un changement de mode ;
+  // les modes enchaînés (Cascade) gardent le leur, posé au départ pour éviter
+  // la saccade, et nettoyé par preparerPartie au début de chaque partie
+  if(CFG.mode !== 'sprint' && !ENCHAINES[CFG.mode]) $('f-sprint').classList.remove('on');
   if(CFG.mode !== 'survie'){ $('f-gain').classList.remove('on'); $('f-gain').textContent = ''; }
   const C = $('f-chrono'), G = $('f-gauche'), D = $('f-droite'), R = $('f-realise');
   // On retire les classes d'état sans toucher aux classes de biome : sinon
@@ -4665,7 +6069,7 @@ $('f-reflexe').addEventListener('pointerdown', ev => {
   $('fluide').classList.remove('attente-reflexe');
   $('f-reflexe').classList.remove('on');
   vibrer(18);
-  afficherResultat(valeurAtteinte(Math.round((t - S.t0) / 10)));
+  afficherResultat(valeurAtteinte(enCentiemes(t - S.t0)));
 });
 
 // prépare le tour suivant sans rien afficher
@@ -4729,11 +6133,13 @@ $('fluide').addEventListener('click', ev => {
   }
   else if(b.id === 'f-droite' && S.fPhase === 'fin') afficherFin();
 });
-$('fermer').onclick = () => {
+const fermerDetails = () => {
   // on revient exactement dans l'état où l'on était : pas de réannonce
   S.retourDetail = false;
   montrer('fluide');
 };
+$('fermer').onclick = fermerDetails;
+$('det-retour').onclick = fermerDetails;
 
 function dessinerFilm(){
   const f = $('film'); f.innerHTML = '';
@@ -4844,6 +6250,8 @@ function afficherFin(){
 
   // un essai de biome ramène là d'où il vient
   $('fin-test').style.display = S.essaiBiome ? 'block' : 'none';
+  $('fin-bo').style.display = AVT() ? 'flex' : 'none';
+  majInvitationCompte();
   const rev0 = $('revelation');
   if(CFG.mode === 'survie'){
     const tout = S.courbe || [];
@@ -4866,6 +6274,37 @@ function afficherFin(){
       : S.points <= 3
         ? "Partie très courte. La zone part à ± 0,30 : les premiers tours sont les plus faciles."
         : 'Aucune série cette fois. Deux bons coups d\'affilée majorent le gain de moitié, trois le doublent.';
+  }
+  if(AVT() && S.avt){
+    const A = S.avt, M = avtMem();
+    M.xp += A.xp;
+    M.parties = (M.parties || 0) + 1;
+    M.gardiens = (M.gardiens || 0) + A.gardiens;
+    M.meilleur = Math.max(M.meilleur || 0, S.tour);
+    ecrireMem();
+    TI.textContent = A.xp + ' xp ramenés';
+    const b = BIOMES[Math.min(BIOMES.length - 1, A.gardiens)];
+    R.textContent = 'Aventure · ' + S.tour + ' tour' + (S.tour > 1 ? 's' : '')
+      + ' · ' + A.gardiens + ' gardien' + (A.gardiens > 1 ? 's' : '') + ' abattu'
+      + (A.gardiens > 1 ? 's' : '') + ' · arrêté dans ' + b.n.toLowerCase()
+      + ' · réserve ' + M.xp + ' xp';
+    rev0.style.display = 'block';
+    rev0.querySelector('.t').textContent = 'La boutique';
+    $('rev-texte').textContent = A.gardiens === 0
+      ? "Aucun gardien cette fois. Il en faut dix-huit pas pour en croiser un : "
+        + "une armure plus large est le moyen le plus court d'y arriver."
+      : "Rien n'est perdu : l'expérience reste acquise. Une arme plus lourde "
+        + "abat le gardien en moins de coups, ce qui coûte moins d'erreurs.";
+  }
+  if(LAB()){
+    const f = LAB().fin();
+    TI.textContent = f.t;
+    R.innerHTML = f.r;
+    if(f.rev){
+      rev0.style.display = 'block';
+      rev0.querySelector('.t').textContent = f.rev.t;
+      $('rev-texte').textContent = f.rev.s;
+    } else rev0.style.display = 'none';
   }
   if(CFG.mode === 'reflexe' && S.reflexes.length){
     const L = S.reflexes;
@@ -4895,7 +6334,8 @@ function afficherFin(){
   }
 
   const c = $('classement'); c.innerHTML = '';
-  if(CFG.mode === 'reflexe' || CFG.mode === 'combat'){
+  if(CFG.mode === 'reflexe' || CFG.mode === 'combat' || AVT()
+     || (LAB() && ['braquage','sniper','cascade'].includes(CFG.mode))){
     c.innerHTML = '';   // une précision au centième ne veut rien dire ici
     montrer('fin');
     return;
@@ -5141,6 +6581,34 @@ function ecrireSession(s){
 }
 let SESSION = null;
 
+// Après un aller-retour Google, l'URL porte les jetons dans le fragment
+// (#access_token=...) et le localStorage porte l'intention qu'on avait avant
+// de partir. On reconstitue la session, on nettoie l'URL, puis on rejoue la
+// suite comme si le formulaire venait de répondre.
+async function reprendreApresGoogle(){
+  const frag = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const token = frag.get('access_token');
+  if(!token) return;
+  const s = {token, refresh:frag.get('refresh_token'),
+             expire:Date.now() + (Number(frag.get('expires_in')) || 3600) * 1000};
+  history.replaceState(null, '', location.pathname);   // retire le fragment
+  try{
+    const u = await fetch(SUPABASE_URL + '/auth/v1/user',
+      {headers:{apikey:SUPABASE_KEY, Authorization:'Bearer ' + token}});
+    const d = await u.json();
+    if(!d || !d.id) return;
+    s.id = d.id; s.email = d.email;
+  }catch(e){ return; }
+  ecrireSession(s);
+  let reprise = null;
+  try{ reprise = JSON.parse(localStorage.getItem(CLE_REPRISE) || 'null'); }catch(e){}
+  try{ localStorage.removeItem(CLE_REPRISE); }catch(e){}
+  AUTH_RETOUR = (reprise && reprise.retour) || 'profil';
+  if(reprise && reprise.invitation) INVITATION = reprise.invitation;
+  // laisse le temps au reste de l'amorçage (peupler, construireTest…) de finir
+  setTimeout(() => apresConnexion(), 50);
+}
+
 async function auth(chemin, corps){
   const r = await fetch(SUPABASE_URL + '/auth/v1/' + chemin, {
     method:'POST',
@@ -5152,16 +6620,29 @@ async function auth(chemin, corps){
   return txt ? JSON.parse(txt) : null;
 }
 
-// 1 — demander le code
-async function demanderCode(mail){
-  // sans create_user à false, Supabase envoie un code plutôt qu'un lien
-  await auth('otp', {email:mail, create_user:true});
+// Le domaine est fictif : Supabase Auth exige un e-mail, mais personne ne le
+// voit jamais et aucun message n'est envoyé. Le joueur retient un identifiant
+// et un mot de passe, point.
+const DOMAINE_FICTIF = '@krono.local';
+const identVersEmail = id => id.toLowerCase().replace(/[^a-z0-9._-]/g, '') + DOMAINE_FICTIF;
+const emailVersIdent = e => e ? e.replace(DOMAINE_FICTIF, '') : '';
+
+// 1 — créer un compte
+async function creerCompte(ident, pass){
+  const d = await auth('signup', {email:identVersEmail(ident), password:pass});
+  if(!d || !d.access_token) throw new Error('Réponse inattendue du serveur.');
+  return sessionDepuis(d);
 }
 
-// 2 — échanger le code contre une session
-async function verifierCode(mail, code){
-  const d = await auth('verify', {type:'email', email:mail, token:code});
+// 2 — se connecter
+async function connecterCompte(ident, pass){
+  const d = await auth('token?grant_type=password',
+    {email:identVersEmail(ident), password:pass});
   if(!d || !d.access_token) throw new Error('Réponse inattendue du serveur.');
+  return sessionDepuis(d);
+}
+
+function sessionDepuis(d){
   const s = {token:d.access_token, refresh:d.refresh_token,
              id:d.user.id, email:d.user.email,
              expire:Date.now() + (d.expires_in || 3600) * 1000};
@@ -5228,6 +6709,11 @@ async function publierPerf(){
 const PROFIL_VIDE = () => ({pseudo:null, photo:null, couleur:null});
 const monPro = () => (MEM.profil = MEM.profil || PROFIL_VIDE());
 
+$('bo-retour').onclick = () => montrer(S.partie ? ecranJeu() : 'test');
+$('fin-boutique').onclick = () => { construireBoutique(); montrer('boutique'); };
+$('go-boutique').onclick = () => { construireBoutique(); montrer('boutique'); };
+$('bo-partir').onclick = () => { CFG.mode = 'aventure'; MEM.cfg = {...CFG};
+  ecrireMem(); demarrerPartie(); };
 $('go-profil').onclick = () => { construireProfil(); montrer('profil'); };
 $('pr-retour').onclick = () => montrer('reglages');
 
@@ -5257,7 +6743,9 @@ async function construireProfil(){
     await ecrireMem(); construireProfil();
   });
 
-  $('pr-connexion').textContent = s ? 'Gérer le compte' : 'Se connecter';
+  // connecté, un seul bouton suffit ; sans compte, on montre les deux chemins
+  $('pr-creer-compte').style.display = s ? 'none' : 'block';
+  $('pr-connexion').textContent = s ? 'Gérer le compte' : "J'ai déjà un compte";
   $('pr-compte-note').textContent = s
     ? 'Vos performances solo sont publiées sous ce compte.'
     : EN_LIGNE()
@@ -5319,11 +6807,16 @@ $('pr-nom').onclick = async () => {
   construireProfil();
 };
 
+const gardeEnLigne = () => EN_LIGNE() ? true : (choisir('Mode en ligne indisponible',
+  "Aucune clé n'est configurée sur cette installation.",
+  [{label:'Fermer', val:true}]), false);
 $('pr-connexion').onclick = async () => {
-  if(!EN_LIGNE())
-    return choisir('Mode en ligne indisponible',
-      "Aucune clé n'est configurée sur cette installation.", [{label:'Fermer', val:true}]);
-  await majComptes(); montrer('comptes');
+  if(!gardeEnLigne()) return;
+  ouvrirAuth('connexion', 'profil');
+};
+$('pr-creer-compte').onclick = async () => {
+  if(!gardeEnLigne()) return;
+  ouvrirAuth('creer', 'profil');
 };
 
 /* ─── partage ─── */
@@ -5356,10 +6849,582 @@ $('pr-ligue').onclick = async () => {
   if(r === 'copié') $('pr-part-note').textContent = 'Invitation copiée · code ' + S.salon;
 };
 
+
+/* ════════ COMPTE ET LIGUES · ÉCRAN DU JOUEUR ════════ */
+// Le banc d'essai de l'onglet Test valide la configuration ; cet écran-ci est
+// celui du joueur. Il ne montre jamais de code HTTP : chaque échec est traduit
+// en une phrase et en une action possible.
+
+let INVITATION = null;          // code reçu par lien, à rejoindre après connexion
+let LG_COURANTE = null;          // ligue ouverte dans l'écran de classement
+let LG_MODE = 'solo';            // mode affiché dans son classement
+
+function messageCompte(e){
+  const m = String(e && e.message || e);
+  if(/hors ligne|Failed to fetch|NetworkError/i.test(m))
+    return "Pas de réseau. Le jeu reste jouable, réessayez plus tard.";
+  if(/429/.test(m))
+    return "Trop de demandes d'affilée. Attendez une minute avant de redemander un code.";
+  if(/otp_expired|403/.test(m))
+    return "Ce code n'est plus valable. Demandez-en un nouveau.";
+  if(/invalid|400/.test(m))
+    return "Code refusé. Vérifiez les six chiffres, ou demandez-en un nouveau.";
+  if(/422/.test(m))
+    return "Adresse refusée par le serveur. Vérifiez qu'elle est bien écrite.";
+  if(/401/.test(m))
+    return "Cette installation n'est pas configurée pour les comptes.";
+  return "Le serveur n'a pas répondu. Réessayez dans un moment.";
+}
+
+// L'invitation à créer un compte n'apparaît jamais avant d'avoir joué : un mur
+// d'inscription à l'entrée fait perdre la moitié des gens. Trois parties solo
+// terminées, c'est le moment où l'on a une raison d'en vouloir un.
+const PARTIES_AVANT_INVITATION = 3;
+function majInvitationCompte(){
+  const B = $('fin-cn');
+  if(!B) return;
+  const assez = ((MEM.usage && MEM.usage.parties) || 0) >= PARTIES_AVANT_INVITATION;
+  B.style.display = EN_LIGNE() && !SESSION && estSolo(CFG.mode) && assez
+                    && !S.abandon ? 'flex' : 'none';
+}
+$('fin-compte').onclick = () => ouvrirCompte();
+
+async function ouvrirCompte(){
+  montrer('compte');
+  // le discours change selon l'intention, le formulaire est le même
+  const creer = AUTH_INTENTION === 'creer';
+  const T = $('cn-t-1'), D = $('cn-d-1');
+  if(T) T.textContent = creer ? 'Créer un compte' : 'Se connecter';
+  if(D) D.textContent = creer
+    ? "Un identifiant unique et un mot de passe, c'est tout. Aucun e-mail n'est envoyé."
+    : 'Retrouvez vos scores et vos ligues avec votre identifiant et votre mot de passe.';
+  await majCompte();
+}
+
+async function majCompte(){
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  $('cn-etat').textContent = !EN_LIGNE() ? 'indisponible' : s ? 'connecté' : 'sans compte';
+  $('cn-hors').style.display = s ? 'none' : 'block';
+  $('cn-dans').style.display = s ? 'block' : 'none';
+  if(!s) return;
+  $('cn-ident-vu').textContent = emailVersIdent(s.email);
+  let pseudo = null;
+  try{ pseudo = await monProfil(); }catch(e){}
+  $('cn-pseudo').textContent = pseudo || monPro().pseudo || 'Sans pseudo';
+  if(INVITATION){
+    const code = INVITATION; INVITATION = null;
+    const deja = (await mesLigues().catch(() => [])).some(x => x.ligue === code);
+    if(!deja && await demander('Une invitation vous attend',
+        'Le lien que vous avez ouvert mène à la ligue ' + code
+        + '. Voulez-vous la rejoindre ?', 'Rejoindre')){
+      try{
+        await apiAuth('membres', {method:'POST',
+          body:JSON.stringify({ligue:code, joueur:s.id})});
+      }catch(e){
+        choisir('Impossible de rejoindre', messageCompte(e), [{label:'Fermer', val:true}]);
+      }
+    }
+  }
+}
+
+/* ─── connexion ─── */
+$('cn-retour').onclick = () => {
+  if(AUTH_RETOUR === 'ligues') return ouvrirLigues();
+  construireProfil(); montrer('profil');
+};
+async function apresConnexion(){
+  const n = await remonterScoresLocaux();
+  await majCompte();
+  if(INVITATION && AUTH_RETOUR === 'ligues'){
+    const code = INVITATION; INVITATION = null;
+    const s2 = await rafraichirSession();
+    if(s2) await rejoindreLigue(code, s2);
+    await ouvrirLigues();
+  } else if(AUTH_RETOUR === 'ligues') await ouvrirLigues();
+  if(n) choisir('Scores retrouvés',
+    n + ' partie' + (n > 1 ? 's' : '') + ' locale'
+    + (n > 1 ? 's' : '') + ' rattachée' + (n > 1 ? 's' : '')
+    + ' au compte.', [{label:'Parfait', val:true}]);
+}
+
+function validerChamps(){
+  const ident = ($('cn-ident') || {}).value || '';
+  const pass  = ($('cn-pass')  || {}).value || '';
+  if(!ident.trim()){ $('cn-msg').textContent = 'Choisissez un identifiant.'; return null; }
+  if(ident.trim().length < 3){ $('cn-msg').textContent = 'Au moins 3 caractères.'; return null; }
+  if(pass.length < 8){ $('cn-msg').textContent = '8 caractères minimum pour le mot de passe.'; return null; }
+  return {ident:ident.trim(), pass};
+}
+
+// Google exige une vraie navigation hors de l'app : la mémoire JS est perdue
+// au retour. AUTH_RETOUR et une éventuelle invitation en attente sont donc
+// mis de côté dans localStorage avant de partir, pour être repris au démarrage.
+const CLE_REPRISE = 'krono.reprise_auth';
+// Séparée de l'appel pour rester testable sans provoquer une vraie navigation.
+const urlAuthGoogle = () => SUPABASE_URL
+  + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(SITE_URL);
+$('cn-google-btn').onclick = () => {
+  try{ localStorage.setItem(CLE_REPRISE,
+    JSON.stringify({retour:AUTH_RETOUR, invitation:INVITATION})); }catch(e){}
+  location.href = urlAuthGoogle();
+};
+
+$('cn-creer-btn').onclick = async () => {
+  const v = validerChamps(); if(!v) return;
+  $('cn-creer-btn').disabled = true;
+  $('cn-msg').textContent = 'Création…';
+  try{
+    await creerCompte(v.ident, v.pass);
+    $('cn-msg').textContent = '';
+    await apresConnexion();
+  }catch(e){
+    const msg = String(e.message || e);
+    if(/already registered|User already registered/i.test(msg))
+      $('cn-msg').textContent = 'Cet identifiant est déjà pris. Essayez « Se connecter ».';
+    else $('cn-msg').textContent = messageCompte(e);
+  }
+  $('cn-creer-btn').disabled = false;
+};
+
+$('cn-login-btn').onclick = async () => {
+  const v = validerChamps(); if(!v) return;
+  $('cn-login-btn').disabled = true;
+  $('cn-msg').textContent = 'Connexion…';
+  try{
+    await connecterCompte(v.ident, v.pass);
+    $('cn-msg').textContent = '';
+    await apresConnexion();
+  }catch(e){
+    const msg = String(e.message || e);
+    if(/Invalid login/i.test(msg))
+      $('cn-msg').textContent = 'Identifiant ou mot de passe incorrect.';
+    else $('cn-msg').textContent = messageCompte(e);
+  }
+  $('cn-login-btn').disabled = false;
+};
+$('cn-sortir').onclick = async () => {
+  if(!await demander('Se déconnecter ?',
+    'Vos scores restent sur le serveur et sur ce téléphone. '
+    + 'Il suffira de votre identifiant et mot de passe pour revenir.', 'Se déconnecter')) return;
+  ecrireSession(null);
+  await majCompte();
+};
+$('cn-nom').onclick = async () => {
+  const nom = await demanderNom('Votre pseudo',
+    'Il vous identifie dans toutes vos ligues.', []);
+  if(!nom) return;
+  monPro().pseudo = nom; memoriser(nom); await ecrireMem();
+  try{
+    const s = await rafraichirSession();
+    if(s) await apiAuth('profils?id=eq.' + s.id,
+      {method:'PATCH', body:JSON.stringify({pseudo:nom})});
+  }catch(e){}
+  await majCompte();
+};
+$('cn-supprimer').onclick = async () => {
+  if(!await demander('Supprimer le compte ?',
+    'Le compte, le pseudo et toutes les performances publiées seront effacés. '
+    + 'Les scores enregistrés sur ce téléphone, eux, restent.', 'Supprimer')) return;
+  await choisir('À faire depuis le site',
+    "La suppression définitive passe par une demande écrite : elle ne peut pas "
+    + "être déclenchée depuis l'application sans risque d'effacement accidentel. "
+    + "Écrivez à l'adresse de contact indiquée sur le site ; le compte est "
+    + "supprimé sous quelques jours. En attendant, déconnectez-vous : plus rien "
+    + "ne sera publié.", [{label:'Compris', val:true}]);
+};
+
+/* ─── ligues ─── */
+async function creerLigue(nom, embleme){
+  const s = await rafraichirSession();
+  if(!s) throw new Error('Aucune session.');
+  for(let essai = 0; essai < 5; essai++){
+    const code = nouveauCode();
+    try{
+      await apiAuth('ligues', {method:'POST',
+        body:JSON.stringify({code, nom, embleme:embleme || null, createur:s.id})});
+      await apiAuth('membres', {method:'POST',
+        body:JSON.stringify({ligue:code, joueur:s.id})});
+      return code;
+    }catch(e){
+      if(!/409|duplicate/i.test(String(e.message))) throw e;
+    }
+  }
+  throw new Error('impossible de générer un code');
+}
+
+/* ════════ MES LIGUES · ÉCRAN À ONGLET ════════ */
+// Le blason d'une ligue est déterministe : même code, même emblème et même
+// couleur sur tous les téléphones, sans rien téléverser. Le créateur peut le
+// changer ; le choix est stocké dans la colonne « embleme » de la table.
+const EMBLEMES = ['🏆','⚡','🔥','🎯','⏱','🐐','🦊','🐺','🦅','🦁','🐉','🦈',
+                  '🌊','🌋','❄️','🌙','⭐','💎','🎲','🃏','👑','🛡','⚔️','🚀'];
+const emblemeDe = l => (l && l.embleme) || EMBLEMES[hachage(l && l.code || '') % EMBLEMES.length];
+function hachage(s){
+  let x = 0;
+  for(const c of String(s)) x = (x * 31 + c.charCodeAt(0)) >>> 0;
+  return x;
+}
+const coulLigue = code => coul(hachage(code) % 8);
+function blasonHTML(l, cls){
+  const c = coulLigue(l && l.code || '');
+  return `<span class="blason ${cls || ''}" style="color:${c};background:${c}1E">`
+       + esc(emblemeDe(l)) + '</span>';
+}
+
+// Les deux chemins d'entrée, partagés par l'écran Ligues et l'écran Profil.
+// « creer » et « connexion » mènent au même formulaire : techniquement, un code
+// à six chiffres crée le compte s'il n'existe pas. Seul le discours change, et
+// c'est ce qui rassure quelqu'un qui n'a jamais eu de compte.
+function ouvrirAuth(intention, retour){
+  AUTH_INTENTION = intention === 'creer' ? 'creer' : 'connexion';
+  AUTH_RETOUR = retour || 'profil';
+  ouvrirCompte();
+}
+let AUTH_INTENTION = 'connexion';
+let AUTH_RETOUR = 'profil';
+
+async function ouvrirLigues(){
+  montrer('ligues');
+  await majLigues();
+}
+
+async function majLigues(){
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  $('lgs-etat').textContent = !EN_LIGNE() ? 'indisponible' : s ? 'connecté' : 'sans compte';
+  $('lgs-hors').style.display = s ? 'none' : 'block';
+  $('lgs-dans').style.display = s ? 'block' : 'none';
+  if(!s) return;
+  await listerLiguesCartes();
+}
+
+// Une carte par ligue : blason, nom, nombre de membres.
+async function listerLiguesCartes(){
+  const L = $('lgs-liste');
+  L.innerHTML = '<div class="note">Chargement…</div>';
+  let lignes = [];
+  try{ lignes = await mesLigues(); }
+  catch(e){
+    L.innerHTML = '';
+    $('lgs-note').textContent = messageCompte(e);
+    return;
+  }
+  if(!lignes.length){
+    L.innerHTML = '<div class="lg-vide">Aucune ligue pour l\'instant.<br>'
+      + 'Créez-en une et donnez le code à vos amis, ou saisissez celui qu\'on '
+      + 'vous a donné.</div>';
+    $('lgs-note').textContent = '';
+    return;
+  }
+  // le nombre de membres, en une seule requête pour toutes les ligues
+  const codes = lignes.map(x => x.ligue);
+  let effectifs = {};
+  try{
+    const m = await apiAuth('membres?ligue=in.(' + codes.join(',') + ')&select=ligue') || [];
+    m.forEach(x => effectifs[x.ligue] = (effectifs[x.ligue] || 0) + 1);
+  }catch(e){ /* sans le compte exact, on affiche la ligue quand même */ }
+  $('lgs-note').textContent = lignes.length + ' ligue'
+    + (lignes.length > 1 ? 's' : '') + ' · chaque partie solo terminée '
+    + (lignes.length > 1 ? 'les' : 'l\'') + 'alimente.';
+  L.innerHTML = lignes.map(x => {
+    const l = {code:x.ligue, nom:(x.ligues && x.ligues.nom) || x.ligue,
+               embleme:x.ligues && x.ligues.embleme};
+    const nb = effectifs[x.ligue];
+    return `<button class="lg-carte" data-code="${esc(x.ligue)}">
+      ${blasonHTML(l)}
+      <span class="info"><span class="nm">${esc(l.nom)}</span>
+      <span class="mb">${nb ? nb + ' membre' + (nb > 1 ? 's' : '') : '—'} · ${esc(x.ligue)}</span></span>
+      <span class="fl">›</span></button>`;
+  }).join('');
+  L.querySelectorAll('.lg-carte').forEach(d => d.onclick = () => {
+    const x = lignes.find(y => y.ligue === d.dataset.code);
+    ouvrirLigue(d.dataset.code, (x && x.ligues && x.ligues.nom) || d.dataset.code,
+                x && x.ligues && x.ligues.embleme);
+  });
+}
+
+/* ─── créer une ligue : nom, puis blason, puis le code ─── */
+async function parcoursCreerLigue(){
+  const nom = await demanderNom('Nom de la ligue',
+    'Le nom que verront vos amis. « Les collègues », « la coloc »…', []);
+  if(!nom) return;
+  const embleme = await choisirEmbleme(nom);
+  if(embleme === null) return;          // annulé
+  try{
+    const code = await creerLigue(nom, embleme);
+    await majLigues();
+    const r = await choisir('Ligue créée · ' + code,
+      'Donnez ce code à vos amis. Ils le saisissent une fois dans « Rejoindre '
+      + 'avec un code » et vos parties solo alimentent le même classement.',
+      [{label:'Partager le code', val:'part'}, {label:'Plus tard', val:'non'}]);
+    if(r === 'part') await partager('Krono · ' + nom,
+      'Rejoins ma ligue Krono « ' + nom + ' ». Code : ' + code + '.',
+      lienJeu({ligue:code}));
+  }catch(e){
+    choisir('Création impossible', messageCompte(e), [{label:'Fermer', val:true}]);
+  }
+}
+
+// Petite modale de choix du blason, montée sur la modale générique.
+function choisirEmbleme(nom){
+  return new Promise(res => {
+    const M = $('modale'), ouvertA = performance.now();
+    $('mod-titre').textContent = 'Blason de la ligue';
+    $('mod-sous').textContent = 'Il identifie « ' + nom + ' » dans votre liste.';
+    $('mod-champ').parentElement.style.display = 'none';
+    $('mod-noms').innerHTML = '';
+    const b = $('mod-b');
+    let choix = EMBLEMES[0];
+    b.innerHTML = `<div class="embl-grille" id="embl-g"></div>`;
+    const G = $('embl-g');
+    G.innerHTML = EMBLEMES.map((e, i) =>
+      `<button data-e="${e}" aria-pressed="${i === 0}">${e}</button>`).join('');
+    G.querySelectorAll('button').forEach(x => x.onclick = () => {
+      choix = x.dataset.e;
+      G.querySelectorAll('button').forEach(y =>
+        y.setAttribute('aria-pressed', y === x));
+    });
+    const fin = v => { M.classList.remove('on'); $('mod-champ').parentElement.style.display = '';
+                       b.innerHTML = ''; res(v); };
+    const ok = document.createElement('button');
+    ok.className = 'bouton'; ok.textContent = 'Poursuivre';
+    ok.style.marginTop = '12px';
+    ok.onclick = () => fin(choix);
+    b.appendChild(ok);
+    const annuler = document.createElement('button');
+    annuler.className = 'bouton fantome'; annuler.textContent = 'Annuler';
+    annuler.style.marginTop = '8px';
+    annuler.onclick = () => fin(null);
+    b.appendChild(annuler);
+    M.classList.add('on');
+    M.onclick = ev => {
+      if(ev.target !== M) return;
+      if(performance.now() - ouvertA < 260) return;
+      fin(null);
+    };
+  });
+}
+
+/* ─── rejoindre : le code d'abord, le compte ensuite si besoin ─── */
+async function parcoursRejoindreLigue(){
+  const code = (await demanderNom('Rejoindre une ligue',
+    'Saisissez le code à cinq lettres qu\'on vous a donné.', [], true) || '')
+    .toUpperCase().trim();
+  if(!code) return;
+  if(!/^[A-Z]{5}$/.test(code))
+    return choisir('Code invalide', 'Un code de ligue fait cinq lettres.',
+      [{label:'Fermer', val:true}]);
+  // pas de compte : on garde le code sous le coude et on propose les deux chemins
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  if(!s){
+    INVITATION = code;
+    const r = await choisir('Un compte est nécessaire',
+      'Une ligue compare vos scores avec ceux de vos amis : il faut un compte '
+      + 'pour qu\'ils vous suivent. Le code ' + code + ' est gardé, vous '
+      + 'rejoindrez la ligue juste après.',
+      [{label:'Créer un compte', val:'creer'},
+       {label:"J'ai déjà un compte", val:'connexion'},
+       {label:'Plus tard', val:null}]);
+    if(r) ouvrirAuth(r, 'ligues');
+    return;
+  }
+  await rejoindreLigue(code, s);
+}
+
+async function rejoindreLigue(code, s){
+  try{
+    const r = await apiAuth('ligues?code=eq.' + code + '&select=code,nom,embleme');
+    if(!r || !r.length)
+      return choisir('Ligue introuvable',
+        'Aucune ligue ne porte ce code. Vérifiez la saisie.',
+        [{label:'Fermer', val:true}]);
+    try{
+      await apiAuth('membres', {method:'POST',
+        body:JSON.stringify({ligue:code, joueur:s.id})});
+    }catch(e){ if(!/409|duplicate/i.test(String(e.message))) throw e; }
+    await majLigues();
+    choisir('Bienvenue', 'Vous êtes dans « ' + (r[0].nom || code)
+      + ' ». Vos parties solo l\'alimentent à partir de maintenant.',
+      [{label:'Parfait', val:true}]);
+  }catch(e){
+    choisir('Impossible de rejoindre', messageCompte(e), [{label:'Fermer', val:true}]);
+  }
+}
+
+/* ─── classement d'une ligue ─── */
+const MODES_LIGUE = ['solo', 'nues', 'survie', 'reflexe'];
+
+async function ouvrirLigue(code, nom, embleme){
+  LG_COURANTE = {code, nom, embleme, createur:null, moi:null};
+  $('lg-titre').textContent = 'LIGUE';
+  $('lg-code').textContent = code;
+  $('lg-nom').textContent = nom || code;
+  $('lg-blason').textContent = emblemeDe({code, embleme});
+  const c = coulLigue(code);
+  $('lg-blason').style.color = c;
+  $('lg-blason').style.background = c + '1E';
+  $('lg-sous').textContent = 'code ' + code;
+  $('lg-renommer').style.display = 'none';
+  // l'effectif, affiché sous le nom
+  apiAuth('membres?ligue=eq.' + code + '&select=joueur').then(m => {
+    if(!m || LG_COURANTE.code !== code) return;
+    $('lg-sous').textContent = m.length + ' membre' + (m.length > 1 ? 's' : '')
+      + ' · code ' + code;
+  }).catch(() => {});
+  // seul le créateur voit le bouton de renommage
+  try{
+    const s = await rafraichirSession();
+    const r = await apiAuth('ligues?code=eq.' + code + '&select=createur');
+    LG_COURANTE.moi = s && s.id;
+    LG_COURANTE.createur = r && r[0] && r[0].createur;
+    if(s && r && r[0] && r[0].createur === s.id)
+      $('lg-renommer').style.display = 'block';
+  }catch(e){ /* sans réseau, pas de renommage : le reste marche */ }
+  $('seg-lg').innerHTML = MODES_LIGUE.map(id => {
+    const m = SOLOS.find(s => s.id === id) || {n:id};
+    return `<button data-v="${id}" aria-pressed="${id === LG_MODE}">${esc(m.n)}</button>`;
+  }).join('');
+  $('seg-lg').querySelectorAll('button').forEach(b => b.onclick = () => {
+    LG_MODE = b.dataset.v;
+    $('seg-lg').querySelectorAll('button').forEach(x =>
+      x.setAttribute('aria-pressed', x === b));
+    chargerClassement();
+  });
+  montrer('ligue');
+  await chargerClassement();
+}
+
+async function chargerClassement(){
+  const C = $('lg-classement');
+  C.innerHTML = '';
+  $('lg-note').textContent = 'Chargement…';
+  try{
+    const s = await rafraichirSession();
+    const membres = await apiAuth('membres?ligue=eq.' + LG_COURANTE.code
+      + '&select=joueur,profils(pseudo)') || [];
+    if(!membres.length){
+      $('lg-note').textContent = 'Personne dans cette ligue pour le moment.';
+      return;
+    }
+    const ids = membres.map(m => m.joueur);
+    const perfs = await apiAuth('perfs?mode=eq.' + LG_MODE
+      + '&joueur=in.(' + ids.join(',') + ')&select=joueur,score,tours,somme') || [];
+    // meilleur score par joueur, et non moyenne : une ligue se gagne sur un coup
+    const par = {};
+    perfs.forEach(p => {
+      const e = par[p.joueur] = par[p.joueur] || {score:0, parties:0, somme:0, tours:0};
+      e.score = Math.max(e.score, p.score || 0);
+      e.parties++; e.somme += (p.somme || 0); e.tours += (p.tours || 0);
+    });
+    const rangs = membres.map(m => ({
+      id:m.joueur,
+      nom:(m.profils && m.profils.pseudo) || 'Sans pseudo',
+      ...(par[m.joueur] || {score:0, parties:0, somme:0, tours:0})
+    })).sort((a, b) => b.score - a.score);
+    const mode = SOLOS.find(x => x.id === LG_MODE) || {n:LG_MODE};
+    const joues = rangs.filter(r => r.parties).length;
+    $('lg-note').textContent = mode.n + ' · meilleure partie de chacun · '
+      + joues + ' membre' + (joues > 1 ? 's' : '') + ' sur ' + rangs.length
+      + ' ' + (joues > 1 ? 'ont' : 'a') + ' joué ce mode.';
+    // sous chaque nom, ce qui explique le score : combien de parties, quelle
+    // précision moyenne. Un classement sans ça ne dit pas qui progresse.
+    C.innerHTML = rangs.map((r, i) => {
+      const prec = r.tours ? fmt(Math.round(r.somme / r.tours)) : null;
+      const st = r.parties
+        ? r.parties + ' partie' + (r.parties > 1 ? 's' : '')
+          + (prec ? ' · précision ± ' + prec : '')
+        : "n'a pas encore joué ce mode";
+      return `<div class="lg-rang${s && r.id === s.id ? ' moi' : ''}">
+        <span class="p">${r.parties ? i + 1 : '—'}</span>
+        <span class="n">${esc(r.nom)}</span>
+        <span class="s">${r.parties ? r.score : '·'}</span>
+        <span class="st">${st}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    $('lg-note').textContent = messageCompte(e);
+  }
+}
+
+$('lg-retour').onclick = () => ouvrirLigues();
+$('cn-ligues-aller').onclick  = () => ouvrirLigues();
+$('lgs-creer').onclick        = () => parcoursCreerLigue();
+$('lgs-rejoindre').onclick    = () => parcoursRejoindreLigue();
+$('lgs-creer-compte').onclick = () => ouvrirAuth('creer', 'ligues');
+$('lgs-connexion').onclick    = () => ouvrirAuth('connexion', 'ligues');
+
+// la barre du bas
+$('bb-jouer').onclick  = () => { construireModes(); montrer('reglages'); };
+$('bb-ligues').onclick = () => ouvrirLigues();
+$('bb-panth').onclick  = () => { construirePantheon(); montrer('pantheon'); };
+$('bb-profil').onclick = () => { construireProfil(); montrer('profil'); };
+
+$('lg-renommer').onclick = async () => {
+  if(!LG_COURANTE) return;
+  const nom = await demanderNom('Nouveau nom de la ligue',
+    'Il remplacera « ' + LG_COURANTE.nom + ' » pour tous les membres.', []);
+  if(!nom || nom === LG_COURANTE.nom) return;
+  try{
+    await apiAuth('ligues?code=eq.' + LG_COURANTE.code,
+      {method:'PATCH', body:JSON.stringify({nom})});
+    LG_COURANTE.nom = nom;
+    $('lg-titre').textContent = nom.toUpperCase().slice(0, 14);
+    $('lg-note').textContent = 'Ligue renommée · « ' + nom + ' »';
+  }catch(e){
+    // 403/404 : le plus souvent la règle serveur n'autorise pas encore l'UPDATE
+    choisir('Renommage impossible', messageCompte(e)
+      + ' (le renommage exige une règle serveur autorisant le créateur à modifier la ligue).',
+      [{label:'Fermer', val:true}]);
+  }
+};
+$('lg-partager').onclick = async () => {
+  if(!LG_COURANTE) return;
+  const r = await partager('Krono · ' + LG_COURANTE.nom,
+    'Rejoins ma ligue Krono « ' + LG_COURANTE.nom + ' ». Code : '
+    + LG_COURANTE.code + '.', lienJeu({ligue:LG_COURANTE.code}));
+  if(r === 'copié') $('lg-note').textContent = 'Invitation copiée · code '
+    + LG_COURANTE.code;
+};
+$('lg-quitter').onclick = async () => {
+  if(!LG_COURANTE) return;
+  if(!await demander('Quitter « ' + LG_COURANTE.nom + ' » ?',
+    'Vos parties passées restent au classement des autres ligues. '
+    + 'Vous pourrez revenir avec le même code.', 'Quitter')) return;
+  try{
+    const s = await rafraichirSession();
+    await apiAuth('membres?ligue=eq.' + LG_COURANTE.code + '&joueur=eq.' + s.id,
+      {method:'DELETE'});
+  }catch(e){}
+  montrer('compte'); majCompte();
+};
+
+// à la première connexion, ce qui a été joué avant remonte d'un coup
+async function remonterScoresLocaux(){
+  const s = await rafraichirSession();
+  if(!s) return 0;
+  const L = (MEM.scores || []).filter(x => !x.remonte);
+  if(!L.length) return 0;
+  let n = 0;
+  for(const x of L){
+    try{
+      await apiAuth('perfs', {method:'POST', body:JSON.stringify({
+        joueur:s.id, mode:x.bareme || 'solo',
+        config:(x.aff || '') + '·' + (x.diff || ''), score:x.p || 0,
+        tours:x.tours || 0,
+        // l'écart cumulé n'est pas stocké tel quel : on le reconstruit
+        somme:Math.round((x.prec || 0) * (x.tours || 0)),
+        biais:0, carres:0, piles:0})});
+      x.remonte = true; n++;
+    }catch(e){ break; }   // inutile d'insister si le serveur refuse
+  }
+  await ecrireMem();
+  return n;
+}
+
 // un lien d'invitation pré-remplit le salon
 function lireInvitation(){
   const q = new URLSearchParams(location.search);
   const l = (q.get('ligue') || '').toUpperCase();
+  if(/^[A-Z]{5}$/.test(l)) INVITATION = l;
   if(/^[A-Z]{5}$/.test(l) && !S.salon){
     S.salon = l; MEM.salon = l; ecrireMem(); majEtatSalon();
     return l;
@@ -5388,19 +7453,16 @@ async function majComptes(){
   const s = await rafraichirSession();
   $('cp-deconnecte').style.display = s ? 'none' : 'block';
   $('cp-connecte').style.display   = s ? 'block' : 'none';
-  $('cp-bloc-code').style.display  = attenteCode ? 'flex' : 'none';
   if(s){
     let p = null;
     try{ p = await monProfil(); }catch(e){}
-    $('cp-compte').textContent = 'Connecté : ' + s.email + (p ? ' · pseudo ' + p : '');
+    $('cp-compte').textContent = 'Connecté : ' + emailVersIdent(s.email)
+      + (p ? ' · pseudo ' + p : '');
     listerMesLigues();
   } else {
-    $('cp-compte').textContent = attenteCode
-      ? 'Code envoyé à ' + mailEnCours + '. Saisissez-le ci-dessus.'
-      : 'Aucun compte connecté sur cet appareil.';
+    $('cp-compte').textContent = 'Aucun compte connecté sur cet appareil.';
   }
 }
-let attenteCode = false, mailEnCours = '';
 
 // 1 — le serveur répond-il ?
 $('cp-ping').onclick = async () => {
@@ -5430,46 +7492,48 @@ $('cp-verif').onclick = async () => {
     + (etat.some(x => x.includes('✗')) ? ' — exécutez le SQL du guide.' : ' — tout est en place.');
 };
 
-// 3 — code à six chiffres
-$('cp-envoyer').onclick = async () => {
-  const mail = ($('cp-mail').value || '').trim();
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return log('Adresse invalide.', 'ko');
+// 3 — créer un compte / se connecter
+$('cp-cr-btn').onclick = async () => {
+  const ident = ($('cp-ident').value || '').trim();
+  const pass  = ($('cp-pass').value || '');
+  if(!ident) return log('Saisissez un identifiant.', 'ko');
+  if(pass.length < 8) return log('8 caractères minimum.', 'ko');
   if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
-  log('Envoi du code à ' + mail + '…', 'info');
+  log('Création du compte « ' + ident + ' »…', 'info');
   try{
-    await demanderCode(mail);
-    attenteCode = true; mailEnCours = mail;
-    log('Code envoyé. Il expire dans une heure.', 'ok');
+    await creerCompte(ident, pass);
+    log('Compte créé et connecté.', 'ok');
     majComptes();
-    $('cp-code').focus();
+    remonterScoresBanc();
   }catch(e){
     log('Échec : ' + e.message, 'ko');
-    if(/422/.test(e.message)) log('Cause probable : le fournisseur Email est désactivé.', 'info');
-    if(/429/.test(e.message)) log("Trop d'envois. Le service intégré est plafonné.", 'info');
+    if(/already registered/i.test(e.message))
+      log('Cet identifiant est déjà pris. Essayez « Connecter ».', 'info');
   }
 };
 
-$('cp-valider').onclick = async () => {
-  const code = ($('cp-code').value || '').replace(/\D/g, '');
-  if(code.length !== 6) return log('Le code fait six chiffres.', 'ko');
-  log('Vérification…', 'info');
+$('cp-lg-btn').onclick = async () => {
+  const ident = ($('cp-ident').value || '').trim();
+  const pass  = ($('cp-pass').value || '');
+  if(!ident || pass.length < 8) return log('Identifiant + 8 caractères.', 'ko');
+  if(!EN_LIGNE()) return log('Aucune clé configurée.', 'ko');
+  log('Connexion…', 'info');
   try{
-    const s = await verifierCode(mailEnCours, code);
-    attenteCode = false;
-    $('cp-code').value = '';
-    log('Connecté : ' + s.email, 'ok');
+    const s = await connecterCompte(ident, pass);
+    log('Connecté : ' + emailVersIdent(s.email), 'ok');
     majComptes();
-    remonterScoresLocaux();
+    remonterScoresBanc();
   }catch(e){
     log('Échec : ' + e.message, 'ko');
-    if(/403|otp_expired|invalid/i.test(e.message))
-      log('Code faux ou expiré. Demandez-en un nouveau.', 'info');
+    if(/Invalid login/i.test(e.message))
+      log('Identifiant ou mot de passe incorrect.', 'info');
   }
 };
 
 $('cp-sortir').onclick = () => {
-  ecrireSession(null); attenteCode = false;
+  ecrireSession(null);
   log('Déconnecté.', 'info'); majComptes();
+
 };
 
 $('cp-pseudo').onclick = async () => {
@@ -5486,7 +7550,8 @@ $('cp-pseudo').onclick = async () => {
 };
 
 // à la première connexion, les scores déjà enregistrés remontent
-async function remonterScoresLocaux(){
+// version du banc d'essai : elle journalise, l'autre parle au joueur
+async function remonterScoresBanc(){
   const s = await rafraichirSession();
   if(!s) return;
   const L = (MEM.scores || []).filter(e => !e.remonte);
@@ -5574,8 +7639,8 @@ function ouvrirFiche(id){
 
   // Chaque réglage n'apparaît que s'il change quelque chose pour ce mode.
   const imposeAff = id === 'defi';                       // le défi fixe l'affichage
-  const sansAff   = id === 'reflexe';                    // aucun chrono à lire
-  const avecDiff  = !['reflexe','survie','escalier','defi'].includes(id);
+  const sansAff   = id === 'reflexe' || id === 'cascade'; // pas de zone à cadrer
+  const avecDiff  = !['reflexe','survie','escalier','defi','cascade'].includes(id);
   const avecGor   = !solo;                               // l'alcool ne concerne que la soirée
   const avecEvt   = id === 'classique';                  // les événements ne touchent que le classique
   const avecFin   = !solo && !['elimination','coop','compte'].includes(id);
@@ -6015,7 +8080,7 @@ function construireScores(){
 // les modes sont des réglages à part entière : on les choisit, on ne les lance pas
 // Les modes solo mis en avant dans le menu : les autres restent en test
 // tant qu'ils n'ont pas fait leurs preuves.
-const SOLO_MENU = ['defi', 'solo', 'survie', 'reflexe', 'nues'];
+const SOLO_MENU = ['defi', 'solo', 'survie', 'cascade', 'reflexe', 'nues'];
 
 function carteMode(m){
   const d = document.createElement('div');
@@ -6068,10 +8133,11 @@ function construireTest(){
       T.appendChild(d);
     });
   }
-  const M = $('liste-solos');
-  if(M){
+  const cartesSolo = (cible, liste) => {
+    const M = $(cible);
+    if(!M) return;
     M.innerHTML = '';
-    SOLOS.forEach(s => {
+    liste.forEach(s => {
       const d = document.createElement('div');
       d.className = 'evt choisir' + (CFG.mode === s.id ? ' actif' : '');
       d.innerHTML = `<span class="coche">choisi</span>
@@ -6087,7 +8153,9 @@ function construireTest(){
       d.querySelector('.n').onclick = () => ouvrirFiche(s.id);
       M.appendChild(d);
     });
-  }
+  };
+  cartesSolo('liste-solos', SOLOS.filter(s => !s.labo));
+  cartesSolo('liste-labo',  SOLOS.filter(s =>  s.labo));
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
     const d = document.createElement('div');
@@ -6116,7 +8184,7 @@ function verrouTest(){
 function tenterMdp(){
   if($('test-mdp').value.trim().toUpperCase() === MDP_TEST){
     testOuvert = true; verrouTest(); majLatence(); construireUsage();
-    construireSvOpts(); construireBioEssai(); construireTest();
+    construireSvOpts(); construireBioEssai(); construireBioTest(); construireTest();
   } else {
     $('test-err').textContent = 'Mot de passe incorrect.';
     $('test-mdp').value = '';
@@ -6130,9 +8198,21 @@ function noterLatence(ms){
   S.latences.push(ms);
   if(S.latences.length > 10) S.latences.shift();
 }
+// Journal détaillé des appuis, pour le tableau de l'onglet Test.
+//   clic   : horodatage matériel de l'événement (ms depuis le chargement)
+//   delai  : temps que la boucle JavaScript a mis à traiter l'appui
+//   retire : ce qui a été effectivement retranché au chrono, selon le mode
+function noterDelai(clic, delai){
+  let retire;
+  if(CFG.lat === 'brut')       retire = 0;              // aucune compensation
+  else if(CFG.lat === 'fixe')  retire = LAT_FIXE;       // −24 ms forfaitaires
+  else                         retire = CFG.horo ? delai : 0;  // horodatage matériel
+  S.delais.push({clic:Math.round(clic), delai, retire});
+  if(S.delais.length > 10) S.delais.shift();
+}
 const SV_OPTS = [
-  {c:'paliers', n:'Paliers', d:"Tous les dix tours, cinq centièmes rendus. Crée des objectifs intermédiaires."},
   {c:'pari',    n:'Le pari', d:"Coupé par défaut. Sacrifier 5 centièmes avant un lancer pour doubler le gain s'il est bon."},
+  {c:'flouOcean', n:'Océan flou', d:"À l'essai. Dans le biome Océan, le chiffre du chrono devient flou, comme lu à travers l'eau."},
   {c:'evenements', n:'Les rendez-vous', d:"Coupés par défaut. Le troc, le va-tout et la série demandée, trois interruptions par partie au maximum."},
   {c:'son',     n:'Son',     d:"Battement qui s'accélère quand la zone se resserre, et retours sonores."},
   {c:'vibr',    n:'Vibration', d:"Retour haptique court sur un gain, long sur une perte."},
@@ -6199,13 +8279,66 @@ async function essayerBiome(i){
   }, 40);
 }
 
+function construireBioTest(){
+  const B = $('bio-test');
+  if(!B) return;
+  B.innerHTML = '';
+  BIOMES_TEST.forEach(b => {
+    const d = document.createElement('button');
+    d.style.color = b.accent;
+    d.style.borderColor = b.accent + '55';
+    d.innerHTML = `<span style="position:relative">${esc(b.n)}</span>
+      <b>essai</b>`;
+    d.querySelector('span').insertAdjacentHTML('beforebegin',
+      `<i style="position:absolute;inset:0;background:${b.accent};opacity:.1"></i>`);
+    d.onclick = () => essayerBiomeTest(b.id);
+    B.appendChild(d);
+  });
+}
+
+// Comme essayerBiome, mais le décor n'appartient à aucun palier : on le force.
+async function essayerBiomeTest(id){
+  const b = BIOMES_TEST.find(x => x.id === id);
+  if(!b) return;
+  purgerMinuteries(); purgerBiome();
+  if(S.tEffet){ clearTimeout(S.tEffet); S.tEffet = null; }
+  if(S.tCine){ clearTimeout(S.tCine); S.tCine = null; }
+  $('f-effet').classList.remove('on', 'bloquant');
+  arreterBattement(); arreterMusique(); arreterAmbiance();
+  CFG.mode = 'survie';
+  CFG.sv.biomes = true; CFG.sv.triche = true;
+  MEM.cfg = {...CFG}; await ecrireMem();
+  peupler();
+  await demarrerPartie();
+  S.biomeForce = id;
+  S.tour = 1;
+  S.essaiBiome = {debut:1, fin:TOURS_BIOME};
+  S.total = b.eff.rebours ? 3000 : 0;
+  S.cible = cibleSuivante(S.total); S.cibleBase = S.cible;
+  S.zoneSurvie = (b.eff.reset || ZONE_DEPART_SURVIE) + (b.eff.zoneDep || 0);
+  S.biome = null;
+  fluidePret();
+  S.biome = b.id;
+  $('fluide').setAttribute('data-biome', b.id);
+  $('fluide').style.setProperty('--bio-accent', b.accent);
+  $('fluide').style.setProperty('--bio-halo', b.halo);
+  $('fluide').style.setProperty('--bio-fond', b.fond);
+  $('f-biome').textContent = b.n; $('f-biome').classList.add('on');
+  appliquerEffetsBiome();
+  construireSvOpts();
+  setTimeout(() => {
+    if(!S.essaiBiome || !S.partie) return;
+    annoncerEffet(b, true);
+  }, 40);
+}
+
 function construireSvOpts(){
   const B = $('sv-opts');
   if(!B) return;
   CFG.sv = Object.assign({paliers:true, pari:false, son:true, vibr:true,
                           anim:true, evenements:false, musique:true, biomes:true,
                           triche:false, intro:'cine', ambiance:true, bloquer:true,
-                          fonds:true},
+                          fonds:true, flouOcean:false},
                          CFG.sv || {});
   B.innerHTML = '';
   SV_OPTS.forEach(o => {
@@ -6276,7 +8409,36 @@ function construireUsage(){
   };
 }
 
+function majDelais(){
+  const T = $('test-delais');
+  if(!T) return;
+  const D = S.delais || [];
+  if(!D.length){ T.innerHTML = '<div class="note">Aucun appui mesuré pour l\'instant.</div>'; return; }
+  const lignes = D.slice().reverse().map((d, i) => {
+    const s = (d.clic / 1000);
+    const clic = s >= 60 ? Math.floor(s/60) + ':' + (s%60).toFixed(2).padStart(5,'0')
+                         : s.toFixed(2) + ' s';
+    return `<tr class="${i===0?'recent':''}">
+      <td>${clic}</td>
+      <td>${d.delai}<span class="u">ms</span></td>
+      <td>${d.retire ? '−' + d.retire : '0'}<span class="u">ms</span></td></tr>`;
+  }).join('');
+  T.innerHTML = `<table class="dtab"><tr>
+      <th>Heure au clic</th><th>Délai de traitement</th><th>Retranché</th></tr>
+      ${lignes}</table>`;
+}
+function majArrondiNote(){
+  const N = $('note-arrondi');
+  if(!N) return;
+  N.textContent = CFG.arrondi === 'sup'
+    ? "Dès qu'un millième dépasse, le chrono monte au centième supérieur : il ne sous-estime jamais le temps écoulé. Plus sévère."
+    : "Le chrono est arrondi au centième le plus proche. C'est le comportement d'usine.";
+}
 function majLatence(){
+  majDelais(); majArrondiNote();
+  const A = $('seg-arrondi');
+  if(A) A.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', b.dataset.v === CFG.arrondi));
   const L = S.latences;
   if(!L.length){
     $('lat-moy').textContent = '—';
@@ -6329,8 +8491,15 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   S.salon = MEM.salon || null;
   SESSION = lireSession();
   lireInvitation();
+  await reprendreApresGoogle();
   peupler(); majMem(); construireTest(); rafraichir(); majEtatSalon();
   viderFile();
+  // Le HTML fige « reglages » comme écran actif par défaut, mais sans passer
+  // par montrer() la barre du bas ne reçoit jamais sa classe .on ni l'écran
+  // sa classe .avec-barre (qui réserve la place en bas) : elle restait
+  // invisible au lancement, puis chevauchait le contenu dès qu'elle
+  // apparaissait ailleurs faute de ce padding.
+  montrer(S.partie ? ecranJeu() : 'reglages');
 })();
 </script>
 </body>
