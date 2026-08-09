@@ -1054,6 +1054,33 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
    dans tous les modes, y compris ceux qui ne l'utilisent jamais */
 .f-gain.on{display:flex}
 .f-gain.on{visibility:visible}
+.av-niveau-cadre{margin-top:12px;background:var(--surface);border:1px solid var(--bordDoux);
+  border-radius:var(--r);padding:14px 15px}
+.av-niveau-tete{display:flex;align-items:baseline;justify-content:space-between}
+.av-niveau-tete .lb{font-family:var(--mono);font-size:11px;color:var(--gris);
+  letter-spacing:.1em;text-transform:uppercase}
+.av-niveau-tete .v{font-size:28px;font-weight:700;color:var(--laiton)}
+.av-niveau-piste{height:8px;border-radius:5px;background:var(--trait);margin-top:9px;
+  overflow:hidden}
+.av-niveau-piste i{display:block;height:100%;
+  background:linear-gradient(90deg,#8a6d1a,var(--laiton));width:0%;
+  transition:width .3s ease}
+.av-niveau-detail{font-family:var(--mono);font-size:10.5px;color:var(--gris);
+  margin-top:7px;display:flex;justify-content:space-between}
+.avt-monstre-img{display:none;position:absolute;top:8%;left:50%;
+  transform:translateX(-50%);width:70%;max-width:220px;aspect-ratio:16/10;
+  border:1px dashed var(--bordDoux);border-radius:14px;
+  align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gris);opacity:.7}
+.avt-monstre-img.on{display:flex}
+.avt-surgit{position:absolute;top:24%;left:50%;z-index:8;
+  transform:translateX(-50%) translateY(-8px);
+  background:rgba(14,17,22,.94);border:1px solid var(--alerte);border-radius:12px;
+  padding:9px 18px;font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ivoire);opacity:0;pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;white-space:nowrap}
+.avt-surgit.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .pv-bloc{display:none;position:absolute;bottom:4px;left:50%;
   transform:translateX(-50%);
   width:100%;max-width:262px}
@@ -1688,6 +1715,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="hairline"></div>
   <div class="defile">
+    <div class="titre-sec">Progression</div>
+    <div class="av-niveau-cadre">
+      <div class="av-niveau-tete">
+        <span class="lb">Niveau</span><span class="v" id="av-niveau">0</span>
+      </div>
+      <div class="av-niveau-piste"><i id="av-niveau-barre"></i></div>
+      <div class="av-niveau-detail">
+        <span id="av-niveau-xp">0 / 0 xp</span><span id="av-niveau-or">0 or</span>
+      </div>
+    </div>
     <div class="note" id="av-resume">—</div>
     <div class="recap-b" style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
       <button class="bouton" id="av-lancer">Nouvelle expédition</button>
@@ -1716,6 +1753,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="note">L'armure élargit la zone de départ. C'est le seul moyen
       d'allonger une expédition : en Aventure, le terrain ne se regagne jamais.</div>
     <div id="bo-armures"></div>
+
+    <div class="titre-sec">Apparence</div>
+    <div class="evt epuise">
+      <div class="n">Personnalisation du personnage</div>
+      <div class="d">Couleur, silhouette, accessoires — de quoi rendre son
+        aventurier reconnaissable au premier coup d'œil.</div>
+      <div class="b"><span class="tag">bientôt disponible</span></div>
+    </div>
 
     <div class="recap-b" style="margin-top:18px">
       <button class="bouton" id="bo-partir">Repartir en expédition</button>
@@ -2029,11 +2074,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <circle id="f-anneau-c" cx="100" cy="100" r="70" fill="none"
               stroke="#3E8E68" stroke-width="5" opacity=".85"/>
     </svg>
+    <div class="avt-monstre-img" id="avt-monstre-img">
+      <span>image à venir</span>
+    </div>
+    <div class="avt-surgit" id="avt-surgit"></div>
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
     <button class="pari-b" id="f-pari"></button>
     <div class="pv-bloc" id="f-pv">
-      <div class="pv-l"><span>Boss</span><span id="pv-b-n">80</span></div>
+      <div class="pv-l"><span id="pv-b-lb">Boss</span><span id="pv-b-n">80</span></div>
       <div class="pv-b"><i id="pv-b" style="width:100%"></i></div>
       <div class="pv-l"><span>Vous</span><span id="pv-m-n">100</span></div>
       <div class="pv-b moi"><i id="pv-m" style="width:100%"></i></div>
@@ -2901,6 +2950,7 @@ function entrerCombat(){
   S.avt.pvMax = S.avt.pvBoss;
   S.avt.ratesBoss = 0;
   S.avt.coups = 0;
+  annoncerMonstre(gardienNom());
 }
 
 // Rencontre aléatoire : un monstre lambda (faible ou moyen) du biome courant,
@@ -2908,6 +2958,17 @@ function entrerCombat(){
 // nombre de points de vie et un seuil d'échec plus bas — un combat plus
 // court, à l'image d'un adversaire mineur.
 const RATES_MAX = {gardien:3, faible:1, moyen:2};
+// Popup rapide annonçant le nom de la cible, à l'entrée en combat. Se referme
+// tout seul : il n'a pas vocation à rester lisible, juste à signaler l'arrivée.
+function annoncerMonstre(nom){
+  const el = document.getElementById('avt-surgit');
+  if(!el) return;
+  el.textContent = nom + ' surgit';
+  el.classList.add('on');
+  if(S.tAvtSurgit) clearTimeout(S.tAvtSurgit);
+  S.tAvtSurgit = setTimeout(() => el.classList.remove('on'), 1400);
+}
+
 function entrerCombatMonstre(type){
   const m = monstresDe(biomeAvtCourant().id)[type];
   S.avt.enCombat = true;
@@ -2918,6 +2979,7 @@ function entrerCombatMonstre(type){
   S.avt.ratesBoss = 0;
   S.avt.coups = 0;
   S.avt.recompenseCible = {xp:m.xp, or:m.or};
+  annoncerMonstre(m.n);
 }
 // nom affiché de la cible en combat, quel que soit son type — jamais de
 // mention du palier (faible/moyen/gardien) : le joueur le découvre à l'usage
@@ -2928,13 +2990,24 @@ const nomCibleCombat = () => S.avt.typeCible === 'gardien' ? gardienNom() : S.av
 // plus l'accès à la personnalisation (la Boutique, déjà existante).
 function construireAventureAccueil(){
   const r = repriseAvtDispo(), M = avtMem();
+  const niv = niveauDe(M.xp);
+  const seuilBas = niv > 0 ? xpPourNiveau(niv) : 0;
+  const seuilHaut = niv < NIVEAUX_AVT ? xpPourNiveau(niv + 1) : seuilBas;
+  const pc = niv >= NIVEAUX_AVT ? 100
+    : Math.max(0, Math.min(100, Math.round((M.xp - seuilBas) / (seuilHaut - seuilBas) * 100)));
+  $('av-niveau').textContent = niv;
+  $('av-niveau-barre').style.width = pc + '%';
+  $('av-niveau-xp').textContent = niv >= NIVEAUX_AVT
+    ? M.xp + ' xp · niveau maximum'
+    : M.xp + ' / ' + seuilHaut + ' xp';
+  $('av-niveau-or').textContent = (M.or || 0) + ' or';
   $('av-lancer').textContent = r ? 'Reprendre l\'expédition' : 'Nouvelle expédition';
   $('av-resume').textContent = r
     ? 'Tour ' + r.tour + ' · ' + r.gardiens + ' gardien' + (r.gardiens > 1 ? 's' : '')
       + ' abattu' + (r.gardiens > 1 ? 's' : '') + ' · reprise laissée en cours de route'
     : M.parties
       ? M.parties + ' expédition' + (M.parties > 1 ? 's' : '') + ' déjà tentée'
-        + (M.parties > 1 ? 's' : '') + ' · niveau ' + niveauDe(M.xp) + ' · ' + (M.or || 0) + ' or'
+        + (M.parties > 1 ? 's' : '')
       : "Première expédition. Le bâton et la tunique sont fournis — la Boutique "
         + "permet de les remplacer dès que vous avez de l'or.";
 }
@@ -6119,7 +6192,9 @@ function majAnneau(){
   const avtCombat = AVT() && S.avt && S.avt.enCombat;
   const cb = (CFG.mode === 'combat' || avtCombat) && S.partie;
   $('f-pv').classList.toggle('on', cb);
+  $('avt-monstre-img').classList.toggle('on', !!avtCombat);
   if(cb && CFG.mode === 'combat'){
+    $('pv-b-lb').textContent = 'Boss';
     const b = bossCourant();
     $('pv-b').style.width = Math.round(S.pvBoss / b.pv * 100) + '%';
     $('pv-m').style.width = Math.max(0, S.pvMoi) + '%';
@@ -6128,6 +6203,7 @@ function majAnneau(){
   } else if(cb && avtCombat){
     const A = S.avt, max = A.pvMax || A.pvBoss || 1;
     const rateMax = RATES_MAX[A.typeCible] || 3;
+    $('pv-b-lb').textContent = nomCibleCombat();
     $('pv-b').style.width = Math.round(A.pvBoss / max * 100) + '%';
     $('pv-m').style.width = Math.max(0, Math.round((rateMax - A.ratesBoss) / rateMax * 100)) + '%';
     $('pv-b-n').textContent = A.pvBoss;
