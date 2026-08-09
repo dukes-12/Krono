@@ -97,7 +97,7 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 .barre-bas{display:none;position:absolute;left:0;right:0;bottom:0;z-index:40;
   background:rgba(14,17,22,.94);backdrop-filter:blur(14px);
   border-top:1px solid var(--bordDoux);
-  padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  padding:8px 6px max(6px, env(safe-area-inset-bottom));
   grid-template-columns:repeat(5,1fr);gap:2px}
 .barre-bas.on{display:grid}
 .bb{display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -353,6 +353,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .jauge .m{position:absolute;top:0;bottom:0;width:2px;background:var(--ivoire)}
 .conseil{display:block;font-family:var(--mono);font-size:10.5px;line-height:1.6;
   color:var(--gris);margin-top:5px;letter-spacing:.05em}
+.record-banniere{margin-top:12px;padding:12px 14px;border-radius:var(--r);
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;line-height:1.5;
+  animation:record-pop .4s ease-out}
+.record-banniere .r-t{font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-size:13px;margin-bottom:3px}
+.record-banniere.perso{background:rgba(201,162,39,.14);border:1px solid rgba(201,162,39,.5)}
+.record-banniere.perso .r-t{color:var(--laiton)}
+.record-banniere.ligue{background:rgba(185,140,255,.12);border:1px solid rgba(185,140,255,.5)}
+.record-banniere.ligue .r-t{color:#B98CFF}
+@keyframes record-pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
 .revelation{display:none;border:1px solid rgba(201,162,39,.5);border-radius:var(--r);
   padding:14px 15px;margin-top:11px;background:rgba(201,162,39,.08)}
 .revelation .t{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
@@ -1392,6 +1402,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="hairline"></div>
   <div class="recap-titre" id="fin-titre">Le plus précis</div>
   <div class="note" id="fin-resume">—</div>
+  <div class="record-banniere" id="fin-record" style="display:none"></div>
   <div class="revelation" id="revelation">
     <div class="t">Ce que dit le chrono</div>
     <div class="s" id="rev-texte">—</div>
@@ -1670,6 +1681,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 </section>
 
 <!-- ═══ BOUTIQUE DE L'AVENTURE ═══ -->
+<section class="ecran" id="aventure-accueil">
+  <div class="entete">
+    <div class="marque"><h1>AVENTURE</h1><span>expédition</span></div>
+    <div class="nav"><button id="av-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="note" id="av-resume">—</div>
+    <div class="recap-b" style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+      <button class="bouton" id="av-lancer">Nouvelle expédition</button>
+      <button class="bouton fantome" id="av-personnaliser">Personnaliser mon personnage</button>
+    </div>
+  </div>
+</section>
+
 <section class="ecran" id="boutique">
   <div class="entete">
     <div class="marque"><h1>BOUTIQUE</h1><span>aventure</span></div>
@@ -1760,10 +1786,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <div class="note" id="fi-defi-note">—</div>
     </div>
     <div class="note" id="fi-note">—</div>
-  </div>
-  <div style="margin-top:12px">
-    <button class="bouton" id="fi-reprendre" style="display:none">Reprendre</button>
-    <button class="bouton" id="fi-jouer">Jouer</button>
+    <div style="margin-top:12px">
+      <button class="bouton" id="fi-reprendre" style="display:none">Reprendre</button>
+      <button class="bouton" id="fi-jouer">Jouer</button>
+    </div>
   </div>
 </section>
 
@@ -2334,6 +2360,11 @@ const MAREE = [100,150,200,250,300,250,200,150,100,150,200,250];
 // deux modes se jouent sans jamais arrêter le chrono : chaque appui est un tour
 const ENCHAINES = {cascade:{n:10, pas:100}};
 const REMISE_A_ZERO = ['nues','braquage','sniper','cascade'];
+// Aventure : seul un combat (gardien ou monstre) repart de zéro visuellement,
+// jamais un tour de marche normal — d'où ce helper séparé plutôt qu'un ajout
+// de 'aventure' à REMISE_A_ZERO, qui s'applique à chaque tour sans distinction.
+const remiseAZero = () => REMISE_A_ZERO.includes(CFG.mode)
+  || (AVT() && S.avt && S.avt.enCombat);
 
 const moyEcarts = () => {
   const L = S.ecarts || [];
@@ -2350,6 +2381,58 @@ const signe = d => d > 0 ? '+' : d < 0 ? '−' : '±';
 // millièmes : le braquage et le sniper se jouent sous le centième
 const fmtMs = ms => (ms/1000).toFixed(3).replace('.', ',');
 
+// ════════ CASCADE · CALCUL DES POINTS ════════
+// Source unique du score de Cascade, réutilisée par tour() (en direct) et
+// fin() (récapitulatif). Le détail du barème est dans CALCUL-CASCADE.md.
+//
+// Chaque appui vaut des points selon sa précision : parfait (±3 c) 100,
+// dégressif jusqu'à 0 au-delà d'un dixième et demi. Une série d'appuis
+// parfaits consécutifs applique un multiplicateur croissant, ce qui
+// récompense la régularité bien plus qu'un unique coup chanceux. À la fin,
+// deux primes : régularité (faible dispersion) et sans-faute (aucun appui
+// au-delà d'un dixième).
+function scoreCascade(ecarts){
+  const POINT_MAX = 100;      // un appui parfait
+  const TOL = 15;             // au-delà de ±0,15 s, l'appui ne rapporte rien
+  const PARFAIT = 3;          // ±0,03 s : le seuil du « parfait » qui nourrit la série
+  let brut = 0, serie = 0, meilleureSerie = 0;
+  ecarts.forEach(e => {
+    // points de base : linéaire de POINT_MAX (écart nul) à 0 (écart ≥ TOL)
+    const base = Math.max(0, Math.round(POINT_MAX * (1 - e / TOL)));
+    if(e <= PARFAIT){
+      serie++;
+      meilleureSerie = Math.max(meilleureSerie, serie);
+    } else {
+      serie = 0;
+    }
+    // multiplicateur de série : 1er parfait ×1, puis +0,25 par parfait
+    // consécutif, plafonné à ×2,5 (un sans-faute complet)
+    const multi = serie > 0 ? Math.min(2.5, 1 + (serie - 1) * 0.25) : 1;
+    brut += Math.round(base * multi);
+  });
+  // primes de fin, seulement sur une partie complète (dix appuis)
+  let primeRegularite = 0, primeSansFaute = 0;
+  if(ecarts.length >= 10){
+    const moy = ecarts.reduce((a,b) => a+b, 0) / ecarts.length;
+    const variance = ecarts.reduce((a,b) => a + (b-moy)*(b-moy), 0) / ecarts.length;
+    const disp = Math.sqrt(variance);
+    // moins de ±0,05 s de dispersion : jusqu'à 300 points — mais seulement si
+    // le niveau moyen est correct, sinon « régulièrement mauvais » serait primé
+    if(disp < 5 && moy <= 8) primeRegularite = Math.round((5 - disp) / 5 * 300);
+    // aucun appui au-delà d'un dixième : 200 points
+    if(ecarts.every(e => e <= 10)) primeSansFaute = 200;
+  }
+  // multiplicateur affiché en direct : celui de la série en cours
+  const serieCourante = serie;
+  const multiCourant = serie > 0 ? Math.min(2.5, 1 + (serie - 1) * 0.25) : 1;
+  return {
+    total: brut + primeRegularite + primeSansFaute,
+    serieCourante, meilleureSerie,
+    multi: multiCourant,
+    primeRegularite, primeSansFaute
+  };
+}
+
 const LABOS = [
 
 /* ─── 1 · Cascade ────────────────────────────────────────────────── */
@@ -2365,21 +2448,27 @@ const LABOS = [
  zone:() => 15,
  tour(c){
    const L = S.lab.laps, ecarts = L.map((v,i) => Math.abs(v - (i+1)*100));
-   const somme = ecarts.reduce((a,b) => a+b, 0);
-   S.points = Math.max(0, 1000 - somme * 5);
-   const pires = ecarts.filter(e => e > 10).length;
-   return {pts:0, couleur:coulEcart(Math.round(somme/L.length), 3, 6, 12),
+   const r = scoreCascade(ecarts);
+   S.points = r.total;
+   const dernier = ecarts[ecarts.length - 1];
+   return {pts:0, couleur:coulEcart(dernier, 3, 6, 12),
      titre:S.points + ' points',
-     sous:'dix appuis · écart cumulé ' + fmt(somme)
-        + (pires ? ' · ' + pires + ' appui' + (pires>1?'s':'') + ' à plus d\'un dixième' : ' · aucun décrochage')};
+     sous:'appui ' + L.length + '/10 · ± ' + fmt(dernier)
+        + (dernier <= 3 ? ' · parfait' + (r.serieCourante > 1 ? ' ×' + r.serieCourante : '')
+           : dernier <= 8 ? ' · bon' : ' · décroché')
+        + (r.multi > 1 ? ' · série ×' + r.multi.toFixed(1) : '')};
  },
  fini:() => (S.lab.laps || []).length >= 10,
  fin:() => {
    const L = S.lab.laps || [], e = L.map((v,i) => Math.abs(v - (i+1)*100));
-   const somme = e.reduce((a,b) => a+b, 0);
+   const r = scoreCascade(e);
+   const detail = [];
+   if(r.primeRegularite) detail.push('régularité +' + r.primeRegularite);
+   if(r.primeSansFaute)  detail.push('sans-faute +' + r.primeSansFaute);
+   if(r.meilleureSerie >= 3) detail.push('meilleure série ' + r.meilleureSerie + ' appuis');
    return {t:S.points + ' points',
-     r:'Cascade · écart cumulé ' + fmt(somme) + ' sur dix appuis · '
-       + 'le plus juste ± ' + fmt(Math.min(...e)) + ', le pire ± ' + fmt(Math.max(...e)),
+     r:'Cascade · ' + fmt(e.reduce((a,b)=>a+b,0)) + ' d\'écart cumulé · '
+       + (detail.join(' · ') || 'aucune prime'),
      rev:{t:'La dérive', s:L.length
        ? 'Premier appui ± ' + fmt(e[0]) + ', dernier ± ' + fmt(e[e.length-1]) + '. '
          + (e[e.length-1] > e[0] + 5
@@ -2669,6 +2758,86 @@ const BONUS_BIOME = ['zoneDep','pile','demiUsure','seuil','vies','viesGardees',
                      'doubleAveugle','majGain','pari','plafond','plafondDepart',
                      'paradis','reset'];
 
+// ═══ AVENTURE UNIQUEMENT — table des monstres par biome ═══
+// N'ajoute rien à BIOMES (partagé avec Survie) : table séparée, indexée sur
+// les mêmes id. secret:true = pas de gardien, seulement les deux monstres
+// lambda (faible, moyen). Noms et stats de départ — à affiner biome par
+// biome selon vos retours individuels.
+const AVT_MONSTRES = {
+  jungle:     {secret:false, faible:{n:'Épine rampante',   pv:8,  xp:5,  or:3},
+                              moyen: {n:'Liane tressée',     pv:14, xp:10, or:6}},
+  orage:      {secret:false, faible:{n:'Étincelle folle',   pv:10, xp:6,  or:4},
+                              moyen: {n:'Nuée grondante',    pv:17, xp:12, or:7}},
+  corail:     {secret:false, faible:{n:'Poisson-lame',      pv:10, xp:6,  or:4},
+                              moyen: {n:'Anémone vive',      pv:17, xp:12, or:7}},
+  desert:     {secret:false, faible:{n:'Scorpion de verre', pv:12, xp:7,  or:5},
+                              moyen: {n:'Mirage armé',       pv:20, xp:14, or:8}},
+  toundra:    {secret:false, faible:{n:'Renard blanc',      pv:12, xp:7,  or:5},
+                              moyen: {n:'Bourrasque vive',   pv:20, xp:14, or:8}},
+  ocean:      {secret:false, faible:{n:'Méduse pressée',    pv:14, xp:8,  or:5},
+                              moyen: {n:'Courant sourd',     pv:23, xp:16, or:9}},
+  faille:     {secret:true,  faible:{n:'Écho dédoublé',     pv:14, xp:8,  or:5},
+                              moyen: {n:'Fracture vive',     pv:23, xp:16, or:9}},
+  grotte:     {secret:false, faible:{n:'Chauve-souris pâle',pv:16, xp:9,  or:6},
+                              moyen: {n:'Écho griffu',       pv:26, xp:18, or:10}},
+  marais:     {secret:false, faible:{n:'Sangsue trouble',   pv:16, xp:9,  or:6},
+                              moyen: {n:'Vase mouvante',     pv:26, xp:18, or:10}},
+  horlogerie: {secret:false, faible:{n:'Rouage égaré',      pv:18, xp:10, or:7},
+                              moyen: {n:'Aiguille folle',    pv:29, xp:20, or:11}},
+  metropole:  {secret:true,  faible:{n:'Silhouette pressée',pv:18, xp:10, or:7},
+                              moyen: {n:'Néon errant',       pv:29, xp:20, or:11}},
+  incendie:   {secret:false, faible:{n:'Braise volante',    pv:20, xp:11, or:8},
+                              moyen: {n:'Flamme rampante',   pv:32, xp:22, or:12}},
+  ruines:     {secret:false, faible:{n:'Gravat vivant',     pv:20, xp:11, or:8},
+                              moyen: {n:'Poussière armée',   pv:32, xp:22, or:12}},
+  abysses:    {secret:true,  faible:{n:'Lueur froide',      pv:22, xp:12, or:9},
+                              moyen: {n:'Poids des profondeurs', pv:35, xp:24, or:13}},
+  reseau:     {secret:false, faible:{n:'Signal parasite',   pv:22, xp:12, or:9},
+                              moyen: {n:'Écho numérique',    pv:35, xp:24, or:13}},
+  spatial:    {secret:false, faible:{n:'Poussière stellaire',pv:24,xp:13, or:10},
+                              moyen: {n:'Ombre en apesanteur',pv:38,xp:26, or:14}},
+  enfer:      {secret:false, faible:{n:'Cendre hurlante',   pv:26, xp:14, or:11},
+                              moyen: {n:'Flamme jugée',      pv:41, xp:28, or:15}},
+  paradis:    {secret:false, faible:{n:'Plume égarée',      pv:24, xp:13, or:10},
+                              moyen: {n:'Lumière insistante',pv:38, xp:26, or:14}},
+  aurore:     {secret:false, faible:{n:'Reflet tardif',     pv:20, xp:12, or:10},
+                              moyen: {n:'Dernière ombre',    pv:32, xp:24, or:13}},
+  // biomes secrets non encore reliés à la carte — stub, mêmes stats qu'un
+  // biome milieu de parcours en attendant leur emplacement définitif
+  mine:           {secret:true, faible:{n:'Wagonnet fou',     pv:16, xp:9,  or:6},
+                                 moyen: {n:'Poussière de charbon', pv:26, xp:18, or:10}},
+  chantier:       {secret:true, faible:{n:'Gravier vif',      pv:16, xp:9,  or:6},
+                                 moyen: {n:'Poutrelle branlante',  pv:26, xp:18, or:10}},
+  concert_rock:   {secret:true, faible:{n:'Larsen aigu',      pv:16, xp:9,  or:6},
+                                 moyen: {n:'Basse tonnante',       pv:26, xp:18, or:10}},
+  labyrinthe:     {secret:true, faible:{n:'Écho perdu',       pv:16, xp:9,  or:6},
+                                 moyen: {n:'Mur mouvant',          pv:26, xp:18, or:10}},
+  bibliotheque:   {secret:true, faible:{n:'Page volante',     pv:16, xp:9,  or:6},
+                                 moyen: {n:'Silence pesant',       pv:26, xp:18, or:10}},
+  cite_engloutie: {secret:true, faible:{n:'Algue vive',       pv:16, xp:9,  or:6},
+                                 moyen: {n:'Cloche noyée',         pv:26, xp:18, or:10}},
+  volcan:         {secret:true, faible:{n:'Cendre chaude',    pv:16, xp:9,  or:6},
+                                 moyen: {n:'Coulée vive',          pv:26, xp:18, or:10}}
+};
+// Station n'a jamais de monstre : ce n'est pas une zone de combat, seulement
+// un accès rapide vers un biome déjà visité (voir la carte des chemins).
+const monstresDe = id => AVT_MONSTRES[id] || AVT_MONSTRES.jungle;
+const biomeAvtCourant = () => BIOMES[Math.min(BIOMES.length - 1, S.avt ? S.avt.gardiens : 0)];
+
+// ═══ AVENTURE UNIQUEMENT — niveaux ═══
+const NIVEAUX_AVT = 30;
+// probabilité de croiser un monstre lambda à chaque tour de marche éligible
+// (hors combat, hors tour juste après une rencontre) — ajustable
+const TAUX_RENCONTRE_AVT = 0.20;
+// XP cumulée nécessaire pour atteindre le niveau n
+const xpPourNiveau = n => Math.round(100 * n * (1 + n / NIVEAUX_AVT));
+// le niveau atteint pour une XP totale donnée, plafonné à NIVEAUX_AVT
+function niveauDe(xpTotal){
+  let n = 0;
+  while(n < NIVEAUX_AVT && xpTotal >= xpPourNiveau(n + 1)) n++;
+  return n;
+}
+
 const ARMES = [
   {id:'baton',  n:'Bâton ferré',    prix:0,    degats:10, xp:1.0,
    d:"Ce qu'on ramasse par terre. Il tape, c'est déjà ça."},
@@ -2689,12 +2858,13 @@ const ARMURES = [
   {id:'chrono',  n:'Plastron d\'horloger', prix:1000, zone:9,
    d:"Neuf centièmes. Le dernier palier : au-delà, le jeu n'aurait plus d'intérêt."}
 ];
-const avtMem = () => (MEM.avt = MEM.avt || {xp:0, arme:'baton', armure:'tunique',
+const avtMem = () => (MEM.avt = MEM.avt || {xp:0, or:0, arme:'baton', armure:'tunique',
                                             meilleur:0, gardiens:0, parties:0});
 const monArme   = () => ARMES.find(a => a.id === avtMem().arme)     || ARMES[0];
 const monArmure = () => ARMURES.find(a => a.id === avtMem().armure) || ARMURES[0];
 
-const ZONE_AVT = 24;
+// zone fixe, sans usure : 15 centièmes de tolérance du premier au dernier pas
+const ZONE_AVT = 15;
 // nombre de tours de marche avant que le gardien du décor ne se montre
 const TOURS_AVT = 18;
 const GARDIENS = ['Le Guetteur des lianes', 'La Foudre nouée', 'Le Récif affamé',
@@ -2711,29 +2881,68 @@ const pvGardien = tour => 40 + 25 * Math.floor((tour - 1) / TOURS_BIOME);
 
 function initAventure(){
   const A = avtMem();
-  S.avt = {xp:0, zoneDepart:ZONE_AVT + monArmure().zone,
+  S.avt = {xp:0, or:0, zoneDepart:ZONE_AVT + monArmure().zone,
            zone:ZONE_AVT + monArmure().zone, pvBoss:0, ratesBoss:0,
-           gardiens:0, coups:0, enCombat:false, pas:0, journal:[]};
+           gardiens:0, coups:0, enCombat:false, pas:0, journal:[],
+           typeCible:null, recemmentRencontre:false};
   // sans cette remise à zéro, la partie suivante croit changer de décor et
   // affiche la carte du biome, qui verrouille le départ
   S.biome = null; S.boucleFaite = false;
   S.mort = false;
   S.points = 0;
 }
-// l'usure du terrain : lente au début, sévère au fond des biomes
-const usureAvt = tour => 1 + Math.floor(tour / 60) + (effB('usure') ? 1 : 0);
+// l'Aventure n'a plus d'usure du terrain : la zone reste fixe à ZONE_AVT
+// (+ bonus d'armure) du premier au dernier pas de chaque expédition
 
 function entrerCombat(){
   S.avt.enCombat = true;
+  S.avt.typeCible = 'gardien';
   S.avt.pvBoss = pvGardien(S.tour);
+  S.avt.pvMax = S.avt.pvBoss;
   S.avt.ratesBoss = 0;
   S.avt.coups = 0;
 }
 
+// Rencontre aléatoire : un monstre lambda (faible ou moyen) du biome courant,
+// jamais un gardien. Même mécanique de résolution que le gardien, avec un
+// nombre de points de vie et un seuil d'échec plus bas — un combat plus
+// court, à l'image d'un adversaire mineur.
+const RATES_MAX = {gardien:3, faible:1, moyen:2};
+function entrerCombatMonstre(type){
+  const m = monstresDe(biomeAvtCourant().id)[type];
+  S.avt.enCombat = true;
+  S.avt.typeCible = type;
+  S.avt.nomCible = m.n;
+  S.avt.pvBoss = m.pv;
+  S.avt.pvMax = m.pv;
+  S.avt.ratesBoss = 0;
+  S.avt.coups = 0;
+  S.avt.recompenseCible = {xp:m.xp, or:m.or};
+}
+// nom affiché de la cible en combat, quel que soit son type — jamais de
+// mention du palier (faible/moyen/gardien) : le joueur le découvre à l'usage
+const nomCibleCombat = () => S.avt.typeCible === 'gardien' ? gardienNom() : S.avt.nomCible;
+
 /* ─── écran de boutique ─── */
+// Écran d'accueil Aventure : reprise disponible ou nouvelle expédition,
+// plus l'accès à la personnalisation (la Boutique, déjà existante).
+function construireAventureAccueil(){
+  const r = repriseAvtDispo(), M = avtMem();
+  $('av-lancer').textContent = r ? 'Reprendre l\'expédition' : 'Nouvelle expédition';
+  $('av-resume').textContent = r
+    ? 'Tour ' + r.tour + ' · ' + r.gardiens + ' gardien' + (r.gardiens > 1 ? 's' : '')
+      + ' abattu' + (r.gardiens > 1 ? 's' : '') + ' · reprise laissée en cours de route'
+    : M.parties
+      ? M.parties + ' expédition' + (M.parties > 1 ? 's' : '') + ' déjà tentée'
+        + (M.parties > 1 ? 's' : '') + ' · niveau ' + niveauDe(M.xp) + ' · ' + (M.or || 0) + ' or'
+      : "Première expédition. Le bâton et la tunique sont fournis — la Boutique "
+        + "permet de les remplacer dès que vous avez de l'or.";
+}
+
 function construireBoutique(){
   const A = avtMem();
-  $('bo-xp').textContent = A.xp + ' xp';
+  // le niveau remplace l'xp brute à l'affichage : c'est l'or qui achète ici
+  $('bo-xp').textContent = 'Niveau ' + niveauDe(A.xp) + ' · ' + (A.or || 0) + ' or';
   $('bo-resume').textContent = A.parties
     ? A.parties + ' expédition' + (A.parties > 1 ? 's' : '') + ' · meilleur tour atteint '
       + A.meilleur + ' · ' + A.gardiens + ' gardien' + (A.gardiens > 1 ? 's' : '') + ' abattu'
@@ -2741,7 +2950,7 @@ function construireBoutique(){
     : "Première expédition. Le bâton et la tunique sont fournis.";
   const ligne = (o, type, porte) => {
     const possede = (A.achats || []).includes(o.id) || o.prix === 0;
-    const abordable = A.xp >= o.prix;
+    const abordable = (A.or || 0) >= o.prix;
     return `<div class="bo-l${porte ? ' porte' : ''}" data-t="${type}" data-id="${o.id}">
       <div class="bo-n">${esc(o.n)}${porte ? '<span class="bo-eq">équipé</span>' : ''}</div>
       <div class="bo-d">${esc(o.d)}</div>
@@ -2749,7 +2958,7 @@ function construireBoutique(){
         ? o.degats + ' dégâts · expérience ×' + o.xp.toFixed(2).replace('.', ',')
         : 'zone de départ ' + (o.zone ? '+ ' + fmt(o.zone) : 'de base')}</div>
       <div class="bo-b"><button ${possede ? '' : abordable ? '' : 'disabled'}>${
-        porte ? 'Équipé' : possede ? 'Équiper' : o.prix + ' xp'}</button></div>
+        porte ? 'Équipé' : possede ? 'Équiper' : o.prix + ' or'}</button></div>
     </div>`;
   };
   $('bo-armes').innerHTML   = ARMES.map(o => ligne(o, 'arme', A.arme === o.id)).join('');
@@ -2761,8 +2970,8 @@ function construireBoutique(){
       const A = avtMem();
       A.achats = A.achats || [];
       if(!A.achats.includes(o.id) && o.prix > 0){
-        if(A.xp < o.prix) return;
-        A.xp -= o.prix; A.achats.push(o.id);
+        if((A.or || 0) < o.prix) return;
+        A.or -= o.prix; A.achats.push(o.id);
       }
       if(type === 'arme') A.arme = o.id; else A.armure = o.id;
       await ecrireMem();
@@ -3764,12 +3973,12 @@ const gorg = n => n + (n>1 ? ' gorgées' : ' gorgée');
 const culs = n => n + (n>1 ? ' culs secs' : ' cul sec');
 const x2   = n => CFG.gor === 'gros' ? n*2 : n;
 const ecranJeu = () => 'fluide';
-// filet de sécurité : un identifiant inconnu masquerait tous les écrans
-// Les quatre écrans qui portent la barre du bas. Partout ailleurs — en partie,
-// dans une fiche, dans l'onglet Test — elle disparaît : la barre sert à
-// naviguer entre les grandes sections, pas à interrompre une partie.
+// La barre du bas s'affiche partout SAUF pendant une partie et sur les écrans
+// de transition (résultat, fin) : la liste des exclus est plus courte et plus
+// stable que celle des inclus, qui grandit à chaque nouvel écran.
 const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', trophees:'trophees', profil:'profil'};
-const ECRANS_BARRE = ['reglages', 'ligues', 'pantheon', 'trophees', 'profil', 'ligue'];
+const ECRANS_SANS_BARRE = ['fluide', 'resultat', 'fin'];
+const porteBarre = id => !ECRANS_SANS_BARRE.includes(id);
 
 function montrer(id){
   const ecrans = document.querySelectorAll('.ecran');
@@ -3777,12 +3986,13 @@ function montrer(id){
   ecrans.forEach(e => {
     const actif = e.id === id;
     e.classList.toggle('actif', actif);
-    e.classList.toggle('avec-barre', actif && ECRANS_BARRE.includes(e.id));
+    e.classList.toggle('avec-barre', actif && porteBarre(e.id));
   });
   const B = $('barre-bas');
   if(B){
-    B.classList.toggle('on', ECRANS_BARRE.includes(id));
-    // l'écran d'une ligue reste sous l'onglet Ligues
+    B.classList.toggle('on', porteBarre(id));
+    // les écrans sans onglet propre (fiche, boutique, test…) n'allument aucun
+    // onglet, mais la barre reste là pour repartir vers une grande section
     const onglet = id === 'ligue' ? 'ligues'
       : Object.keys(ONGLETS).find(k => ONGLETS[k] === id);
     B.querySelectorAll('.bb').forEach(b =>
@@ -4559,6 +4769,27 @@ async function quitterPartie(){
     }
     S.abandon = true; afficherFin(); return;
   }
+  // en aventure, même logique, mais un système de reprise entièrement séparé
+  // (MEM.repriseAvt) : rien ici ne touche à la reprise de Survie
+  if(AVT() && S.partie && S.avt && S.avt.pas + (S.avt.gardiens * TOURS_AVT) > 0 && !S.mort){
+    const choix = await choisir('Quitter l\'expédition ?',
+      'Tour ' + S.tour + ' · ' + S.avt.gardiens + ' gardien'
+      + (S.avt.gardiens > 1 ? 's' : '') + ' abattu' + (S.avt.gardiens > 1 ? 's' : '')
+      + ' · ' + S.avt.xp + ' xp de cette expédition',
+      [{label:'Garder pour plus tard', val:'garder'},
+       {label:'Abandonner', val:'stop'},
+       {label:'Continuer', val:null}]);
+    if(!choix) return;
+    if(choix === 'garder'){
+      sauverPartieAvt();
+      S.partie = false; S.encours = false;
+      arreterBattement(); arreterMusique(); arreterAmbiance();
+      purgerMinuteries();
+      montrer('reglages'); construireModes();
+      return;
+    }
+    S.abandon = true; afficherFin(); return;
+  }
   const solo = estSolo(CFG.mode);
   const ok = await demander('Quitter la partie ?',
     solo ? 'Une partie solo abandonnée ne compte pas : ni score, ni précision, '
@@ -4814,7 +5045,7 @@ function demarrer(ev){
     lancerReflexe();
     return;
   }
-  if(REMISE_A_ZERO.includes(CFG.mode)) S.total = 0;   // chaque tour repart de zéro
+  if(remiseAZero()) S.total = 0;   // chaque tour (ou combat d'aventure) repart de zéro
   if(CFG.mode === 'survie' && !battement){
     lancerBattement(); lancerMusique(); lancerAmbiance();
   }
@@ -5055,47 +5286,63 @@ function resoudre(valeur, delta, ecart){
       st.culs += S.contre; S.contre = 0;
     }
   }
-  /* ─── aventure : marcher, encaisser l'usure, puis affronter le gardien ─── */
+  /* ─── aventure : marcher (zone fixe, sans usure), affronter gardien ou
+         monstre lambda selon A.typeCible ─── */
   else if(AVT()){
     const A = S.avt, arme = monArme();
     const z = zone();
     if(A.enCombat){
-      /* ── le gardien ── */
+      /* ── combat, générique : gardien ou monstre lambda ── */
+      const rateMax = RATES_MAX[A.typeCible] || 3;
       if(ecart <= z){
         const critique = ecart === 0;
         const d = Math.round(arme.degats * (critique ? 2 : 1));
         A.pvBoss = Math.max(0, A.pvBoss - d);
         A.coups++;
-        A.xp += Math.round((critique ? 8 : 4) * arme.xp);
+        // un monstre lambda rapporte une récompense fixe à la victoire, pas
+        // à chaque coup : seul le gardien verse de l'xp à chaque frappe
+        if(A.typeCible === 'gardien') A.xp += Math.round((critique ? 8 : 4) * arme.xp);
         couleur = critique ? 't-s100' : 't-s50';
         T.textContent = critique ? 'Coup critique · −' + d : 'Touché · −' + d;
         U.textContent = A.pvBoss > 0
-          ? gardienNom() + ' · ' + A.pvBoss + ' points de vie · ' + arme.n.toLowerCase()
-          : gardienNom() + ' tombe';
+          ? nomCibleCombat() + ' · ' + A.pvBoss + ' points de vie · ' + arme.n.toLowerCase()
+          : nomCibleCombat() + ' tombe';
         if(A.pvBoss <= 0){
-          const prime = 40 + 30 * A.gardiens;
-          A.xp += Math.round(prime * arme.xp);
-          A.gardiens++; A.pas = 0; A.enCombat = false; A.ratesBoss = 0;
-          // un souffle, pas une remise à neuf : le terrain ne se regagne pas
-          A.zone = Math.min(A.zoneDepart, A.zone + 3);
-          couleur = 't-s100';
-          T.textContent = 'Gardien abattu en ' + A.coups + ' coup'
-            + (A.coups > 1 ? 's' : '');
-          U.textContent = '+' + Math.round(prime * arme.xp) + ' xp · le chemin '
-            + 'reprend · zone ± ' + fmt(A.zone);
-          A.coups = 0;
+          A.recemmentRencontre = true;   // jamais deux rencontres d'affilée
+          if(A.typeCible === 'gardien'){
+            const prime = 40 + 30 * A.gardiens;
+            A.xp += Math.round(prime * arme.xp);
+            A.gardiens++; A.pas = 0;
+            // un souffle, pas une remise à neuf : le terrain ne se regagne pas
+            A.zone = Math.min(A.zoneDepart, A.zone + 3);
+            couleur = 't-s100';
+            T.textContent = 'Gardien abattu en ' + A.coups + ' coup'
+              + (A.coups > 1 ? 's' : '');
+            U.textContent = '+' + Math.round(prime * arme.xp) + ' xp · le chemin '
+              + 'reprend · zone ± ' + fmt(A.zone);
+          } else {
+            const r = A.recompenseCible;
+            const gx = Math.round(r.xp * arme.xp);
+            A.xp += gx; A.or += r.or;
+            couleur = 't-s100';
+            T.textContent = nomCibleCombat() + ' vaincu en ' + A.coups + ' coup'
+              + (A.coups > 1 ? 's' : '');
+            U.textContent = '+' + gx + ' xp · +' + r.or + ' or · le chemin reprend';
+          }
+          A.enCombat = false; A.ratesBoss = 0; A.coups = 0; A.typeCible = null;
         }
       } else {
         A.ratesBoss++;
         couleur = 't-signal';
-        if(A.ratesBoss >= 3){
+        if(A.ratesBoss >= rateMax){
           S.mort = true;
-          T.textContent = gardienNom() + ' vous met à terre';
-          U.textContent = 'trois coups manqués · l\'expédition s\'arrête';
+          T.textContent = nomCibleCombat() + ' vous met à terre';
+          U.textContent = rateMax + ' coup' + (rateMax > 1 ? 's' : '') + ' manqué'
+            + (rateMax > 1 ? 's' : '') + ' · l\'expédition s\'arrête';
         } else {
           T.textContent = 'Coup manqué';
-          U.textContent = (3 - A.ratesBoss) + ' erreur'
-            + (3 - A.ratesBoss > 1 ? 's' : '') + ' avant la chute · garde ± ' + fmt(z);
+          U.textContent = (rateMax - A.ratesBoss) + ' erreur'
+            + (rateMax - A.ratesBoss > 1 ? 's' : '') + ' avant la chute · garde ± ' + fmt(z);
         }
       }
     }
@@ -5108,23 +5355,33 @@ function resoudre(valeur, delta, ecart){
         + ' · ' + A.xp + ' xp ramenés';
     }
     else {
-      /* ── marche ── */
+      /* ── marche : zone fixe, pas d'usure, un peu d'xp et d'or ── */
       const gain = ecart === 0 ? 12 : ecart <= 3 ? 6 : 2;
       const g = Math.round(gain * arme.xp);
       A.xp += g;
+      const gainOr = ecart === 0 ? 5 : ecart <= 3 ? 2 : 1;
+      A.or += gainOr;
       A.pas++;
-      const tientLeTerrain = ecart <= 3;
-      const u = usureAvt(S.tour);
-      if(!tientLeTerrain) A.zone = Math.max(1, A.zone - u);
       couleur = ecart === 0 ? 't-s100' : ecart <= 3 ? 't-s50' : 't-s20';
       T.textContent = '+' + g + ' xp';
-      U.textContent = (tientLeTerrain
-          ? 'tu tiens le terrain · zone ± ' + fmt(A.zone)
-          : 'le terrain s\'use de ' + fmt(u) + ' · zone ± ' + fmt(A.zone))
-        + ' · ' + A.xp + ' xp';
+      U.textContent = 'le terrain tient · zone ± ' + fmt(A.zone)
+        + ' · ' + A.xp + ' xp · ' + A.or + ' or';
       if(A.pas >= TOURS_AVT){
         entrerCombat();
-        T.textContent = gardienNom() + ' barre le chemin';
+        T.textContent = nomCibleCombat() + ' barre le chemin';
+        U.textContent = A.pvBoss + ' points de vie · garde ± '
+          + fmt(Math.ceil(A.zone / 2)) + ' · ' + arme.n.toLowerCase()
+          + ' à ' + arme.degats + ' dégâts';
+        couleur = 't-alerte';
+      }
+      // rencontre aléatoire, jamais deux tours d'affilée (voir A.recemmentRencontre)
+      else if(A.recemmentRencontre){
+        A.recemmentRencontre = false;   // le prochain tour pourra tirer à nouveau
+      }
+      else if(Math.random() < TAUX_RENCONTRE_AVT){
+        const type = Math.random() < 0.65 ? 'faible' : 'moyen';
+        entrerCombatMonstre(type);
+        T.textContent = nomCibleCombat() + ' surgit';
         U.textContent = A.pvBoss + ' points de vie · garde ± '
           + fmt(Math.ceil(A.zone / 2)) + ' · ' + arme.n.toLowerCase()
           + ' à ' + arme.degats + ' dégâts';
@@ -5543,7 +5800,7 @@ function resoudre(valeur, delta, ecart){
   dessinerFilm();
 
   // cibles nues : chaque tour est indépendant, le chrono ne cumule pas
-  if(avance){ S.total = REMISE_A_ZERO.includes(CFG.mode) ? 0 : valeur;
+  if(avance){ S.total = remiseAZero() ? 0 : valeur;
               S.enAttente = cibleSuivante(S.total); }
   else       { S.enAttente = S.cible; }
   S.finDeTour = {avance};
@@ -5857,15 +6114,24 @@ function majAnneau(){
     $('f-critique').textContent = '';
     A.classList.remove('critique');
   }
-  // combat : deux barres de vie sous le chiffre
-  const cb = CFG.mode === 'combat' && S.partie;
+  // combat : deux barres de vie sous le chiffre — mode Combat autonome, ou
+  // aventure pendant un affrontement (gardien ou monstre lambda)
+  const avtCombat = AVT() && S.avt && S.avt.enCombat;
+  const cb = (CFG.mode === 'combat' || avtCombat) && S.partie;
   $('f-pv').classList.toggle('on', cb);
-  if(cb){
+  if(cb && CFG.mode === 'combat'){
     const b = bossCourant();
     $('pv-b').style.width = Math.round(S.pvBoss / b.pv * 100) + '%';
     $('pv-m').style.width = Math.max(0, S.pvMoi) + '%';
     $('pv-b-n').textContent = S.pvBoss;
     $('pv-m-n').textContent = S.pvMoi;
+  } else if(cb && avtCombat){
+    const A = S.avt, max = A.pvMax || A.pvBoss || 1;
+    const rateMax = RATES_MAX[A.typeCible] || 3;
+    $('pv-b').style.width = Math.round(A.pvBoss / max * 100) + '%';
+    $('pv-m').style.width = Math.max(0, Math.round((rateMax - A.ratesBoss) / rateMax * 100)) + '%';
+    $('pv-b-n').textContent = A.pvBoss;
+    $('pv-m-n').textContent = (rateMax - A.ratesBoss);
   }
   if(!on) return;
   const z = Math.max(1, S.zoneSurvie);
@@ -5954,6 +6220,9 @@ function fluidePhase(ph){
   const F = $('fluide');
   ['survie','reflexe','combat','cascade'].forEach(m =>
     F.classList.toggle('mode-' + m, CFG.mode === m));
+  // un combat d'aventure (gardien ou monstre) emprunte la même mise en page
+  // que le mode Combat autonome, sans jamais changer CFG.mode
+  if(AVT()) F.classList.toggle('mode-combat', !!(S.avt && S.avt.enCombat));
   majBiome();
   majAnneau();
   // Cascade a son propre décor : une chute d'eau, hors du système de biomes.
@@ -6184,6 +6453,55 @@ $('stop').onclick = async () => {
 };
 
 /* ════════ FIN ════════ */
+// Bannière « nouveau meilleur score ». Le record personnel se décide tout de
+// suite, avec l'ancien meilleur capturé avant d'être écrasé. Le record de
+// ligue demande une requête : on affiche d'abord le personnel, puis on
+// enrichit si le score dépasse le meilleur des autres membres.
+async function detecterRecord(){
+  const B = $('fin-record');
+  if(!B) return;
+  B.style.display = 'none'; B.className = 'record-banniere';
+  // seuls les modes solo à score cumulé ont un « meilleur score » comparable
+  if(!estSolo(CFG.mode) || S.abandon || S.essaiBiome) return;
+  if(CFG.mode === 'combat' || CFG.mode === 'reflexe') return;
+  const score = S.points || 0;
+  if(score <= 0) return;
+  const ancien = S.ancienRecord || 0;
+  const battuPerso = score > ancien && ancien > 0;   // pas la toute 1re partie
+  if(battuPerso){
+    B.className = 'record-banniere perso';
+    B.innerHTML = '<div class="r-t">🥇 Nouveau record personnel</div>'
+      + score + ' points, ton meilleur à ce jour (ancien : ' + ancien + ').';
+    B.style.display = 'block';
+  }
+  // record de ligue : le meilleur score des AUTRES membres, sur ce mode
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  if(!s) return;
+  let ligues = [];
+  try{ ligues = await mesLigues(); }catch(e){ return; }
+  if(!ligues.length) return;
+  try{
+    for(const lg of ligues){
+      const membres = await apiAuth('membres?ligue=eq.' + lg.ligue
+        + '&select=joueur') || [];
+      const autres = membres.map(m => m.joueur).filter(id => id !== s.id);
+      if(!autres.length) continue;
+      const perfs = await apiAuth('perfs?mode=eq.' + CFG.mode
+        + '&joueur=in.(' + autres.join(',') + ')&select=score') || [];
+      const meilleurAutre = perfs.reduce((m, p) => Math.max(m, p.score || 0), 0);
+      if(score > meilleurAutre && meilleurAutre > 0){
+        const nom = (lg.ligues && lg.ligues.nom) || lg.ligue;
+        B.className = 'record-banniere ligue';
+        B.innerHTML = '<div class="r-t">👑 Meilleur score de la ligue</div>'
+          + 'Tu prends la tête de « ' + esc(nom) +' » sur ' + MODE().n
+          + ' avec ' + score + ' points.';
+        B.style.display = 'block';
+        return;   // le record de ligue prime sur le personnel
+      }
+    }
+  }catch(e){ /* silencieux : la bannière personnelle reste affichée */ }
+}
+
 function afficherFin(){
   purgerMinuteries();
   S.partie = false; S.encours = false;
@@ -6203,6 +6521,8 @@ function afficherFin(){
       p.configs[kc] = (p.configs[kc] || 0) + 1;
       p.minutes = (p.minutes || 0) + (s.minutes || 0);
       if(estSolo(CFG.mode) && n === S.joueurs[0]){
+        // on retient l'ancien record avant de l'écraser, pour la bannière
+        S.ancienRecord = p.meilleurScore || 0;
         p.serie = Math.max(p.serie || 0, S.meilleureChaine);
         p.meilleurScore = Math.max(p.meilleurScore || 0, S.points);
       }
@@ -6224,6 +6544,7 @@ function afficherFin(){
   }
   const R = $('fin-resume'), TI = $('fin-titre');
   TI.textContent = 'Le plus précis'; R.textContent = MODE().n;
+  detecterRecord();
   if(CFG.mode === 'elimination'){
     const v = actifs();
     TI.textContent = v.length === 1 ? v[0] + ' survit' : 'Élimination';
@@ -6297,8 +6618,10 @@ function afficherFin(){
         : 'Aucune série cette fois. Deux bons coups d\'affilée majorent le gain de moitié, trois le doublent.';
   }
   if(AVT() && S.avt){
+    effacerRepriseAvt();
     const A = S.avt, M = avtMem();
     M.xp += A.xp;
+    M.or = (M.or || 0) + A.or;
     M.parties = (M.parties || 0) + 1;
     M.gardiens = (M.gardiens || 0) + A.gardiens;
     M.meilleur = Math.max(M.meilleur || 0, S.tour);
@@ -6308,7 +6631,7 @@ function afficherFin(){
     R.textContent = 'Aventure · ' + S.tour + ' tour' + (S.tour > 1 ? 's' : '')
       + ' · ' + A.gardiens + ' gardien' + (A.gardiens > 1 ? 's' : '') + ' abattu'
       + (A.gardiens > 1 ? 's' : '') + ' · arrêté dans ' + b.n.toLowerCase()
-      + ' · réserve ' + M.xp + ' xp';
+      + ' · réserve ' + M.xp + ' xp · ' + M.or + ' or';
     rev0.style.display = 'block';
     rev0.querySelector('.t').textContent = 'La boutique';
     $('rev-texte').textContent = A.gardiens === 0
@@ -6760,9 +7083,22 @@ async function publierPerf(){
 const PROFIL_VIDE = () => ({pseudo:null, photo:null, couleur:null});
 const monPro = () => (MEM.profil = MEM.profil || PROFIL_VIDE());
 
-$('bo-retour').onclick = () => montrer(S.partie ? ecranJeu() : 'test');
-$('fin-boutique').onclick = () => { construireBoutique(); montrer('boutique'); };
-$('go-boutique').onclick = () => { construireBoutique(); montrer('boutique'); };
+let BOUTIQUE_RETOUR = 'test';
+$('bo-retour').onclick = () => montrer(S.partie ? ecranJeu() : BOUTIQUE_RETOUR);
+
+$('av-retour').onclick = () => montrer('reglages');
+$('av-personnaliser').onclick = () => {
+  BOUTIQUE_RETOUR = 'aventure-accueil';
+  construireBoutique(); montrer('boutique');
+};
+$('av-lancer').onclick = async () => {
+  if(await reprendrePartieAvt()) return;   // une expédition en attente reprend directement
+  CFG.mode = 'aventure'; MEM.joueurs = MEM.joueurs && MEM.joueurs[0] ? MEM.joueurs : ['Joueur'];
+  peupler();
+  await demarrerPartie();
+};
+$('fin-boutique').onclick = () => { BOUTIQUE_RETOUR = 'test'; construireBoutique(); montrer('boutique'); };
+$('go-boutique').onclick = () => { BOUTIQUE_RETOUR = 'test'; construireBoutique(); montrer('boutique'); };
 $('bo-partir').onclick = () => { CFG.mode = 'aventure'; MEM.cfg = {...CFG};
   ecrireMem(); demarrerPartie(); };
 $('pr-retour').onclick = () => montrer('reglages');
@@ -7321,7 +7657,8 @@ async function rejoindreLigue(code, s){
 // fichier, l'appeler ici avant son initialisation ferait planter le script.
 const modesLigue = () => SOLOS
   .filter(s => (!s.labo || SOLO_MENU.includes(s.id))
-            && s.id !== 'aventure' && s.id !== 'defi' && !s.desactive)
+            && s.id !== 'aventure' && s.id !== 'defi'
+            && s.id !== 'combat' && !s.desactive)
   .map(s => s.id);
 
 async function ouvrirLigue(code, nom, embleme){
@@ -7408,11 +7745,14 @@ async function chargerClassement(){
         ? r.parties + ' partie' + (r.parties > 1 ? 's' : '')
           + (prec ? ' · précision ± ' + prec : '')
         : "n'a pas encore joué ce mode";
-      const av = r.photo ? `<img src="${r.photo}">` : esc((r.nom || '?')[0].toUpperCase());
-      const nomAff = esc(r.nom) + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
+      const coul = coulHash(r.nom || '?');
+      const av = r.photo ? `<img src="${r.photo}">`
+        : `<span style="color:${coul}">${esc((r.nom || '?')[0].toUpperCase())}</span>`;
+      const nomAff = `<span style="color:${coul}">${esc(r.nom)}</span>`
+        + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
       return `<div class="lg-rang${s && r.id === s.id ? ' moi' : ''}">
         <span class="p">${r.parties ? i + 1 : '—'}</span>
-        <span class="lg-av">${av}</span>
+        <span class="lg-av" style="border-color:${coul}66">${av}</span>
         <span class="n">${nomAff}</span>
         <span class="s">${r.parties ? r.score : '·'}</span>
         <span class="st">${st}</span>
@@ -7873,6 +8213,42 @@ async function reprendrePartie(){
   return true;
 }
 
+/* ════════ REPRISE D'EXPÉDITION — AVENTURE UNIQUEMENT ════════ */
+// Système jumeau de celui de Survie ci-dessus, mais entièrement séparé :
+// clé de stockage différente (MEM.repriseAvt), fonctions différentes. Aucune
+// des deux ne lit ni n'écrit l'état de l'autre.
+function etatReprenableAvt(){
+  const A = S.avt;
+  return {tour:S.tour, total:S.total, cible:S.cible,
+          xp:A.xp, or:A.or, zoneDepart:A.zoneDepart, zone:A.zone,
+          gardiens:A.gardiens, pas:A.pas, joueur:S.joueurs[0], date:Date.now()};
+}
+function sauverPartieAvt(){
+  MEM.repriseAvt = etatReprenableAvt();
+  ecrireMem();
+}
+function effacerRepriseAvt(){ if(MEM.repriseAvt){ MEM.repriseAvt = null; ecrireMem(); } }
+function repriseAvtDispo(){
+  const r = MEM.repriseAvt;
+  // au-delà de sept jours, la reprise n'a plus de sens (même règle que Survie)
+  return r && Date.now() - r.date < 7*24*3600*1000 ? r : null;
+}
+async function reprendrePartieAvt(){
+  const r = repriseAvtDispo();
+  if(!r) return false;
+  CFG.mode = 'aventure';
+  MEM.joueurs = [r.joueur || (MEM.joueurs && MEM.joueurs[0]) || 'Joueur'];
+  peupler();
+  await demarrerPartie();
+  S.tour = r.tour; S.total = r.total; S.cible = r.cible; S.cibleBase = r.cible;
+  S.avt.xp = r.xp; S.avt.or = r.or; S.avt.zoneDepart = r.zoneDepart;
+  S.avt.zone = r.zone; S.avt.gardiens = r.gardiens; S.avt.pas = r.pas;
+  S.zoneTour = zoneDe(S.joueurs[0]);
+  effacerRepriseAvt();
+  fluidePret();
+  return true;
+}
+
 /* ════════ PANTHÉON DU DÉFI ════════ */
 // Le défi ne rejoint pas le panthéon général : son barème change chaque jour.
 // Il garde son propre historique, sur sa page.
@@ -8205,14 +8581,20 @@ function construireModes(){
     S1.innerHTML = '';
     SOLO_MENU.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
       .forEach(m => S1.appendChild(carteMode(m)));
-    // Aventure est déjà jouable depuis la Boutique, mais pas encore assez
-    // stable pour rejoindre le menu principal : la carte l'annonce sans
-    // permettre de la lancer d'ici.
+    // Aventure reste grisée pour tout le monde, sauf les comptes Google déjà
+    // autorisés sur l'onglet Test — même liste, même logique.
     const av = document.createElement('div');
-    av.className = 'evt epuise';
-    av.innerHTML = `<div class="n">Aventure</div>
-      <div class="d">Le même chemin que la Survie, une autre économie.</div>
-      <div class="b"><span class="tag">bientôt disponible</span></div>`;
+    if(compteTestAutorise()){
+      av.className = 'evt choisir';
+      av.innerHTML = `<div class="n">Aventure</div>
+        <div class="d">Le même chemin que la Survie, une autre économie.</div>`;
+      av.onclick = () => { construireAventureAccueil(); montrer('aventure-accueil'); };
+    } else {
+      av.className = 'evt epuise';
+      av.innerHTML = `<div class="n">Aventure</div>
+        <div class="d">Le même chemin que la Survie, une autre économie.</div>
+        <div class="b"><span class="tag">bientôt disponible</span></div>`;
+    }
     S1.appendChild(av);
   }
   const M = $('modes-menu'); M.innerHTML = '';
