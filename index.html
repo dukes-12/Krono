@@ -739,6 +739,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .biome-nom::before{content:"";display:block;width:16px;height:2px;border-radius:2px;
   background:currentColor;opacity:.7;margin-bottom:6px}
 .biome-nom.on{display:block}
+.biome-nom.cache-combat{display:none}
 /* annonce de l'effet du biome, cinq secondes à la bascule */
 .biome-effet{display:none;position:absolute;top:0;left:0;right:0;bottom:0;
   z-index:9;pointer-events:none;display:none;align-items:center;justify-content:center;
@@ -1065,22 +1066,44 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .av-niveau-piste i{display:block;height:100%;
   background:linear-gradient(90deg,#8a6d1a,var(--laiton));width:0%;
   transition:width .3s ease}
-.av-niveau-detail{font-family:var(--mono);font-size:10.5px;color:var(--gris);
+.t-or{color:var(--laiton)}
+.av-niveau-detail{font-family:var(--mono);font-size:10.5px;color:var(--laiton);
   margin-top:7px;display:flex;justify-content:space-between}
-.avt-monstre-img{display:none;position:absolute;top:8%;left:50%;
-  transform:translateX(-50%);width:70%;max-width:220px;aspect-ratio:16/10;
-  border:1px dashed var(--bordDoux);border-radius:14px;
-  align-items:center;justify-content:center;
+.avt-hud{display:none;position:absolute;top:64px;left:50%;
+  transform:translateX(-50%);width:88%;max-width:300px;z-index:6}
+.avt-hud.on{display:block}
+.avt-bandeau{display:flex;gap:8px}
+.avt-bloc{flex:1;min-width:0;background:rgba(255,255,255,.03);
+  border:1px solid var(--bordDoux);border-radius:10px;padding:6px 8px}
+.avt-bloc.moi{border-color:rgba(107,227,154,.25)}
+.avt-n{font-family:var(--mono);font-size:10px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ivoire);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.avt-barre{height:5px;border-radius:999px;background:var(--ardoise);margin-top:5px;
+  overflow:hidden}
+.avt-barre i{display:block;height:100%;border-radius:999px;background:var(--signal);
+  transition:width .35s cubic-bezier(.16,.8,.3,1);width:100%}
+.avt-barre i.moi{background:var(--vertVif)}
+.avt-nb{font-family:var(--mono);font-size:9px;color:var(--gris);margin-top:3px;
+  text-align:right}
+.avt-monstre-img{margin-top:8px;width:100%;aspect-ratio:2/1;
+  border:1px dashed var(--bordDoux);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--gris);opacity:.7}
-.avt-monstre-img.on{display:flex}
-.avt-surgit{position:absolute;top:24%;left:50%;z-index:8;
-  transform:translateX(-50%) translateY(-8px);
-  background:rgba(14,17,22,.94);border:1px solid var(--alerte);border-radius:12px;
-  padding:9px 18px;font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--ivoire);opacity:0;pointer-events:none;
-  transition:opacity .25s ease,transform .25s ease;white-space:nowrap}
-.avt-surgit.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  color:var(--gris);opacity:.55}
+.avt-cible{margin-top:8px;text-align:center;font-family:var(--mono);
+  font-size:26px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
+.avt-voile{display:none;position:absolute;inset:0;z-index:9;
+  align-items:center;justify-content:center;
+  background:rgba(6,8,11,.92);opacity:0;pointer-events:none;
+  transition:opacity .3s ease}
+.avt-voile.on{display:flex;opacity:1}
+.avt-voile .carte{background:rgba(20,24,32,.95);border:1px solid var(--alerte);
+  border-radius:14px;padding:16px 28px;text-align:center;
+  font-family:var(--mono);font-size:13.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ivoire);
+  transform:scale(.92);transition:transform .3s ease}
+.avt-voile.on .carte{transform:scale(1)}
 .pv-bloc{display:none;position:absolute;bottom:4px;left:50%;
   transform:translateX(-50%);
   width:100%;max-width:262px}
@@ -1139,6 +1162,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         --verdict-gap:14px; --verdict-just:flex-end}
 #fluide.mode-reflexe {--tete-mt:26px; --obj-mt:18px; --obj-h:80px; --chr-y:50%; --verdict-h:132px}
 #fluide.mode-combat  {--tete-mt:26px; --obj-mt:18px; --obj-h:80px; --chr-y:48%; --verdict-h:120px}
+/* Aventure en combat seulement (les deux classes coexistent) : le chrono
+   descend davantage pour laisser le HUD (nom, PV, image) respirer en haut,
+   sans jamais toucher au réglage du mode Combat autonome ci-dessus */
+#fluide.mode-aventure.mode-combat{--chr-y:58%}
+#fluide.mode-aventure.mode-combat .f-obj{display:none}
 #fluide.mode-cascade {--tete-mt:26px; --obj-mt:20px; --obj-h:70px; --chr-y:52%; --verdict-h:150px}
 
 .f-verdict .titre{font-size:22px;font-weight:700;letter-spacing:.05em;
@@ -1157,6 +1185,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   display:flex;align-items:center;justify-content:center;
   font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   border:2px solid currentColor;color:var(--gris);flex-shrink:0}
+#fluide.mode-aventure .f-boutons{gap:18px;padding:8px 0 4px}
+#fluide.mode-aventure .rond{width:76px;height:76px;font-size:11px}
 .rond::after{content:"";position:absolute;inset:4px;border-radius:50%;
   background:currentColor;opacity:.13;transition:opacity .12s}
 .rond:active::after{opacity:.3}
@@ -2068,21 +2098,38 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
     <div class="s" id="f-evt-sous">—</div>
   </div>
+  <div class="avt-hud" id="avt-hud">
+    <div class="avt-bandeau">
+      <div class="avt-bloc">
+        <div class="avt-n" id="avt-nom-cible">—</div>
+        <div class="avt-barre"><i id="avt-pv-cible-barre"></i></div>
+        <div class="avt-nb" id="avt-pv-cible-n">0 pv</div>
+      </div>
+      <div class="avt-bloc moi">
+        <div class="avt-n">Vous</div>
+        <div class="avt-barre"><i id="avt-pv-joueur-barre" class="moi"></i></div>
+        <div class="avt-nb" id="avt-pv-joueur-n">0 pv</div>
+      </div>
+    </div>
+    <div class="avt-monstre-img" id="avt-monstre-img">
+      <span>image à venir</span>
+    </div>
+    <div class="avt-cible" id="avt-cible">1,00</div>
+  </div>
   <div class="f-centre">
     <svg class="anneau" id="f-anneau" viewBox="0 0 200 200" aria-hidden="true">
       <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(237,230,214,.07)" stroke-width="3"/>
       <circle id="f-anneau-c" cx="100" cy="100" r="70" fill="none"
               stroke="#3E8E68" stroke-width="5" opacity=".85"/>
     </svg>
-    <div class="avt-monstre-img" id="avt-monstre-img">
-      <span>image à venir</span>
+    <div class="avt-voile" id="avt-voile">
+      <div class="carte"><span id="avt-surgit-nom">—</span></div>
     </div>
-    <div class="avt-surgit" id="avt-surgit"></div>
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
     <button class="pari-b" id="f-pari"></button>
     <div class="pv-bloc" id="f-pv">
-      <div class="pv-l"><span id="pv-b-lb">Boss</span><span id="pv-b-n">80</span></div>
+      <div class="pv-l"><span>Boss</span><span id="pv-b-n">80</span></div>
       <div class="pv-b"><i id="pv-b" style="width:100%"></i></div>
       <div class="pv-l"><span>Vous</span><span id="pv-m-n">100</span></div>
       <div class="pv-b moi"><i id="pv-m" style="width:100%"></i></div>
@@ -2931,7 +2978,7 @@ const pvGardien = tour => 40 + 25 * Math.floor((tour - 1) / TOURS_BIOME);
 function initAventure(){
   const A = avtMem();
   S.avt = {xp:0, or:0, zoneDepart:ZONE_AVT + monArmure().zone,
-           zone:ZONE_AVT + monArmure().zone, pvBoss:0, ratesBoss:0,
+           zone:ZONE_AVT + monArmure().zone, pvBoss:0,
            gardiens:0, coups:0, enCombat:false, pas:0, journal:[],
            typeCible:null, recemmentRencontre:false};
   // sans cette remise à zéro, la partie suivante croit changer de décor et
@@ -2943,32 +2990,55 @@ function initAventure(){
 // l'Aventure n'a plus d'usure du terrain : la zone reste fixe à ZONE_AVT
 // (+ bonus d'armure) du premier au dernier pas de chaque expédition
 
+// Vie du joueur pendant un combat d'Aventure : base fixe, indépendante de
+// l'armure (qui joue déjà sur la zone de marche, pas sur le combat).
+const PV_JOUEUR_BASE = 100;
+// Dégâts qu'un gardien inflige sur un coup non paré, croissant avec la
+// progression — même logique que pvGardien, une autre échelle.
+const degatsGardien = tour => 8 + Math.floor((tour - 1) / TOURS_BIOME) * 4;
+// Pour un monstre lambda, les dégâts se déduisent de ses PV plutôt que d'être
+// fixés à la main pour chacun des biomes — un monstre plus costaud tape aussi
+// plus fort, sans avoir à retoucher toute la table AVT_MONSTRES.
+const degatsMonstre = m => Math.max(4, Math.round(m.pv / 4));
+
+// Forcé à 0,00 dès l'entrée en combat : sans ça, le chiffre du tour de
+// marche qui vient de déclencher la rencontre resterait affiché un instant,
+// ce qui ne correspond à rien pour l'échange de combat qui commence. Décalé
+// d'un tick : le rendu du verdict du tour de marche écrit sa propre valeur
+// juste après cet appel dans le même passage, il faut le laisser terminer.
+function chronoAZeroImmediat(){
+  setTimeout(() => {
+    const c = document.getElementById('f-chrono');
+    if(c && S.avt && S.avt.enCombat) c.textContent = '0,00';
+  }, 0);
+}
+
 function entrerCombat(){
   S.avt.enCombat = true;
   S.avt.typeCible = 'gardien';
   S.avt.pvBoss = pvGardien(S.tour);
   S.avt.pvMax = S.avt.pvBoss;
-  S.avt.ratesBoss = 0;
+  S.avt.degatsCible = degatsGardien(S.tour);
+  S.avt.pvJoueur = PV_JOUEUR_BASE;
+  S.avt.pvJoueurMax = PV_JOUEUR_BASE;
   S.avt.coups = 0;
   annoncerMonstre(gardienNom());
+  chronoAZeroImmediat();
 }
 
-// Rencontre aléatoire : un monstre lambda (faible ou moyen) du biome courant,
-// jamais un gardien. Même mécanique de résolution que le gardien, avec un
-// nombre de points de vie et un seuil d'échec plus bas — un combat plus
-// court, à l'image d'un adversaire mineur.
-const RATES_MAX = {gardien:3, faible:1, moyen:2};
 // Popup rapide annonçant le nom de la cible, à l'entrée en combat. Se referme
 // tout seul : il n'a pas vocation à rester lisible, juste à signaler l'arrivée.
 function annoncerMonstre(nom){
-  const el = document.getElementById('avt-surgit');
+  const el = document.getElementById('avt-voile');
   if(!el) return;
-  el.textContent = nom + ' surgit';
+  document.getElementById('avt-surgit-nom').textContent = nom + ' surgit';
   el.classList.add('on');
   if(S.tAvtSurgit) clearTimeout(S.tAvtSurgit);
   S.tAvtSurgit = setTimeout(() => el.classList.remove('on'), 1400);
 }
 
+// Rencontre aléatoire : un monstre lambda (faible ou moyen) du biome courant,
+// jamais un gardien. Même mécanique de résolution, un combat plus court.
 function entrerCombatMonstre(type){
   const m = monstresDe(biomeAvtCourant().id)[type];
   S.avt.enCombat = true;
@@ -2976,10 +3046,13 @@ function entrerCombatMonstre(type){
   S.avt.nomCible = m.n;
   S.avt.pvBoss = m.pv;
   S.avt.pvMax = m.pv;
-  S.avt.ratesBoss = 0;
+  S.avt.degatsCible = degatsMonstre(m);
+  S.avt.pvJoueur = PV_JOUEUR_BASE;
+  S.avt.pvJoueurMax = PV_JOUEUR_BASE;
   S.avt.coups = 0;
   S.avt.recompenseCible = {xp:m.xp, or:m.or};
   annoncerMonstre(m.n);
+  chronoAZeroImmediat();
 }
 // nom affiché de la cible en combat, quel que soit son type — jamais de
 // mention du palier (faible/moyen/gardien) : le joueur le découvre à l'usage
@@ -5071,13 +5144,13 @@ function compteursMode(p){
   else if(md === 'reflexe')  t = S.reflexes.length
     ? Math.round(S.reflexes.reduce((a,b)=>a+b,0)/S.reflexes.length) + ' ms' : '';
   else if(md === 'defi' && S.defi) t = S.defi.consigne;
-  else if(estSolo(md)) t = S.points + ' pts'
+  else if(estSolo(md) && !AVT()) t = S.points + ' pts'
     + (S.chaine > 1 ? ' · série ×' + Math.min(MULT_MAX, S.chaine) : '');
   v.className = 'bouclier ' + (estSolo(CFG.mode)
     ? (S.chaine > 1 ? 'serie' : 'or') : 'vies') + (t ? ' on' : '');
   v.textContent = t;
   const solo = estSolo(CFG.mode);
-  $('f-solo-actions').classList.add('on');
+  $('f-solo-actions').classList.toggle('on', !AVT());
   $('f-sol-recommencer').style.display = solo ? 'block' : 'none';
   $('f-sol-changer').style.display = solo ? 'block' : 'none';
   $('f-ajouter').style.display = solo ? 'none' : 'block';
@@ -5360,23 +5433,33 @@ function resoudre(valeur, delta, ecart){
     }
   }
   /* ─── aventure : marcher (zone fixe, sans usure), affronter gardien ou
-         monstre lambda selon A.typeCible ─── */
+         monstre lambda selon A.typeCible — combat en parade/riposte ─── */
   else if(AVT()){
     const A = S.avt, arme = monArme();
     const z = zone();
+    // ±0,03 s : la fenêtre de parade. En deçà, l'ennemi ne rend rien. Au-delà,
+    // dans la garde élargie z, les dégâts encaissés montent avec l'écart.
+    const PARADE = 3;
     if(A.enCombat){
       /* ── combat, générique : gardien ou monstre lambda ── */
-      const rateMax = RATES_MAX[A.typeCible] || 3;
       if(ecart <= z){
         const critique = ecart === 0;
         const d = Math.round(arme.degats * (critique ? 2 : 1));
         A.pvBoss = Math.max(0, A.pvBoss - d);
         A.coups++;
-        // un monstre lambda rapporte une récompense fixe à la victoire, pas
-        // à chaque coup : seul le gardien verse de l'xp à chaque frappe
         if(A.typeCible === 'gardien') A.xp += Math.round((critique ? 8 : 4) * arme.xp);
-        couleur = critique ? 't-s100' : 't-s50';
-        T.textContent = critique ? 'Coup critique · −' + d : 'Touché · −' + d;
+        // parade partielle : hors de la fenêtre de 0,03 mais dans la garde,
+        // on touche quand même, mais l'ennemi rend des coups proportionnels
+        let encaisse = 0;
+        if(ecart > PARADE){
+          const portee = Math.min(1, (ecart - PARADE) / Math.max(1, z - PARADE));
+          encaisse = Math.round(A.degatsCible * portee);
+          A.pvJoueur = Math.max(0, A.pvJoueur - encaisse);
+        }
+        couleur = critique ? 't-s100' : encaisse ? 't-s20' : 't-s50';
+        T.textContent = critique ? 'Parade et coup critique · −' + d
+          : encaisse ? 'Touché, mais entamé · −' + d + ' / vous −' + encaisse
+          : 'Paré et touché · −' + d;
         U.textContent = A.pvBoss > 0
           ? nomCibleCombat() + ' · ' + A.pvBoss + ' points de vie · ' + arme.n.toLowerCase()
           : nomCibleCombat() + ' tombe';
@@ -5391,7 +5474,7 @@ function resoudre(valeur, delta, ecart){
             couleur = 't-s100';
             T.textContent = 'Gardien abattu en ' + A.coups + ' coup'
               + (A.coups > 1 ? 's' : '');
-            U.textContent = '+' + Math.round(prime * arme.xp) + ' xp · le chemin '
+            U.innerHTML = '<b class="t-or">+' + Math.round(prime * arme.xp) + ' xp</b> · le chemin '
               + 'reprend · zone ± ' + fmt(A.zone);
           } else {
             const r = A.recompenseCible;
@@ -5400,22 +5483,27 @@ function resoudre(valeur, delta, ecart){
             couleur = 't-s100';
             T.textContent = nomCibleCombat() + ' vaincu en ' + A.coups + ' coup'
               + (A.coups > 1 ? 's' : '');
-            U.textContent = '+' + gx + ' xp · +' + r.or + ' or · le chemin reprend';
+            U.innerHTML = '<b class="t-or">+' + gx + ' xp · +' + r.or + ' or</b> · le chemin reprend';
           }
-          A.enCombat = false; A.ratesBoss = 0; A.coups = 0; A.typeCible = null;
+          A.enCombat = false; A.coups = 0; A.typeCible = null;
+        } else if(A.pvJoueur <= 0){
+          S.mort = true;
+          couleur = 't-signal';
+          T.textContent = nomCibleCombat() + ' vous met à terre';
+          U.textContent = 'plus un point de vie · l\'expédition s\'arrête';
         }
       } else {
-        A.ratesBoss++;
+        /* hors de la garde : rien porté, coup plein encaissé */
+        A.pvJoueur = Math.max(0, A.pvJoueur - A.degatsCible);
         couleur = 't-signal';
-        if(A.ratesBoss >= rateMax){
+        if(A.pvJoueur <= 0){
           S.mort = true;
           T.textContent = nomCibleCombat() + ' vous met à terre';
-          U.textContent = rateMax + ' coup' + (rateMax > 1 ? 's' : '') + ' manqué'
-            + (rateMax > 1 ? 's' : '') + ' · l\'expédition s\'arrête';
+          U.textContent = 'plus un point de vie · l\'expédition s\'arrête';
         } else {
           T.textContent = 'Coup manqué';
-          U.textContent = (rateMax - A.ratesBoss) + ' erreur'
-            + (rateMax - A.ratesBoss > 1 ? 's' : '') + ' avant la chute · garde ± ' + fmt(z);
+          U.textContent = '−' + A.degatsCible + ' encaissés · ' + A.pvJoueur
+            + ' pv restants · garde ± ' + fmt(z);
         }
       }
     }
@@ -5436,16 +5524,16 @@ function resoudre(valeur, delta, ecart){
       A.or += gainOr;
       A.pas++;
       couleur = ecart === 0 ? 't-s100' : ecart <= 3 ? 't-s50' : 't-s20';
-      T.textContent = '+' + g + ' xp';
-      U.textContent = 'le terrain tient · zone ± ' + fmt(A.zone)
-        + ' · ' + A.xp + ' xp · ' + A.or + ' or';
+      T.innerHTML = '<b class="t-or">+' + g + ' xp</b>';
+      U.innerHTML = 'le terrain tient · zone ± ' + fmt(A.zone)
+        + ' · <b class="t-or">' + A.xp + ' xp · ' + A.or + ' or</b>';
+      // Le popup (annoncerMonstre) suffit à signaler l'arrivée d'un adversaire :
+      // le verdict de CE tour de marche — sa couleur, son texte — reste celui
+      // qu'il aurait eu de toute façon. Un pile reste un pile, même si un
+      // monstre surgit dans la foulée.
       if(A.pas >= TOURS_AVT){
         entrerCombat();
-        T.textContent = nomCibleCombat() + ' barre le chemin';
-        U.textContent = A.pvBoss + ' points de vie · garde ± '
-          + fmt(Math.ceil(A.zone / 2)) + ' · ' + arme.n.toLowerCase()
-          + ' à ' + arme.degats + ' dégâts';
-        couleur = 't-alerte';
+        A.totalAvantCombat = valeur;   // pour reprendre la marche exactement ici
       }
       // rencontre aléatoire, jamais deux tours d'affilée (voir A.recemmentRencontre)
       else if(A.recemmentRencontre){
@@ -5454,11 +5542,7 @@ function resoudre(valeur, delta, ecart){
       else if(Math.random() < TAUX_RENCONTRE_AVT){
         const type = Math.random() < 0.65 ? 'faible' : 'moyen';
         entrerCombatMonstre(type);
-        T.textContent = nomCibleCombat() + ' surgit';
-        U.textContent = A.pvBoss + ' points de vie · garde ± '
-          + fmt(Math.ceil(A.zone / 2)) + ' · ' + arme.n.toLowerCase()
-          + ' à ' + arme.degats + ' dégâts';
-        couleur = 't-alerte';
+        A.totalAvantCombat = valeur;   // pour reprendre la marche exactement ici
       }
     }
     S.points = A.xp;
@@ -5873,8 +5957,14 @@ function resoudre(valeur, delta, ecart){
   dessinerFilm();
 
   // cibles nues : chaque tour est indépendant, le chrono ne cumule pas
-  if(avance){ S.total = remiseAZero() ? 0 : valeur;
-              S.enAttente = cibleSuivante(S.total); }
+  // aventure : à la sortie d'un combat gagné, on reprend la marche exactement
+  // là où elle en était avant l'affrontement, pas sur la dernière frappe
+  const repriseMarcheAvt = AVT() && S.avt && !S.avt.enCombat && S.avt.totalAvantCombat != null;
+  if(avance){
+    if(repriseMarcheAvt){ S.total = S.avt.totalAvantCombat; S.avt.totalAvantCombat = null; }
+    else S.total = remiseAZero() ? 0 : valeur;
+    S.enAttente = cibleSuivante(S.total);
+  }
   else       { S.enAttente = S.cible; }
   S.finDeTour = {avance};
   const pioche = L => L[Math.floor(Math.random() * L.length)];
@@ -6105,7 +6195,7 @@ function fluidePret(){
   else if(m === 'reflexe')  $('f-tour').textContent = 'Manche ' + S.tour + ' / 10';
   else if(AVT()){
     $('f-tour').textContent = S.avt && S.avt.enCombat
-      ? gardienNom()
+      ? biomeAvtCourant().n
       : 'Tour ' + S.tour + ' · ' + Math.max(0, TOURS_AVT - (S.avt ? S.avt.pas : 0))
         + ' pas avant le gardien';
   }
@@ -6126,7 +6216,9 @@ function fluidePret(){
                                               : 'Tour ' + S.tour;
   $('f-nom').textContent = nom;
   surligner($('f-nom'), coulNom(nom));
+  $('f-nom').closest('.f-nom-l').style.display = AVT() ? 'none' : '';
   $('f-obj-cible').textContent = fmt(S.cible);
+  if(AVT() && $('avt-cible')) $('avt-cible').textContent = fmt(S.cible);
   // à l'escalier, c'est la durée à tenir qui compte, pas la cible cumulée
   const esc = CFG.mode === 'escalier';
   $('f-obj-cible').classList.toggle('geant', esc);
@@ -6146,9 +6238,9 @@ function fluidePret(){
     else $('f-obj-tenir').textContent = '';
   }
   else if(AVT()){
-    $('f-obj-tenir').textContent = S.avt && S.avt.enCombat
-      ? 'garde ± ' + fmt(zone()) + ' · ' + S.avt.pvBoss + ' pv'
-      : 'zone ± ' + fmt(zone()) + ' · ' + (S.avt ? S.avt.xp : 0) + ' xp';
+    // l'info combat/marche vit dans le HUD visuel (barres, popup) : ce texte
+    // ferait doublon et encombre l'écran, déjà chargé pendant un combat
+    $('f-obj-tenir').textContent = '';
   }
   else if(LAB()){
     const lb = LAB();
@@ -6187,27 +6279,32 @@ function majAnneau(){
     $('f-critique').textContent = '';
     A.classList.remove('critique');
   }
-  // combat : deux barres de vie sous le chiffre — mode Combat autonome, ou
-  // aventure pendant un affrontement (gardien ou monstre lambda)
-  const avtCombat = AVT() && S.avt && S.avt.enCombat;
-  const cb = (CFG.mode === 'combat' || avtCombat) && S.partie;
+  // combat : deux barres de vie sous le chiffre, exclusives au mode Combat
+  // autonome — l'Aventure a son propre HUD séparé, juste en dessous
+  const cb = CFG.mode === 'combat' && S.partie;
   $('f-pv').classList.toggle('on', cb);
-  $('avt-monstre-img').classList.toggle('on', !!avtCombat);
-  if(cb && CFG.mode === 'combat'){
-    $('pv-b-lb').textContent = 'Boss';
+  if(cb){
     const b = bossCourant();
     $('pv-b').style.width = Math.round(S.pvBoss / b.pv * 100) + '%';
     $('pv-m').style.width = Math.max(0, S.pvMoi) + '%';
     $('pv-b-n').textContent = S.pvBoss;
     $('pv-m-n').textContent = S.pvMoi;
-  } else if(cb && avtCombat){
+  }
+  // le HUD d'Aventure : nom + barre + PV pour la cible, puis pour le joueur
+  const avtCombat = AVT() && S.avt && S.avt.enCombat;
+  $('avt-hud').classList.toggle('on', !!(avtCombat && S.partie));
+  // le nom du biome vit désormais à côté du nom du monstre, dans le HUD : le
+  // tag générique du décor ferait doublon pendant un combat
+  $('f-biome').classList.toggle('cache-combat', !!avtCombat);
+  if(avtCombat && S.partie){
     const A = S.avt, max = A.pvMax || A.pvBoss || 1;
-    const rateMax = RATES_MAX[A.typeCible] || 3;
-    $('pv-b-lb').textContent = nomCibleCombat();
-    $('pv-b').style.width = Math.round(A.pvBoss / max * 100) + '%';
-    $('pv-m').style.width = Math.max(0, Math.round((rateMax - A.ratesBoss) / rateMax * 100)) + '%';
-    $('pv-b-n').textContent = A.pvBoss;
-    $('pv-m-n').textContent = (rateMax - A.ratesBoss);
+    const maxJoueur = A.pvJoueurMax || 100;
+    $('avt-nom-cible').textContent = nomCibleCombat();
+    $('avt-pv-cible-barre').style.width = Math.max(0, Math.round(A.pvBoss / max * 100)) + '%';
+    $('avt-pv-cible-n').textContent = A.pvBoss + ' pv';
+    $('avt-pv-joueur-barre').style.width
+      = Math.max(0, Math.round((A.pvJoueur || 0) / maxJoueur * 100)) + '%';
+    $('avt-pv-joueur-n').textContent = (A.pvJoueur || 0) + ' pv';
   }
   if(!on) return;
   const z = Math.max(1, S.zoneSurvie);
@@ -6294,7 +6391,7 @@ function fluidePhase(ph){
   // une classe par mode : la géométrie du texte est déclarée en CSS, une
   // ligne par mode, sans qu'aucun mode n'en impacte un autre
   const F = $('fluide');
-  ['survie','reflexe','combat','cascade'].forEach(m =>
+  ['survie','reflexe','combat','cascade','aventure'].forEach(m =>
     F.classList.toggle('mode-' + m, CFG.mode === m));
   // un combat d'aventure (gardien ou monstre) emprunte la même mise en page
   // que le mode Combat autonome, sans jamais changer CFG.mode
@@ -6362,11 +6459,12 @@ function fluidePhase(ph){
     }
     R.className = 'f-realise on ' + d.couleur;
     const sansDuree = CFG.mode === 'reflexe' || CFG.mode === 'combat'
-                    || CFG.mode === 'survie';
+                    || CFG.mode === 'survie' || AVT();
     R.textContent = sansDuree ? '' : 'tenu ' + fmt(d.dureeTenue) + ' s';
     if(sansDuree) R.classList.remove('on');
-    // en survie, la punchline volerait la place de la phrase de gain
-    const avecBlague = !!d.blague && CFG.mode !== 'survie';
+    // en survie et en aventure, la punchline n'apporte rien : elle prend la
+    // place d'informations plus utiles (survie) ou n'a pas sa place (aventure)
+    const avecBlague = !!d.blague && CFG.mode !== 'survie' && !AVT();
     $('f-blague').textContent = avecBlague ? d.blague : '';
     $('f-blague').classList.toggle('on', avecBlague);
     // survie : le terrain gagné ou perdu, en toutes lettres sous le chiffre
