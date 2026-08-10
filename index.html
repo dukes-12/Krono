@@ -18,7 +18,7 @@
   --nuit:#0E1116;--ardoise:#171D26;--trait:#2A3340;--ivoire:#EDE6D6;
   --gris:#7C8797;--laiton:#C9A227;--signal:#DC3B2A;--vert:#3E8E68;
   --alerte:#9B6BF0;
-  --s100:#B98CFF;--s50:#6BE39A;--s20:#E6C544;
+  --s100:#B98CFF;--s50:#6BE39A;--s20:#E6C544;--vertVif:#6BE39A;
   --surface:#1B2331;--bordDoux:rgba(237,230,214,.09);--r:16px;
   --cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
@@ -1066,9 +1066,35 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .av-niveau-piste i{display:block;height:100%;
   background:linear-gradient(90deg,#8a6d1a,var(--laiton));width:0%;
   transition:width .3s ease}
-.t-or{color:var(--laiton)}
+.t-or{color:var(--laiton);-webkit-text-stroke:.6px #000;
+  text-shadow:0 0 2px #000,0 0 2px #000}
 .av-niveau-detail{font-family:var(--mono);font-size:10.5px;color:var(--laiton);
   margin-top:7px;display:flex;justify-content:space-between}
+
+.cp-points-cadre{margin-top:14px;background:var(--surface);border:1px solid var(--bordDoux);
+  border-radius:var(--r);padding:14px 16px;display:flex;justify-content:space-between;
+  align-items:center}
+.cp-points-lb{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gris)}
+.cp-points-v{font-size:26px;font-weight:700;color:var(--laiton)}
+.cp-arbre{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}
+.cp-branche{display:flex;flex-direction:column;gap:8px}
+.cp-branche-tete{text-align:center;padding-bottom:4px}
+.cp-branche-tete .ic{font-size:20px;line-height:1}
+.cp-branche-tete .n{font-size:13px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;margin-top:2px}
+.cp-noeud{border-radius:10px;padding:9px 10px;position:relative;
+  border:1px solid var(--bordDoux);background:var(--surface);cursor:default}
+.cp-noeud .cout{position:absolute;top:6px;right:8px;font-family:var(--mono);
+  font-size:8.5px;color:var(--gris)}
+.cp-noeud .n{font-size:12px;font-weight:700;letter-spacing:.01em;padding-right:24px}
+.cp-noeud .e{font-family:var(--mono);font-size:8.5px;color:var(--gris);margin-top:3px;
+  line-height:1.4}
+.cp-noeud.possede{border-color:var(--laiton);background:rgba(201,162,39,.12)}
+.cp-noeud.possede .n{color:var(--laiton)}
+.cp-noeud.achetable{border-color:var(--vertVif);cursor:pointer}
+.cp-noeud.achetable:active{transform:scale(.98)}
+.cp-noeud.verrouille{opacity:.42}
 .avt-hud{display:none;position:absolute;top:64px;left:50%;
   transform:translateX(-50%);width:88%;max-width:300px;z-index:6}
 .avt-hud.on{display:block}
@@ -1095,15 +1121,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-size:26px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
 .avt-voile{display:none;position:absolute;inset:0;z-index:9;
   align-items:center;justify-content:center;
-  background:rgba(6,8,11,.92);opacity:0;pointer-events:none;
+  background:transparent;opacity:0;pointer-events:none;
   transition:opacity .3s ease}
-.avt-voile.on{display:flex;opacity:1}
-.avt-voile .carte{background:rgba(20,24,32,.95);border:1px solid var(--alerte);
-  border-radius:14px;padding:16px 28px;text-align:center;
-  font-family:var(--mono);font-size:13.5px;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--ivoire);
-  transform:scale(.92);transition:transform .3s ease}
-.avt-voile.on .carte{transform:scale(1)}
+.avt-voile.on{display:flex;opacity:1;pointer-events:auto}
+.avt-voile .carte{background:rgba(20,24,32,.97);border:1px solid var(--alerte);
+  border-radius:16px;padding:22px 30px;text-align:center;min-width:220px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  transform:scale(.9) translateY(6px);transition:transform .3s cubic-bezier(.2,.9,.3,1.1)}
+.avt-voile.on .carte{transform:scale(1) translateY(0)}
+.avt-voile.succes .carte{border-color:var(--vertVif)}
+.avt-voile .avt-voile-ic{font-size:26px;line-height:1;margin-bottom:10px}
+.avt-voile .avt-voile-eyebrow{font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--alerte);opacity:.85}
+.avt-voile.succes .avt-voile-eyebrow{color:var(--vertVif)}
+.avt-voile .avt-voile-nom{font-family:var(--cond);font-weight:700;font-size:22px;
+  letter-spacing:.02em;text-transform:uppercase;color:var(--ivoire);margin-top:6px}
 .pv-bloc{display:none;position:absolute;bottom:4px;left:50%;
   transform:translateX(-50%);
   width:100%;max-width:262px}
@@ -1754,12 +1786,32 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <div class="av-niveau-detail">
         <span id="av-niveau-xp">0 / 0 xp</span><span id="av-niveau-or">0 or</span>
       </div>
+      <button class="bouton fantome" id="av-competences"
+        style="margin-top:12px;width:100%">Voir les compétences</button>
     </div>
     <div class="note" id="av-resume">—</div>
     <div class="recap-b" style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
       <button class="bouton" id="av-lancer">Nouvelle expédition</button>
       <button class="bouton fantome" id="av-personnaliser">Personnaliser mon personnage</button>
     </div>
+  </div>
+</section>
+
+<section class="ecran" id="aventure-competences">
+  <div class="entete">
+    <div class="marque"><h1>COMPÉTENCES</h1><span>aventure</span></div>
+    <div class="nav"><button id="acp-retour">Retour</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="cp-points-cadre">
+      <span class="cp-points-lb">Points disponibles</span>
+      <span class="cp-points-v" id="cp-points">0</span>
+    </div>
+    <div class="note">Achat séquentiel : chaque nœud demande le précédent de
+      sa branche. 20 niveaux permettent de finir une branche et demie, jamais
+      les quatre.</div>
+    <div class="cp-arbre" id="cp-arbre"></div>
   </div>
 </section>
 
@@ -2123,7 +2175,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
               stroke="#3E8E68" stroke-width="5" opacity=".85"/>
     </svg>
     <div class="avt-voile" id="avt-voile">
-      <div class="carte"><span id="avt-surgit-nom">—</span></div>
+      <div class="carte">
+        <div class="avt-voile-ic" id="avt-voile-ic">⚔</div>
+        <div class="avt-voile-eyebrow" id="avt-voile-eyebrow">Un ennemi surgit</div>
+        <div class="avt-voile-nom" id="avt-surgit-nom">—</div>
+      </div>
     </div>
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
@@ -2934,6 +2990,69 @@ function niveauDe(xpTotal){
   return n;
 }
 
+// ═══ AVENTURE UNIQUEMENT — arbre de compétences ═══
+// Quatre branches, cinq nœuds chacune (coût 1,1,2,2,3 = 9 par branche
+// complète). Achat séquentiel : impossible d'acheter un nœud sans les
+// précédents de sa branche. Les effets ne sont pas encore appliqués en jeu à
+// ce stade — seuls l'achat et le suivi des points sont fonctionnels.
+const ARBRE_AVT = {
+  precision: {n:'Précision', ic:'◎', noeuds:[
+    {id:'fil-tendu', n:'Fil tendu', cout:1, e:'+1 centième de zone, en permanence'},
+    {id:'ligne-sure', n:'Ligne sûre', cout:1, e:'+1 centième de plus (total +2)'},
+    {id:'oeil-chrono', n:'Œil du chronomètre', cout:2, e:'le seuil du frôlé s\'élargit'},
+    {id:'main-forgeron', n:'Main du forgeron', cout:2, e:'+2 centièmes de plus (total +4)'},
+    {id:'etalon-or', n:'Étalon d\'or', cout:3, e:'un pile allège l\'usure du tour suivant'}
+  ]},
+  vitalite: {n:'Vitalité', ic:'♥', noeuds:[
+    {id:'cuir-tanne', n:'Cuir tanné', cout:1, e:'+1 coup manqué toléré en rencontre'},
+    {id:'nerfs-acier', n:'Nerfs d\'acier', cout:1, e:'un gardien tombe au 4e coup manqué'},
+    {id:'sang-froid', n:'Sang froid', cout:2, e:'après un raté, le coup suivant frappe plus fort'},
+    {id:'rescape', n:'Rescapé', cout:2, e:'1re défaite en rencontre rejouée gratuitement'},
+    {id:'ultime-rempart', n:'Ultime rempart', cout:3, e:'une chute fatale évitée, une fois par expédition'}
+  ]},
+  fortune: {n:'Fortune', ic:'◆', noeuds:[
+    {id:'piece-trouvee', n:'Pièce trouvée', cout:1, e:'+10 % d\'or sur chaque victoire'},
+    {id:'filon', n:'Filon', cout:1, e:'+10 % de plus (total +20 %)'},
+    {id:'marchand-habile', n:'Marchand habile', cout:2, e:'prix de la Boutique réduits de 10 %'},
+    {id:'poche-profonde', n:'Poche profonde', cout:2, e:'+20 % d\'or de plus (total +40 %)'},
+    {id:'tresor-gardien', n:'Trésor du gardien', cout:3, e:'un gardien vaincu laisse un bonus d\'or fixe'}
+  ]},
+  instinct: {n:'Instinct', ic:'✦', noeuds:[
+    {id:'odorat-pisteur', n:'Odorat du pisteur', cout:1, e:'le palier ennemi visible avant le combat'},
+    {id:'pas-leger', n:'Pas léger', cout:1, e:'le taux de rencontre baisse légèrement'},
+    {id:'sens-fuite', n:'Sens de la fuite', cout:2, e:'une rencontre évitée gratuitement par biome'},
+    {id:'regard-percant', n:'Regard perçant', cout:2, e:'les ennemis majeurs se font plus rares'},
+    {id:'sixieme-sens', n:'Sixième sens', cout:3, e:'la difficulté progresse plus lentement'}
+  ]}
+};
+// points de compétence disponibles : un par niveau, moins ceux déjà dépensés
+function pointsCompetenceDispo(){
+  const M = avtMem();
+  const depenses = Object.values(ARBRE_AVT).flatMap(b => b.noeuds)
+    .filter(nd => M.competences.includes(nd.id))
+    .reduce((s, nd) => s + nd.cout, 0);
+  return niveauDe(M.xp) - depenses;
+}
+// un nœud est achetable si ses prérequis (les nœuds précédents de sa
+// branche) sont possédés, qu'il ne l'est pas déjà, et qu'il reste assez de
+// points
+function noeudAchetable(cleBranche, index){
+  const M = avtMem(), branche = ARBRE_AVT[cleBranche];
+  const noeud = branche.noeuds[index];
+  if(M.competences.includes(noeud.id)) return false;
+  for(let i = 0; i < index; i++){
+    if(!M.competences.includes(branche.noeuds[i].id)) return false;
+  }
+  return pointsCompetenceDispo() >= noeud.cout;
+}
+function acheterNoeud(cleBranche, index){
+  if(!noeudAchetable(cleBranche, index)) return false;
+  const M = avtMem();
+  M.competences.push(ARBRE_AVT[cleBranche].noeuds[index].id);
+  ecrireMem();
+  return true;
+}
+
 const ARMES = [
   {id:'baton',  n:'Bâton ferré',    prix:0,    degats:10, xp:1.0,
    d:"Ce qu'on ramasse par terre. Il tape, c'est déjà ça."},
@@ -2954,8 +3073,12 @@ const ARMURES = [
   {id:'chrono',  n:'Plastron d\'horloger', prix:1000, zone:9,
    d:"Neuf centièmes. Le dernier palier : au-delà, le jeu n'aurait plus d'intérêt."}
 ];
-const avtMem = () => (MEM.avt = MEM.avt || {xp:0, or:0, arme:'baton', armure:'tunique',
-                                            meilleur:0, gardiens:0, parties:0});
+const avtMem = () => {
+  MEM.avt = MEM.avt || {xp:0, or:0, arme:'baton', armure:'tunique',
+                         meilleur:0, gardiens:0, parties:0, competences:[]};
+  MEM.avt.competences = MEM.avt.competences || [];   // migration douce
+  return MEM.avt;
+};
 const monArme   = () => ARMES.find(a => a.id === avtMem().arme)     || ARMES[0];
 const monArmure = () => ARMURES.find(a => a.id === avtMem().armure) || ARMURES[0];
 
@@ -3006,6 +3129,31 @@ const degatsMonstre = m => Math.max(4, Math.round(m.pv / 4));
 // ce qui ne correspond à rien pour l'échange de combat qui commence. Décalé
 // d'un tick : le rendu du verdict du tour de marche écrit sa propre valeur
 // juste après cet appel dans le même passage, il faut le laisser terminer.
+// Centre le chrono dans l'espace réel entre le bas du HUD et le haut du bloc
+// verdict, mesuré sur le rendu — remplace une marge fixe devinée par un
+// calcul qui s'adapte à la vraie hauteur disponible sur l'appareil.
+function ajusterChronoSousHud(){
+  requestAnimationFrame(() => {
+    const hud = document.getElementById('avt-hud');
+    const centre = document.querySelector('.f-centre');
+    const verdict = document.getElementById('f-verdict');
+    const fluide = document.getElementById('fluide');
+    if(!hud || !centre || !fluide) return;
+    const centreRect = centre.getBoundingClientRect();
+    const bas = hud.getBoundingClientRect().bottom - centreRect.top;
+    if(bas <= 0) return;   // mesure invalide (ex. environnement de test sans mise en page)
+    // chrono à mi-chemin entre le bas du HUD et le haut du verdict, avec un
+    // minimum de 24px de respiration si l'espace est très serré
+    const hautVerdict = verdict
+      ? verdict.getBoundingClientRect().top - centreRect.top
+      : bas + 200;
+    const cible = hautVerdict > bas
+      ? bas + (hautVerdict - bas) / 2
+      : bas + 24;
+    fluide.style.setProperty('--chr-y', Math.max(bas + 24, cible) + 'px');
+  });
+}
+
 function chronoAZeroImmediat(){
   setTimeout(() => {
     const c = document.getElementById('f-chrono');
@@ -3026,15 +3174,21 @@ function entrerCombat(){
   chronoAZeroImmediat();
 }
 
-// Popup rapide annonçant le nom de la cible, à l'entrée en combat. Se referme
-// tout seul : il n'a pas vocation à rester lisible, juste à signaler l'arrivée.
-function annoncerMonstre(nom){
+// Popup bloquant annonçant l'arrivée ou la défaite d'une cible. Se referme
+// tout seul après un court délai. Pendant qu'il est affiché, le voile capte
+// les appuis (pointer-events actif en CSS) : impossible de lancer le chrono
+// avant qu'il ne se referme.
+function annoncerMonstre(nom, victoire){
   const el = document.getElementById('avt-voile');
   if(!el) return;
-  document.getElementById('avt-surgit-nom').textContent = nom + ' surgit';
+  document.getElementById('avt-surgit-nom').textContent = victoire ? nom + ' vaincu !' : nom;
+  document.getElementById('avt-voile-eyebrow').textContent
+    = victoire ? 'Combat remporté' : 'Un ennemi surgit';
+  document.getElementById('avt-voile-ic').textContent = victoire ? '✓' : '⚔';
+  el.classList.toggle('succes', !!victoire);
   el.classList.add('on');
   if(S.tAvtSurgit) clearTimeout(S.tAvtSurgit);
-  S.tAvtSurgit = setTimeout(() => el.classList.remove('on'), 1400);
+  S.tAvtSurgit = setTimeout(() => el.classList.remove('on'), victoire ? 1100 : 1400);
 }
 
 // Rencontre aléatoire : un monstre lambda (faible ou moyen) du biome courant,
@@ -3083,6 +3237,31 @@ function construireAventureAccueil(){
         + (M.parties > 1 ? 's' : '')
       : "Première expédition. Le bâton et la tunique sont fournis — la Boutique "
         + "permet de les remplacer dès que vous avez de l'or.";
+}
+
+function construireCompetences(){
+  const M = avtMem();
+  $('cp-points').textContent = pointsCompetenceDispo();
+  const conteneur = $('cp-arbre');
+  conteneur.innerHTML = '';
+  Object.keys(ARBRE_AVT).forEach(cle => {
+    const branche = ARBRE_AVT[cle];
+    const col = document.createElement('div');
+    col.className = 'cp-branche';
+    col.innerHTML = '<div class="cp-branche-tete"><div class="ic">' + branche.ic
+      + '</div><div class="n">' + branche.n + '</div></div>';
+    branche.noeuds.forEach((noeud, i) => {
+      const possede = M.competences.includes(noeud.id);
+      const achetable = !possede && noeudAchetable(cle, i);
+      const el = document.createElement('div');
+      el.className = 'cp-noeud ' + (possede ? 'possede' : achetable ? 'achetable' : 'verrouille');
+      el.innerHTML = '<span class="cout">' + noeud.cout + ' pt' + (noeud.cout > 1 ? 's' : '')
+        + '</span><div class="n">' + noeud.n + '</div><div class="e">' + noeud.e + '</div>';
+      if(achetable) el.onclick = () => { acheterNoeud(cle, i); construireCompetences(); };
+      col.appendChild(el);
+    });
+    conteneur.appendChild(col);
+  });
 }
 
 function construireBoutique(){
@@ -5485,6 +5664,7 @@ function resoudre(valeur, delta, ecart){
               + (A.coups > 1 ? 's' : '');
             U.innerHTML = '<b class="t-or">+' + gx + ' xp · +' + r.or + ' or</b> · le chemin reprend';
           }
+          annoncerMonstre(nomCibleCombat(), true);
           A.enCombat = false; A.coups = 0; A.typeCible = null;
         } else if(A.pvJoueur <= 0){
           S.mort = true;
@@ -5524,9 +5704,8 @@ function resoudre(valeur, delta, ecart){
       A.or += gainOr;
       A.pas++;
       couleur = ecart === 0 ? 't-s100' : ecart <= 3 ? 't-s50' : 't-s20';
-      T.innerHTML = '<b class="t-or">+' + g + ' xp</b>';
-      U.innerHTML = 'le terrain tient · zone ± ' + fmt(A.zone)
-        + ' · <b class="t-or">' + A.xp + ' xp · ' + A.or + ' or</b>';
+      T.textContent = 'le terrain tient · zone ± ' + fmt(A.zone);
+      U.innerHTML = '<b class="t-or">+' + g + ' xp · ' + A.xp + ' xp · ' + A.or + ' or</b>';
       // Le popup (annoncerMonstre) suffit à signaler l'arrivée d'un adversaire :
       // le verdict de CE tour de marche — sa couleur, son texte — reste celui
       // qu'il aurait eu de toute façon. Un pile reste un pile, même si un
@@ -6305,6 +6484,10 @@ function majAnneau(){
     $('avt-pv-joueur-barre').style.width
       = Math.max(0, Math.round((A.pvJoueur || 0) / maxJoueur * 100)) + '%';
     $('avt-pv-joueur-n').textContent = (A.pvJoueur || 0) + ' pv';
+    ajusterChronoSousHud();
+  } else if(AVT()){
+    // hors combat : le chrono reprend sa position par défaut
+    $('fluide').style.removeProperty('--chr-y');
   }
   if(!on) return;
   const z = Math.max(1, S.zoneSurvie);
@@ -6414,7 +6597,8 @@ function fluidePhase(ph){
   const C = $('f-chrono'), G = $('f-gauche'), D = $('f-droite'), R = $('f-realise');
   // On retire les classes d'état sans toucher aux classes de biome : sinon
   // chaque clic redémarre les animations de fond depuis leur première image.
-  ['repos','attente','t-s100','t-s50','t-s20','t-s0','long6','long7','long8']
+  ['repos','attente','t-s100','t-s50','t-s20','t-s0','t-signal','t-alerte',
+   't-vert','t-laiton','long6','long7','long8']
     .forEach(x => C.classList.remove(x));
   if(CFG.mode === 'survie') appliquerEffetsBiome();
   G.className = 'rond'; D.className = 'rond';
@@ -6663,7 +6847,11 @@ async function detecterRecord(){
       const perfs = await apiAuth('perfs?mode=eq.' + CFG.mode
         + '&joueur=in.(' + autres.join(',') + ')&select=score') || [];
       const meilleurAutre = perfs.reduce((m, p) => Math.max(m, p.score || 0), 0);
-      if(score > meilleurAutre && meilleurAutre > 0){
+      // « tu prends la tête » n'a de sens que si ce n'était pas déjà le cas :
+      // sinon, battre son propre record ne fait que le creuser, pas le prendre
+      const prendLaTete = score > meilleurAutre && meilleurAutre > 0
+        && !(ancien > meilleurAutre);
+      if(prendLaTete){
         const nom = (lg.ligues && lg.ligues.nom) || lg.ligue;
         B.className = 'record-banniere ligue';
         B.innerHTML = '<div class="r-t">👑 Meilleur score de la ligue</div>'
@@ -7261,6 +7449,8 @@ let BOUTIQUE_RETOUR = 'test';
 $('bo-retour').onclick = () => montrer(S.partie ? ecranJeu() : BOUTIQUE_RETOUR);
 
 $('av-retour').onclick = () => montrer('reglages');
+$('av-competences').onclick = () => { construireCompetences(); montrer('aventure-competences'); };
+$('acp-retour').onclick = () => montrer('aventure-accueil');
 $('av-personnaliser').onclick = () => {
   BOUTIQUE_RETOUR = 'aventure-accueil';
   construireBoutique(); montrer('boutique');
