@@ -212,11 +212,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border-bottom:1px solid var(--trait);flex-wrap:wrap}
 .puce{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .rang b{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--gris);width:14px}
-.rang input{flex:1;background:none;border:none;outline:none;
+.rang input{flex:1;min-width:0;background:none;border:none;outline:none;
   font-family:var(--cond);font-size:22px;font-weight:600;letter-spacing:.03em;padding:2px 0;
   -webkit-user-select:text;user-select:text}
 .rang input::placeholder{color:#3D4756}
-.rang .retirer{color:var(--gris);font-size:22px;padding:4px 8px;line-height:1}
+.rang .retirer{color:var(--gris);font-size:22px;padding:4px 8px;line-height:1;flex-shrink:0}
 .hist{display:block;width:100%;padding-left:33px;font-family:var(--mono);
   font-size:10px;letter-spacing:.07em;color:var(--gris);margin-top:-2px}
 .hist:empty{display:none}
@@ -957,7 +957,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-size:17px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
 .nom-pill:active{opacity:.6}
 .rang .derouler,.rang .monter{color:var(--gris);font-size:13px;padding:8px 5px;
-  line-height:1;font-family:var(--mono)}
+  line-height:1;font-family:var(--mono);flex-shrink:0}
 .rang .monter{font-size:12px}
 .rang .monter[disabled]{opacity:.2}
 
