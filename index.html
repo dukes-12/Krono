@@ -212,10 +212,27 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border-bottom:1px solid var(--trait);flex-wrap:wrap}
 .puce{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .rang b{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--gris);width:14px}
-.rang input{flex:1;min-width:0;background:none;border:none;outline:none;
-  font-family:var(--cond);font-size:22px;font-weight:600;letter-spacing:.03em;padding:2px 0;
-  -webkit-user-select:text;user-select:text}
-.rang input::placeholder{color:#3D4756}
+.rang input {
+  flex: 1;
+  width: 0; /* Remplace le min-width:0 par width:0 */
+  background: none;
+  border: none;
+  outline: none;
+  font-family: var(--cond);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  padding: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.rang input::placeholder {
+  color: #3D4756;
+}
 .rang .retirer{color:var(--gris);font-size:22px;padding:4px 8px;line-height:1;flex-shrink:0}
 .hist{display:block;width:100%;padding-left:33px;font-family:var(--mono);
   font-size:10px;letter-spacing:.07em;color:var(--gris);margin-top:-2px}
