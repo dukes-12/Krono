@@ -1113,10 +1113,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .avt-hud{display:none;position:absolute;top:64px;left:50%;
   transform:translateX(-50%);width:88%;max-width:300px;z-index:6}
 .avt-hud.on{display:block}
-/* pendant le popup, le HUD et le chrono restent masqués : le jeu se révèle
-   seulement une fois le popup refermé, pas en même temps que lui */
+/* pendant le popup, tout le reste de l'écran reste masqué : le jeu se
+   révèle seulement une fois le popup refermé, pas en même temps que lui.
+   Le petit popup d'arrivée/victoire (avt-voile) est transparent : sans ce
+   masquage, texte du haut, verdict et boutons restaient visibles derrière. */
 #fluide.avt-popup-actif .avt-hud,
-#fluide.avt-popup-actif #f-chrono{visibility:hidden}
+#fluide.avt-popup-actif #f-chrono,
+#fluide.avt-popup-actif #f-tour,
+#fluide.avt-popup-actif .f-verdict,
+#fluide.avt-popup-actif .avt-cadre-bas,
+#fluide.avt-popup-actif #f-quitter{visibility:hidden}
 .avt-bandeau{display:flex;gap:8px}
 .avt-bloc{flex:1;min-width:0;background:rgba(255,255,255,.03);
   border:1px solid var(--bordDoux);border-radius:10px;padding:6px 8px}
@@ -1138,6 +1144,35 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--gris);opacity:.55}
 .avt-cible{margin-top:8px;text-align:center;font-family:var(--mono);
   font-size:26px;font-weight:600;color:var(--laiton);letter-spacing:.01em}
+.avt-boss-vaincu{display:none;position:absolute;inset:0;z-index:10;
+  align-items:center;justify-content:center;padding:26px;
+  background:
+    repeating-linear-gradient(135deg,rgba(0,0,0,.12) 0 2px,transparent 2px 26px),
+    radial-gradient(ellipse 90% 60% at 50% 0%,rgba(120,70,20,.3),transparent 70%),
+    linear-gradient(180deg,#1a1108,#0b0704 60%,#050302);
+  opacity:0;transition:opacity .4s ease}
+.avt-boss-vaincu.on{display:flex;opacity:1}
+.avt-bv-corps{max-width:320px;width:100%;text-align:center;
+  border:1px solid rgba(201,162,39,.4);border-radius:4px;
+  background:rgba(20,14,8,.72);padding:22px 22px 24px;position:relative;
+  box-shadow:0 24px 60px rgba(0,0,0,.6),inset 0 0 0 1px rgba(0,0,0,.4)}
+.avt-bv-corps::before,.avt-bv-corps::after{content:"";position:absolute;
+  width:6px;height:6px;border-radius:50%;background:rgba(201,162,39,.5);
+  box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+.avt-bv-corps::before{top:8px;left:8px}
+.avt-bv-corps::after{bottom:8px;right:8px}
+.avt-bv-img{width:100%;aspect-ratio:16/9;border:1px dashed rgba(201,162,39,.35);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gris);opacity:.6;margin-bottom:16px}
+.avt-bv-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.26em;
+  text-transform:uppercase;color:#C9A227;opacity:.85}
+.avt-bv-nom{font-family:var(--cond);font-size:26px;font-weight:700;
+  letter-spacing:.02em;text-transform:uppercase;color:#EDE6D6;margin-top:8px;
+  text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.avt-bv-recit{font-family:var(--cond);font-size:14px;line-height:1.6;
+  color:#C9B99A;margin-top:14px;font-style:italic}
+.avt-bv-corps .bouton{margin-top:20px;width:100%}
 .avt-transition{display:none;position:absolute;inset:0;z-index:11;
   align-items:center;justify-content:center;padding:26px;
   background:
@@ -1170,6 +1205,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .avt-voile.on{display:flex;opacity:1;pointer-events:auto}
 .avt-voile .carte{background:rgba(20,24,32,.97);border:1.5px solid var(--alerte);
   border-radius:18px;padding:34px 40px;text-align:center;min-width:270px;max-width:88%;
+  min-height:232px;display:flex;flex-direction:column;align-items:center;justify-content:center;
   box-shadow:0 24px 70px rgba(0,0,0,.55);
   transform:scale(.9) translateY(6px);transition:transform .3s cubic-bezier(.2,.9,.3,1.1)}
 .avt-voile.on .carte{transform:scale(1) translateY(0)}
@@ -1241,6 +1277,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* Aventure en combat seulement (les deux classes coexistent) : le chrono
    descend davantage pour laisser le HUD (nom, PV, image) respirer en haut,
    sans jamais toucher au réglage du mode Combat autonome ci-dessus */
+#fluide.mode-aventure{--chr-y:53%}
 #fluide.mode-aventure.mode-combat{--chr-y:58%}
 #fluide.mode-aventure.mode-combat .f-obj{display:none}
 #fluide.mode-cascade {--tete-mt:26px; --obj-mt:20px; --obj-h:70px; --chr-y:52%; --verdict-h:150px}
@@ -1252,6 +1289,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   color:var(--gris);margin-top:0;text-transform:uppercase;line-height:1.75;
   padding:0 16px;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.avt-cadre-bas{flex-shrink:0}
+#fluide.mode-aventure .avt-cadre-bas{margin:8px 18px 0;padding:0 4px}
+.avt-pv-marche{display:none;align-items:center;gap:9px;margin-bottom:10px;padding:0 4px}
+#fluide.mode-aventure .avt-pv-marche{display:flex}
+.avt-pv-marche .lb{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gris);flex-shrink:0}
+.avt-pv-marche .pv-b{flex:1;height:7px;border-radius:4px;background:var(--trait);overflow:hidden}
+.avt-pv-marche .pv-b i{display:block;height:100%;
+  background:linear-gradient(90deg,#2f8f5f,#6BE39A);transition:width .3s ease}
+.avt-pv-marche .n{font-family:var(--mono);font-size:12px;color:var(--ivoire);
+  min-width:30px;text-align:right;flex-shrink:0}
 .f-boutons{display:flex;justify-content:center;gap:26px;align-items:center;
   padding:12px 0 6px;flex-shrink:0}
 .f-quitter{display:block;width:100%;padding:11px;flex-shrink:0;
@@ -1261,8 +1309,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   display:flex;align-items:center;justify-content:center;
   font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   border:2px solid currentColor;color:var(--gris);flex-shrink:0}
-#fluide.mode-aventure .f-boutons{gap:18px;padding:8px 0 4px}
-#fluide.mode-aventure .rond{width:76px;height:76px;font-size:11px}
+#fluide.mode-aventure .f-boutons{gap:14px;padding:8px 0 4px}
+#fluide.mode-aventure .rond{width:132px;height:60px;border-radius:12px;font-size:11px}
+#fluide.mode-aventure .rond::after{border-radius:10px}
 .rond::after{content:"";position:absolute;inset:4px;border-radius:50%;
   background:currentColor;opacity:.13;transition:opacity .12s}
 .rond:active::after{opacity:.3}
@@ -1317,6 +1366,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .pr-plus{position:absolute;right:-1px;bottom:-1px;width:28px;height:28px;border-radius:50%;
   background:var(--laiton);color:var(--nuit);display:flex;align-items:center;
   justify-content:center;font-size:19px;font-weight:700;line-height:1}
+.pr-photo.a-photo .pr-plus{display:none}
 .pr-id{flex:1;min-width:0}
 .pr-pseudo{font-size:30px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
   line-height:1.05;overflow:hidden;text-overflow:ellipsis}
@@ -1858,6 +1908,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <span class="cp-points-lb">Points disponibles</span>
       <span class="cp-points-v" id="cp-points">0</span>
     </div>
+    <div class="note" id="cp-zone-actuelle">Zone actuelle : ± 0,15</div>
     <div class="note">Achat séquentiel : chaque nœud demande le précédent de
       sa branche. 20 niveaux permettent de finir une branche et demie, jamais
       les quatre.</div>
@@ -2099,13 +2150,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
     <div class="note" id="note-horo">—</div>
 
-    <div class="titre-sec">Arrondi du chrono</div>
-    <div class="seg" id="seg-arrondi">
-      <button data-v="proche" aria-pressed="true">Au plus près</button>
-      <button data-v="sup" aria-pressed="false">Centième supérieur</button>
-    </div>
-    <div class="note" id="note-arrondi">—</div>
-
     <div class="titre-sec">Dix derniers appuis · détail du traitement</div>
     <div class="note">Heure de l'appui, délai que JavaScript a mis à le traiter,
       et temps effectivement retranché au chrono selon le mode choisi.</div>
@@ -2210,15 +2254,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="avt-hud" id="avt-hud">
     <div class="avt-bandeau">
-      <div class="avt-bloc">
+      <div class="avt-bloc seul">
         <div class="avt-n" id="avt-nom-cible">—</div>
         <div class="avt-barre"><i id="avt-pv-cible-barre"></i></div>
         <div class="avt-nb" id="avt-pv-cible-n">0 pv</div>
-      </div>
-      <div class="avt-bloc moi">
-        <div class="avt-n">Vous</div>
-        <div class="avt-barre"><i id="avt-pv-joueur-barre" class="moi"></i></div>
-        <div class="avt-nb" id="avt-pv-joueur-n">0 pv</div>
       </div>
     </div>
     <div class="avt-monstre-img" id="avt-monstre-img">
@@ -2232,6 +2271,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <div class="avt-trans-nom" id="avt-trans-nom">—</div>
       <div class="avt-trans-recit" id="avt-trans-recit">—</div>
       <button class="bouton" id="avt-trans-continuer">Poursuivre l'aventure…</button>
+    </div>
+  </div>
+  <div class="avt-boss-vaincu" id="avt-boss-vaincu">
+    <div class="avt-bv-corps">
+      <div class="avt-bv-img"><span>image à venir</span></div>
+      <div class="avt-bv-eyebrow">Le gardien tombe</div>
+      <div class="avt-bv-nom" id="avt-boss-nom">—</div>
+      <div class="avt-bv-recit" id="avt-boss-recit">—</div>
+      <button class="bouton" id="avt-bv-continuer">Poursuivre</button>
     </div>
   </div>
   <div class="avt-voile" id="avt-voile">
@@ -2264,9 +2312,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="sous" id="f-ver-sous"></div>
     <div class="blague f-blague" id="f-blague"></div>
   </div>
-  <div class="f-boutons">
-    <button class="rond" id="f-gauche"><span>Détails</span></button>
-    <button class="rond vert" id="f-droite"><span>Démarrer</span></button>
+  <div class="avt-cadre-bas" id="avt-cadre-bas">
+    <div class="avt-pv-marche" id="avt-pv-marche">
+      <span class="lb">Vie</span>
+      <div class="pv-b"><i id="avt-pv-marche-barre" style="width:100%"></i></div>
+      <span class="n" id="avt-pv-marche-n">100</span>
+    </div>
+    <div class="f-boutons">
+      <button class="rond" id="f-gauche"><span>Détails</span></button>
+      <button class="rond vert" id="f-droite"><span>Démarrer</span></button>
+    </div>
   </div>
   <button class="f-quitter" id="f-quitter">Quitter la partie</button>
   <button class="cible-reflexe" id="f-reflexe"><span>STOP</span></button>
@@ -2385,7 +2440,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const CFG = { aff:'visible', diff:'simple', gor:'classique',
               evts:'aucun', maxTours:20, horo:true,
               mode:'classique', da:'instrument', lat:'materiel', minutes:false,
-              arrondi:'proche',   // 'proche' = au plus près · 'sup' = centième supérieur
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
       ambiance:true, bloquer:true, fonds:true, flouOcean:false} };
@@ -3108,6 +3162,69 @@ const RECIT_BIOME_AVT = {
 };
 const biomeAvtCourant = () => BIOMES[Math.min(BIOMES.length - 1, S.avt ? S.avt.gardiens : 0)];
 
+// Récits de départ, un par gardien — dans le même ordre que GARDIENS, donc
+// dans le même ordre que les biomes qu'ils gardent. Affichés sur l'écran de
+// victoire du boss, juste avant l'écran d'arrivée dans le biome suivant :
+// on quitte quelque chose, avant d'entrer ailleurs.
+const RECIT_DEPART_AVT = [
+  "Le Guetteur des lianes s'effondre dans un cliquetis de rouages et de "
+    + "feuilles mortes. La jungle referme lentement le passage derrière vous "
+    + "— on ne revient jamais tout à fait d'ici.",
+  "La Foudre nouée se disperse en une dernière étincelle. L'orage retombe "
+    + "sur des pylônes muets, et pour la première fois depuis longtemps, "
+    + "le silence redevient possible.",
+  "Le Récif affamé coule à pic, entraînant avec lui des siècles de rouille "
+    + "engloutie. La mer se referme au-dessus de la ville noyée, et avec "
+    + "elle, un chapitre qu'on ne rouvrira pas.",
+  "Le Vent de sable s'éteint d'un coup, comme une bougie soufflée. "
+    + "L'usine ensevelie garde son secret, et le désert reprend son silence "
+    + "minéral derrière vous.",
+  "Le Silence blanc se brise enfin, et avec lui le gel qui tenait la "
+    + "toundra immobile depuis des décennies. Les convois abandonnés "
+    + "restent là où ils sont — vous, vous continuez.",
+  "Ce qui dort sous la pierre ne dort plus, ou peut-être dort-il "
+    + "définitivement. La pression referme les abysses derrière vous, "
+    + "et la surface semble soudain très loin.",
+  "La Ville sans nom s'effrite en poussière dorée. La faille qui l'a vue "
+    + "naître se resserre lentement, comme si le temps lui-même reprenait "
+    + "son souffle.",
+  "Le Grand Balancier s'arrête net, pour la première fois depuis sa "
+    + "création. Les galeries de mine restent derrière vous, plongées dans "
+    + "un silence qu'elles n'avaient jamais connu.",
+  "La Chose des fosses retourne à la vase qui l'a portée. Le marais se "
+    + "referme sur ses cuves rouillées, et l'air, enfin, redevient "
+    + "respirable derrière vous.",
+  "Le Premier Jour s'immobilise, rouage après rouage, jusqu'au silence "
+    + "complet. Le cœur mécanique du vieux monde a cessé de battre — vous "
+    + "l'avez laissé loin derrière.",
+  "La Faille se referme sur elle-même, emportant avec elle les derniers "
+    + "néons de la mégapole. La ville continuera de briller pour personne, "
+    + "mais plus jamais pour vous.",
+  "Ce qui reste ne reste plus. Les quais désertés retrouvent un calme "
+    + "qu'ils n'avaient jamais eu, et le tableau d'affichage s'éteint sur "
+    + "une dernière destination sans nom.",
+  "Le Marcheur des eaux s'effondre dans les flammes qui l'ont vu naître. "
+    + "Le sol continuera de brûler longtemps après votre départ — mais "
+    + "sans plus personne pour le regarder faire.",
+  "Le Chef de gare rend son dernier souffle de vapeur. Les colonnes "
+    + "brisées de la capitale s'enfoncent un peu plus dans leur propre "
+    + "poussière, et vous vous éloignez, indemne.",
+  "Le Jardin dur cède enfin, dans le noir total des abysses. Ce qui "
+    + "restait de lumière bioluminescente s'éteint derrière vous, et la "
+    + "pression retrouve son calme.",
+  "Le Silence radio s'arrête d'émettre pour de bon. Le réseau mort ne "
+    + "portera plus aucun signal — vous êtes, désormais, la seule chose "
+    + "qui bouge encore dans ce chapitre.",
+  "Le Portier s'efface dans le vide qu'il gardait. L'épave dérive un peu "
+    + "plus loin dans l'obscurité, et vous, vous continuez votre chemin "
+    + "parmi les étoiles.",
+  "Le Dernier Gardien tombe, comme tous ceux qui l'ont précédé. Ce qu'il "
+    + "gardait s'éloigne déjà derrière vous — il y a toujours quelque "
+    + "chose de plus loin.",
+];
+// deux tournures possibles pour l'annonce de défaite, choisies au hasard
+const TOURNURES_DEFAITE = [nom => nom + ' est tombé…', nom => nom + ' a été vaincu…'];
+
 // ═══ AVENTURE UNIQUEMENT — niveaux ═══
 const NIVEAUX_AVT = 30;
 // probabilité de croiser un monstre lambda à chaque tour de marche éligible
@@ -3218,7 +3335,7 @@ const monArmure = () => ARMURES.find(a => a.id === avtMem().armure) || ARMURES[0
 // zone fixe, sans usure : 15 centièmes de tolérance du premier au dernier pas
 const ZONE_AVT = 15;
 // nombre de tours de marche avant que le gardien du décor ne se montre
-const TOURS_AVT = 18;
+const TOURS_AVT = 30;
 const GARDIENS = ['Le Guetteur des lianes', 'La Foudre nouée', 'Le Récif affamé',
   'Le Vent de sable', 'Le Silence blanc', 'Ce qui dort sous la pierre',
   'La Ville sans nom', 'Le Grand Balancier', 'La Chose des fosses',
@@ -3228,15 +3345,28 @@ const GARDIENS = ['Le Guetteur des lianes', 'La Foudre nouée', 'Le Récif affam
 const gardienNom = () => GARDIENS[Math.min(GARDIENS.length - 1,
                                            S.avt ? S.avt.gardiens : 0)];
 // le gardien apparaît au dernier tour de chaque biome
-const estGardien = tour => tour % TOURS_BIOME === 0;
-const pvGardien = tour => 40 + 25 * Math.floor((tour - 1) / TOURS_BIOME);
+const pvGardien = idx => 40 + 25 * idx;
+
+// Bonus de zone cumulé des compétences de la branche Précision achetées.
+// fil-tendu +1, ligne-sûre +1 (total 2), main-forgeron +2 (total 4) —
+// exactement ce que décrit chaque nœud, en centièmes.
+function bonusZoneCompetences(){
+  const M = avtMem();
+  let bonus = 0;
+  if(M.competences.includes('fil-tendu')) bonus += 1;
+  if(M.competences.includes('ligne-sure')) bonus += 1;
+  if(M.competences.includes('main-forgeron')) bonus += 2;
+  return bonus;
+}
 
 function initAventure(){
   const A = avtMem();
-  S.avt = {xp:0, or:0, zoneDepart:ZONE_AVT + monArmure().zone,
-           zone:ZONE_AVT + monArmure().zone, pvBoss:0,
+  const zoneBase = ZONE_AVT + monArmure().zone + bonusZoneCompetences();
+  S.avt = {xp:0, or:0, zoneDepart:zoneBase,
+           zone:zoneBase, pvBoss:0,
+           pvJoueur:PV_JOUEUR_BASE, pvJoueurMax:PV_JOUEUR_BASE,
            gardiens:0, coups:0, enCombat:false, pas:0, journal:[],
-           typeCible:null, recemmentRencontre:false};
+           typeCible:null, recemmentRencontre:false, dernierEchangeEtaitCombat:false};
   // sans cette remise à zéro, la partie suivante croit changer de décor et
   // affiche la carte du biome, qui verrouille le départ
   S.biome = null; S.boucleFaite = false;
@@ -3251,7 +3381,7 @@ function initAventure(){
 const PV_JOUEUR_BASE = 100;
 // Dégâts qu'un gardien inflige sur un coup non paré, croissant avec la
 // progression — même logique que pvGardien, une autre échelle.
-const degatsGardien = tour => 8 + Math.floor((tour - 1) / TOURS_BIOME) * 4;
+const degatsGardien = idx => 8 + 4 * idx;
 // Pour un monstre lambda, les dégâts se déduisent de ses PV plutôt que d'être
 // fixés à la main pour chacun des biomes — un monstre plus costaud tape aussi
 // plus fort, sans avoir à retoucher toute la table AVT_MONSTRES.
@@ -3297,12 +3427,17 @@ function chronoAZeroImmediat(){
 function entrerCombat(){
   S.avt.enCombat = true;
   S.avt.typeCible = 'gardien';
-  S.avt.pvBoss = pvGardien(S.tour);
+  S.avt.pvBoss = pvGardien(S.avt.gardiens);
   S.avt.pvMax = S.avt.pvBoss;
-  S.avt.degatsCible = degatsGardien(S.tour);
-  S.avt.pvJoueur = PV_JOUEUR_BASE;
-  S.avt.pvJoueurMax = PV_JOUEUR_BASE;
+  S.avt.degatsCible = degatsGardien(S.avt.gardiens);
+  // la vie du joueur n'est plus remise à fond ici : elle persiste depuis le
+  // début de l'expédition, un combat encaissé se ressent sur le suivant —
+  // jusqu'à l'introduction d'un système de soin
   S.avt.coups = 0;
+  // le verdict du tour de marche qui a déclenché cette rencontre ne doit
+  // plus apparaître une fois le popup refermé : rien n'a encore été résolu
+  // dans ce combat
+  $('f-verdict').style.visibility = 'hidden';
   annoncerMonstre(gardienNom());
   chronoAZeroImmediat();
 }
@@ -3335,12 +3470,31 @@ function annoncerMonstre(nom, victoire){
       afficherTransitionBiome(bio);
     } else if(fl){
       fl.classList.remove('avt-popup-actif');
+      // fluidePhase('repos') nettoie les classes de couleur (dont le violet
+      // de combat) laissées sur le chrono et le verdict ; fluidePret()
+      // recalcule ensuite l'affichage pour le tour de marche qui reprend
+      fluidePhase('repos'); fluidePret();
     }
   }, victoire ? 1000 : 1200);
 }
 
 // Écran de transition entre deux biomes, affiché une fois le popup de
 // victoire refermé — plein écran, isolé du HUD de combat.
+// Écran de victoire d'un gardien : nom, tournure aléatoire, récit de départ
+// propre au biome qu'on quitte. Remplace le petit popup pour les boss
+// uniquement — un monstre lambda garde le popup existant.
+function afficherVictoireBoss(nom, biomeQuitteId){
+  const idx = Math.max(0, BIOMES.findIndex(b => b.id === biomeQuitteId));
+  const recit = RECIT_DEPART_AVT[Math.min(RECIT_DEPART_AVT.length - 1, idx)]
+    || (nom + " s'efface derrière vous.");
+  const tournure = TOURNURES_DEFAITE[Math.floor(Math.random() * TOURNURES_DEFAITE.length)];
+  document.getElementById('avt-boss-nom').textContent = tournure(nom);
+  document.getElementById('avt-boss-recit').textContent = recit;
+  const fl = document.getElementById('fluide');
+  if(fl) fl.classList.add('avt-popup-actif');
+  document.getElementById('avt-boss-vaincu').classList.add('on');
+}
+
 function afficherTransitionBiome(id){
   const b = BIOMES.find(x => x.id === id) || {n: id};
   document.getElementById('avt-trans-nom').textContent = b.n;
@@ -3359,10 +3513,10 @@ function entrerCombatMonstre(type){
   S.avt.pvBoss = m.pv;
   S.avt.pvMax = m.pv;
   S.avt.degatsCible = degatsMonstre(m);
-  S.avt.pvJoueur = PV_JOUEUR_BASE;
-  S.avt.pvJoueurMax = PV_JOUEUR_BASE;
+  // idem : la vie du joueur persiste, aucune remise à fond entre deux combats
   S.avt.coups = 0;
   S.avt.recompenseCible = {xp:m.xp, or:m.or};
+  $('f-verdict').style.visibility = 'hidden';
   annoncerMonstre(m.n);
   chronoAZeroImmediat();
 }
@@ -3400,6 +3554,10 @@ function construireAventureAccueil(){
 function construireCompetences(){
   const M = avtMem();
   $('cp-points').textContent = pointsCompetenceDispo();
+  const zoneEffective = ZONE_AVT + monArmure().zone + bonusZoneCompetences();
+  const bonusComp = bonusZoneCompetences();
+  $('cp-zone-actuelle').textContent = 'Zone actuelle : ± ' + fmt(zoneEffective)
+    + (bonusComp > 0 ? ' (dont +' + fmt(bonusComp) + ' de compétences)' : '');
   const conteneur = $('cp-arbre');
   conteneur.innerHTML = '';
   Object.keys(ARBRE_AVT).forEach(cle => {
@@ -3753,11 +3911,13 @@ const biomeParId = id => BIOMES.find(b => b.id === id)
                       || BIOMES_TEST.find(b => b.id === id) || null;
 
 const biomeCourant = () => {
-  if(!CFG.sv || !CFG.sv.biomes) return null;
   // Aventure : on ne change de décor qu'en abattant le gardien, jamais au
-  // milieu d'un combat — sinon le sol changerait sous les pieds du joueur
+  // milieu d'un combat — sinon le sol changerait sous les pieds du joueur.
+  // Ce calcul ne dépend d'aucun réglage Survie : l'identité du biome fait
+  // partie du cœur de l'Aventure, pas une option.
   if(CFG.mode === 'aventure')
     return S.avt ? BIOMES[Math.min(BIOMES.length - 1, S.avt.gardiens)] : BIOMES[0];
+  if(!CFG.sv || !CFG.sv.biomes) return null;
   return CFG.mode === 'survie' ? biomeDe(S.tour) : null;
 };
 const TOURS_BIOME = 30;
@@ -3775,7 +3935,9 @@ const boucles = {};
 function lancerBoucleEffet(nom, action, mini, variation){
   if(boucles[nom]) return;                 // déjà en route, on n'y touche pas
   const pas = () => {
-    if(!S.partie || CFG.mode !== 'survie'){ arreterBoucleEffet(nom); return; }
+    if(!S.partie || (CFG.mode !== 'survie' && CFG.mode !== 'aventure')){
+      arreterBoucleEffet(nom); return;
+    }
     action();
     boucles[nom] = setTimeout(pas, mini + Math.random() * variation);
   };
@@ -3790,7 +3952,7 @@ function appliquerEffetsBiome(){
   const F = $('fluide');
   F.classList.toggle('noir-total', !!effB('noir'));
   // Océan : option à l'essai · le chiffre est flou, comme sous l'eau
-  const sousEau = !!(CFG.sv && CFG.sv.flouOcean)
+  const sousEau = (CFG.mode === 'aventure' || (CFG.sv && CFG.sv.flouOcean))
                   && biomeCourant() && biomeCourant().id === 'ocean';
   F.classList.toggle('flou-eau', sousEau);
   const C = $('f-chrono');
@@ -3804,11 +3966,20 @@ function appliquerEffetsBiome(){
   // Toundra : le voile respire, et son opacité monte au fil des trente tours
   const voile = !!effB('voile');
   F.classList.toggle('voile', voile);
-  // couche de fond animée, activable dans l'onglet Test
-  $('f-fond').classList.toggle('on', !!(CFG.sv && CFG.sv.fonds && CFG.sv.biomes));
+  // couche de fond animée : réglage optionnel en Survie (onglet Test),
+  // toujours active en Aventure (posée par majBiome, jamais désactivée ici)
+  if(CFG.mode === 'survie')
+    $('f-fond').classList.toggle('on', !!(CFG.sv && CFG.sv.fonds && CFG.sv.biomes));
   if(voile){
-    // du givre léger au premier tour à un blizzard dense au trentième
-    const avance = ((S.tour - 1) % TOURS_BIOME) / (TOURS_BIOME - 1);
+    // du givre léger au premier tour à un blizzard dense au trentième —
+    // la progression dans le biome se lit différemment selon le mode :
+    // Survie cycle en continu sur S.tour, l'Aventure compte ses pas depuis
+    // le dernier gardien (S.avt.pas)
+    const progression = CFG.mode === 'aventure' && S.avt
+      ? S.avt.pas % TOURS_AVT
+      : (S.tour - 1) % TOURS_BIOME;
+    const denom = (CFG.mode === 'aventure' ? TOURS_AVT : TOURS_BIOME) - 1;
+    const avance = progression / Math.max(1, denom);
     F.style.setProperty('--givre', (0.10 + avance * 0.26).toFixed(3));
     lancerBoucleEffet('bourrasque', bourrasque, 2600, 3400);
   } else {
@@ -3837,8 +4008,12 @@ function majBiome(){
   const F = $('fluide');
   // une partie terminée ne change plus de décor : la carte masquerait
   // l'écran de fin et bloquerait le bouton
-  const actif = (CFG.mode === 'survie' || CFG.mode === 'aventure')
-              && S.partie && CFG.sv && CFG.sv.biomes && !partieFinie();
+  // Survie garde son réglage optionnel ; l'Aventure n'en a pas d'équivalent —
+  // et n'en a pas besoin, l'identité visuelle du biome fait partie du cœur
+  // de l'expérience, jamais une option qu'on pourrait couper
+  const actif = S.partie && !partieFinie() && (
+    (CFG.mode === 'survie' && CFG.sv && CFG.sv.biomes) || CFG.mode === 'aventure'
+  );
   if(!actif){
     F.removeAttribute('data-biome');
     F.style.removeProperty('--bio-accent');
@@ -3866,6 +4041,9 @@ function majBiome(){
   F.style.setProperty('--bio-accent', b.accent);
   F.style.setProperty('--bio-halo', b.halo);
   F.style.setProperty('--bio-fond', b.fond);
+  // en Aventure, la couche de fond animée est toujours active — elle ne
+  // dépend pas du réglage Survie (CFG.sv.fonds), qui n'a pas d'équivalent ici
+  if(CFG.mode === 'aventure') $('f-fond').classList.add('on');
   const E = $('f-biome');
   E.textContent = b.n;
   E.classList.add('on');
@@ -4611,6 +4789,13 @@ function cibleSuivante(total){
     }
     return prochaineCible(total);
   }
+  if(m === 'aventure' && rebours() && !(S.avt && S.avt.enCombat)){
+    // même logique qu'en Survie, réservée à la marche : un combat repart
+    // toujours de zéro, descendre n'y aurait aucun sens
+    let p = Math.floor(total / 100) * 100;
+    while(total - p < 50) p -= 100;
+    return Math.max(0, p);
+  }
   if(m === 'compte'){
     const reste = Math.max(1, (CFG.maxTours || 10) - S.tour);
     const ecart = Math.max(20, Math.round((2000 - total) / reste));
@@ -4952,7 +5137,6 @@ segmente('seg-diff', v => CFG.diff = v);
 segmente('seg-gor',  v => CFG.gor = v);
 segmente('seg-evt',  v => CFG.evts = v);
 segmente('seg-horo', v => { CFG.horo = v === '1'; MEM.cfg = {...CFG}; ecrireMem(); majLatence(); });
-segmente('seg-arrondi', v => { CFG.arrondi = v; MEM.cfg = {...CFG}; ecrireMem(); majLatence(); });
 segmente('seg-fin',  v => CFG.maxTours = +v);
 
 function rafraichir(){
@@ -5445,14 +5629,8 @@ async function afficherPret(){
 const estMinute = c => c > 0 && c % 6000 === 0;
 
 // Conversion millisecondes → centièmes, unique pour tout le jeu.
-//   'proche' : arrondi au centième le plus près (Math.round)
-//   'sup'    : dès qu'un millième dépasse, on monte au centième supérieur.
-//              Le chrono ne sous-estime alors jamais le temps réellement écoulé.
-// On travaille sur des dixièmes de milliseconde pour absorber le bruit flottant
-// de performance.now : sans ce garde, 200,0000000003 ms basculerait à 21
-// centièmes en mode supérieur.
+// Arrondi au centième le plus proche — seul comportement, plus de réglage.
 function enCentiemes(ms){
-  if(CFG.arrondi === 'sup') return Math.ceil((Math.round(ms * 10) / 10) / 10);
   return Math.round(ms / 10);
 }
 
@@ -5569,7 +5747,7 @@ function boucleChiffres(){
   let cs = enCentiemes(ecoule);
   // Marais : l'affichage n'avance que par bonds de 13 centièmes, à cadence
   // irrégulière. La mesure interne, elle, reste rigoureusement exacte.
-  if(CFG.mode === 'survie' && effB('saccade')){
+  if((CFG.mode === 'survie' || CFG.mode === 'aventure') && effB('saccade')){
     if(S.saccadeAt === undefined || ecoule - S.saccadeAt > 130 + Math.random() * 120){
       S.saccadeAt = ecoule;
       S.saccadeVal = cs;
@@ -5787,6 +5965,9 @@ function resoudre(valeur, delta, ecart){
     const PARADE = 3;
     if(A.enCombat){
       /* ── combat, générique : gardien ou monstre lambda ── */
+      // on est fixé sur place pendant un combat : cet échange ne doit jamais
+      // compter comme un tour de marche, y compris s'il se termine ici même
+      A.dernierEchangeEtaitCombat = true;
       if(ecart <= z){
         const critique = ecart === 0;
         const d = Math.round(arme.degats * (critique ? 2 : 1));
@@ -5810,8 +5991,10 @@ function resoudre(valeur, delta, ecart){
           : nomCibleCombat() + ' tombe';
         if(A.pvBoss <= 0){
           A.recemmentRencontre = true;   // jamais deux rencontres d'affilée
+          const nomVaincu = nomCibleCombat();   // capturé avant toute mutation
+          let biomeAvant = null;
           if(A.typeCible === 'gardien'){
-            const biomeAvant = biomeAvtCourant().id;
+            biomeAvant = biomeAvtCourant().id;
             const prime = 40 + 30 * A.gardiens;
             A.xp += Math.round(prime * arme.xp);
             A.gardiens++; A.pas = 0;
@@ -5829,11 +6012,14 @@ function resoudre(valeur, delta, ecart){
             const gx = Math.round(r.xp * arme.xp);
             A.xp += gx; A.or += r.or;
             couleur = 't-s100';
-            T.textContent = nomCibleCombat() + ' vaincu en ' + A.coups + ' coup'
+            T.textContent = nomVaincu + ' vaincu en ' + A.coups + ' coup'
               + (A.coups > 1 ? 's' : '');
             U.innerHTML = '<b class="t-or">+' + gx + ' xp · +' + r.or + ' or</b> · le chemin reprend';
           }
-          annoncerMonstre(nomCibleCombat(), true);
+          // le gardien reçoit son propre écran de transition (récit de départ) ;
+          // un monstre lambda reste sur le petit popup existant
+          if(A.typeCible === 'gardien') afficherVictoireBoss(nomVaincu, biomeAvant);
+          else annoncerMonstre(nomVaincu, true);
           A.enCombat = false; A.coups = 0; A.typeCible = null;
         } else if(A.pvJoueur <= 0){
           S.mort = true;
@@ -6502,6 +6688,11 @@ function fluidePret(){
   const nom = S.joueurs[S.idx];
   S.dureeTour = Math.max(1, Math.abs(S.cible - S.total));
   calerChrono();
+  if(AVT() && S.avt){
+    const pv = Math.max(0, S.avt.pvJoueur || 0), max = S.avt.pvJoueurMax || PV_JOUEUR_BASE;
+    $('avt-pv-marche-n').textContent = pv;
+    $('avt-pv-marche-barre').style.width = Math.max(0, Math.min(100, (pv / max) * 100)) + '%';
+  }
   // la nappe se remet en route toute seule si elle s'est arrêtée
   if(CFG.mode === 'survie' && S.partie && CFG.sv && CFG.sv.son && CFG.sv.musique
      && !musique) lancerMusique();
@@ -6586,9 +6777,11 @@ function fluidePret(){
     else $('f-obj-tenir').textContent = '';
   }
   else if(AVT()){
-    // l'info combat/marche vit dans le HUD visuel (barres, popup) : ce texte
-    // ferait doublon et encombre l'écran, déjà chargé pendant un combat
-    $('f-obj-tenir').textContent = '';
+    // l'info combat vit dans le HUD visuel (barres, popup) : ce texte ferait
+    // doublon et encombre l'écran, déjà chargé pendant un combat — en
+    // marche, seul l'indice de sens inversé (Horlogerie) mérite d'apparaître
+    $('f-obj-tenir').textContent
+      = (!S.avt || !S.avt.enCombat) && rebours() ? 'le chrono descend' : '';
   }
   else if(LAB()){
     const lb = LAB();
@@ -6650,9 +6843,10 @@ function majAnneau(){
     $('avt-nom-cible').textContent = nomCibleCombat();
     $('avt-pv-cible-barre').style.width = Math.max(0, Math.round(A.pvBoss / max * 100)) + '%';
     $('avt-pv-cible-n').textContent = A.pvBoss + ' pv';
-    $('avt-pv-joueur-barre').style.width
-      = Math.max(0, Math.round((A.pvJoueur || 0) / maxJoueur * 100)) + '%';
-    $('avt-pv-joueur-n').textContent = (A.pvJoueur || 0) + ' pv';
+    // la vie du joueur vit désormais en bas, au même endroit qu'en marche
+    const pv = Math.max(0, A.pvJoueur || 0);
+    $('avt-pv-marche-n').textContent = pv;
+    $('avt-pv-marche-barre').style.width = Math.max(0, Math.min(100, (pv / maxJoueur) * 100)) + '%';
     ajusterChronoSousHud();
   } else if(AVT()){
     // hors combat : le chrono reprend sa position par défaut
@@ -6706,7 +6900,9 @@ function majNoirMine(){
 // Horlogerie : le chiffre montré n'est plus le temps écoulé mais le temps qui
 // reste avant la cible. Il descend vers zéro, et c'est sur zéro qu'on appuie.
 // La mesure interne, elle, ne change pas d'un iota.
-const rebours = () => CFG.mode === 'survie' && effB('rebours');
+const rebours = () =>
+  (CFG.mode === 'survie' || (CFG.mode === 'aventure' && !(S.avt && S.avt.enCombat)))
+  && effB('rebours');
 // En rebours, la valeur atteinte se calcule en soustrayant : le total descend.
 const valeurAtteinte = ecoule => rebours() ? S.total - ecoule : S.total + ecoule;
 function affChrono(cs){ return fmt(Math.max(0, cs)); }
@@ -6755,7 +6951,7 @@ function fluidePhase(ph){
   if(CFG.mode === 'cascade'){
     F.setAttribute('data-biome', 'cascade');
     $('f-fond').classList.add('on');
-  } else if(CFG.mode !== 'survie'){
+  } else if(CFG.mode !== 'survie' && CFG.mode !== 'aventure'){
     $('f-fond').classList.remove('on');
   }
   // le décompte du sprint ne doit jamais survivre à un changement de mode ;
@@ -6769,12 +6965,16 @@ function fluidePhase(ph){
   ['repos','attente','t-s100','t-s50','t-s20','t-s0','t-signal','t-alerte',
    't-vert','t-laiton','long6','long7','long8']
     .forEach(x => C.classList.remove(x));
-  if(CFG.mode === 'survie') appliquerEffetsBiome();
+  // appliquerEffetsBiome() est un système entièrement visuel — aucune zone,
+  // vie ou score n'y est touché — donc partageable tel quel entre les deux
+  // modes, sans dupliquer le code
+  if(CFG.mode === 'survie' || CFG.mode === 'aventure') appliquerEffetsBiome();
   G.className = 'rond'; D.className = 'rond';
   G.disabled = false; D.disabled = false;
   R.classList.remove('on');
   $('f-blague').classList.remove('on');
-  $('f-quitter').style.visibility = 'visible';
+  $('f-quitter').style.visibility
+    = (AVT() && $('fluide').classList.contains('avt-popup-actif')) ? 'hidden' : 'visible';
 
   if(ph === 'course'){
     if(CFG.mode === 'reflexe'){ C.classList.add('attente'); C.textContent = '— ms'; }
@@ -6834,7 +7034,8 @@ function fluidePhase(ph){
     $('f-ver-titre').textContent = d.titre;
     $('f-ver-titre').className = 'titre ' + d.couleur;
     $('f-ver-sous').textContent = masque ? 'signal perdu' : d.sous;
-    $('f-verdict').style.visibility = 'visible';
+    $('f-verdict').style.visibility
+      = (AVT() && $('fluide').classList.contains('avt-popup-actif')) ? 'hidden' : 'visible';
   } else {
     C.classList.add('repos');
     // Spatial : le tour se joue sans chrono, dès l'écran de repos
@@ -6894,8 +7095,10 @@ function avancerTour(){
   const ft = S.finDeTour || {avance:true};
   S.idx = idxSuivant();
   S.prochain = null;
+  const futCombat = AVT() && S.avt && S.avt.dernierEchangeEtaitCombat;
+  if(S.avt) S.avt.dernierEchangeEtaitCombat = false;
   if(ft.avance){
-    S.tour++;
+    if(!futCombat) S.tour++;   // un échange de combat ne fait pas avancer le compteur de tours
     S.cible = S.cibleBase = S.enAttente;
     tirerEvenement();
   }
@@ -7003,7 +7206,10 @@ async function detecterRecord(){
       + score + ' points, ton meilleur à ce jour (ancien : ' + ancien + ').';
     B.style.display = 'block';
   }
-  // record de ligue : le meilleur score des AUTRES membres, sur ce mode
+  // record de ligue : le meilleur score des AUTRES membres, sur ce mode —
+  // et le sien propre, tous deux lus depuis le serveur (jamais depuis
+  // MEM.profils, un souvenir local à cet appareil qui peut être périmé,
+  // absent après une réinstallation, ou simplement faux sur un autre appareil)
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   if(!s) return;
   let ligues = [];
@@ -7013,15 +7219,18 @@ async function detecterRecord(){
     for(const lg of ligues){
       const membres = await apiAuth('membres?ligue=eq.' + lg.ligue
         + '&select=joueur') || [];
-      const autres = membres.map(m => m.joueur).filter(id => id !== s.id);
-      if(!autres.length) continue;
+      const tousIds = membres.map(m => m.joueur);
+      if(tousIds.length < 2) continue;   // seul dans la ligue, rien à dépasser
       const perfs = await apiAuth('perfs?mode=eq.' + CFG.mode
-        + '&joueur=in.(' + autres.join(',') + ')&select=score') || [];
-      const meilleurAutre = perfs.reduce((m, p) => Math.max(m, p.score || 0), 0);
+        + '&joueur=in.(' + tousIds.join(',') + ')&select=score,joueur') || [];
+      const meilleurAutre = perfs.filter(p => p.joueur !== s.id)
+        .reduce((m, p) => Math.max(m, p.score || 0), 0);
+      const monMeilleurAvant = perfs.filter(p => p.joueur === s.id)
+        .reduce((m, p) => Math.max(m, p.score || 0), 0);
+      if(!meilleurAutre) continue;   // personne d'autre n'a encore de score
       // « tu prends la tête » n'a de sens que si ce n'était pas déjà le cas :
       // sinon, battre son propre record ne fait que le creuser, pas le prendre
-      const prendLaTete = score > meilleurAutre && meilleurAutre > 0
-        && !(ancien > meilleurAutre);
+      const prendLaTete = score > meilleurAutre && monMeilleurAvant <= meilleurAutre;
       if(prendLaTete){
         const nom = (lg.ligues && lg.ligues.nom) || lg.ligue;
         B.className = 'record-banniere ligue';
@@ -7685,10 +7894,23 @@ $('av-boutique').onclick = () => {
 };
 $('av-personnaliser').onclick = () => montrer('aventure-apparence');
 $('apr-retour').onclick = () => montrer('aventure-accueil');
+$('avt-bv-continuer').onclick = () => {
+  $('avt-boss-vaincu').classList.remove('on');
+  const bio = S.avt ? S.avt.biomeTransitionEnAttente : null;
+  if(bio){
+    S.avt.biomeTransitionEnAttente = null;
+    afficherTransitionBiome(bio);
+  } else {
+    const fl = $('fluide');
+    if(fl) fl.classList.remove('avt-popup-actif');
+    fluidePhase('repos'); fluidePret();
+  }
+};
 $('avt-trans-continuer').onclick = () => {
   $('avt-transition').classList.remove('on');
   const fl = $('fluide');
   if(fl) fl.classList.remove('avt-popup-actif');
+  fluidePhase('repos'); fluidePret();
 };
 $('av-lancer').onclick = async () => {
   if(await reprendrePartieAvt()) return;   // une expédition en attente reprend directement
@@ -7735,6 +7957,7 @@ async function construireProfil(){
   $('pr-img').style.display = p.photo ? 'block' : 'none';
   $('pr-init').style.display = p.photo ? 'none' : 'block';
   if(p.photo) $('pr-img').src = p.photo;
+  $('pr-photo').classList.toggle('a-photo', !!p.photo);
 
   $('pr-coul').innerHTML = COULEURS.map(c =>
     `<button data-c="${c}" style="background:${c}"
@@ -8836,7 +9059,8 @@ function etatReprenableAvt(){
   const A = S.avt;
   return {tour:S.tour, total:S.total, cible:S.cible,
           xp:A.xp, or:A.or, zoneDepart:A.zoneDepart, zone:A.zone,
-          gardiens:A.gardiens, pas:A.pas, joueur:S.joueurs[0], date:Date.now()};
+          gardiens:A.gardiens, pas:A.pas, pvJoueur:A.pvJoueur, pvJoueurMax:A.pvJoueurMax,
+          joueur:S.joueurs[0], date:Date.now()};
 }
 function sauverPartieAvt(){
   MEM.repriseAvt = etatReprenableAvt();
@@ -8858,6 +9082,9 @@ async function reprendrePartieAvt(){
   S.tour = r.tour; S.total = r.total; S.cible = r.cible; S.cibleBase = r.cible;
   S.avt.xp = r.xp; S.avt.or = r.or; S.avt.zoneDepart = r.zoneDepart;
   S.avt.zone = r.zone; S.avt.gardiens = r.gardiens; S.avt.pas = r.pas;
+  // repli sûr pour une sauvegarde antérieure à ce champ
+  S.avt.pvJoueur = r.pvJoueur != null ? r.pvJoueur : PV_JOUEUR_BASE;
+  S.avt.pvJoueurMax = r.pvJoueurMax != null ? r.pvJoueurMax : PV_JOUEUR_BASE;
   S.zoneTour = zoneDe(S.joueurs[0]);
   effacerRepriseAvt();
   fluidePret();
@@ -9279,7 +9506,7 @@ function construireTest(){
 const MDP_TEST = 'TEST12';
 let testOuvert = false;
 
-const COMPTES_TEST_AUTORISES = ['allongueville1@gmail.com'];
+const COMPTES_TEST_AUTORISES = ['allongueville1@gmail.com', 'lecoustrehugo@gmail.com'];
 // true si la session courante est un compte Google et figure dans la liste.
 // Un compte identifiant/mot de passe a une adresse @krono.local fictive, donc
 // il ne peut jamais matcher ici — seule une vraie connexion Google le peut.
@@ -9540,18 +9767,8 @@ function majDelais(){
       <th>Heure au clic</th><th>Délai de traitement</th><th>Retranché</th></tr>
       ${lignes}</table>`;
 }
-function majArrondiNote(){
-  const N = $('note-arrondi');
-  if(!N) return;
-  N.textContent = CFG.arrondi === 'sup'
-    ? "Dès qu'un millième dépasse, le chrono monte au centième supérieur : il ne sous-estime jamais le temps écoulé. Plus sévère."
-    : "Le chrono est arrondi au centième le plus proche. C'est le comportement d'usine.";
-}
 function majLatence(){
-  majDelais(); majArrondiNote();
-  const A = $('seg-arrondi');
-  if(A) A.querySelectorAll('button').forEach(b =>
-    b.setAttribute('aria-pressed', b.dataset.v === CFG.arrondi));
+  majDelais();
   const L = S.latences;
   if(!L.length){
     $('lat-moy').textContent = '—';
