@@ -1198,7 +1198,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .avt-trans-recit{font-family:var(--cond);font-size:15px;line-height:1.6;
   color:#C9B99A;margin-top:16px;font-style:italic}
 .avt-trans-corps .bouton{margin-top:22px;width:100%}
-   /* Grille de choix d'embranchement */
+   /* --- NOUVEAU : Grille de choix d'embranchement --- */
 .avt-chemin-grille { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; justify-content: center; }
 .avt-chemin-carte { flex: 1 1 130px; background: rgba(255,255,255,0.05); border: 1px solid var(--bordDoux); border-radius: 8px; padding: 16px 10px; cursor: pointer; transition: all 0.2s; }
 .avt-chemin-carte:active { transform: scale(0.95); background: rgba(255,255,255,0.1); border-color: var(--laiton); }
@@ -2297,7 +2297,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <div class="avt-voile-nom" id="avt-surgit-nom">—</div>
     </div>
   </div>
-   <!-- Modale de choix d'embranchement -->
+   <!-- NOUVEAU : Modale de choix d'embranchement -->
   <div class="avt-transition" id="avt-choix-chemin" style="z-index: 12;">
     <div class="avt-trans-corps" style="max-width: 440px;">
       <div class="avt-trans-eyebrow">La route se divise</div>
@@ -2306,7 +2306,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
   </div>
 
-  <!-- Modale de découverte de secret -->
+  <!-- NOUVEAU : Modale de découverte de secret -->
   <div class="avt-voile" id="avt-voile-secret" style="z-index: 10;">
     <div class="carte" style="border-color: var(--alerte);">
       <div class="avt-voile-ic" style="color: var(--alerte);">✦</div>
@@ -3121,7 +3121,7 @@ const AVT_MONSTRES = {
 // Station n'a jamais de monstre : ce n'est pas une zone de combat, seulement
 // un accès rapide vers un biome déjà visité (voir la carte des chemins).
 const monstresDe = id => AVT_MONSTRES[id] || AVT_MONSTRES.jungle;
-// Définition de la carte et des embranchements
+// --- NOUVEAU : Définition de la carte et des événements secrets ---
 const CARTE_AVT = {
   jungle:     { directs: ['orage'], secrets: ['incendie'] },
   orage:      { directs: ['desert'], secrets: [] },
@@ -3134,7 +3134,7 @@ const CARTE_AVT = {
   toundra:    { directs: ['horlogerie'], secrets: ['station'] },
   horlogerie: { directs: ['incendie'], secrets: ['metropole'] },
   metropole:  { directs: ['incendie'], secrets: [] },
-  station:    { directs: ['*'], secrets: [] }, // "*" = zones déjà visitées
+  station:    { directs: ['*'], secrets: [] },
   incendie:   { directs: ['ruines', 'enfer'], secrets: [] },
   ruines:     { directs: ['reseau'], secrets: ['faille'] },
   faille:     { directs: ['spatial'], secrets: [] },
@@ -3142,10 +3142,9 @@ const CARTE_AVT = {
   spatial:    { directs: ['paradis', 'enfer'], secrets: [] },
   paradis:    { directs: ['aurore', 'enfer'], secrets: [] },
   enfer:      { directs: ['aurore'], secrets: [] },
-  aurore:     { directs: [], secrets: [] } // Fin du jeu
+  aurore:     { directs: [], secrets: [] }
 };
 
-// Textes d'ambiance pour la découverte des chemins secrets
 const EVENEMENTS_SECRETS = {
   jungle: { cible: 'incendie', titre: "Carcasse calcinée", texte: "Sous les lianes, les restes d'un véhicule fondu. Son GPS crépite encore et pointe vers une zone d'extrême chaleur." },
   ocean: { cible: 'abysses', titre: "Faille sous-marine", texte: "Un fort courant vous attire vers le fond. Une immense fracture dans le plancher océanique s'ouvre vers l'obscurité totale." },
@@ -3153,6 +3152,7 @@ const EVENEMENTS_SECRETS = {
   horlogerie: { cible: 'metropole', titre: "Ascenseur dissimulé", texte: "Derrière l'engrenage principal, une porte d'accès clignote d'une lueur rose. C'est un accès direct vers la mégapole." },
   ruines: { cible: 'faille', titre: "Déchirure temporelle", texte: "L'air crépite et se déforme. Les ruines semblent vibrer entre deux époques, dévoilant un chemin instable." }
 };
+// ----------------------------------------------------------------
 // Récits de transition entre biomes, ton post-apocalyptique / steampunk.
 // Affichés sur un écran dédié, une seule fois, quand un gardien vaincu fait
 // franchir la frontière vers le biome suivant.
@@ -3560,98 +3560,7 @@ function afficherTransitionBiome(id){
     = RECIT_BIOME_AVT[id] || "Le paysage change du tout au tout.";
   document.getElementById('avt-transition').classList.add('on');
 }
-// Remplace l'enchaînement automatique à la mort du Boss
-function resoudreFinBiomeAventure() {
-  const noeud = CARTE_AVT[S.biome];
-  if(!noeud) return; 
-  
-  S.avt.biomesVisites = S.avt.biomesVisites || [];
-  if (!S.avt.biomesVisites.includes(S.biome)) S.avt.biomesVisites.push(S.biome);
 
-  let options = [...noeud.directs];
-
-  // Règle spéciale : Grotte -> Enfer force la sortie vers Incendie
-  if (S.biome === 'enfer' && S.avt.venantDeGrotte) {
-    options = ['incendie'];
-    S.avt.venantDeGrotte = false; 
-  }
-
-  // Injecter les secrets débloqués
-  if (S.avt.secretsDebloques) {
-    noeud.secrets.forEach(sec => {
-       if (S.avt.secretsDebloques.includes(sec)) {
-         options.push(sec);
-       }
-    });
-  }
-
-  // Règle spéciale : Station permet d'aller partout où on a déjà été
-  if (options.includes('*')) {
-    options = S.avt.biomesVisites.filter(b => b !== 'station');
-  }
-
-  if (options.length === 1) {
-    declencherTransitionVers(options[0]);
-  } else if (options.length === 0) {
-    alert("Victoire finale !"); 
-  } else {
-    // Générer l'écran de choix
-    const grille = document.getElementById('avt-chemin-grille');
-    grille.innerHTML = '';
-    
-    options.forEach(idBiome => {
-      const bInfos = BIOMES.find(b => b.id === idBiome) || BIOMES_TEST.find(b => b.id === idBiome) || {n: idBiome};
-      const estSecret = noeud.secrets.includes(idBiome);
-      
-      const carte = document.createElement('div');
-      carte.className = `avt-chemin-carte ${estSecret ? 'secret' : ''}`;
-      carte.innerHTML = `
-        <div class="avt-chemin-type">${estSecret ? 'Chemin secret' : 'Chemin direct'}</div>
-        <div class="avt-chemin-nom">${bInfos.n}</div>
-      `;
-      carte.onclick = () => declencherTransitionVers(idBiome);
-      grille.appendChild(carte);
-    });
-
-    document.getElementById('avt-boss-vaincu').classList.remove('on');
-    document.getElementById('avt-choix-chemin').classList.add('on');
-  }
-}
-
-function declencherTransitionVers(idBiome) {
-   if (S.biome === 'grotte' && idBiome === 'enfer') {
-       S.avt.venantDeGrotte = true;
-   }
-   
-   document.getElementById('avt-choix-chemin').classList.remove('on');
-   document.getElementById('avt-boss-vaincu').classList.remove('on'); 
-   
-   S.avt.biomeTransitionEnAttente = idBiome;
-   afficherTransitionBiome(idBiome);
-}
-// Attache l'écran de choix d'embranchement au bouton "Poursuivre" du boss
-document.getElementById('avt-bv-continuer').onclick = function() {
-  resoudreFinBiomeAventure();
-};
-// Déclencheur d'événement pendant la marche
-function declencherEvenementSecret() {
-  const evt = EVENEMENTS_SECRETS[S.biome];
-  if (!evt) return false;
-  
-  S.avt.secretsDebloques = S.avt.secretsDebloques || [];
-  if (S.avt.secretsDebloques.includes(evt.cible)) return false;
-
-  document.getElementById('avt-sec-titre').textContent = evt.titre;
-  document.getElementById('avt-sec-recit').textContent = evt.texte;
-  document.getElementById('avt-voile-secret').classList.add('on');
-  
-  document.getElementById('avt-sec-btn').onclick = () => {
-    S.avt.secretsDebloques.push(evt.cible);
-    document.getElementById('avt-voile-secret').classList.remove('on');
-    // Le code pour relancer le tour de marche ira ici
-  };
-  return true;
-}
 // Rencontre aléatoire : un monstre lambda (faible ou moyen) du biome courant,
 // jamais un gardien. Même mécanique de résolution, un combat plus court.
 function entrerCombatMonstre(type){
@@ -9980,6 +9889,129 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   // apparaissait ailleurs faute de ce padding.
   montrer(S.partie ? ecranJeu() : 'reglages');
 })();
+   // --- NOUVEAU : Logique d'embranchement et découplage ---
+
+// 1. DÉCOUPLAGE : On casse la linéarité de l'Aventure
+const ancienBiomeCourant = biomeCourant;
+biomeCourant = () => {
+  if (CFG.mode === 'aventure' && S.avt) {
+    return biomeParId(S.avt.idBiomeCourant || 'jungle') || BIOMES[0];
+  }
+  return ancienBiomeCourant();
+};
+const biomeAvtCourant = () => biomeCourant();
+
+// 2. INITIALISATION
+const ancienInitAventure = initAventure;
+initAventure = () => {
+  ancienInitAventure();
+  S.avt.idBiomeCourant = 'jungle';
+  S.avt.biomesVisites = ['jungle'];
+  S.avt.secretsDebloques = [];
+};
+
+// 3. LA LOGIQUE DE CHOIX ET D'EMBRANCHEMENT
+// On s'assure d'attacher ça correctement au bouton du DOM
+setTimeout(() => {
+  document.getElementById('avt-bv-continuer').onclick = function(e) {
+    e.stopPropagation();
+    
+    const biomeActuel = S.avt.idBiomeCourant || 'jungle';
+    const noeud = CARTE_AVT[biomeActuel];
+    
+    if (!noeud) {
+      validerChoixBiome('jungle');
+      return;
+    }
+
+    let options = [...noeud.directs];
+
+    if (biomeActuel === 'enfer' && S.avt.venantDeGrotte) {
+      options = ['incendie'];
+      S.avt.venantDeGrotte = false; 
+    }
+
+    if (S.avt.secretsDebloques) {
+      noeud.secrets.forEach(sec => {
+         if (S.avt.secretsDebloques.includes(sec)) {
+           options.push(sec);
+         }
+      });
+    }
+
+    if (options.includes('*')) {
+      options = S.avt.biomesVisites.filter(b => b !== 'station');
+    }
+
+    if (options.length === 1) {
+      validerChoixBiome(options[0]);
+    } else if (options.length === 0) {
+      alert("Victoire finale ! Vous avez atteint l'Aurore."); 
+    } else {
+      const grille = document.getElementById('avt-chemin-grille');
+      grille.innerHTML = '';
+      
+      options.forEach(idOption => {
+        const bInfos = biomeParId(idOption) || {n: idOption};
+        const estSecret = noeud.secrets.includes(idOption);
+        
+        const carte = document.createElement('div');
+        carte.className = `avt-chemin-carte ${estSecret ? 'secret' : ''}`;
+        carte.innerHTML = `
+          <div class="avt-chemin-type">${estSecret ? 'Chemin secret' : 'Chemin direct'}</div>
+          <div class="avt-chemin-nom">${bInfos.n}</div>
+        `;
+        
+        carte.onclick = () => {
+           if (biomeActuel === 'grotte' && idOption === 'enfer') {
+               S.avt.venantDeGrotte = true;
+           }
+           validerChoixBiome(idOption);
+        };
+        
+        grille.appendChild(carte);
+      });
+
+      document.getElementById('avt-boss-vaincu').classList.remove('on');
+      document.getElementById('avt-choix-chemin').classList.add('on');
+    }
+  };
+}, 100);
+
+function validerChoixBiome(idBiome) {
+  S.avt.idBiomeCourant = idBiome;
+  if (!S.avt.biomesVisites.includes(idBiome)) {
+    S.avt.biomesVisites.push(idBiome);
+  }
+  
+  S.avt.gardiens++; 
+
+  document.getElementById('avt-choix-chemin').classList.remove('on');
+  document.getElementById('avt-boss-vaincu').classList.remove('on'); 
+  
+  S.avt.biomeTransitionEnAttente = idBiome;
+  afficherTransitionBiome(idBiome);
+}
+
+// 4. ÉVÉNEMENT SECRET (À lier plus tard à tes événements de marche)
+function declencherEvenementSecret() {
+  const evt = EVENEMENTS_SECRETS[S.biome];
+  if (!evt) return false;
+  
+  S.avt.secretsDebloques = S.avt.secretsDebloques || [];
+  if (S.avt.secretsDebloques.includes(evt.cible)) return false;
+
+  document.getElementById('avt-sec-titre').textContent = evt.titre;
+  document.getElementById('avt-sec-recit').textContent = evt.texte;
+  document.getElementById('avt-voile-secret').classList.add('on');
+  
+  document.getElementById('avt-sec-btn').onclick = () => {
+    S.avt.secretsDebloques.push(evt.cible);
+    document.getElementById('avt-voile-secret').classList.remove('on');
+  };
+  return true;
+}
+// ----------------------------------------------------------------
 </script>
 </body>
 </html>
