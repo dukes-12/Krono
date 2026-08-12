@@ -1704,6 +1704,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button class="bouton" id="pr-creer-compte">Créer un compte</button>
       <button class="bouton fantome" id="pr-connexion">J'ai déjà un compte</button>
     </div>
+
+    <button class="bouton fantome" id="pr-test"
+      style="display:none;margin-top:22px">Ouvrir Test</button>
   </div>
 </section>
 
@@ -5584,6 +5587,9 @@ function ouvrirPantheon(){
 $('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage();
   construireSvOpts(); construireBioEssai(); construireBioTest(); construireTest();
   montrer('test'); };
+$('pr-test').onclick      = () => { verrouTest(); majLatence(); construireUsage();
+  construireSvOpts(); construireBioEssai(); construireBioTest(); construireTest();
+  montrer('test'); };
 $('panth-retour').onclick = () => montrer('reglages');
 $('test-retour').onclick  = () => { if(S.partie) afficherPret(); else montrer('reglages'); };
 $('recap-panth').onclick  = () => ouvrirPantheon();
@@ -8234,6 +8240,9 @@ async function construireProfil(){
       ? 'Sans compte, tout reste sur ce téléphone. Un compte permet de retrouver ses scores ailleurs et de rejoindre des ligues.'
       : 'Le mode en ligne n\'est pas configuré sur cette installation.';
   $('pr-ligue').style.display = S.salon ? 'block' : 'none';
+  // visible uniquement pour un compte Google explicitement autorisé —
+  // même liste que celle qui déverrouille l'onglet Test directement
+  $('pr-test').style.display = compteTestAutorise() ? 'block' : 'none';
 }
 
 // photo : redimensionnée à 256 px avant tout envoi, synchronisée au compte
