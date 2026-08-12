@@ -3424,9 +3424,12 @@ function initAventure(){
            zone:zoneBase, pvBoss:0,
            pvJoueur:PV_JOUEUR_BASE, pvJoueurMax:PV_JOUEUR_BASE,
            gardiens:0, coups:0, enCombat:false, pas:0, journal:[],
-           typeCible:null, recemmentRencontre:false, dernierEchangeEtaitCombat:false};
-  // sans cette remise à zéro, la partie suivante croit changer de décor et
-  // affiche la carte du biome, qui verrouille le départ
+           typeCible:null, recemmentRencontre:false, dernierEchangeEtaitCombat:false,
+           // NOUVEAU : Variables d'état de la carte
+           idBiomeCourant: 'jungle',
+           biomesVisites: ['jungle'],
+           secretsDebloques: []};
+  
   S.biome = null; S.boucleFaite = false;
   S.mort = false;
   S.points = 0;
@@ -3969,15 +3972,16 @@ const biomeParId = id => BIOMES.find(b => b.id === id)
                       || BIOMES_TEST.find(b => b.id === id) || null;
 
 const biomeCourant = () => {
-  // Aventure : on ne change de décor qu'en abattant le gardien, jamais au
-  // milieu d'un combat — sinon le sol changerait sous les pieds du joueur.
-  // Ce calcul ne dépend d'aucun réglage Survie : l'identité du biome fait
-  // partie du cœur de l'Aventure, pas une option.
-  if(CFG.mode === 'aventure')
-    return S.avt ? BIOMES[Math.min(BIOMES.length - 1, S.avt.gardiens)] : BIOMES[0];
+  if(CFG.mode === 'aventure') {
+    // NOUVEAU : On lit la variable d'état de la carte au lieu de S.avt.gardiens
+    return biomeParId(S.avt && S.avt.idBiomeCourant ? S.avt.idBiomeCourant : 'jungle') || BIOMES[0];
+  }
   if(!CFG.sv || !CFG.sv.biomes) return null;
   return CFG.mode === 'survie' ? biomeDe(S.tour) : null;
 };
+
+// On s'assure que la variante Aventure utilise bien cette nouvelle logique
+const biomeAvtCourant = () => biomeCourant();
 const TOURS_BIOME = 30;
 // S.biomeForce n'est posé que par l'onglet Test : en partie normale, le décor
 // reste strictement dérivé du numéro de tour, donc identique pour tout le monde.
@@ -9891,92 +9895,77 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
 })();
    // --- NOUVEAU : Logique d'embranchement et découplage ---
 
-// 1. DÉCOUPLAGE : On casse la linéarité de l'Aventure
-const ancienBiomeCourant = biomeCourant;
-biomeCourant = () => {
-  if (CFG.mode === 'aventure' && S.avt) {
-    return biomeParId(S.avt.idBiomeCourant || 'jungle') || BIOMES[0];
-  }
-  return ancienBiomeCourant();
-};
-const biomeAvtCourant = () => biomeCourant();
+// --- NOUVEAU : Logique d'embranchement ---
 
-// 2. INITIALISATION
-const ancienInitAventure = initAventure;
-initAventure = () => {
-  ancienInitAventure();
-  S.avt.idBiomeCourant = 'jungle';
-  S.avt.biomesVisites = ['jungle'];
-  S.avt.secretsDebloques = [];
-};
-
-// 3. LA LOGIQUE DE CHOIX ET D'EMBRANCHEMENT
-// On s'assure d'attacher ça correctement au bouton du DOM
+// On attend que le DOM soit bien construit pour attacher notre événement
 setTimeout(() => {
-  document.getElementById('avt-bv-continuer').onclick = function(e) {
-    e.stopPropagation();
-    
-    const biomeActuel = S.avt.idBiomeCourant || 'jungle';
-    const noeud = CARTE_AVT[biomeActuel];
-    
-    if (!noeud) {
-      validerChoixBiome('jungle');
-      return;
-    }
-
-    let options = [...noeud.directs];
-
-    if (biomeActuel === 'enfer' && S.avt.venantDeGrotte) {
-      options = ['incendie'];
-      S.avt.venantDeGrotte = false; 
-    }
-
-    if (S.avt.secretsDebloques) {
-      noeud.secrets.forEach(sec => {
-         if (S.avt.secretsDebloques.includes(sec)) {
-           options.push(sec);
-         }
-      });
-    }
-
-    if (options.includes('*')) {
-      options = S.avt.biomesVisites.filter(b => b !== 'station');
-    }
-
-    if (options.length === 1) {
-      validerChoixBiome(options[0]);
-    } else if (options.length === 0) {
-      alert("Victoire finale ! Vous avez atteint l'Aurore."); 
-    } else {
-      const grille = document.getElementById('avt-chemin-grille');
-      grille.innerHTML = '';
+  const btnPoursuivre = document.getElementById('avt-bv-continuer');
+  if(btnPoursuivre) {
+    btnPoursuivre.onclick = function(e) {
+      e.stopPropagation();
       
-      options.forEach(idOption => {
-        const bInfos = biomeParId(idOption) || {n: idOption};
-        const estSecret = noeud.secrets.includes(idOption);
-        
-        const carte = document.createElement('div');
-        carte.className = `avt-chemin-carte ${estSecret ? 'secret' : ''}`;
-        carte.innerHTML = `
-          <div class="avt-chemin-type">${estSecret ? 'Chemin secret' : 'Chemin direct'}</div>
-          <div class="avt-chemin-nom">${bInfos.n}</div>
-        `;
-        
-        carte.onclick = () => {
-           if (biomeActuel === 'grotte' && idOption === 'enfer') {
-               S.avt.venantDeGrotte = true;
-           }
-           validerChoixBiome(idOption);
-        };
-        
-        grille.appendChild(carte);
-      });
+      const biomeActuel = S.avt.idBiomeCourant || 'jungle';
+      const noeud = CARTE_AVT[biomeActuel];
+      
+      if (!noeud) {
+        validerChoixBiome('jungle');
+        return;
+      }
 
-      document.getElementById('avt-boss-vaincu').classList.remove('on');
-      document.getElementById('avt-choix-chemin').classList.add('on');
-    }
-  };
-}, 100);
+      let options = [...noeud.directs];
+
+      if (biomeActuel === 'enfer' && S.avt.venantDeGrotte) {
+        options = ['incendie'];
+        S.avt.venantDeGrotte = false; 
+      }
+
+      if (S.avt.secretsDebloques) {
+        noeud.secrets.forEach(sec => {
+           if (S.avt.secretsDebloques.includes(sec)) {
+             options.push(sec);
+           }
+        });
+      }
+
+      if (options.includes('*')) {
+        options = S.avt.biomesVisites.filter(b => b !== 'station');
+      }
+
+      if (options.length === 1) {
+        validerChoixBiome(options[0]);
+      } else if (options.length === 0) {
+        alert("Victoire finale ! Vous avez atteint l'Aurore."); 
+      } else {
+        const grille = document.getElementById('avt-chemin-grille');
+        grille.innerHTML = '';
+        
+        options.forEach(idOption => {
+          const bInfos = biomeParId(idOption) || {n: idOption};
+          const estSecret = noeud.secrets.includes(idOption);
+          
+          const carte = document.createElement('div');
+          carte.className = `avt-chemin-carte ${estSecret ? 'secret' : ''}`;
+          carte.innerHTML = `
+            <div class="avt-chemin-type">${estSecret ? 'Chemin secret' : 'Chemin direct'}</div>
+            <div class="avt-chemin-nom">${bInfos.n}</div>
+          `;
+          
+          carte.onclick = () => {
+             if (biomeActuel === 'grotte' && idOption === 'enfer') {
+                 S.avt.venantDeGrotte = true;
+             }
+             validerChoixBiome(idOption);
+          };
+          
+          grille.appendChild(carte);
+        });
+
+        document.getElementById('avt-boss-vaincu').classList.remove('on');
+        document.getElementById('avt-choix-chemin').classList.add('on');
+      }
+    };
+  }
+}, 500);
 
 function validerChoixBiome(idBiome) {
   S.avt.idBiomeCourant = idBiome;
@@ -9984,6 +9973,7 @@ function validerChoixBiome(idBiome) {
     S.avt.biomesVisites.push(idBiome);
   }
   
+  // Incrément nécessaire pour le niveau de puissance du prochain boss
   S.avt.gardiens++; 
 
   document.getElementById('avt-choix-chemin').classList.remove('on');
@@ -9993,7 +9983,6 @@ function validerChoixBiome(idBiome) {
   afficherTransitionBiome(idBiome);
 }
 
-// 4. ÉVÉNEMENT SECRET (À lier plus tard à tes événements de marche)
 function declencherEvenementSecret() {
   const evt = EVENEMENTS_SECRETS[S.biome];
   if (!evt) return false;
@@ -10011,7 +10000,6 @@ function declencherEvenementSecret() {
   };
   return true;
 }
-// ----------------------------------------------------------------
 </script>
 </body>
 </html>
