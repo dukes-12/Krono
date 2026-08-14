@@ -2034,7 +2034,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="note" id="fi-note-gor">—</div>
       
-      <!-- NOUVEAU : Le barème dépliant -->
       <details class="depliant">
         <summary>Barème · Détail</summary>
         <div class="interieur regles" id="fi-tableau"></div>
@@ -2049,16 +2048,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="note" id="fi-note-evt">—</div>
       
-      <!-- NOUVEAU : Les événements dépliants -->
       <details class="depliant">
         <summary>Événements · Détail</summary>
         <div class="interieur regles" id="fi-liste-evts-detail"></div>
       </details>
     </div>
-
-    <!-- L'ANCIEN BLOC "fi-bloc-bar" A ÉTÉ ENTIÈREMENT SUPPRIMÉ ICI -->
-
-    <div class="bloc" id="fi-bloc-fin"><div class="eyebrow">Fin de partie</div>
 
     <div class="bloc" id="fi-bloc-fin"><div class="eyebrow">Fin de partie</div>
       <div class="seg" id="fi-fin">
@@ -2086,7 +2080,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
   </div>
 </section>
-
 <!-- ═══ PANTHÉON GLOBAL ═══ -->
 <section class="ecran" id="global">
   <div class="entete">
@@ -9305,7 +9298,7 @@ function ouvrirFiche(id){
     .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[k])); }
 
   if(avecDiff) $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
-    + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
+    + ' s.' + (avecGor ? ' Hors zone : ' + gorg(RATE[CFG.gor]) + '.' : '');
   if(avecGor)  $('fi-note-gor').textContent = CFG.gor === 'gros'
     ? "En retard pour sortir ? Pas envie de te rappeler de la date du jour ? Envie de perdre ton téléphone dans un taxi ? T'es au bon endroit."
     : CFG.gor === 'appart'
