@@ -241,7 +241,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .regles div{display:flex;gap:10px;align-items:center}
 .regles i{font-style:normal;width:82px;flex-shrink:0;color:var(--ivoire)}
 .pastille{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
+.depliant { margin-top: 14px; }
+.depliant summary { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--laiton); cursor: pointer; list-style: none; display: inline-block; outline: none; }
+.depliant summary::-webkit-details-marker { display: none; }
+.depliant summary::before { content: '▸ '; display: inline-block; width: 14px; transition: transform 0.2s; }
+.depliant[open] summary::before { transform: rotate(90deg); }
+.depliant .interieur { margin-top: 10px; padding-left: 14px; border-left: 1px solid var(--trait); display: flex; flex-direction: column; }
 /* ─── écran prêt ─── */
 .tete{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .det-haut{margin-bottom:12px}
@@ -1552,7 +1557,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.9</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.0</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2027,7 +2032,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         <button data-v="appart" aria-pressed="false">Appart</button>
         <button data-v="gros" aria-pressed="false">Gros buveur</button>
       </div>
-      <div class="note" id="fi-note-gor">—</div></div>
+      <div class="note" id="fi-note-gor">—</div>
+      
+      <!-- NOUVEAU : Le barème dépliant -->
+      <details class="depliant">
+        <summary>Barème · Détail</summary>
+        <div class="interieur regles" id="fi-tableau"></div>
+      </details>
+    </div>
 
     <div class="bloc" id="fi-bloc-evt"><div class="eyebrow">Événements aléatoires</div>
       <div class="seg" id="fi-evt">
@@ -2035,10 +2047,18 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         <button data-v="rares" aria-pressed="false">Rares</button>
         <button data-v="frequents" aria-pressed="false">Fréquents</button>
       </div>
-      <div class="note" id="fi-note-evt">—</div></div>
+      <div class="note" id="fi-note-evt">—</div>
+      
+      <!-- NOUVEAU : Les événements dépliants -->
+      <details class="depliant">
+        <summary>Événements · Détail</summary>
+        <div class="interieur regles" id="fi-liste-evts-detail"></div>
+      </details>
+    </div>
 
-    <div class="bloc" id="fi-bloc-bar"><div class="eyebrow">Barème</div>
-      <div class="regles" id="fi-tableau"></div></div>
+    <!-- L'ANCIEN BLOC "fi-bloc-bar" A ÉTÉ ENTIÈREMENT SUPPRIMÉ ICI -->
+
+    <div class="bloc" id="fi-bloc-fin"><div class="eyebrow">Fin de partie</div>
 
     <div class="bloc" id="fi-bloc-fin"><div class="eyebrow">Fin de partie</div>
       <div class="seg" id="fi-fin">
@@ -5881,7 +5901,10 @@ function tirerEvenement(){
     if(estSolo(CFG.mode)) return; // BLOQUE LES ÉVÈNEMENTS EN SOLO
     const p = {aucun:0, rares:0.12, frequents:0.30}[CFG.evts];
     if(Math.random() >= p) return;
-    S.evt = EVTS[Math.floor(Math.random()*EVTS.length)].id;
+    
+    // NOUVEAU : On filtre le bouclier si la table est trop grande
+    const evtsDispo = EVTS.filter(e => !(e.id === 'bouclier' && S.joueurs.length > 5));
+    S.evt = evtsDispo[Math.floor(Math.random() * evtsDispo.length)].id;
   }
   S.dernierEvt = S.tour;
   if(S.evt === 'demi')   S.cible = S.cibleBase + 50;
@@ -9269,8 +9292,9 @@ function ouvrirFiche(id){
   aff('fi-bloc-diff', avecDiff);
   aff('fi-bloc-gor',  avecGor);
   aff('fi-bloc-evt',  avecEvt);
-  aff('fi-bloc-bar',  avecGor);
   aff('fi-bloc-fin',  avecFin);
+
+   
 
   $('fi-aff').style.opacity = imposeAff ? .35 : 1;
   $('fi-aff').style.pointerEvents = imposeAff ? 'none' : 'auto';
@@ -9291,6 +9315,13 @@ function ouvrirFiche(id){
     aucun:'Aucun événement. Le jeu se joue au barème seul.',
     rares:'Environ un tour sur huit. Jamais deux fois de suite.',
     frequents:'Environ un tour sur trois. La partie devient franchement bordélique.'}[CFG.evts];
+
+  // NOUVEAU : Générer la liste des événements dans le dépliant
+  const detailEvt = $('fi-liste-evts-detail');
+  if(detailEvt && !detailEvt.innerHTML) {
+    detailEvt.innerHTML = EVTS.map(e => `<div style="align-items:flex-start;margin-bottom:8px"><i style="color:var(--laiton);line-height:1.4;margin-top:2px">${e.n}</i><span style="flex:1;line-height:1.4">${e.d}</span></div>`).join('');
+  }
+
   if(avecGor) tableau();
   if(avecFin){
     // ~11 s par tour en soirée : lancer, jouer, lire le verdict, passer le téléphone
