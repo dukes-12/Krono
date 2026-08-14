@@ -1543,7 +1543,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.2</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.3</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2260,7 +2260,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="eyebrow" id="f-tour">Tour 1</span>
     <span class="f-sprint" id="f-sprint"></span>
   </div>
-  <div class="f-tete-j">
+  <div class="f-tete-j" style="margin-top: 12px;">
     <div class="f-nom-l"><span class="pilule f-nom" id="f-nom">Joueur</span></div>
     <div class="f-badges">
       <span class="bouclier" id="f-bouclier">Bouclier</span>
@@ -2271,14 +2271,19 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
   </div>
   
-  <!-- Les bandeaux sont maintenant placés ici, juste sous le nom -->
-  <div class="bandeau rouge" id="f-riposte">
+  <div class="bandeau rouge" id="f-riposte" style="margin-top: 4px;">
     <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
     <div class="s" id="f-rip-sous">—</div>
   </div>
-  <div class="bandeau violet" id="f-evt">
+  <div class="bandeau violet" id="f-evt" style="margin-top: 4px;">
     <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
     <div class="s" id="f-evt-sous">—</div>
+  </div>
+
+  <div class="f-obj" style="height: 36px; margin-top: 6px;">
+    <b id="f-obj-cible">1,00</b>
+    <em id="f-obj-tenir" style="display: none !important;">—</em>
+    <em class="f-realise" id="f-realise" style="display: none !important;"></em>
   </div>
 
   <!-- Les textes superflus sont masqués et la hauteur ajustée -->
