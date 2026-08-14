@@ -2014,7 +2014,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
     <div class="bloc" id="fi-bloc-gor"><div class="eyebrow">Gorgées</div>
       <div class="seg" id="fi-gor">
-        <button data-v="classique" aria-pressed="true">Classique</button>
+        <button data-v="bar" aria-pressed="true">Bar</button>
+        <button data-v="appart" aria-pressed="false">Appart</button>
         <button data-v="gros" aria-pressed="false">Gros buveur</button>
       </div>
       <div class="note" id="fi-note-gor">—</div></div>
@@ -2276,11 +2277,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   
     <!-- Conteneur invisible pour empêcher le décalage -->
   <div style="position: relative; height: 0; z-index: 10;">
-    <div class="bandeau rouge" id="f-riposte" style="position: absolute; top: -35px; left: 0; right: 0;">
+    <div class="bandeau rouge" id="f-riposte" style="position: absolute; top: -38px; left: 0; right: 0;">
       <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
       <div class="s" id="f-rip-sous">—</div>
     </div>
-    <div class="bandeau violet" id="f-evt" style="position: absolute; top: -35px; left: 0; right: 0;">
+    <div class="bandeau violet" id="f-evt" style="position: absolute; top: -38px; left: 0; right: 0;">
       <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
       <div class="s" id="f-evt-sous">—</div>
     </div>
@@ -2515,14 +2516,14 @@ const siteUrl = () => location.origin + location.pathname;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuamN1Zm5ldWd2Z2dydGNnbXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE1MTcsImV4cCI6MjEwMTI1NzUxN30.Tjj_l-JJJ__VoLM-kVn6Z21RmdMCw9wbmi4fON5qS7g';
 
 /* ════════ RÉGLAGES ════════ */
-const CFG = { aff:'visible', diff:'simple', gor:'classique',
+const CFG = { aff:'visible', diff:'simple', gor:'bar',
               evts:'aucun', maxTours:20, horo:true,
               mode:'classique', da:'instrument', lat:'materiel', minutes:false,
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
       ambiance:true, bloquer:true, fonds:true, flouOcean:false} };
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
-const RATE = { classique:3, gros:4 };
+const RATE = { bar:3, appart:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
 const ZONE_DEPART_SURVIE = 30;
 // Le plafond ne bouge pas avant le tour 60 : les longues parties restent
@@ -4891,8 +4892,9 @@ const fmt = c => {
 };
 const esc = s => { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; };
 const gorg = n => n + (n>1 ? ' gorgées' : ' gorgée');
-const culs = n => n + (n>1 ? ' culs secs' : ' cul sec');
-const x2   = n => CFG.gor === 'gros' ? n*2 : n;
+const nomCulSec = () => CFG.gor === 'bar' ? 'shot' : 'cul sec';
+const culs = n => CFG.gor === 'bar' ? n + (n>1 ? ' shots' : ' shot') : n + (n>1 ? ' culs secs' : ' cul sec');
+const calcFrole = n => CFG.gor === 'appart' ? 3 : (CFG.gor === 'gros' ? n*2 : n);
 const ecranJeu = () => 'fluide';
 // La barre du bas s'affiche partout SAUF pendant une partie et sur les écrans
 // de transition (résultat, fin) : la liste des exclus est plus courte et plus
@@ -4990,7 +4992,7 @@ const demander = (titre, sous, oui) => choisir(titre, sous,
 /* ════════ RÈGLES ════════ */
 function evaluer(ecart){
   if(ecart === 0)     return {code:'pile',  couleur:'t-s100', n:0}; // Violet
-  if(ecart <= PRES)   return {code:'frole', couleur:'t-s50', n:x2(PRES + 1 - ecart)}; // Vert
+  if(ecart <= PRES)   return {code:'frole', couleur:'t-s50', n:calcFrole(PRES + 1 - ecart)}; // Vert
   if(ecart <= zone()) return {code:'sauf',  couleur:'t-s20',  n:0}; // Jaune
   return                     {code:'rate',  couleur:'t-signal', n:RATE[CFG.gor]}; // Rouge
 }
@@ -5404,11 +5406,11 @@ function tableau(){
   const cible = $('fi-tableau');
   if(!cible) return;
   const L = [
-    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, cul sec'],
-    ['var(--laiton)', 'pile', 'le suivant fait cul sec — ou riposte'],
-    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(x2(3))],
-    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(x2(2))],
-    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(x2(1))],
+    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
+    ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
+    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(calcFrole(3))],
+    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(calcFrole(2))],
+    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(calcFrole(1))],
     ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
     ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
   ];
@@ -5863,6 +5865,7 @@ function tirerEvenement(){
   else {
     if(S.contre > 0) return;
     if(S.tour - S.dernierEvt < 2) return;
+    if(estSolo(CFG.mode)) return; // BLOQUE LES ÉVÈNEMENTS EN SOLO
     const p = {aucun:0, rares:0.12, frequents:0.30}[CFG.evts];
     if(Math.random() >= p) return;
     S.evt = EVTS[Math.floor(Math.random()*EVTS.length)].id;
@@ -6071,8 +6074,8 @@ function depassements(){
     + (neufs.length > 2 ? 's' : '');
 }
 
-function peine(nom, n){
-  if(S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
+function peine(nom, n, attaque = false){
+  if(!attaque && S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
   S.stats[nom].gorgees += n; return n;
 }
 
@@ -6175,17 +6178,17 @@ function resoudre(valeur, delta, ecart){
 
   /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
   if(minutePile){
-    couleur = 't-s100';
-    st.minutes = (st.minutes || 0) + 1;
-    const autres = S.joueurs.filter(n => n !== joueur && vivant(n));
-    autres.forEach(n => S.stats[n].culs += 1);
-    T.textContent = 'La minute pile';
-    U.textContent = autres.length
-      ? 'tout le monde sauf ' + joueur + ' : cul sec'
-      : 'personne d\'autre à table, personne ne boit';
-    S.contre = 0; S.duel = null;          // le jackpot dissout riposte et duel
-    vibrer([0,90,60,90,60,90,60,260]);
-  }
+        couleur = 't-s100';
+        st.minutes = (st.minutes || 0) + 1;
+        const autres = S.joueurs.filter(n => n !== joueur && vivant(n));
+        autres.forEach(n => S.stats[n].culs += 1);
+        T.textContent = 'La minute pile';
+        U.textContent = autres.length
+          ? 'tout le monde sauf ' + joueur + ' : ' + nomCulSec()
+          : 'personne d\'autre à table, personne ne boit';
+        S.contre = 0; S.duel = null;          // le jackpot dissout riposte et duel
+        vibrer([0,90,60,90,60,90,60,260]);
+   }
   else if(S.evt === 'duel' && !S.duel){
     S.duel = {nom:joueur, val:valeur, ecart};
     couleur = 't-alerte'; avance = false;
@@ -6698,20 +6701,21 @@ function resoudre(valeur, delta, ecart){
       U.textContent = 'objectif 30,00 · ' + fmt(Math.max(0, 3000 - valeur)) + ' s à parcourir';
     }
   }
+
   /* ─── enchère : le joueur a annoncé sa précision ─── */
   else if(CFG.mode === 'enchere' && S.enchere){
-    const e = ENCHERES.find(x => x.seuil === S.enchere);
-    if(ecart === 0){
-      S.contre = 1; couleur = 't-s100';
-      T.textContent = suiv + ' : cul sec';
-      U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
-      vibrer([0,60,50,60,50,140]);
-    } else if(ecart <= e.seuil){
-      couleur = 't-vert';
-      const n = peine(suiv, e.n * mult);
-      T.textContent = n ? suiv + ' boit ' + gorg(n) : suiv + ' : bouclier consommé';
-      U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
-    } else {
+        const e = ENCHERES.find(x => x.seuil === S.enchere);
+        if(ecart === 0){
+          S.contre = 1; couleur = 't-s100';
+          T.textContent = suiv + ' : ' + nomCulSec();
+          U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+          vibrer([0,60,50,60,50,140]);
+        } else if(ecart <= e.seuil){
+          couleur = 't-vert';
+          const n = peine(suiv, e.n * mult, true);
+          T.textContent = suiv + ' boit ' + gorg(n);
+          U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
+        } else { 
       couleur = 't-signal';
       const n = peine(joueur, e.n * 2 * mult);
       T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
@@ -6720,36 +6724,36 @@ function resoudre(valeur, delta, ecart){
     }
   }
   else {
-    const v = evaluer(ecart);
-    couleur = v.couleur;
-    if(CFG.mode === 'elimination' && v.code === 'rate'){
-      S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
-      if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
-    }
-    if(v.code === 'pile'){
-      S.contre = 1;
-      T.textContent = suiv + ' : cul sec';
-      U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
-      vibrer([0,60,50,60,50,140]);
-    }
-    else if(v.code === 'frole'){
-      const n = peine(suiv, v.n * mult);
-      T.textContent = n ? suiv + ' boit ' + gorg(n) : suiv + ' : bouclier consommé';
-      U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
-        + (mult>1 ? ' · doublé' : '');
-    }
-    else if(v.code === 'sauf'){
-      if(S.evt === 'bouclier'){
-        S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
-        couleur = 't-alerte';
-        T.textContent = 'Bouclier pour ' + joueur;
-        U.textContent = 'annulera automatiquement sa prochaine peine';
-      } else {
-        T.textContent = 'Personne ne boit';
-        U.textContent = 'dans la marge';
-      }
-    }
-    else {
+        const v = evaluer(ecart);
+        couleur = v.couleur;
+        if(CFG.mode === 'elimination' && v.code === 'rate'){
+          S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
+          if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
+        }
+        if(v.code === 'pile'){
+          S.contre = 1;
+          T.textContent = suiv + ' : ' + nomCulSec();
+          U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+          vibrer([0,60,50,60,50,140]);
+        }
+        else if(v.code === 'frole'){
+          const n = peine(suiv, v.n * mult, true);
+          if(S.evt === 'bouclier'){
+            S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
+            couleur = 't-alerte';
+            T.textContent = 'Bouclier pour ' + joueur;
+            U.textContent = suiv + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
+          } else {
+            T.textContent = suiv + ' boit ' + gorg(n);
+            U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
+              + (mult>1 ? ' · doublé' : '');
+          }
+        }
+        else if(v.code === 'sauf'){
+          T.textContent = 'Personne ne boit';
+          U.textContent = 'dans la marge';
+        }
+        else {
       if(S.evt === 'bord'){
         S.joueurs.forEach(n => S.stats[n].gorgees += mult);
         T.textContent = 'Toute la table boit ' + gorg(mult);
@@ -9226,8 +9230,10 @@ function ouvrirFiche(id){
   if(avecDiff) $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
     + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
   if(avecGor)  $('fi-note-gor').textContent = CFG.gor === 'gros'
-    ? 'Gorgées doublées près du pile, 4 hors zone. Les culs secs ne doublent jamais.'
-    : 'Barème normal. Les culs secs ne doublent jamais.';
+    ? 'Gorgées doublées près du pile, 4 hors zone. Les ' + nomCulSec() + 's ne doublent jamais.'
+    : CFG.gor === 'appart'
+    ? '3 gorgées fixes dans la zone frôlée. Les ' + nomCulSec() + 's ne doublent jamais.'
+    : 'Barème normal. Les ' + nomCulSec() + 's ne doublent jamais.';
   if(avecEvt)  $('fi-note-evt').textContent = {
     aucun:'Aucun événement. Le jeu se joue au barème seul.',
     rares:'Environ un tour sur huit. Jamais deux fois de suite.',
