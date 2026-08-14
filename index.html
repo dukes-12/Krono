@@ -6791,7 +6791,6 @@ function resoudre(valeur, delta, ecart){
           U.textContent = 'dans la marge';
         }
         else {
-      else {
           if(S.evt === 'bord'){
             S.joueurs.forEach(n => S.stats[n].gorgees += mult);
             T.textContent = 'Toute la table boit ' + gorg(mult);
@@ -6803,6 +6802,7 @@ function resoudre(valeur, delta, ecart){
             T.textContent = n ? victime + ' boit ' + gorg(n) : victime + ' : bouclier consommé';
             U.textContent = (S.evt === 'choix' ? 'peine transférée · ' : 'hors marge · ') + 'écart ±' + fmt(ecart) + (mult>1 ? ' · doublé' : '');
           }
+        }
         }
     }
   }
