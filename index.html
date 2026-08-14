@@ -1543,7 +1543,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.6</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.7</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -4056,8 +4056,8 @@ const BIOMES = [
   {id:'reseau',  n:'Réseau',   accent:'#5AF0FF', halo:'rgba(90,240,255,.12)',
    fond:'rgba(4,20,26,.9)',  gamme:[246.94, 293.66, 369.99, 493.88],
    d:"Rien ne filtre. Ni le chiffre, ni l'écart, ni la zone.",
-   malus:'Aucun retour après validation', bonus:'Les vies sont conservées entre décors',
-   eff:{masque:true, viesGardees:true}},
+   malus:'Aucun retour après validation', bonus:'Sauvegarde Cloud : ressuscite au début du biome (1 fois)',
+   eff:{masque:true, cloud:true}},
 
   {id:'spatial', n:'Spatial',  accent:'#B98CFF', halo:'rgba(185,140,255,.17)',
    fond:'rgba(10,8,28,.85)',  gamme:[174.61, 220.00, 261.63, 349.23],
@@ -5831,6 +5831,7 @@ function preparerSolo(){
   if(m === 'survie'){
     S.biome = null; S.essaiBiome = null; S.biomeForce = null;
     S.boucleFaite = false;
+    S.cloudUtilise = false;
     S.zoneSurvie = ZONE_DEPART_SURVIE + effB('zoneDep');
     S.chaineSurvie = 0; S.gainSurvie = null; S.sautTour = false;
     S.vies = 0; S.pilesSurvie = 0; S.pariSurvie = false;
@@ -6428,7 +6429,20 @@ function resoudre(valeur, delta, ecart){
         U.textContent = 'une vie consommée · zone ± ' + fmt(S.zoneSurvie);
         sonSurvie('vie');
         vibrerSv(60);
-      } else {
+      } 
+      // NOUVEAU BLOC : LE CLOUD DU RÉSEAU
+      else if(effB('cloud') && !S.cloudUtilise){
+        S.cloudUtilise = true;
+        S.rejouerBiome = true; // Déclenchera le retour dans le temps
+        S.zoneSurvie = 20; // On redonne une zone viable pour retenter
+        S.chaineSurvie = 0; S.gainSurvie = null;
+        couleur = 't-s100'; // Violet/Bleu pour marquer la réussite de l'événement
+        T.textContent = 'Sauvegarde Cloud chargée';
+        U.textContent = 'Restauration au début du réseau... La prochaine erreur sera fatale.';
+        sonSurvie('vie');
+        vibrerSv(60);
+      } 
+      else {
         S.mort = true; couleur = 't-s0'; S.gainSurvie = null;
         T.textContent = 'Éliminé au tour ' + S.tour;
         U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
@@ -7418,6 +7432,13 @@ function fluideResultat(){
     S.total = S.totalAvantTour;
     S.cible = S.cibleAvantTour;
     fluidePret();
+    return;
+  }
+   if(S.rejouerBiome){
+    S.rejouerBiome = false;
+    // Calcule quel était le tour 1 de ce biome (ex: 451 pour le Réseau)
+    const debutBiome = Math.floor((S.tour - 1) / TOURS_BIOME) * TOURS_BIOME + 1;
+    allerAuTour(debutBiome); // Utilise ta fonction existante de saut dans le temps !
     return;
   }
   avancerTour();
