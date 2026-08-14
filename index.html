@@ -247,13 +247,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .depliant summary::before { content: '▸ '; display: inline-block; width: 14px; transition: transform 0.2s; }
 .depliant[open] summary::before { transform: rotate(90deg); }
 .depliant .interieur { margin-top: 10px; padding-left: 14px; border-left: 1px solid var(--trait); display: flex; flex-direction: column; }
-.rang-evt { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--trait); cursor: pointer; }
+.rang-evt { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--trait); cursor: pointer; }
 .rang-evt:last-child { border-bottom: none; }
-.rang-evt .txt { flex: 1; }
-.rang-evt .n { font-size: 15px; font-weight: 600; color: var(--laiton); }
+.rang-evt .txt { display: flex; flex-direction: column; flex: 1; }
+.rang-evt .n { font-size: 18px; font-weight: 600; color: var(--laiton); line-height: 1.1; }
 .rang-evt.off .n { color: var(--gris); }
-.rang-evt .d { font-family: var(--mono); font-size: 10.5px; color: var(--gris); margin-top: 3px; line-height: 1.4; }
-.toggle-evt { width: 40px; padding: 4px 0; border-radius: 999px; border: 1px solid var(--laiton); background: transparent; color: var(--laiton); font-family: var(--mono); font-size: 10px; flex-shrink: 0; margin-top: 2px; }
+.rang-evt .d { font-family: var(--mono); font-size: 11.5px; color: var(--gris); margin-top: 4px; line-height: 1.4; }
+.toggle-evt { width: 44px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid var(--laiton); background: transparent; color: var(--laiton); font-family: var(--mono); font-size: 11px; flex-shrink: 0; }
 .rang-evt.off .toggle-evt { border-color: var(--trait); color: var(--gris); }
    
 /* ─── écran prêt ─── */
