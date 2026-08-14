@@ -241,7 +241,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .regles div{display:flex;gap:10px;align-items:center}
 .regles i{font-style:normal;width:82px;flex-shrink:0;color:var(--ivoire)}
 .pastille{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
+.depliant { margin-top: 14px; }
+.depliant summary { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--laiton); cursor: pointer; list-style: none; display: inline-block; outline: none; }
+.depliant summary::-webkit-details-marker { display: none; }
+.depliant summary::before { content: '▸ '; display: inline-block; width: 14px; transition: transform 0.2s; }
+.depliant[open] summary::before { transform: rotate(90deg); }
+.depliant .interieur { margin-top: 10px; padding-left: 14px; border-left: 1px solid var(--trait); display: flex; flex-direction: column; }
+.rang-evt { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--trait); cursor: pointer; }
+.rang-evt:last-child { border-bottom: none; }
+.rang-evt .txt { flex: 1; }
+.rang-evt .n { font-size: 15px; font-weight: 600; color: var(--laiton); }
+.rang-evt.off .n { color: var(--gris); }
+.rang-evt .d { font-family: var(--mono); font-size: 10.5px; color: var(--gris); margin-top: 3px; line-height: 1.4; }
+.toggle-evt { width: 40px; padding: 4px 0; border-radius: 999px; border: 1px solid var(--laiton); background: transparent; color: var(--laiton); font-family: var(--mono); font-size: 10px; flex-shrink: 0; margin-top: 2px; }
+.rang-evt.off .toggle-evt { border-color: var(--trait); color: var(--gris); }
+   
 /* ─── écran prêt ─── */
 .tete{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .det-haut{margin-bottom:12px}
@@ -1195,7 +1209,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   text-transform:uppercase;color:#C9A227;opacity:.85}
 .avt-dec-recit{font-family:var(--cond);font-size:14.5px;line-height:1.6;
   color:#C9B99A;margin-top:14px;font-style:italic}
-.avt-dec-choix{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.avt-dec-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  max-height: 250px; /* Limite à environ 4 boutons visibles */
+  overflow-y: auto; /* Active le menu déroulant */
+  -webkit-overflow-scrolling: touch; /* Défilement très fluide sur iPhone */
+  padding: 4px; /* Évite de couper la bordure des boutons au scroll */
+}
 .avt-dec-choix button{width:100%}
 .avt-transition{display:none;position:absolute;inset:0;z-index:11;
   align-items:center;justify-content:center;padding:26px;
@@ -1543,7 +1566,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.0</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.1</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2014,10 +2037,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
     <div class="bloc" id="fi-bloc-gor"><div class="eyebrow">Gorgées</div>
       <div class="seg" id="fi-gor">
-        <button data-v="classique" aria-pressed="true">Classique</button>
+        <button data-v="bar" aria-pressed="true">Bar</button>
+        <button data-v="appart" aria-pressed="false">Appart</button>
         <button data-v="gros" aria-pressed="false">Gros buveur</button>
       </div>
-      <div class="note" id="fi-note-gor">—</div></div>
+      <div class="note" id="fi-note-gor">—</div>
+      
+      <details class="depliant">
+        <summary>Barème · Détail</summary>
+        <div class="interieur regles" id="fi-tableau"></div>
+      </details>
+    </div>
 
     <div class="bloc" id="fi-bloc-evt"><div class="eyebrow">Événements aléatoires</div>
       <div class="seg" id="fi-evt">
@@ -2025,10 +2055,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         <button data-v="rares" aria-pressed="false">Rares</button>
         <button data-v="frequents" aria-pressed="false">Fréquents</button>
       </div>
-      <div class="note" id="fi-note-evt">—</div></div>
-
-    <div class="bloc" id="fi-bloc-bar"><div class="eyebrow">Barème</div>
-      <div class="regles" id="fi-tableau"></div></div>
+      <div class="note" id="fi-note-evt">—</div>
+      
+      <details class="depliant">
+        <summary>Événements · Détail</summary>
+        <div class="interieur regles" id="fi-liste-evts-detail"></div>
+      </details>
+    </div>
 
     <div class="bloc" id="fi-bloc-fin"><div class="eyebrow">Fin de partie</div>
       <div class="seg" id="fi-fin">
@@ -2056,7 +2089,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </div>
   </div>
 </section>
-
 <!-- ═══ PANTHÉON GLOBAL ═══ -->
 <section class="ecran" id="global">
   <div class="entete">
@@ -2260,26 +2292,48 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="eyebrow" id="f-tour">Tour 1</span>
     <span class="f-sprint" id="f-sprint"></span>
   </div>
-  <div class="f-tete-j">
-    <div class="f-nom-l"><span class="pilule f-nom" id="f-nom">Joueur</span></div>
+  <div class="f-tete-j" style="margin-top: 12px;">
+    <div class="f-nom-l">
+      <span class="pilule f-nom" id="f-nom">Joueur</span>
+      <!-- Le bouclier est maintenant un simple logo à côté du nom -->
+      <span id="f-bouclier" style="display: none; font-size: 26px; margin-left: 10px; line-height: 1; filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));">🛡️</span>
+    </div>
     <div class="f-badges">
-      <span class="bouclier" id="f-bouclier">Bouclier</span>
       <span class="bouclier or" id="f-enchere"></span>
       <span class="bouclier vies" id="f-vies"></span>
       <span class="bouclier or" id="f-minute">La minute pile</span>
-    <span class="bouclier crit" id="f-critique"></span>
+      <span class="bouclier crit" id="f-critique"></span>
     </div>
   </div>
-  <div class="f-obj"><b id="f-obj-cible">1,00</b><em id="f-obj-tenir">—</em>
-    <em class="f-realise" id="f-realise"></em></div>
-  <div class="bandeau rouge" id="f-riposte">
-    <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
-    <div class="s" id="f-rip-sous">—</div>
+  
+    <!-- Conteneur invisible pour empêcher le décalage -->
+  <div style="position: relative; height: 0; z-index: 10;">
+    <div class="bandeau rouge" id="f-riposte" style="position: absolute; top: -42px; left: 0; right: 0;">
+      <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
+      <div class="s" id="f-rip-sous">—</div>
+    </div>
+    <div class="bandeau violet" id="f-evt" style="position: absolute; top: -42px; left: 0; right: 0;">
+      <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
+      <div class="s" id="f-evt-sous">—</div>
+    </div>
   </div>
-  <div class="bandeau violet" id="f-evt">
-    <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
-    <div class="s" id="f-evt-sous">—</div>
+
+
+  <!-- La marge de 70px garde la cible fixe pour que le bandeau ait la place d'apparaître -->
+  <div class="f-obj" style="height: 36px; margin-top: 70px;">
+    <b id="f-obj-cible">1,00</b>
+    <em id="f-obj-tenir" style="display: none !important;">—</em>
+    <em class="f-realise" id="f-realise" style="display: none !important;"></em>
   </div>
+
+  <!-- Les textes superflus sont masqués et la hauteur ajustée -->
+  <!--
+  <div class="f-obj" style="height: 40px;">
+    <b id="f-obj-cible">1,00</b>
+    <em id="f-obj-tenir" style="display: none !important;">—</em>
+    <em class="f-realise" id="f-realise" style="display: none !important;"></em>
+  </div>
+  -->
   <div class="avt-hud" id="avt-hud">
     <div class="avt-bandeau">
       <div class="avt-bloc seul">
@@ -2336,6 +2390,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <div class="avt-dec-choix" id="avt-station-choix"></div>
       <button class="bouton fantome" id="avt-station-rester"
         style="margin-top:8px">Rester là</button>
+    </div>
+  </div>
+  <!-- Remplacement de la ligne 365 -->
+  <div class="avt-decision" id="f-choix-popup" style="z-index: 20; background: rgba(14, 17, 22, 0.85); backdrop-filter: blur(10px);">
+    <div class="avt-dec-corps">
+      <div class="avt-dec-eyebrow" style="color: var(--laiton);">Événement : Tu choisis</div>
+      <div class="avt-dec-recit" id="f-choix-recit">—</div>
+      <div class="avt-dec-choix" id="f-choix-opts"></div>
     </div>
   </div>
   <div class="avt-voile" id="avt-voile">
@@ -2431,10 +2493,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="titre-sec">Tours précédents</div>
   <div class="film" id="film"></div>
-  <div class="choix" id="choix">
-    <div class="lab">Tu choisis qui joue après toi</div>
-    <div class="opts" id="choix-opts"></div>
-  </div>
   <div class="verdict" id="verdict">
     <div class="carte-verdict">
       <div class="titre" id="ver-titre">—</div>
@@ -2493,14 +2551,14 @@ const siteUrl = () => location.origin + location.pathname;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuamN1Zm5ldWd2Z2dydGNnbXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODE1MTcsImV4cCI6MjEwMTI1NzUxN30.Tjj_l-JJJ__VoLM-kVn6Z21RmdMCw9wbmi4fON5qS7g';
 
 /* ════════ RÉGLAGES ════════ */
-const CFG = { aff:'visible', diff:'simple', gor:'classique',
+const CFG = { aff:'visible', diff:'simple', gor:'bar',
               evts:'aucun', maxTours:20, horo:true,
               mode:'classique', da:'instrument', lat:'materiel', minutes:false,
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
       ambiance:true, bloquer:true, fonds:true, flouOcean:false} };
 const SAUF = { visible:{simple:35, hard:20}, aveugle:{simple:40, hard:30} };
-const RATE = { classique:3, gros:4 };
+const RATE = { bar:3, appart:3, gros:4 };
 const PRES = 3, RANGE = 50, JB = 25;
 const ZONE_DEPART_SURVIE = 30;
 // Le plafond ne bouge pas avant le tour 60 : les longues parties restent
@@ -2633,7 +2691,7 @@ const SOLOS = [
    astuce:"Le temps entre deux tours compte aussi. Hésiter coûte une cible.",
    d:"Trente secondes pour enchaîner un maximum de cibles."},
 
-  {id:'nues', n:'Aléa Secondes', tours:10, fam:'score',
+  {id:'nues', n:'Décimales', tours:10, fam:'score',
    regle:"Les cibles ne tombent plus sur des secondes rondes : 2,41 s, 3,78 s. Compter dans sa tête ne sert plus à rien.",
    astuce:"Les points valent double, la difficulté n'a rien de comparable.",
    d:"Des cibles non rondes. Compter ne sert plus."},
@@ -4030,8 +4088,8 @@ const BIOMES = [
   {id:'reseau',  n:'Réseau',   accent:'#5AF0FF', halo:'rgba(90,240,255,.12)',
    fond:'rgba(4,20,26,.9)',  gamme:[246.94, 293.66, 369.99, 493.88],
    d:"Rien ne filtre. Ni le chiffre, ni l'écart, ni la zone.",
-   malus:'Aucun retour après validation', bonus:'Les vies sont conservées entre décors',
-   eff:{masque:true, viesGardees:true}},
+   malus:'Aucun retour après validation', bonus:'Sauvegarde Cloud : ressuscite au début du biome (1 fois)',
+   eff:{masque:true, cloud:true}},
 
   {id:'spatial', n:'Spatial',  accent:'#B98CFF', halo:'rgba(185,140,255,.17)',
    fond:'rgba(10,8,28,.85)',  gamme:[174.61, 220.00, 261.63, 349.23],
@@ -4583,17 +4641,18 @@ const bossCourant = () => BOSS[Math.min(S.bossIdx || 0, BOSS.length - 1)];
 
 /* ════════ ÉVÉNEMENTS ════════ */
 // « fausse » : le tour est exclu du profil, la mesure n'est pas comparable
+/* ════════ ÉVÉNEMENTS ════════ */
+// « fausse » : le tour est exclu du profil, la mesure n'est pas comparable
 const EVTS = [
-  {id:'demi',    n:'Demi-seconde',   d:"La cible tombe sur un X,50 au lieu d'un X,00. Le repère mental saute.", fausse:1},
-  {id:'sprint',  n:'Sprint',         d:"La règle des 0,50 s est suspendue : la cible est à 0,25 s. Réflexe pur.", fausse:1},
-  {id:'longue',  n:'Longue',         d:"La cible saute une seconde plus loin. Une seconde de plus à tenir, c'est une seconde de dérive en plus.", fausse:1},
-  {id:'double',  n:'Double ou rien', d:"Toutes les gorgées du tour comptent double. Le cul sec reste un cul sec."},
-  {id:'bord',    n:'Effet de bord',  d:"Hors zone, ce n'est plus le joueur qui boit : c'est toute la table, une gorgée chacun."},
-  {id:'bouclier',n:'Bouclier',       d:"Rester dans la zone donne un jeton. Il annulera automatiquement la prochaine peine du joueur."},
-  {id:'yeux',    n:'Yeux fermés',    d:"L'écran reste noir pendant le tour, même en mode visible.", fausse:1},
-  {id:'demitour',n:'Demi-tour',      d:"Le sens de rotation s'inverse : le téléphone repart dans l'autre sens."},
-  {id:'choix',   n:'Tu choisis',     d:"Le joueur découvre son score, puis désigne qui joue après lui. Les peines suivent le désigné."},
-  {id:'duel',    n:'Duel',           d:"Le joueur suivant refait exactement la même cible depuis le même départ. Le moins précis boit 3 gorgées.", fausse:1}
+  {id:'demi',    n:'Demi-seconde',  d:"La cible tombe sur X,50 s. Le repère mental saute.", fausse:1},
+  {id:'longue',  n:'Longue',        d:"La cible recule d'une seconde. La dérive s'installe.", fausse:1},
+  {id:'double',  n:'Double ou rien', d:"Les gorgées du tour comptent double."},
+  {id:'bord',    n:'Effet de bord',  d:"Hors zone, toute la table boit."},
+  {id:'bouclier',n:'Bouclier',       d:"Jeton gratuit annulant la prochaine peine."},
+  {id:'yeux',    n:'Yeux fermés',    d:"L'écran reste noir pendant le tour.", fausse:1},
+  {id:'demitour',n:'Demi-tour',      d:"Le sens de rotation s'inverse."},
+  {id:'choix',   n:'Tu choisis',     d:"Le joueur découvre son score et désigne sa victime."},
+  {id:'duel',    n:'Duel',           d:"Le joueur suivant refait le même tour pour le battre.", fausse:1}
 ];
 const EVT = id => EVTS.find(e => e.id === id);
 
@@ -4869,8 +4928,9 @@ const fmt = c => {
 };
 const esc = s => { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; };
 const gorg = n => n + (n>1 ? ' gorgées' : ' gorgée');
-const culs = n => n + (n>1 ? ' culs secs' : ' cul sec');
-const x2   = n => CFG.gor === 'gros' ? n*2 : n;
+const nomCulSec = () => CFG.gor === 'bar' ? 'shot' : 'cul sec';
+const culs = n => CFG.gor === 'bar' ? n + (n>1 ? ' shots' : ' shot') : n + (n>1 ? ' culs secs' : ' cul sec');
+const calcFrole = n => CFG.gor === 'appart' ? 3 : (CFG.gor === 'gros' ? n*2 : n);
 const ecranJeu = () => 'fluide';
 // La barre du bas s'affiche partout SAUF pendant une partie et sur les écrans
 // de transition (résultat, fin) : la liste des exclus est plus courte et plus
@@ -4967,10 +5027,10 @@ const demander = (titre, sous, oui) => choisir(titre, sous,
 
 /* ════════ RÈGLES ════════ */
 function evaluer(ecart){
-  if(ecart === 0)     return {code:'pile',  couleur:'t-laiton', n:0};
-  if(ecart <= PRES)   return {code:'frole', couleur:'t-laiton', n:x2(PRES + 1 - ecart)};
-  if(ecart <= zone()) return {code:'sauf',  couleur:'t-vert',   n:0};
-  return                     {code:'rate',  couleur:'t-signal', n:RATE[CFG.gor]};
+  if(ecart === 0)     return {code:'pile',  couleur:'t-s100', n:0}; // Violet
+  if(ecart <= PRES)   return {code:'frole', couleur:'t-s50', n:calcFrole(PRES + 1 - ecart)}; // Vert
+  if(ecart <= zone()) return {code:'sauf',  couleur:'t-s20',  n:0}; // Jaune
+  return                     {code:'rate',  couleur:'t-signal', n:RATE[CFG.gor]}; // Rouge
 }
 function prochaineCible(total){
   let c = (Math.floor(total/100) + 1) * 100;
@@ -5382,11 +5442,11 @@ function tableau(){
   const cible = $('fi-tableau');
   if(!cible) return;
   const L = [
-    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, cul sec'],
-    ['var(--laiton)', 'pile', 'le suivant fait cul sec — ou riposte'],
-    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(x2(3))],
-    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(x2(2))],
-    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(x2(1))],
+    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
+    ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
+    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(calcFrole(3))],
+    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(calcFrole(2))],
+    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(calcFrole(1))],
     ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
     ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
   ];
@@ -5805,6 +5865,7 @@ function preparerSolo(){
   if(m === 'survie'){
     S.biome = null; S.essaiBiome = null; S.biomeForce = null;
     S.boucleFaite = false;
+    S.cloudUtilise = false;
     S.zoneSurvie = ZONE_DEPART_SURVIE + effB('zoneDep');
     S.chaineSurvie = 0; S.gainSurvie = null; S.sautTour = false;
     S.vies = 0; S.pilesSurvie = 0; S.pariSurvie = false;
@@ -5841,13 +5902,27 @@ function tirerEvenement(){
   else {
     if(S.contre > 0) return;
     if(S.tour - S.dernierEvt < 2) return;
+    if(estSolo(CFG.mode)) return; // BLOQUE LES ÉVÈNEMENTS EN SOLO
     const p = {aucun:0, rares:0.12, frequents:0.30}[CFG.evts];
     if(Math.random() >= p) return;
-    S.evt = EVTS[Math.floor(Math.random()*EVTS.length)].id;
+    
+    // NOUVEAU : On filtre le bouclier (max 5 joueurs) ET les événements désactivés
+    CFG.evtExclus = CFG.evtExclus || [];
+    const evtsDispo = EVTS.filter(e => {
+      if(CFG.evtExclus.includes(e.id)) return false;
+      if(e.id === 'bouclier' && S.joueurs.length > 5) return false;
+      return true;
+    });
+    
+    // S'il reste au moins un événement autorisé, on le tire au sort
+    if(evtsDispo.length > 0){
+      S.evt = evtsDispo[Math.floor(Math.random() * evtsDispo.length)].id;
+    } else {
+      return; // Si tout est sur OFF, il ne se passe rien
+    }
   }
   S.dernierEvt = S.tour;
   if(S.evt === 'demi')   S.cible = S.cibleBase + 50;
-  if(S.evt === 'sprint') S.cible = S.total + 25;
   if(S.evt === 'longue') S.cible = S.cibleBase + 100;
 }
 
@@ -6049,8 +6124,8 @@ function depassements(){
     + (neufs.length > 2 ? 's' : '');
 }
 
-function peine(nom, n){
-  if(S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
+function peine(nom, n, attaque = false){
+  if(!attaque && S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
   S.stats[nom].gorgees += n; return n;
 }
 
@@ -6118,22 +6193,41 @@ function afficherResultat(valeur){
   $('bande').classList.toggle('pile', ecart === 0);
 
   if(S.evt === 'choix' && S.prochain === null){
-    $('res-score').className = 'score t-alerte';
-    $('verdict').style.display = 'none';
-    const o = $('choix-opts'); o.innerHTML = '';
+    // Met à jour visuellement le chrono pour qu'il voie son score sous la modale
+    $('f-chrono').textContent = affChrono(valeur);
+    const v = evaluer(ecart);
+    $('f-chrono').className = 'f-chrono ' + v.couleur;
+    
+    let phraseDistribution = "";
+    if (v.code === 'pile') {
+        phraseDistribution = `🎯 PILE ! Tu offres 1 ${nomCulSec()} à :`;
+    } else if (v.code === 'frole') {
+        phraseDistribution = `✨ Frôlé ! Tu distribues ${gorg(v.n)} à :`;
+    } else if (v.code === 'sauf') {
+        phraseDistribution = `C'est dans la zone. Personne ne boit. À qui le tour ?`;
+    } else {
+        phraseDistribution = `❌ Raté ! Tu refiles ta peine de ${gorg(RATE[CFG.gor])} à :`;
+    }
+    
+    $('f-choix-recit').textContent = phraseDistribution;
+    const o = $('f-choix-opts'); o.innerHTML = '';
     S.joueurs.forEach((n,i) => {
       if(i === S.idx) return;
       const b = document.createElement('button');
-      b.textContent = n; b.style.color = coul(i);
-      b.onclick = () => { S.prochain = i; $('choix').classList.remove('on');
-                          $('verdict').style.display = 'block'; resoudre(valeur, delta, ecart); };
+      b.className = 'bouton';
+      b.textContent = n;
+      b.style.color = coul(i);
+      b.style.borderColor = coul(i);
+      b.onclick = () => { 
+        S.prochain = i; 
+        $('f-choix-popup').classList.remove('on');
+        resoudre(valeur, delta, ecart); 
+      };
       o.appendChild(b);
     });
-    $('choix').classList.add('on');
-    montrer('resultat');
+    $('f-choix-popup').classList.add('on');
     return;
   }
-  $('choix').classList.remove('on');
   $('verdict').style.display = 'block';
   resoudre(valeur, delta, ecart);
 }
@@ -6153,17 +6247,17 @@ function resoudre(valeur, delta, ecart){
 
   /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
   if(minutePile){
-    couleur = 't-laiton';
-    st.minutes = (st.minutes || 0) + 1;
-    const autres = S.joueurs.filter(n => n !== joueur && vivant(n));
-    autres.forEach(n => S.stats[n].culs += 1);
-    T.textContent = 'La minute pile';
-    U.textContent = autres.length
-      ? 'tout le monde sauf ' + joueur + ' : cul sec'
-      : 'personne d\'autre à table, personne ne boit';
-    S.contre = 0; S.duel = null;          // le jackpot dissout riposte et duel
-    vibrer([0,90,60,90,60,90,60,260]);
-  }
+        couleur = 't-s100';
+        st.minutes = (st.minutes || 0) + 1;
+        const autres = S.joueurs.filter(n => n !== joueur && vivant(n));
+        autres.forEach(n => S.stats[n].culs += 1);
+        T.textContent = 'La minute pile';
+        U.textContent = autres.length
+          ? 'tout le monde sauf ' + joueur + ' : ' + nomCulSec()
+          : 'personne d\'autre à table, personne ne boit';
+        S.contre = 0; S.duel = null;          // le jackpot dissout riposte et duel
+        vibrer([0,90,60,90,60,90,60,260]);
+   }
   else if(S.evt === 'duel' && !S.duel){
     S.duel = {nom:joueur, val:valeur, ecart};
     couleur = 't-alerte'; avance = false;
@@ -6182,7 +6276,7 @@ function resoudre(valeur, delta, ecart){
   }
   else if(S.contre > 0){
     if(ecart === 0){
-      S.contre++; couleur = 't-laiton';
+      S.contre++; couleur = 't-s100';
       T.textContent = 'Contré';
       U.textContent = suiv + ' doit ' + culs(S.contre) + ' — ou riposte à son tour';
       vibrer([0,60,50,60,50,180]);
@@ -6393,7 +6487,20 @@ function resoudre(valeur, delta, ecart){
         U.textContent = 'une vie consommée · zone ± ' + fmt(S.zoneSurvie);
         sonSurvie('vie');
         vibrerSv(60);
-      } else {
+      } 
+      // NOUVEAU BLOC : LE CLOUD DU RÉSEAU
+      else if(effB('cloud') && !S.cloudUtilise){
+        S.cloudUtilise = true;
+        S.rejouerBiome = true; // Déclenchera le retour dans le temps
+        S.zoneSurvie = 20; // On redonne une zone viable pour retenter
+        S.chaineSurvie = 0; S.gainSurvie = null;
+        couleur = 't-s100'; // Violet/Bleu pour marquer la réussite de l'événement
+        T.textContent = 'Sauvegarde Cloud chargée';
+        U.textContent = 'Restauration au début du réseau... La prochaine erreur sera fatale.';
+        sonSurvie('vie');
+        vibrerSv(60);
+      } 
+      else {
         S.mort = true; couleur = 't-s0'; S.gainSurvie = null;
         T.textContent = 'Éliminé au tour ' + S.tour;
         U.textContent = 'la zone était à ± ' + fmt(zone()) + ' · écart ±' + fmt(ecart);
@@ -6676,20 +6783,21 @@ function resoudre(valeur, delta, ecart){
       U.textContent = 'objectif 30,00 · ' + fmt(Math.max(0, 3000 - valeur)) + ' s à parcourir';
     }
   }
+
   /* ─── enchère : le joueur a annoncé sa précision ─── */
   else if(CFG.mode === 'enchere' && S.enchere){
-    const e = ENCHERES.find(x => x.seuil === S.enchere);
-    if(ecart === 0){
-      S.contre = 1; couleur = 't-laiton';
-      T.textContent = suiv + ' : cul sec';
-      U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
-      vibrer([0,60,50,60,50,140]);
-    } else if(ecart <= e.seuil){
-      couleur = 't-vert';
-      const n = peine(suiv, e.n * mult);
-      T.textContent = n ? suiv + ' boit ' + gorg(n) : suiv + ' : bouclier consommé';
-      U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
-    } else {
+        const e = ENCHERES.find(x => x.seuil === S.enchere);
+        if(ecart === 0){
+          S.contre = 1; couleur = 't-s100';
+          T.textContent = suiv + ' : ' + nomCulSec();
+          U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+          vibrer([0,60,50,60,50,140]);
+        } else if(ecart <= e.seuil){
+          couleur = 't-vert';
+          const n = peine(suiv, e.n * mult, true);
+          T.textContent = suiv + ' boit ' + gorg(n);
+          U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
+        } else { 
       couleur = 't-signal';
       const n = peine(joueur, e.n * 2 * mult);
       T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
@@ -6698,54 +6806,56 @@ function resoudre(valeur, delta, ecart){
     }
   }
   else {
-    const v = evaluer(ecart);
-    couleur = v.couleur;
-    if(CFG.mode === 'elimination' && v.code === 'rate'){
-      S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
-      if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
-    }
-    if(v.code === 'pile'){
-      S.contre = 1;
-      T.textContent = suiv + ' : cul sec';
-      U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
-      vibrer([0,60,50,60,50,140]);
-    }
-    else if(v.code === 'frole'){
-      const n = peine(suiv, v.n * mult);
-      T.textContent = n ? suiv + ' boit ' + gorg(n) : suiv + ' : bouclier consommé';
-      U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
-        + (mult>1 ? ' · doublé' : '');
-    }
-    else if(v.code === 'sauf'){
-      if(S.evt === 'bouclier'){
-        S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
-        couleur = 't-alerte';
-        T.textContent = 'Bouclier pour ' + joueur;
-        U.textContent = 'annulera automatiquement sa prochaine peine';
-      } else {
-        T.textContent = 'Personne ne boit';
-        U.textContent = 'dans la marge';
-      }
-    }
-    else {
-      if(S.evt === 'bord'){
-        S.joueurs.forEach(n => S.stats[n].gorgees += mult);
-        T.textContent = 'Toute la table boit ' + gorg(mult);
-        U.textContent = joueur + ' est sorti de la zone';
-      } else {
-        const n = peine(joueur, RATE[CFG.gor] * mult);
-        T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
-        U.textContent = 'hors marge' + (mult>1 ? ' · doublé' : '');
-      }
-    }
-  }
+        const v = evaluer(ecart);
+        couleur = v.couleur;
+        if(CFG.mode === 'elimination' && v.code === 'rate'){
+          S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
+          if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
+        }
+        if(v.code === 'pile'){
+          S.contre = 1;
+          T.textContent = suiv + ' : ' + nomCulSec();
+          U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+          vibrer([0,60,50,60,50,140]);
+        }
+        else if(v.code === 'frole'){
+          const n = peine(suiv, v.n * mult, true);
+          if(S.evt === 'bouclier'){
+            S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
+            couleur = 't-alerte';
+            T.textContent = 'Bouclier pour ' + joueur;
+            U.textContent = suiv + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
+          } else {
+            T.textContent = suiv + ' boit ' + gorg(n);
+            U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
+              + (mult>1 ? ' · doublé' : '');
+          }
+        }
+        else if(v.code === 'sauf'){
+          T.textContent = 'Personne ne boit';
+          U.textContent = 'dans la marge';
+        }
+        else {
+          if(S.evt === 'bord'){
+            S.joueurs.forEach(n => S.stats[n].gorgees += mult);
+            T.textContent = 'Toute la table boit ' + gorg(mult);
+            U.textContent = joueur + ' est sorti de la zone';
+          } else {
+            // La victime est le joueur choisi, ou le joueur actuel s'il n'y a pas eu de choix
+            const victime = (S.evt === 'choix') ? suiv : joueur;
+            const n = peine(victime, RATE[CFG.gor] * mult);
+            T.textContent = n ? victime + ' boit ' + gorg(n) : victime + ' : bouclier consommé';
+            U.textContent = (S.evt === 'choix' ? 'peine transférée · ' : 'hors marge · ') + 'écart ±' + fmt(ecart) + (mult>1 ? ' · doublé' : '');
+          }
+        }
+      } // Fin du bloc "evaluer(ecart)"
 
-  if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
-    couleur = 't-signal';
-    T.textContent = joueur + ' est éliminé';
-    U.textContent = 'trois sorties de zone · il reste ' + actifs().length
-      + ' joueur' + (actifs().length>1?'s':'') + ' en lice';
-  }
+      if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
+        couleur = 't-signal';
+        T.textContent = joueur + ' est éliminé';
+        U.textContent = 'trois sorties de zone · il reste ' + actifs().length
+          + ' joueur' + (actifs().length>1?'s':'') + ' en lice';
+      }
   T.className = 'titre ' + couleur;
   T.parentElement.className = 'carte-verdict ' + couleur;
   $('res-score').className = 'score ' + couleur;
@@ -7063,8 +7173,8 @@ function fluidePret(){
       + (CFG.mode === 'compte' ? ' · viser 20,00 au bout' : '');
   if(CFG.mode === 'reflexe'){ $('f-obj-cible').textContent = 'STOP'; }
   const jc = S.jetons[nom] || 0;
-  $('f-bouclier').classList.toggle('on', jc > 0);
-  $('f-bouclier').textContent = jc > 1 ? 'Bouclier ×' + jc : 'Bouclier';
+  $('f-bouclier').style.display = jc > 0 ? 'inline-block' : 'none';
+  $('f-bouclier').textContent = jc > 1 ? '🛡️ ×' + jc : '🛡️';
   compteursMode('f-');
   bandeaux('f-');
   fluidePhase('repos');
@@ -7110,8 +7220,8 @@ function majAnneau(){
     $('avt-pv-marche-n').textContent = pv;
     $('avt-pv-marche-barre').style.width = Math.max(0, Math.min(100, (pv / maxJoueur) * 100)) + '%';
     ajusterChronoSousHud();
-  } else if(AVT()){
-    // hors combat : le chrono reprend sa position par défaut
+  } else {
+    // Dans tous les autres cas (hors combat Aventure), on laisse le Flexbox centrer le chrono tout seul
     $('fluide').style.removeProperty('--chr-y');
   }
   if(!on) return;
@@ -7382,6 +7492,13 @@ function fluideResultat(){
     S.total = S.totalAvantTour;
     S.cible = S.cibleAvantTour;
     fluidePret();
+    return;
+  }
+   if(S.rejouerBiome){
+    S.rejouerBiome = false;
+    // Calcule quel était le tour 1 de ce biome (ex: 451 pour le Réseau)
+    const debutBiome = Math.floor((S.tour - 1) / TOURS_BIOME) * TOURS_BIOME + 1;
+    allerAuTour(debutBiome); // Utilise ta fonction existante de saut dans le temps !
     return;
   }
   avancerTour();
@@ -9190,8 +9307,9 @@ function ouvrirFiche(id){
   aff('fi-bloc-diff', avecDiff);
   aff('fi-bloc-gor',  avecGor);
   aff('fi-bloc-evt',  avecEvt);
-  aff('fi-bloc-bar',  avecGor);
   aff('fi-bloc-fin',  avecFin);
+
+   
 
   $('fi-aff').style.opacity = imposeAff ? .35 : 1;
   $('fi-aff').style.pointerEvents = imposeAff ? 'none' : 'auto';
@@ -9202,14 +9320,49 @@ function ouvrirFiche(id){
     .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[k])); }
 
   if(avecDiff) $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
-    + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
+    + ' s.' + (avecGor ? ' Hors zone : ' + gorg(RATE[CFG.gor]) + '.' : '');
   if(avecGor)  $('fi-note-gor').textContent = CFG.gor === 'gros'
-    ? 'Gorgées doublées près du pile, 4 hors zone. Les culs secs ne doublent jamais.'
-    : 'Barème normal. Les culs secs ne doublent jamais.';
+    ? "En retard pour sortir ? Pas envie de te rappeler de la date du jour ? Envie de perdre ton téléphone dans un taxi ? T'es au bon endroit."
+    : CFG.gor === 'appart'
+    ? "Au chaud on peut y aller franco, un pile c'est un " + nomCulSec() + "."
+    : "A la cool, entres potes. On va pas gâcher cette biere quand même, un pile c'est un " + nomCulSec() + ".";
   if(avecEvt)  $('fi-note-evt').textContent = {
     aucun:'Aucun événement. Le jeu se joue au barème seul.',
     rares:'Environ un tour sur huit. Jamais deux fois de suite.',
     frequents:'Environ un tour sur trois. La partie devient franchement bordélique.'}[CFG.evts];
+
+ // NOUVEAU : Générer la liste des événements interactive dans le dépliant
+  const detailEvt = $('fi-liste-evts-detail');
+  if(detailEvt) {
+    const rendreEvts = () => {
+      CFG.evtExclus = CFG.evtExclus || [];
+      detailEvt.innerHTML = EVTS.map(e => {
+        const actif = !CFG.evtExclus.includes(e.id);
+        return `<div class="rang-evt ${actif ? '' : 'off'}" data-id="${e.id}">
+          <button class="toggle-evt">${actif ? 'ON' : 'OFF'}</button>
+          <div class="txt">
+            <div class="n">${e.n}</div>
+            <div class="d">${e.d}</div>
+          </div>
+        </div>`;
+      }).join('');
+      
+      // On rend chaque ligne cliquable pour activer/désactiver
+      detailEvt.querySelectorAll('.rang-evt').forEach(el => {
+        el.onclick = () => {
+          const id = el.dataset.id;
+          if(CFG.evtExclus.includes(id)) {
+            CFG.evtExclus = CFG.evtExclus.filter(x => x !== id); // On le retire des exclus (ON)
+          } else {
+            CFG.evtExclus.push(id); // On l'ajoute aux exclus (OFF)
+          }
+          MEM.cfg = {...CFG}; ecrireMem();
+          rendreEvts(); // Met à jour l'affichage dynamiquement
+        };
+      });
+    };
+    rendreEvts();
+  }
   if(avecGor) tableau();
   if(avecFin){
     // ~11 s par tour en soirée : lancer, jouer, lire le verdict, passer le téléphone
