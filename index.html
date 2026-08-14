@@ -5743,6 +5743,7 @@ async function demarrerPartie(){
   S.fautes = {}; S.elimines = []; S.vies = 3;
   S.points = 0; S.chaine = 0; S.meilleureChaine = 0; S.chaineFrole = 0;
   S.dernier = null; S.finDeTour = null; S.dernierMs = undefined;
+  S.sequence = []; // La correction est ici !
   verrouillerDepart(false);
   $('f-sprint').classList.remove('on'); $('f-sprint').textContent = '';
   $('f-vie-ind').classList.remove('on');
