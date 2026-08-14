@@ -6802,16 +6802,14 @@ function resoudre(valeur, delta, ecart){
             U.textContent = (S.evt === 'choix' ? 'peine transférée · ' : 'hors marge · ') + 'écart ±' + fmt(ecart) + (mult>1 ? ' · doublé' : '');
           }
         }
-        }
-    }
-  }
+      } // Fin du bloc "evaluer(ecart)"
 
-  if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
-    couleur = 't-signal';
-    T.textContent = joueur + ' est éliminé';
-    U.textContent = 'trois sorties de zone · il reste ' + actifs().length
-      + ' joueur' + (actifs().length>1?'s':'') + ' en lice';
-  }
+      if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
+        couleur = 't-signal';
+        T.textContent = joueur + ' est éliminé';
+        U.textContent = 'trois sorties de zone · il reste ' + actifs().length
+          + ' joueur' + (actifs().length>1?'s':'') + ' en lice';
+      }
   T.className = 'titre ' + couleur;
   T.parentElement.className = 'carte-verdict ' + couleur;
   $('res-score').className = 'score ' + couleur;
