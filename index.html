@@ -7110,8 +7110,8 @@ function majAnneau(){
     $('avt-pv-marche-n').textContent = pv;
     $('avt-pv-marche-barre').style.width = Math.max(0, Math.min(100, (pv / maxJoueur) * 100)) + '%';
     ajusterChronoSousHud();
-  } else if(AVT()){
-    // hors combat : le chrono reprend sa position par défaut
+  } else {
+    // Dans tous les autres cas (hors combat Aventure), on laisse le Flexbox centrer le chrono tout seul
     $('fluide').style.removeProperty('--chr-y');
   }
   if(!on) return;
