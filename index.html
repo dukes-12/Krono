@@ -1543,7 +1543,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.7</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.8</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2361,7 +2361,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         style="margin-top:8px">Rester là</button>
     </div>
   </div>
-  <div class="avt-decision" id="f-choix-popup" style="z-index: 20;">
+  <!-- Remplacement de la ligne 365 -->
+  <div class="avt-decision" id="f-choix-popup" style="z-index: 20; background: rgba(14, 17, 22, 0.85); backdrop-filter: blur(10px);">
     <div class="avt-dec-corps">
       <div class="avt-dec-eyebrow" style="color: var(--laiton);">Événement : Tu choisis</div>
       <div class="avt-dec-recit" id="f-choix-recit">—</div>
@@ -6147,9 +6148,21 @@ function afficherResultat(valeur){
   if(S.evt === 'choix' && S.prochain === null){
     // Met à jour visuellement le chrono pour qu'il voie son score sous la modale
     $('f-chrono').textContent = affChrono(valeur);
-    $('f-chrono').className = 'f-chrono ' + evaluer(ecart).couleur;
+    const v = evaluer(ecart);
+    $('f-chrono').className = 'f-chrono ' + v.couleur;
     
-    $('f-choix-recit').textContent = 'Ton écart : ±' + fmt(ecart) + ' s. Qui joue après toi ?';
+    let phraseDistribution = "";
+    if (v.code === 'pile') {
+        phraseDistribution = `🎯 PILE ! Tu offres 1 ${nomCulSec()} à :`;
+    } else if (v.code === 'frole') {
+        phraseDistribution = `✨ Frôlé ! Tu distribues ${gorg(v.n)} à :`;
+    } else if (v.code === 'sauf') {
+        phraseDistribution = `C'est dans la zone. Personne ne boit. À qui le tour ?`;
+    } else {
+        phraseDistribution = `❌ Raté ! Tu refiles ta peine de ${gorg(RATE[CFG.gor])} à :`;
+    }
+    
+    $('f-choix-recit').textContent = phraseDistribution;
     const o = $('f-choix-opts'); o.innerHTML = '';
     S.joueurs.forEach((n,i) => {
       if(i === S.idx) return;
@@ -6778,15 +6791,19 @@ function resoudre(valeur, delta, ecart){
           U.textContent = 'dans la marge';
         }
         else {
-      if(S.evt === 'bord'){
-        S.joueurs.forEach(n => S.stats[n].gorgees += mult);
-        T.textContent = 'Toute la table boit ' + gorg(mult);
-        U.textContent = joueur + ' est sorti de la zone';
-      } else {
-        const n = peine(joueur, RATE[CFG.gor] * mult);
-        T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
-        U.textContent = 'hors marge' + (mult>1 ? ' · doublé' : '');
-      }
+      else {
+          if(S.evt === 'bord'){
+            S.joueurs.forEach(n => S.stats[n].gorgees += mult);
+            T.textContent = 'Toute la table boit ' + gorg(mult);
+            U.textContent = joueur + ' est sorti de la zone';
+          } else {
+            // La victime est le joueur choisi, ou le joueur actuel s'il n'y a pas eu de choix
+            const victime = (S.evt === 'choix') ? suiv : joueur;
+            const n = peine(victime, RATE[CFG.gor] * mult);
+            T.textContent = n ? victime + ' boit ' + gorg(n) : victime + ' : bouclier consommé';
+            U.textContent = (S.evt === 'choix' ? 'peine transférée · ' : 'hors marge · ') + 'écart ±' + fmt(ecart) + (mult>1 ? ' · doublé' : '');
+          }
+        }
     }
   }
 
