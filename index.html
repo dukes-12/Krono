@@ -1543,7 +1543,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.5</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.6</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2361,6 +2361,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         style="margin-top:8px">Rester là</button>
     </div>
   </div>
+  <div class="avt-decision" id="f-choix-popup" style="z-index: 20;">
+    <div class="avt-dec-corps">
+      <div class="avt-dec-eyebrow" style="color: var(--laiton);">Événement : Tu choisis</div>
+      <div class="avt-dec-recit" id="f-choix-recit">—</div>
+      <div class="avt-dec-choix" id="f-choix-opts"></div>
+    </div>
+  </div>
   <div class="avt-voile" id="avt-voile">
     <div class="carte">
       <div class="avt-voile-ic" id="avt-voile-ic">⚔</div>
@@ -2454,10 +2461,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </div>
   <div class="titre-sec">Tours précédents</div>
   <div class="film" id="film"></div>
-  <div class="choix" id="choix">
-    <div class="lab">Tu choisis qui joue après toi</div>
-    <div class="opts" id="choix-opts"></div>
-  </div>
   <div class="verdict" id="verdict">
     <div class="carte-verdict">
       <div class="titre" id="ver-titre">—</div>
@@ -4608,7 +4611,6 @@ const bossCourant = () => BOSS[Math.min(S.bossIdx || 0, BOSS.length - 1)];
 // « fausse » : le tour est exclu du profil, la mesure n'est pas comparable
 const EVTS = [
   {id:'demi',    n:'Demi-seconde',   d:"La cible tombe sur un X,50 au lieu d'un X,00. Le repère mental saute.", fausse:1},
-  {id:'sprint',  n:'Sprint',         d:"La règle des 0,50 s est suspendue : la cible est à 0,25 s. Réflexe pur.", fausse:1},
   {id:'longue',  n:'Longue',         d:"La cible saute une seconde plus loin. Une seconde de plus à tenir, c'est une seconde de dérive en plus.", fausse:1},
   {id:'double',  n:'Double ou rien', d:"Toutes les gorgées du tour comptent double. Le cul sec reste un cul sec."},
   {id:'bord',    n:'Effet de bord',  d:"Hors zone, ce n'est plus le joueur qui boit : c'est toute la table, une gorgée chacun."},
@@ -5872,7 +5874,6 @@ function tirerEvenement(){
   }
   S.dernierEvt = S.tour;
   if(S.evt === 'demi')   S.cible = S.cibleBase + 50;
-  if(S.evt === 'sprint') S.cible = S.total + 25;
   if(S.evt === 'longue') S.cible = S.cibleBase + 100;
 }
 
@@ -6143,21 +6144,31 @@ function afficherResultat(valeur){
   $('bande').classList.toggle('pile', ecart === 0);
 
   if(S.evt === 'choix' && S.prochain === null){
-    $('res-score').className = 'score t-alerte';
-    $('verdict').style.display = 'none';
-    const o = $('choix-opts'); o.innerHTML = '';
+    // Met à jour visuellement le chrono pour qu'il voie son score sous la modale
+    $('f-chrono').textContent = affChrono(valeur);
+    $('f-chrono').className = 'f-chrono ' + evaluer(ecart).couleur;
+    
+    $('f-choix-recit').textContent = 'Ton écart : ±' + fmt(ecart) + ' s. Qui joue après toi ?';
+    const o = $('f-choix-opts'); o.innerHTML = '';
     S.joueurs.forEach((n,i) => {
       if(i === S.idx) return;
       const b = document.createElement('button');
-      b.textContent = n; b.style.color = coul(i);
-      b.onclick = () => { S.prochain = i; $('choix').classList.remove('on');
-                          $('verdict').style.display = 'block'; resoudre(valeur, delta, ecart); };
+      b.className = 'bouton';
+      b.textContent = n;
+      b.style.color = coul(i);
+      b.style.borderColor = coul(i);
+      b.style.marginBottom = '8px';
+      b.onclick = () => { 
+        S.prochain = i; 
+        $('f-choix-popup').classList.remove('on');
+        resoudre(valeur, delta, ecart); 
+      };
       o.appendChild(b);
     });
-    $('choix').classList.add('on');
-    montrer('resultat');
+    $('f-choix-popup').classList.add('on');
     return;
   }
+  // Supprime le $('choix').classList.remove('on'); qui était juste en dessous
   $('choix').classList.remove('on');
   $('verdict').style.display = 'block';
   resoudre(valeur, delta, ecart);
@@ -9230,10 +9241,10 @@ function ouvrirFiche(id){
   if(avecDiff) $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
     + ' s. Hors zone : ' + gorg(RATE[CFG.gor]) + '.';
   if(avecGor)  $('fi-note-gor').textContent = CFG.gor === 'gros'
-    ? 'Gorgées doublées près du pile, 4 hors zone. Les ' + nomCulSec() + 's ne doublent jamais.'
+    ? 'En retard pour sortir ? Pas envie de te rappeler de la date du jour ? Envie de perdre ton téléphone dans un taxi ? T'es au bon endroit.'
     : CFG.gor === 'appart'
-    ? '3 gorgées fixes dans la zone frôlée. Les ' + nomCulSec() + 's ne doublent jamais.'
-    : 'Barème normal. Les ' + nomCulSec() + 's ne doublent jamais.';
+    ? 'Au chaud on peut y aller franco, un pile c'est un ' + nomCulSec() + '.'
+    : 'A la cool, entres potes. On va pas gâcher cette biere quand même, un pile c'est un ' + nomCulSec() + '.';
   if(avecEvt)  $('fi-note-evt').textContent = {
     aucun:'Aucun événement. Le jeu se joue au barème seul.',
     rares:'Environ un tour sur huit. Jamais deux fois de suite.',
