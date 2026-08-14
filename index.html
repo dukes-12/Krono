@@ -1543,7 +1543,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.4</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.5</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2261,9 +2261,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="f-sprint" id="f-sprint"></span>
   </div>
   <div class="f-tete-j" style="margin-top: 12px;">
-    <div class="f-nom-l"><span class="pilule f-nom" id="f-nom">Joueur</span></div>
+    <div class="f-nom-l">
+      <span class="pilule f-nom" id="f-nom">Joueur</span>
+      <!-- Le bouclier est maintenant un simple logo à côté du nom -->
+      <span id="f-bouclier" style="display: none; font-size: 26px; margin-left: 10px; line-height: 1; filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));">🛡️</span>
+    </div>
     <div class="f-badges">
-      <span class="bouclier" id="f-bouclier">Bouclier</span>
       <span class="bouclier or" id="f-enchere"></span>
       <span class="bouclier vies" id="f-vies"></span>
       <span class="bouclier or" id="f-minute">La minute pile</span>
@@ -2273,11 +2276,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   
     <!-- Conteneur invisible pour empêcher le décalage -->
   <div style="position: relative; height: 0; z-index: 10;">
-    <div class="bandeau rouge" id="f-riposte" style="position: absolute; top: -25px; left: 0; right: 0;">
+    <div class="bandeau rouge" id="f-riposte" style="position: absolute; top: -35px; left: 0; right: 0;">
       <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
       <div class="s" id="f-rip-sous">—</div>
     </div>
-    <div class="bandeau violet" id="f-evt" style="position: absolute; top: -25px; left: 0; right: 0;">
+    <div class="bandeau violet" id="f-evt" style="position: absolute; top: -35px; left: 0; right: 0;">
       <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
       <div class="s" id="f-evt-sous">—</div>
     </div>
@@ -7082,8 +7085,8 @@ function fluidePret(){
       + (CFG.mode === 'compte' ? ' · viser 20,00 au bout' : '');
   if(CFG.mode === 'reflexe'){ $('f-obj-cible').textContent = 'STOP'; }
   const jc = S.jetons[nom] || 0;
-  $('f-bouclier').classList.toggle('on', jc > 0);
-  $('f-bouclier').textContent = jc > 1 ? 'Bouclier ×' + jc : 'Bouclier';
+  $('f-bouclier').style.display = jc > 0 ? 'inline-block' : 'none';
+  $('f-bouclier').textContent = jc > 1 ? '🛡️ ×' + jc : '🛡️';
   compteursMode('f-');
   bandeaux('f-');
   fluidePhase('repos');
