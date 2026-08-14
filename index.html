@@ -1195,7 +1195,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   text-transform:uppercase;color:#C9A227;opacity:.85}
 .avt-dec-recit{font-family:var(--cond);font-size:14.5px;line-height:1.6;
   color:#C9B99A;margin-top:14px;font-style:italic}
-.avt-dec-choix{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.avt-dec-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  max-height: 250px; /* Limite à environ 4 boutons visibles */
+  overflow-y: auto; /* Active le menu déroulant */
+  -webkit-overflow-scrolling: touch; /* Défilement très fluide sur iPhone */
+  padding: 4px; /* Évite de couper la bordure des boutons au scroll */
+}
 .avt-dec-choix button{width:100%}
 .avt-transition{display:none;position:absolute;inset:0;z-index:11;
   align-items:center;justify-content:center;padding:26px;
@@ -1543,7 +1552,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.8</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.9</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -6171,7 +6180,6 @@ function afficherResultat(valeur){
       b.textContent = n;
       b.style.color = coul(i);
       b.style.borderColor = coul(i);
-      b.style.marginBottom = '8px';
       b.onclick = () => { 
         S.prochain = i; 
         $('f-choix-popup').classList.remove('on');
