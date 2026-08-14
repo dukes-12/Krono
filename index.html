@@ -4967,10 +4967,10 @@ const demander = (titre, sous, oui) => choisir(titre, sous,
 
 /* ════════ RÈGLES ════════ */
 function evaluer(ecart){
-  if(ecart === 0)     return {code:'pile',  couleur:'t-laiton', n:0};
-  if(ecart <= PRES)   return {code:'frole', couleur:'t-laiton', n:x2(PRES + 1 - ecart)};
-  if(ecart <= zone()) return {code:'sauf',  couleur:'t-vert',   n:0};
-  return                     {code:'rate',  couleur:'t-signal', n:RATE[CFG.gor]};
+  if(ecart === 0)     return {code:'pile',  couleur:'t-s100', n:0}; // Violet
+  if(ecart <= PRES)   return {code:'frole', couleur:'t-s50', n:x2(PRES + 1 - ecart)}; // Vert
+  if(ecart <= zone()) return {code:'sauf',  couleur:'t-s20',  n:0}; // Jaune
+  return                     {code:'rate',  couleur:'t-signal', n:RATE[CFG.gor]}; // Rouge
 }
 function prochaineCible(total){
   let c = (Math.floor(total/100) + 1) * 100;
@@ -6153,7 +6153,7 @@ function resoudre(valeur, delta, ecart){
 
   /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
   if(minutePile){
-    couleur = 't-laiton';
+    couleur = 't-s100';
     st.minutes = (st.minutes || 0) + 1;
     const autres = S.joueurs.filter(n => n !== joueur && vivant(n));
     autres.forEach(n => S.stats[n].culs += 1);
@@ -6182,7 +6182,7 @@ function resoudre(valeur, delta, ecart){
   }
   else if(S.contre > 0){
     if(ecart === 0){
-      S.contre++; couleur = 't-laiton';
+      S.contre++; couleur = 't-s100';
       T.textContent = 'Contré';
       U.textContent = suiv + ' doit ' + culs(S.contre) + ' — ou riposte à son tour';
       vibrer([0,60,50,60,50,180]);
@@ -6680,7 +6680,7 @@ function resoudre(valeur, delta, ecart){
   else if(CFG.mode === 'enchere' && S.enchere){
     const e = ENCHERES.find(x => x.seuil === S.enchere);
     if(ecart === 0){
-      S.contre = 1; couleur = 't-laiton';
+      S.contre = 1; couleur = 't-s100';
       T.textContent = suiv + ' : cul sec';
       U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
       vibrer([0,60,50,60,50,140]);
