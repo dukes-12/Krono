@@ -1543,7 +1543,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.1</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.2</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2270,8 +2270,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="bouclier crit" id="f-critique"></span>
     </div>
   </div>
-  <div class="f-obj"><b id="f-obj-cible">1,00</b><em id="f-obj-tenir">—</em>
-    <em class="f-realise" id="f-realise"></em></div>
+  
+  <!-- Les bandeaux sont maintenant placés ici, juste sous le nom -->
   <div class="bandeau rouge" id="f-riposte">
     <div class="t"><span class="badge rouge"><i>!</i></span><span id="f-rip-titre">Riposte</span></div>
     <div class="s" id="f-rip-sous">—</div>
@@ -2279,6 +2279,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="bandeau violet" id="f-evt">
     <div class="t"><span class="badge"><i>!</i></span><span id="f-evt-titre">—</span></div>
     <div class="s" id="f-evt-sous">—</div>
+  </div>
+
+  <!-- Les textes superflus sont masqués et la hauteur ajustée -->
+  <div class="f-obj" style="height: 40px;">
+    <b id="f-obj-cible">1,00</b>
+    <em id="f-obj-tenir" style="display: none !important;">—</em>
+    <em class="f-realise" id="f-realise" style="display: none !important;"></em>
   </div>
   <div class="avt-hud" id="avt-hud">
     <div class="avt-bandeau">
