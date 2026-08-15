@@ -6189,6 +6189,7 @@ function arreter(ev){
   if(ENCHAINES[CFG.mode]){ tourEnchaine(t); return; }
   S.encours = false;
   purgerMinuteries(); vibrer(18);
+  S.blindPret = false; // <-- AJOUTE CETTE LIGNE ICI
   afficherResultat(valeurAtteinte(enCentiemes(t - S.t0)));
 }
 addEventListener('keydown', ev => {
@@ -7558,6 +7559,9 @@ function fluidePhase(ph){
   if(ph === 'fin'){
     D.classList.add('clair');
     D.querySelector('span').textContent = 'Classement';
+  } else if (CFG.mode === 'blind' && ph === 'repos' && !S.blindPret) {
+    D.classList.add('vert');
+    D.querySelector('span').textContent = 'Suivant';
   } else {
     D.classList.add('vert');
     D.querySelector('span').textContent = 'Démarrer';
@@ -7652,6 +7656,27 @@ $('fluide').addEventListener('pointerdown', ev => {
   const b = ev.target.closest && ev.target.closest('.rond');
   if(!b || b.disabled || b.id !== 'f-droite' || S.fPhase !== 'repos') return;
   if(performance.now() - S.fPhaseAt < 220) return;
+  
+  // --- NOUVEAU : Interception 2 temps pour le Blind ---
+  if(CFG.mode === 'blind' && !S.blindPret) {
+    S.blindPret = true;
+    // On masque tout pour le joueur suivant
+    $('f-chrono').className = 'f-chrono repos';
+    $('f-chrono').textContent = '0,00';
+    $('f-realise').classList.remove('on');
+    $('f-verdict').style.visibility = 'hidden';
+    $('f-gain').classList.remove('on');
+    $('f-blague').classList.remove('on');
+    b.querySelector('span').textContent = 'Démarrer';
+    
+    // On cache aussi le bandeau éventuel s'il y en a un
+    const evtBandeau = $('f-evt');
+    if(evtBandeau) evtBandeau.classList.remove('on');
+    
+    return; // On stoppe l'exécution ici, on attend le vrai clic de départ
+  }
+  // ----------------------------------------------------
+
   demarrer(ev);
 });
 $('fluide').addEventListener('click', ev => {
