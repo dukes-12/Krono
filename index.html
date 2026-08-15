@@ -1603,7 +1603,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.4</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.5</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -7741,7 +7741,7 @@ function fluideResultat(){
     return;
   }
   avancerTour();
-  if(S.sautTour){ S.sautTour = false; avancerTour(); }   // Paradis : un tour offert
+  //if(S.sautTour){ S.sautTour = false; avancerTour(); }  // Paradis : un tour offert
   fluidePret();          // affiche le résultat ET l'objectif suivant
 }
 
@@ -7761,7 +7761,10 @@ $('fluide').addEventListener('pointerdown', ev => {
   if(CFG.mode === 'blind' && !S.blindPret) {
     S.blindPret = true;
     $('f-obj-cible').textContent = fmt(S.cible); // <-- AJOUT : Met à jour la cible
-    
+    avancerTour();
+
+    S.fPhase = 'repos';
+   
     // On masque tout pour le joueur suivant
     $('f-chrono').className = 'f-chrono repos';
     $('f-chrono').textContent = '0,00';
