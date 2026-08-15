@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -249,7 +249,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .depliant .interieur { margin-top: 10px; padding-left: 14px; border-left: 1px solid var(--trait); display: flex; flex-direction: column; }
 .rang-evt { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--trait); cursor: pointer; }
 .rang-evt:last-child { border-bottom: none; }
-.rang-evt .txt { display: flex; flex-direction: column; flex: 1; }
+.rang-evt .txt { display: flex; flex-direction: column; flex: 1; text-align: left; align-items: flex-start; }
 .rang-evt .n { font-size: 18px; font-weight: 600; color: var(--laiton); line-height: 1.1; }
 .rang-evt.off .n { color: var(--gris); }
 .rang-evt .d { font-family: var(--mono); font-size: 11.5px; color: var(--gris); margin-top: 4px; line-height: 1.4; }
@@ -1566,7 +1566,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.3</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.4</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -1709,12 +1709,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="recap-b">
       <button class="bouton fantome" id="pr-nom">Changer de pseudo</button>
       <button class="bouton fantome" id="pr-effacer-photo">Retirer la photo</button>
-    </div>
-    <div class="recap-b">
-      <button class="bouton fantome" id="pr-nom">Changer de pseudo</button>
-      <button class="bouton fantome" id="pr-effacer-photo">Retirer la photo</button>
-    </div>
-
     <!-- NOUVEAU BLOC HISTORIQUE -->
     <div class="titre-sec">Historique des soirées</div>
     <div class="note">Vos 10 dernières parties à plusieurs sur ce téléphone.</div>
@@ -2457,6 +2451,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <span class="ja-cote"><button id="f-sol-recommencer">Recommencer</button></span>
     <span class="ja-cote">
       <button id="f-ajouter">+ Joueur</button>
+      <button id="f-retirer" style="display:none">− Joueur</button>
       <button id="f-sol-changer">Changer</button>
     </span>
   </div>
@@ -2654,7 +2649,7 @@ function couleurLibre(){
 const MODES = [
   {id:'classique', n:'Classique',
    d:"Le barème habituel, chacun pour soi."},
-  {id:'blind', n:'Blind', test:1,
+  {id:'blind', n:'Blind',
    d:"Cible aléatoire (1 à 10s), chrono caché. La zone et les gorgées s'adaptent à la durée."},
   {id:'enchere', n:"L'enchère",
    d:"Annoncer la précision qu'on vise avant de lancer."},
@@ -2757,7 +2752,7 @@ const cadranCourant = () =>
 const MAREE = [100,150,200,250,300,250,200,150,100,150,200,250];
 // deux modes se jouent sans jamais arrêter le chrono : chaque appui est un tour
 const ENCHAINES = {cascade:{n:10, pas:100}};
-const REMISE_A_ZERO = ['nues','braquage','sniper','cascade'];
+const REMISE_A_ZERO = ['nues','braquage','sniper','cascade','blind'];
 // Aventure : seul un combat (gardien ou monstre) repart de zéro visuellement,
 // jamais un tour de marche normal — d'où ce helper séparé plutôt qu'un ajout
 // de 'aventure' à REMISE_A_ZERO, qui s'applique à chaque tour sans distinction.
@@ -6025,8 +6020,25 @@ function compteursMode(p){
   $('f-sol-recommencer').style.display = solo ? 'block' : 'none';
   $('f-sol-changer').style.display = solo ? 'block' : 'none';
   $('f-ajouter').style.display = solo ? 'none' : 'block';
-  $(p+'enchere').classList.remove('on');
+  $('f-retirer').style.display = (solo || S.joueurs.length <= 2) ? 'none' : 'block';
 }
+async function retirerJoueurEnCours(){
+  if(!S.partie || S.joueurs.length <= 2) return;
+  const nom = await choisir('Retirer un joueur', 
+    'Qui quitte la table ?', 
+    S.joueurs.map((n, i) => ({label: n, val: i, doux: i === S.idx}))
+  );
+  if(nom === null) return;
+  
+  const i = nom;
+  S.joueurs.splice(i, 1);
+  if(S.idx >= S.joueurs.length) S.idx = 0;
+  MEM.joueurs = S.joueurs.slice();
+  await ecrireMem();
+  peupler();
+  fluidePret();
+}
+$('f-retirer').onclick = retirerJoueurEnCours;
 function majEnchere(){
   const e = ENCHERES.find(x => x.seuil === S.enchere);
   const txt = e ? 'Enchère ' + e.label.split(' · ')[1] : '';
@@ -6228,20 +6240,19 @@ function afficherResultat(valeur){
   $('bande').classList.toggle('pile', ecart === 0);
 
   if(S.evt === 'choix' && S.prochain === null){
-    // Met à jour visuellement le chrono pour qu'il voie son score sous la modale
     $('f-chrono').textContent = affChrono(valeur);
     const v = evaluer(ecart);
     $('f-chrono').className = 'f-chrono ' + v.couleur;
     
     let phraseDistribution = "";
     if (v.code === 'pile') {
-        phraseDistribution = `🎯 PILE ! Tu offres 1 ${nomCulSec()} à :`;
+        phraseDistribution = `🎯 PILE ! Tu offres 1 ${nomCulSec()} et choisis qui joue après :`;
     } else if (v.code === 'frole') {
-        phraseDistribution = `✨ Frôlé ! Tu distribues ${gorg(v.n)} à :`;
+        phraseDistribution = `✨ Frôlé ! Tu donnes ${gorg(v.n)} et choisis qui joue après :`;
     } else if (v.code === 'sauf') {
-        phraseDistribution = `C'est dans la zone. Personne ne boit. À qui le tour ?`;
+        phraseDistribution = `C'est dans la marge. Qui joue après toi ?`;
     } else {
-        phraseDistribution = `❌ Raté ! Tu refiles ta peine de ${gorg(RATE[CFG.gor])} à :`;
+        phraseDistribution = `❌ Hors zone ! Tu bois ${gorg(RATE[CFG.gor])}. Qui joue après toi ?`;
     }
     
     $('f-choix-recit').textContent = phraseDistribution;
@@ -6870,26 +6881,27 @@ function resoudre(valeur, delta, ecart){
         
         if(v.code === 'pile'){
           S.contre = nbCulsSecs * mult;
-          T.textContent = suiv + ' : ' + culs(S.contre);
-          U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+          T.textContent = (S.evt === 'choix' ? suiv : suiv) + ' : ' + culs(S.contre);
+          U.textContent = (S.evt === 'choix' ? joueur + ' a fait pile et désigné ' + suiv : 'pile — sauf si ' + suiv + ' fait pile aussi');
           vibrer([0,60,50,60,50,140]);
         }
         else if(v.code === 'frole'){
-          const n = peine(suiv, gorgeesFrole * mult, true);
+          // C'est toujours le joueur suivant (ou le désigné) qui boit
+          const victime = suiv;
+          const n = peine(victime, gorgeesFrole * mult, true);
           if(S.evt === 'bouclier'){
             S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
             couleur = 't-alerte';
             T.textContent = 'Bouclier pour ' + joueur;
-            U.textContent = suiv + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
+            U.textContent = victime + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
           } else {
-            T.textContent = suiv + ' boit ' + gorg(n);
-            U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
-              + (mult>1 ? ' · doublé' : '');
+            T.textContent = victime + ' boit ' + gorg(n);
+            U.textContent = (S.evt === 'choix' ? joueur + ' a frôlé et désigné ' + victime : 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile' + (mult>1 ? ' · doublé' : ''));
           }
         }
         else if(v.code === 'sauf'){
           T.textContent = 'Personne ne boit';
-          U.textContent = 'dans la marge';
+          U.textContent = (S.evt === 'choix' ? joueur + ' passe la main à ' + suiv : 'dans la marge');
         }
         else {
           if(S.evt === 'bord'){
@@ -6897,11 +6909,10 @@ function resoudre(valeur, delta, ecart){
             T.textContent = 'Toute la table boit ' + gorg(gorgeesBase * mult);
             U.textContent = joueur + ' est sorti de la zone';
           } else {
-            // La victime est le joueur choisi, ou le joueur actuel s'il n'y a pas eu de choix
-            const victime = (S.evt === 'choix') ? suiv : joueur;
-            const n = peine(victime, gorgeesBase * mult);
-            T.textContent = n ? victime + ' boit ' + gorg(n) : victime + ' : bouclier consommé';
-            U.textContent = (S.evt === 'choix' ? 'peine transférée · ' : 'hors marge · ') + 'écart ±' + fmt(ecart) + (mult>1 ? ' · doublé' : '');
+            // Le joueur actuel boit SA propre faute, pas de transfert
+            const n = peine(joueur, gorgeesBase * mult);
+            T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
+            U.textContent = (S.evt === 'choix' ? 'hors marge · ' + joueur + ' passe la main à ' + suiv : 'hors marge · écart ±' + fmt(ecart)) + (mult>1 ? ' · doublé' : '');
           }
         }
       } // Fin du bloc d'évaluation
@@ -8394,7 +8405,8 @@ $('go-boutique').onclick = () => { BOUTIQUE_RETOUR = 'test'; construireBoutique(
 $('bo-partir').onclick = () => { CFG.mode = 'aventure'; MEM.cfg = {...CFG};
   ecrireMem(); demarrerPartie(); };
 $('pr-retour').onclick = () => montrer('reglages');
-// ligne 8377 à 8403 (TEST) pas sûr du résultat
+   
+// function construireHistoriqueSoirees (TEST) pas sûr du résultat
 function construireHistoriqueSoirees() {
   const cont = $('pr-histo-soirees');
   if(!cont) return;
@@ -8403,30 +8415,58 @@ function construireHistoriqueSoirees() {
     cont.innerHTML = '<div class="note">Aucune partie soirée enregistrée.</div>';
     return;
   }
-  cont.innerHTML = H.map(h => {
+  cont.innerHTML = H.map((h, idx) => {
     const d = new Date(h.date).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
     const modeObj = MODES.find(m => m.id === h.mode) || {n: h.mode};
     const topBuveur = [...h.stats].sort((a,b) => (b.gorgees + b.culs*4) - (a.gorgees + a.culs*4))[0];
     const topPrecis = [...h.stats].sort((a,b) => (a.ecart/a.tours) - (b.ecart/b.tours))[0];
     
-    return `<div class="lg-l" style="flex-direction:column; align-items:flex-start; gap:6px; cursor:default; border-color:var(--trait)">
+    return `<div class="lg-l" data-idx="${idx}" style="flex-direction:column; align-items:flex-start; gap:6px; cursor:pointer; border-color:var(--trait)">
       <div style="display:flex; justify-content:space-between; width:100%">
         <b style="color:var(--laiton); font-size:16px;">${modeObj.n.toUpperCase()}</b>
         <span style="font-family:var(--mono); font-size:10px; color:var(--gris)">${d}</span>
       </div>
       <div style="font-size:13px; line-height:1.5;">
-        <b>Plus arrosé :</b> <span style="color:var(--signal)">${topBuveur.nom}</span> (${topBuveur.gorgees}g, ${topBuveur.culs}c)<br>
-        <b>Plus précis :</b> <span style="color:var(--vertVif)">${topPrecis.nom}</span> (±${fmt(Math.round(topPrecis.ecart/topPrecis.tours))})
+        <b>Plus arrosé :</b> <span style="color:var(--signal)">${esc(topBuveur.nom)}</span> (${topBuveur.gorgees}g, ${topBuveur.culs}c)<br>
+        <b>Plus précis :</b> <span style="color:var(--vertVif)">${esc(topPrecis.nom)}</span> (±${fmt(Math.round(topPrecis.ecart/topPrecis.tours))})
       </div>
     </div>`;
   }).join('');
+
+  // Clic pour ouvrir les détails
+  cont.querySelectorAll('.lg-l').forEach(el => {
+    el.onclick = () => {
+      const h = H[el.dataset.idx];
+      const d = new Date(h.date).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+      const modeObj = MODES.find(m => m.id === h.mode) || {n: h.mode};
+      const tri = [...h.stats].sort((a,b) => (a.ecart/a.tours) - (b.ecart/b.tours));
+      
+      const tableauHTML = tri.map((p, i) => {
+        const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
+                     p.culs ? culs(p.culs) : null,
+                     p.gorgees ? gorg(p.gorgees) : null ].filter(Boolean).join(' · ') || 'rien bu';
+        return `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--trait); font-size:14px">
+          <div><b>${i+1}. ${esc(p.nom)}</b> <span style="color:var(--gris); font-size:11px">(${bu})</span></div>
+          <div style="color:var(--laiton); font-family:var(--mono)">±${fmt(Math.round(p.ecart/p.tours))}</div>
+        </div>`;
+      }).join('');
+
+      choisir(modeObj.n.toUpperCase() + ' · ' + d, '', [{label:'Fermer', val:true}]);
+      $('mod-sous').innerHTML = tableauHTML;
+    };
+  });
 }
 async function construireProfil(){
-  construireHistoriqueSoirees(); // <-- AJOUTE CETTE LIGNE ICI
+  construireHistoriqueSoirees();
   const p = monPro();
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   let distant = null;
-  if(s){ try{ distant = await monProfil(); }catch(e){} }
+  if(s){ 
+    try{ 
+      distant = await monProfil(); 
+      if(distant && distant.photo && !p.photo) p.photo = distant.photo;
+    }catch(e){} 
+  }
   const nom = p.pseudo || (distant && distant.pseudo)
     || (MEM.joueurs && MEM.joueurs[0]) || 'Invité';
 
