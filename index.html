@@ -1075,28 +1075,31 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #f-pari-blind {
   display: none;
   position: absolute;
-  right: 16px;
-  top: var(--chr-y, 50%);
+  right: 18px;
+  top: calc(var(--chr-y, 50%) - 55px);
   transform: translateY(-50%);
-  width: 62px;
-  height: 62px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: var(--ivoire);
-  color: var(--nuit);
+  background: #E5C378; /* Beige doré prononcé */
+  color: #0E1116;
   font-family: var(--cond);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: .05em;
   text-transform: uppercase;
-  border: 2px solid var(--nuit);
+  border: 2px solid #C9A227;
   box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  line-height: 1.1;
+  line-height: 1;
+  padding: 0;
   z-index: 10;
   pointer-events: auto;
   cursor: pointer;
+  box-sizing: border-box;
 }
 #f-pari-blind:active {
   transform: translateY(-50%) scale(0.92);
@@ -1105,7 +1108,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   background: var(--laiton);
   border-color: var(--laiton);
   color: var(--nuit);
-} 
+}
 .anneau circle{transition:r .5s cubic-bezier(.16,.8,.3,1),stroke .3s}
 .f-gain{font-family:var(--cond);font-weight:600;letter-spacing:.02em;
   /* la police se réduit si la phrase est longue : c'est elle qui s'adapte,
@@ -1600,7 +1603,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.2</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.3</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -4000,7 +4003,12 @@ function tourEnchaine(t){
   // zéro. Seul le texte change : rien n'apparaît ni ne disparaît en cours de
   // mesure, sinon la mise en page bouge et le chiffre paraît sauter.
   $('f-tour').textContent = 'Appui ' + (L.length + 1) + ' / ' + E.n;
-  $('f-obj-cible').textContent = fmt(S.cible);
+  // En mode Blind, tant que le joueur n'a pas cliqué sur "Suivant", on conserve l'ancienne cible affichée
+  if (CFG.mode === 'blind' && !S.blindPret && S.cibleBlindJouee) {
+    $('f-obj-cible').textContent = fmt(S.cibleBlindJouee);
+  } else {
+    $('f-obj-cible').textContent = fmt(S.cible);
+  }
 }
 
 // générateur déterministe : la même date produit partout la même séquence
@@ -7730,6 +7738,10 @@ $('fluide').addEventListener('pointerdown', ev => {
   // --- NOUVEAU : Interception 2 temps pour le Blind ---
   if(CFG.mode === 'blind' && !S.blindPret) {
     S.blindPret = true;
+    // Tirage et affichage de la NOUVELLE cible au clic sur Suivant
+    S.cible = S.cibleBase = cibleSuivante(S.total);
+    $('f-obj-cible').textContent = fmt(S.cible);
+
     // On masque tout pour le joueur suivant
     $('f-chrono').className = 'f-chrono repos';
     $('f-chrono').textContent = '0,00';
@@ -7769,7 +7781,106 @@ const fermerDetails = () => {
 };
 $('fermer').onclick = fermerDetails;
 $('det-retour').onclick = fermerDetails;
-// --- NOUVEAU BLOC : Clic sur le pari Blind ---
+// Fonction pour créer la modale personnalisée avec menu déroulant
+function demarrerModalPariBlind(cibleSec) {
+  return new Promise(res => {
+    const M = $('modale'), ouvertA = performance.now();
+    $('mod-titre').textContent = 'PARI TACTIQUE';
+    $('mod-sous').textContent = 'Cible initiale : ' + cibleSec + 's';
+    
+    $('mod-saisie').style.display = 'none';
+    $('mod-noms').style.display = 'none';
+
+    const b = $('mod-b');
+    b.innerHTML = `
+      <div style="width:100%; margin: 8px 0 12px 0; text-align:left;">
+        <label style="font-family:var(--mono); font-size:10.5px; color:var(--gris); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px;">
+          Nouvelle cible désirée :
+        </label>
+        <select id="pari-select" style="width:100%; background:var(--nuit); color:var(--ivoire); border:1px solid var(--bordDoux); border-radius:10px; padding:10px 12px; font-family:var(--cond); font-size:15px; font-weight:600; outline:none;">
+          ${Array.from({length: 10}, (_, i) => {
+            const s = i + 1;
+            const delta = s - cibleSec;
+            let txt = s + 's';
+            if (delta > 0) txt += ` (+${delta}s)`;
+            else if (delta < 0) txt += ` (${delta}s)`;
+            else txt += ' (Cible actuelle)';
+            return `<option value="${s * 100}" ${s === cibleSec ? 'selected' : ''}>${txt}</option>`;
+          }).join('')}
+        </select>
+        <div id="pari-enjeu-box" style="margin-top:12px; padding:10px 12px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:center;">
+          —
+        </div>
+      </div>
+    `;
+
+    const selectEl = $('pari-select');
+    const enjeuBox = $('pari-enjeu-box');
+
+    const majEnjeu = () => {
+      const val = parseInt(selectEl.value, 10) / 100;
+      const delta = val - cibleSec;
+      if (delta > 0) {
+        enjeuBox.style.color = '#6BE39A'; // Vert
+        enjeuBox.style.borderColor = '#6BE39A';
+        enjeuBox.innerHTML = `HAUSSE (+${delta}s) : Bonus +${delta} gorgée${delta > 1 ? 's' : ''} distribuée${delta > 1 ? 's' : ''}`;
+      } else if (delta < 0) {
+        const abs = Math.abs(delta);
+        enjeuBox.style.color = '#DC3B2A'; // Rouge
+        enjeuBox.style.borderColor = '#DC3B2A';
+        enjeuBox.innerHTML = `BAISSE (${delta}s) : Pénalité +${abs} gorgée${abs > 1 ? 's' : ''} bue${abs > 1 ? 's' : ''} si raté`;
+      } else {
+        enjeuBox.style.color = 'var(--gris)';
+        enjeuBox.style.borderColor = 'transparent';
+        enjeuBox.innerHTML = 'Cible inchangée (aucun pari)';
+      }
+    };
+
+    selectEl.onchange = majEnjeu;
+    majEnjeu();
+
+    let clos = false;
+    const tropTot = () => performance.now() - ouvertA < 260;
+    const fin = v => {
+      if (clos) return;
+      clos = true;
+      M.classList.remove('on');
+      M.onclick = null;
+      b.innerHTML = '';
+      res(v);
+    };
+
+    const btnValider = document.createElement('button');
+    btnValider.className = 'bouton';
+    btnValider.textContent = 'Valider le pari';
+    btnValider.style.fontSize = '15px';
+    btnValider.style.padding = '12px';
+    btnValider.onclick = () => {
+      if (!tropTot()) fin(parseInt(selectEl.value, 10));
+    };
+
+    const btnAnnuler = document.createElement('button');
+    btnAnnuler.className = 'bouton fantome';
+    btnAnnuler.textContent = 'Annuler';
+    btnAnnuler.style.fontSize = '12.5px';
+    btnAnnuler.style.padding = '9px';
+    btnAnnuler.style.marginTop = '6px';
+    btnAnnuler.onclick = () => {
+      if (!tropTot()) fin(null);
+    };
+
+    b.appendChild(btnValider);
+    b.appendChild(btnAnnuler);
+
+    M.onclick = e => {
+      if (e.target === M && !tropTot()) fin(null);
+    };
+
+    M.classList.add('on');
+  });
+}
+
+// Clic sur le bouton de Pari
 const btnPariBlindClick = $('f-pari-blind');
 if (btnPariBlindClick) {
   btnPariBlindClick.onclick = async (ev) => {
@@ -7777,28 +7888,7 @@ if (btnPariBlindClick) {
     if(S.encours || S.fPhase !== 'repos') return;
     
     const cibleSec = Math.round((S.cible - S.total) / 100);
-    
-    // Génération des choix avec calcul des enjeux en direct
-    const options = Array.from({length: 10}, (_, i) => {
-      const s = i + 1;
-      const delta = s - cibleSec;
-      let label = s + 's';
-      if (delta > 0) {
-        label += ` (+${delta}s) · 🎁 +${delta} gorgée${delta > 1 ? 's' : ''} donnée${delta > 1 ? 's' : ''}`;
-      } else if (delta < 0) {
-        const abs = Math.abs(delta);
-        label += ` (${delta}s) · ⚠️ +${abs} gorgée${abs > 1 ? 's' : ''} buveuse${abs > 1 ? 's' : ''} si raté`;
-      } else {
-        label += ' (Cible actuelle)';
-      }
-      return { label, val: s * 100 };
-    });
-
-    const choixSec = await choisir(
-      'Pari tactique (Cible actuelle : ' + cibleSec + 's)', 
-      'Choisis ta cible : la hausse augmente les gorgées distribuées, la baisse alourdit la punition si tu rates.', 
-      options
-    );
+    const choixSec = await demarrerModalPariBlind(cibleSec);
     if(choixSec === null) return;
 
     const nouvelleCibleSec = choixSec / 100;
@@ -7821,8 +7911,7 @@ if (btnPariBlindClick) {
     btnPariBlindClick.classList.add('pris');
   };
 }
-// ---------------------------------------
-
+//-----------------------------------------
 function dessinerFilm(){
   const f = $('film'); f.innerHTML = '';
   const bord = 50 - zone();
