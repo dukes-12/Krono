@@ -5512,6 +5512,19 @@ function tableau(){
     `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
      <i>${k}</i>${t}</div>`).join('');
 }
+  const L = [
+    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
+    ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
+    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(calcFrole(3))],
+    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(calcFrole(2))],
+    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(calcFrole(1))],
+    ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
+    ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
+  ];
+  cible.innerHTML = L.map(([c,k,t],i) =>
+    `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
+     <i>${k}</i>${t}</div>`).join('');
+}
 
   const L = [
     ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
