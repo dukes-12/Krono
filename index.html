@@ -1566,7 +1566,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.6</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.7</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -5498,33 +5498,6 @@ function tableau(){
        <i>${k}</i><span style="flex:1; line-height:1.4; margin-top:2px">${t}</span></div>`).join('');
     return;
   }
-
-  const L = [
-    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
-    ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
-    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(calcFrole(3))],
-    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(calcFrole(2))],
-    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(calcFrole(1))],
-    ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
-    ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
-  ];
-  cible.innerHTML = L.map(([c,k,t],i) =>
-    `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
-     <i>${k}</i>${t}</div>`).join('');
-}
-  const L = [
-    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
-    ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
-    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(calcFrole(3))],
-    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(calcFrole(2))],
-    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(calcFrole(1))],
-    ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
-    ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
-  ];
-  cible.innerHTML = L.map(([c,k,t],i) =>
-    `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
-     <i>${k}</i>${t}</div>`).join('');
-}
 
   const L = [
     ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
