@@ -1603,7 +1603,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.3</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.4</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -7812,13 +7812,13 @@ function demarrerModalPariBlind(cibleSec) {
             const s = i + 1;
             const delta = s - cibleSec;
             let txt = s + 's';
-            if (delta > 0) txt += ` (+${delta}s)`;
-            else if (delta < 0) txt += ` (${delta}s)`;
+            if (delta > 0) txt += \` (+\${delta}s)\`;
+            else if (delta < 0) txt += \` (\${delta}s)\`;
             else txt += ' (Cible actuelle)';
-            return `<option value="${s * 100}" ${s === cibleSec ? 'selected' : ''}>${txt}</option>`;
+            return \`<option value="\${s * 100}" \${s === cibleSec ? 'selected' : ''}>\${txt}</option>\`;
           }).join('')}
         </select>
-        <div id="pari-enjeu-box" style="margin-top:12px; padding:10px 12px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:center;">
+        <div id="pari-enjeu-box" style="margin-top:12px; padding:14px 16px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:left;">
           —
         </div>
       </div>
@@ -7830,19 +7830,52 @@ function demarrerModalPariBlind(cibleSec) {
     const majEnjeu = () => {
       const val = parseInt(selectEl.value, 10) / 100;
       const delta = val - cibleSec;
+      
+      // Calcul de la pénalité de base selon le nouveau temps choisi
+      let penBase = val <= 3 ? 5 : val <= 6 ? 4 : val <= 9 ? 3 : 2;
+      if (CFG.gor === 'gros') penBase += 1;
+
       if (delta > 0) {
-        enjeuBox.style.color = '#6BE39A'; // Vert
+        enjeuBox.style.color = '#6BE39A';
         enjeuBox.style.borderColor = '#6BE39A';
-        enjeuBox.innerHTML = `HAUSSE (+${delta}s) : Bonus +${delta} gorgée${delta > 1 ? 's' : ''} distribuée${delta > 1 ? 's' : ''}`;
+        enjeuBox.innerHTML = `
+          <strong style="font-size:13px; color:#6BE39A; letter-spacing:0.05em; display:block; text-align:center;">HAUSSE (+${delta}s)</strong>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
+            <b style="color:#6BE39A; text-align:right;">Barème + ${delta} gorgée${delta > 1 ? 's' : ''} à donner</b>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">❌ Si raté :</span> 
+            <span style="color:#DC3B2A; text-align:right;">Tu bois ${penBase} gorgées</span>
+          </div>`;
       } else if (delta < 0) {
         const abs = Math.abs(delta);
-        enjeuBox.style.color = '#DC3B2A'; // Rouge
+        const penTotale = penBase + abs;
+        enjeuBox.style.color = '#DC3B2A';
         enjeuBox.style.borderColor = '#DC3B2A';
-        enjeuBox.innerHTML = `BAISSE (${delta}s) : Pénalité +${abs} gorgée${abs > 1 ? 's' : ''} bue${abs > 1 ? 's' : ''} si raté`;
+        enjeuBox.innerHTML = `
+          <strong style="font-size:13px; color:#DC3B2A; letter-spacing:0.05em; display:block; text-align:center;">BAISSE (${delta}s)</strong>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
+            <span style="color:var(--gris); text-align:right;">Barème normal</span>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">❌ Si raté :</span> 
+            <b style="color:#DC3B2A; text-align:right;">Tu bois ${penTotale} gorgées<br><span style="font-size:9.5px; opacity:0.8;">(dont +${abs} de pénalité)</span></b>
+          </div>`;
       } else {
         enjeuBox.style.color = 'var(--gris)';
-        enjeuBox.style.borderColor = 'transparent';
-        enjeuBox.innerHTML = 'Cible inchangée (aucun pari)';
+        enjeuBox.style.borderColor = 'var(--trait)';
+        enjeuBox.innerHTML = `
+          <strong style="font-size:13px; letter-spacing:0.05em; display:block; text-align:center;">CIBLE INCHANGÉE</strong>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
+            <span style="color:var(--gris); text-align:right;">Barème normal</span>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">❌ Si raté :</span> 
+            <span style="color:#DC3B2A; text-align:right;">Tu bois ${penBase} gorgées</span>
+          </div>`;
       }
     };
 
