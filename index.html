@@ -1566,7 +1566,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.8</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.9</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -5512,6 +5512,7 @@ function tableau(){
     `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
      <i>${k}</i>${t}</div>`).join('');
 }
+
 function majMem(){
   const ns = Object.keys(MEM.profils);
   const t = ns.reduce((s,n) => s + MEM.profils[n].tours, 0);
@@ -6320,7 +6321,11 @@ function resoudre(valeur, delta, ecart){
   let mult = S.evt === 'double' ? 2 : 1;
 
   // en solo, tomber pile sur une minute n'a plus d'effet ni d'affichage :
+  // il n'y a personne à faire boire. Réservé aux modes soirée.
   const minutePile = estMinute(valeur) && !estSolo(CFG.mode);
+  let couleur = 't-vert', avance = true;
+
+  /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
  
   if(CFG.mode === 'blind') {
     // 1 à 3s = gorgées normales (x1), 4 à 7s = gorgées x2, 8 à 10s = gorgées x3
