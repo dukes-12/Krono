@@ -6894,6 +6894,7 @@ function resoudre(valeur, delta, ecart){
         let nbCulsSecs = 1;
         let gorgeesBase = RATE[CFG.gor];
         let gorgeesFrole = v.n;
+        let gorgeesPresque = 0; // Déclaration indispensable ajoutée
 
         if(CFG.mode === 'blind') {
           const dSec = Math.round(dureeVoulue / 100);
@@ -6910,14 +6911,10 @@ function resoudre(valeur, delta, ecart){
           if(CFG.gor === 'gros') gorgeesBase += 1;
           
           // 3. FRÔLÉ ET PRESQUE (Gorgées distribuées)
-          // Frôlé évolue de 3 (à 1s) jusqu'à 8 (à 10s)
           gorgeesFrole = Math.round(3 + (dSec - 1) * (5 / 9));
-          // Presque évolue de 1 (à 1s) jusqu'à 5 (à 10s)
           gorgeesPresque = Math.round(1 + (dSec - 1) * (4 / 9));
 
           // 4. CRÉATION DE LA ZONE PRESQUE DYNAMIQUE (Plus serrée)
-          // En Simple: de 8 à 30 centièmes
-          // En Hard: de 10 à 35 centièmes
           const limitePresque = CFG.diff === 'hard' 
             ? Math.round(10 + (dSec - 1) * (25 / 9))
             : Math.round(8 + (dSec - 1) * (22 / 9));
@@ -6928,6 +6925,7 @@ function resoudre(valeur, delta, ecart){
           }
         }
         // ------------------------------
+
         if(CFG.mode === 'elimination' && v.code === 'rate'){
           S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
           if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
@@ -6940,7 +6938,6 @@ function resoudre(valeur, delta, ecart){
           vibrer([0,60,50,60,50,140]);
         }
         else if(v.code === 'frole'){
-          // C'est toujours le joueur suivant (ou le désigné) qui boit
           const victime = suiv;
           const n = peine(victime, gorgeesFrole * mult, true);
           if(S.evt === 'bouclier'){
@@ -6953,6 +6950,19 @@ function resoudre(valeur, delta, ecart){
             U.textContent = (S.evt === 'choix' ? joueur + ' a frôlé et désigné ' + victime : 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile' + (mult>1 ? ' · doublé' : ''));
           }
         }
+        else if(v.code === 'presque'){
+          const victime = suiv;
+          const n = peine(victime, gorgeesPresque * mult, true);
+          if(S.evt === 'bouclier'){
+            S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
+            couleur = 't-alerte';
+            T.textContent = 'Bouclier pour ' + joueur;
+            U.textContent = victime + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
+          } else {
+            T.textContent = victime + ' boit ' + gorg(n);
+            U.textContent = (S.evt === 'choix' ? joueur + ' a fait un bon score et désigné ' + victime : 'joli tir à ±' + fmt(ecart) + ' !' + (mult>1 ? ' · doublé' : ''));
+          }
+        }
         else if(v.code === 'sauf'){
           T.textContent = 'Personne ne boit';
           U.textContent = (S.evt === 'choix' ? joueur + ' passe la main à ' + suiv : 'dans la marge');
@@ -6963,14 +6973,13 @@ function resoudre(valeur, delta, ecart){
             T.textContent = 'Toute la table boit ' + gorg(gorgeesBase * mult);
             U.textContent = joueur + ' est sorti de la zone';
           } else {
-            // Le joueur actuel boit SA propre faute, pas de transfert
             const n = peine(joueur, gorgeesBase * mult);
             T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
             U.textContent = (S.evt === 'choix' ? 'hors marge · ' + joueur + ' passe la main à ' + suiv : 'hors marge · écart ±' + fmt(ecart)) + (mult>1 ? ' · doublé' : '');
           }
         }
       } // Fin du bloc d'évaluation
-
+ 
       if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
         couleur = 't-signal';
         T.textContent = joueur + ' est éliminé';
