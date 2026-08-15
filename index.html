@@ -1566,7 +1566,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.7</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.8</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -5893,6 +5893,9 @@ async function demarrerPartie(){
   MEM.joueurs = j; MEM.cfg = {...CFG};
   memoriser(j); majDatalist(); ecrireMem();
   garderEcranAllume();
+  
+  S.blindPret = true; // <-- AJOUTE CETTE LIGNE ICI
+
   afficherPret();
   return true;
 }
@@ -6316,6 +6319,9 @@ function resoudre(valeur, delta, ecart){
   const T = $('ver-titre'), U = $('ver-sous');
   let mult = S.evt === 'double' ? 2 : 1;
 
+  // en solo, tomber pile sur une minute n'a plus d'effet ni d'affichage :
+  const minutePile = estMinute(valeur) && !estSolo(CFG.mode);
+ 
   if(CFG.mode === 'blind') {
     // 1 à 3s = gorgées normales (x1), 4 à 7s = gorgées x2, 8 à 10s = gorgées x3
     const dSec = Math.round(dureeVoulue / 100);
@@ -6894,7 +6900,7 @@ function resoudre(valeur, delta, ecart){
         let nbCulsSecs = 1;
         let gorgeesBase = RATE[CFG.gor];
         let gorgeesFrole = v.n;
-        let gorgeesPresque = 0; // Déclaration indispensable ajoutée
+        let gorgeesPresque = 0; // <-- AJOUTE CETTE LIGNE ICI
 
         if(CFG.mode === 'blind') {
           const dSec = Math.round(dureeVoulue / 100);
