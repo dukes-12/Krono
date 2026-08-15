@@ -1709,11 +1709,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="recap-b">
       <button class="bouton fantome" id="pr-nom">Changer de pseudo</button>
       <button class="bouton fantome" id="pr-effacer-photo">Retirer la photo</button>
-    <!-- NOUVEAU BLOC HISTORIQUE -->
+    </div>
+
     <div class="titre-sec">Historique des soirées</div>
-    <div class="note">Vos 10 dernières parties à plusieurs sur ce téléphone.</div>
-    <div id="pr-histo-soirees" style="margin-top: 10px;"></div>
-    <!-- FIN NOUVEAU BLOC -->
+    <div class="note">Retrouvez les classements de vos 10 dernières parties.</div>
+    <div style="margin-top: 10px;">
+      <button class="bouton fantome" id="pr-voir-histo">Voir mes parties</button>
+    </div>
 
     <div class="titre-sec">Couleur</div>
     <div class="note">Elle vous identifie dans les classements et pendant les parties.</div>
@@ -1737,7 +1739,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       style="display:none;margin-top:22px">Ouvrir Test</button>
   </div>
 </section>
-
+<section class="ecran" id="historique-soirees">
+  <div class="entete">
+    <div class="marque"><h1>HISTORIQUE</h1><span>10 dernières parties</span></div>
+    <div class="nav"><button id="hs-retour">Profil</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile" id="hs-liste">
+    </div>
+</section>
 <!-- ═══ COMPTES ET LIGUES · BANC D'ESSAI ═══ -->
 <section class="ecran" id="comptes">
   <div class="entete">
@@ -8429,18 +8439,22 @@ $('go-boutique').onclick = () => { BOUTIQUE_RETOUR = 'test'; construireBoutique(
 $('bo-partir').onclick = () => { CFG.mode = 'aventure'; MEM.cfg = {...CFG};
   ecrireMem(); demarrerPartie(); };
 $('pr-retour').onclick = () => montrer('reglages');
-   
-// function construireHistoriqueSoirees (TEST) pas sûr du résultat
+// Navigation vers l'historique
+$('pr-voir-histo').onclick = () => { 
+  construireHistoriqueSoirees(); 
+  montrer('historique-soirees'); 
+};
+$('hs-retour').onclick = () => montrer('profil');
+
 function construireHistoriqueSoirees() {
-  const cont = $('pr-histo-soirees');
+  const cont = $('hs-liste'); // On cible la nouvelle page
   if(!cont) return;
   const H = MEM.historiqueSoirees || [];
   if(!H.length) {
-    cont.innerHTML = '<div class="note">Aucune partie soirée enregistrée.</div>';
+    cont.innerHTML = '<div class="vide">Aucune partie soirée enregistrée sur ce téléphone.</div>';
     return;
   }
   
-  // 1. Construction des cartes d'historique
   cont.innerHTML = H.map((h, idx) => {
     const d = new Date(h.date).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
     const modeObj = MODES.find(m => m.id === h.mode) || {n: h.mode};
@@ -8459,7 +8473,6 @@ function construireHistoriqueSoirees() {
     </div>`;
   }).join('');
 
-  // 2. Clic pour ouvrir les détails (Modale avec défilement et couleurs)
   cont.querySelectorAll('.evt').forEach(el => {
     el.onclick = () => {
       const h = H[el.dataset.idx];
@@ -8481,17 +8494,13 @@ function construireHistoriqueSoirees() {
         </div>`;
       }).join('');
 
-      // On enferme les lignes dans une boîte à taille max avec un ascenseur interne
       const tableauHTML = `<div style="max-height: 50vh; overflow-y: auto; overflow-x: hidden; padding-right: 6px;">${lignesHTML}</div>`;
-
-      // On affiche la modale, puis on injecte notre code HTML contenant le scroll
       choisir(modeObj.n.toUpperCase() + ' · ' + d, '', [{label:'Fermer', val:true}]);
       $('mod-sous').innerHTML = tableauHTML;
     };
   });
 }
 async function construireProfil(){
-  construireHistoriqueSoirees();
   const p = monPro();
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   let distant = null;
