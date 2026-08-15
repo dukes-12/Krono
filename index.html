@@ -6367,14 +6367,6 @@ function resoudre(valeur, delta, ecart){
   let couleur = 't-vert', avance = true;
 
   /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
- 
-  if(CFG.mode === 'blind') {
-    // 1 à 3s = gorgées normales (x1), 4 à 7s = gorgées x2, 8 à 10s = gorgées x3
-    const dSec = Math.round(dureeVoulue / 100);
-    mult *= (dSec <= 3 ? 1 : (dSec <= 7 ? 2 : 3));
-  }
-
-  /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
   if(minutePile){
         couleur = 't-s100';
         st.minutes = (st.minutes || 0) + 1;
