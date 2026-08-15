@@ -1566,7 +1566,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.0</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.1</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2048,7 +2048,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         <button data-v="hard" aria-pressed="true">Hard</button>
       </div>
       <div class="note" id="fi-note-diff">—</div></div>
-
+    <div class="bloc" id="fi-bloc-pari"><div class="eyebrow">Paris tactiques</div>
+      <div class="seg" id="fi-pari">
+        <button data-v="non" aria-pressed="true">Désactivés</button>
+        <button data-v="oui" aria-pressed="false">Activés</button>
+      </div>
+      <div class="note">Permet de parier à la hausse (plus de risque, plus de gain) ou à la baisse (fuite de la difficulté, grosse punition en cas d'échec). Un joueur ne peut pas parier deux tours de suite.</div>
+    </div>
     <div class="bloc" id="fi-bloc-gor"><div class="eyebrow">Gorgées</div>
       <div class="seg" id="fi-gor">
         <button data-v="bar" aria-pressed="true">Bar</button>
@@ -2089,8 +2095,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="bloc" id="fi-biomes-bloc" style="display:none">
       <div class="eyebrow">Les décors</div>
       <div id="fi-biomes"></div>
-    </div>
-
+    </div> 
+    
     <div class="bloc" id="fi-bloc-defi" style="display:none">
       <div class="eyebrow">Vos résultats</div>
       <div class="classement" id="fi-defi-liste"></div>
@@ -2430,7 +2436,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
     <button class="pari-b" id="f-pari"></button>
-    <div class="pv-bloc" id="f-pv">
+    <button class="pari-b" id="f-pari-blind" style="pointer-events: auto;"></button>
+    <div class="pv-bloc" id="f-pv">    <div class="pv-bloc" id="f-pv">
       <div class="pv-l"><span>Boss</span><span id="pv-b-n">80</span></div>
       <div class="pv-b"><i id="pv-b" style="width:100%"></i></div>
       <div class="pv-l"><span>Vous</span><span id="pv-m-n">100</span></div>
@@ -2569,7 +2576,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'bar',
-              evts:'aucun', maxTours:20, horo:true,
+              evts:'aucun', maxTours:20, horo:true, pariBlind:false,
               mode:'classique', da:'instrument', lat:'materiel', minutes:false,
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
@@ -6897,11 +6904,11 @@ function resoudre(valeur, delta, ecart){
         const v = evaluer(ecart);
         couleur = v.couleur;
 
-        // --- LOGIQUE GORGÉES BLIND ---
+        // --- LOGIQUE GORGÉES BLIND & PARIS ---
         let nbCulsSecs = 1;
         let gorgeesBase = RATE[CFG.gor];
         let gorgeesFrole = v.n;
-        let gorgeesPresque = 0; // <-- AJOUTE CETTE LIGNE ICI
+        let gorgeesPresque = 0;
 
         if(CFG.mode === 'blind') {
           const dSec = Math.round(dureeVoulue / 100);
@@ -6921,7 +6928,7 @@ function resoudre(valeur, delta, ecart){
           gorgeesFrole = Math.round(3 + (dSec - 1) * (5 / 9));
           gorgeesPresque = Math.round(1 + (dSec - 1) * (4 / 9));
 
-          // 4. CRÉATION DE LA ZONE PRESQUE DYNAMIQUE (Plus serrée)
+          // 4. CRÉATION DE LA ZONE PRESQUE DYNAMIQUE
           const limitePresque = CFG.diff === 'hard' 
             ? Math.round(10 + (dSec - 1) * (25 / 9))
             : Math.round(8 + (dSec - 1) * (22 / 9));
@@ -6930,8 +6937,22 @@ function resoudre(valeur, delta, ecart){
             v.code = 'presque';
             couleur = 't-s50'; // Couleur de réussite
           }
+
+          // 5. APPLICATION DU PARI TACTIQUE
+          if(S.pariActif) {
+            const { deltaSec, type } = S.pariActif;
+            if (v.code === 'rate') {
+              if (type === 'baisse') gorgeesBase += Math.abs(deltaSec);
+            } else {
+              if (type === 'hausse') {
+                gorgeesFrole += Math.abs(deltaSec);
+                gorgeesPresque += Math.abs(deltaSec);
+              }
+            }
+            S.pariActif = null; // Nettoyage pour le tour suivant
+          }
         }
-        // ------------------------------
+        // ------------------------------------
 
         if(CFG.mode === 'elimination' && v.code === 'rate'){
           S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
@@ -7216,6 +7237,23 @@ function fluidePret(){
   S.alerteTour = !!(effB('alerte') && S.tour % effB('alerte') === 0);
   $('fluide').classList.toggle('alerte-tour', !!S.alerteTour);
   majPari();
+
+  // --- NOUVEAU BLOC : Affichage du bouton Pari Blind ---
+  const btnPariBlind = $('f-pari-blind');
+  if(btnPariBlind) {
+    const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
+    const dernierTourPari = S.dernierPari && S.dernierPari[nom] === S.tour - 1;
+    
+    if (actifBlindPari && !dernierTourPari && S.fPhase === 'repos') {
+      btnPariBlind.style.display = 'inline-block';
+      btnPariBlind.textContent = 'Parier';
+      btnPariBlind.classList.remove('pris');
+    } else {
+      btnPariBlind.style.display = 'none';
+    }
+  }
+  // ----------------------------------------------------
+
   if(CFG.mode === 'survie'){
     if(S.tRdv) clearTimeout(S.tRdv);
     S.tRdv = setTimeout(() => { S.tRdv = null; proposerRendezVous(); }, 700);
@@ -7701,6 +7739,40 @@ const fermerDetails = () => {
 };
 $('fermer').onclick = fermerDetails;
 $('det-retour').onclick = fermerDetails;
+// --- NOUVEAU BLOC : Clic sur le pari Blind ---
+const btnPariBlindClick = $('f-pari-blind');
+if (btnPariBlindClick) {
+  btnPariBlindClick.onclick = async (ev) => {
+    ev.stopPropagation(); 
+    if(S.encours || S.fPhase !== 'repos') return;
+    const choixSec = await choisir('Pari tactique', 
+      'Cible actuelle : ' + Math.round(S.cible / 100) + 's. Choisis ton nouveau pari :', 
+      Array.from({length: 10}, (_, i) => ({label: (i+1) + ' secondes', val: (i+1) * 100}))
+    );
+    if(choixSec === null) return;
+
+    const ancienneCibleSec = Math.round(S.cible / 100);
+    const nouvelleCibleSec = choixSec / 100;
+    const deltaSec = nouvelleCibleSec - ancienneCibleSec;
+
+    if (deltaSec === 0) return;
+
+    const nom = S.joueurs[S.idx];
+    S.dernierPari = S.dernierPari || {};
+    S.dernierPari[nom] = S.tour;
+
+    S.cible = S.total + choixSec;
+    S.cibleBase = S.cible;
+    S.zoneTour = zoneDe(nom);
+    
+    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' };
+    
+    $('f-obj-cible').textContent = fmt(S.cible);
+    btnPariBlindClick.textContent = 'Pari enregistré';
+    btnPariBlindClick.classList.add('pris');
+  };
+}
+// ---------------------------------------
 
 function dessinerFilm(){
   const f = $('film'); f.innerHTML = '';
@@ -9548,6 +9620,7 @@ function ouvrirFiche(id){
   const aff = (bloc, on) => { const e = $(bloc); if(e) e.style.display = on ? 'block' : 'none'; };
   aff('fi-bloc-aff',  !sansAff);
   aff('fi-bloc-diff', avecDiff);
+  aff('fi-bloc-pari', id === 'blind');
   aff('fi-bloc-gor',  avecGor);
   aff('fi-bloc-evt',  avecEvt);
   aff('fi-bloc-fin',  avecFin);
@@ -9558,7 +9631,8 @@ function ouvrirFiche(id){
   $('fi-aff').style.pointerEvents = imposeAff ? 'none' : 'auto';
 
   const m = {'fi-aff':CFG.aff, 'fi-diff':CFG.diff, 'fi-gor':CFG.gor,
-             'fi-evt':CFG.evts, 'fi-fin':String(CFG.maxTours)};
+             'fi-evt':CFG.evts, 'fi-fin':String(CFG.maxTours),
+             'fi-pari': CFG.pariBlind ? 'oui' : 'non'};
   for(const k in m){ const e = $(k); if(e) e.querySelectorAll('button')
     .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[k])); }
 
@@ -9661,6 +9735,7 @@ segmente('fi-diff', v => { CFG.diff = v; majFiche(); });
 segmente('fi-gor',  v => { CFG.gor = v;  majFiche(); });
 segmente('fi-evt',  v => { CFG.evts = v; majFiche(); });
 segmente('fi-fin',  v => { CFG.maxTours = +v; majFiche(); });
+segmente('fi-pari', v => { CFG.pariBlind = (v === 'oui'); majFiche(); });
 $('fi-retour').onclick = () => montrer('reglages');
 $('fi-reprendre').onclick = () => reprendrePartie();
 $('fi-jouer').onclick = () => {
