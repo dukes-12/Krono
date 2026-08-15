@@ -1072,6 +1072,40 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border:1px solid var(--alerte);border-radius:999px;padding:7px 14px}
 .pari-b.on{display:inline-block}
 .pari-b.pris{background:rgba(155,107,240,.18)}
+#f-pari-blind {
+  display: none;
+  position: absolute;
+  right: 16px;
+  top: var(--chr-y, 50%);
+  transform: translateY(-50%);
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--ivoire);
+  color: var(--nuit);
+  font-family: var(--cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border: 2px solid var(--nuit);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+}
+#f-pari-blind:active {
+  transform: translateY(-50%) scale(0.92);
+}
+#f-pari-blind.pris {
+  background: var(--laiton);
+  border-color: var(--laiton);
+  color: var(--nuit);
+} 
 .anneau circle{transition:r .5s cubic-bezier(.16,.8,.3,1),stroke .3s}
 .f-gain{font-family:var(--cond);font-weight:600;letter-spacing:.02em;
   /* la police se réduit si la phrase est longue : c'est elle qui s'adapte,
@@ -1566,7 +1600,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.1</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.2</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -6928,32 +6962,36 @@ function resoudre(valeur, delta, ecart){
           gorgeesFrole = Math.round(3 + (dSec - 1) * (5 / 9));
           gorgeesPresque = Math.round(1 + (dSec - 1) * (4 / 9));
 
-          // 4. CRÉATION DE LA ZONE PRESQUE DYNAMIQUE
+          // 4. ZONE PRESQUE DYNAMIQUE
           const limitePresque = CFG.diff === 'hard' 
             ? Math.round(10 + (dSec - 1) * (25 / 9))
             : Math.round(8 + (dSec - 1) * (22 / 9));
 
           if (v.code === 'sauf' && ecart <= limitePresque) {
             v.code = 'presque';
-            couleur = 't-s50'; // Couleur de réussite
+            couleur = 't-s50';
           }
 
-          // 5. APPLICATION DU PARI TACTIQUE
+          // 5. APPLICATION DES ENJEUX DU PARI
           if(S.pariActif) {
             const { deltaSec, type } = S.pariActif;
             if (v.code === 'rate') {
-              if (type === 'baisse') gorgeesBase += Math.abs(deltaSec);
+              if (type === 'baisse') {
+                const pen = Math.abs(deltaSec);
+                gorgeesBase += pen;
+              }
             } else {
               if (type === 'hausse') {
-                gorgeesFrole += Math.abs(deltaSec);
-                gorgeesPresque += Math.abs(deltaSec);
+                const bon = Math.abs(deltaSec);
+                gorgeesFrole += bon;
+                gorgeesPresque += bon;
               }
             }
-            S.pariActif = null; // Nettoyage pour le tour suivant
+            S.pariActif = null;
           }
         }
         // ------------------------------------
-
+   
         if(CFG.mode === 'elimination' && v.code === 'rate'){
           S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
           if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
@@ -7745,15 +7783,34 @@ if (btnPariBlindClick) {
   btnPariBlindClick.onclick = async (ev) => {
     ev.stopPropagation(); 
     if(S.encours || S.fPhase !== 'repos') return;
-    const choixSec = await choisir('Pari tactique', 
-      'Cible actuelle : ' + Math.round(S.cible / 100) + 's. Choisis ton nouveau pari :', 
-      Array.from({length: 10}, (_, i) => ({label: (i+1) + ' secondes', val: (i+1) * 100}))
+    
+    const cibleSec = Math.round((S.cible - S.total) / 100);
+    
+    // Génération des choix avec calcul des enjeux en direct
+    const options = Array.from({length: 10}, (_, i) => {
+      const s = i + 1;
+      const delta = s - cibleSec;
+      let label = s + 's';
+      if (delta > 0) {
+        label += ` (+${delta}s) · 🎁 +${delta} gorgée${delta > 1 ? 's' : ''} donnée${delta > 1 ? 's' : ''}`;
+      } else if (delta < 0) {
+        const abs = Math.abs(delta);
+        label += ` (${delta}s) · ⚠️ +${abs} gorgée${abs > 1 ? 's' : ''} buveuse${abs > 1 ? 's' : ''} si raté`;
+      } else {
+        label += ' (Cible actuelle)';
+      }
+      return { label, val: s * 100 };
+    });
+
+    const choixSec = await choisir(
+      'Pari tactique (Cible actuelle : ' + cibleSec + 's)', 
+      'Choisis ta cible : la hausse augmente les gorgées distribuées, la baisse alourdit la punition si tu rates.', 
+      options
     );
     if(choixSec === null) return;
 
-    const ancienneCibleSec = Math.round(S.cible / 100);
     const nouvelleCibleSec = choixSec / 100;
-    const deltaSec = nouvelleCibleSec - ancienneCibleSec;
+    const deltaSec = nouvelleCibleSec - cibleSec;
 
     if (deltaSec === 0) return;
 
@@ -7768,7 +7825,7 @@ if (btnPariBlindClick) {
     S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' };
     
     $('f-obj-cible').textContent = fmt(S.cible);
-    btnPariBlindClick.textContent = 'Pari enregistré';
+    btnPariBlindClick.textContent = deltaSec > 0 ? '+' + deltaSec + 's' : deltaSec + 's';
     btnPariBlindClick.classList.add('pris');
   };
 }
