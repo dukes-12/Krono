@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -247,13 +247,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .depliant summary::before { content: '▸ '; display: inline-block; width: 14px; transition: transform 0.2s; }
 .depliant[open] summary::before { transform: rotate(90deg); }
 .depliant .interieur { margin-top: 10px; padding-left: 14px; border-left: 1px solid var(--trait); display: flex; flex-direction: column; }
-.rang-evt { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--trait); cursor: pointer; }
+.rang-evt { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--trait); cursor: pointer; }
 .rang-evt:last-child { border-bottom: none; }
-.rang-evt .txt { flex: 1; }
-.rang-evt .n { font-size: 15px; font-weight: 600; color: var(--laiton); }
+.rang-evt .txt { display: flex; flex-direction: column; flex: 1; text-align: left; align-items: flex-start; }
+.rang-evt .n { font-size: 18px; font-weight: 600; color: var(--laiton); line-height: 1.1; }
 .rang-evt.off .n { color: var(--gris); }
-.rang-evt .d { font-family: var(--mono); font-size: 10.5px; color: var(--gris); margin-top: 3px; line-height: 1.4; }
-.toggle-evt { width: 40px; padding: 4px 0; border-radius: 999px; border: 1px solid var(--laiton); background: transparent; color: var(--laiton); font-family: var(--mono); font-size: 10px; flex-shrink: 0; margin-top: 2px; }
+.rang-evt .d { font-family: var(--mono); font-size: 11.5px; color: var(--gris); margin-top: 4px; line-height: 1.4; }
+.toggle-evt { width: 44px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid var(--laiton); background: transparent; color: var(--laiton); font-family: var(--mono); font-size: 11px; flex-shrink: 0; }
 .rang-evt.off .toggle-evt { border-color: var(--trait); color: var(--gris); }
    
 /* ─── écran prêt ─── */
@@ -1072,6 +1072,43 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border:1px solid var(--alerte);border-radius:999px;padding:7px 14px}
 .pari-b.on{display:inline-block}
 .pari-b.pris{background:rgba(155,107,240,.18)}
+#f-pari-blind {
+  display: none;
+  position: absolute;
+  right: 18px;
+  top: calc(var(--chr-y, 50%) - 85px);
+  transform: translateY(-50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #E5C378; /* Beige doré prononcé */
+  color: #0E1116;
+  font-family: var(--cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border: 2px solid #C9A227;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  padding: 0;
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+#f-pari-blind:active {
+  transform: translateY(-50%) scale(0.92);
+}
+#f-pari-blind.pris {
+  background: var(--laiton);
+  border-color: var(--laiton);
+  color: var(--nuit);
+}
 .anneau circle{transition:r .5s cubic-bezier(.16,.8,.3,1),stroke .3s}
 .f-gain{font-family:var(--cond);font-weight:600;letter-spacing:.02em;
   /* la police se réduit si la phrase est longue : c'est elle qui s'adapte,
@@ -1566,7 +1603,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.1.1</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.5</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -1711,6 +1748,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button class="bouton fantome" id="pr-effacer-photo">Retirer la photo</button>
     </div>
 
+    <div class="titre-sec">Historique des soirées</div>
+    <div class="note">Retrouvez les classements de vos 10 dernières parties.</div>
+    <div style="margin-top: 10px;">
+      <button class="bouton fantome" id="pr-voir-histo">Voir mes parties</button>
+    </div>
+
     <div class="titre-sec">Couleur</div>
     <div class="note">Elle vous identifie dans les classements et pendant les parties.</div>
     <div class="pr-coul" id="pr-coul"></div>
@@ -1733,7 +1776,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       style="display:none;margin-top:22px">Ouvrir Test</button>
   </div>
 </section>
-
+<section class="ecran" id="historique-soirees">
+  <div class="entete">
+    <div class="marque"><h1>HISTORIQUE</h1><span>10 dernières parties</span></div>
+    <div class="nav"><button id="hs-retour">Profil</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile" id="hs-liste">
+    </div>
+</section>
 <!-- ═══ COMPTES ET LIGUES · BANC D'ESSAI ═══ -->
 <section class="ecran" id="comptes">
   <div class="entete">
@@ -2034,7 +2085,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         <button data-v="hard" aria-pressed="true">Hard</button>
       </div>
       <div class="note" id="fi-note-diff">—</div></div>
-
+    <div class="bloc" id="fi-bloc-pari"><div class="eyebrow">Paris tactiques</div>
+      <div class="seg" id="fi-pari">
+        <button data-v="non" aria-pressed="true">Désactivés</button>
+        <button data-v="oui" aria-pressed="false">Activés</button>
+      </div>
+      <div class="note">Permet de parier à la hausse (plus de risque, plus de gain) ou à la baisse (fuite de la difficulté, grosse punition en cas d'échec). Un joueur ne peut pas parier deux tours de suite.</div>
+    </div>
     <div class="bloc" id="fi-bloc-gor"><div class="eyebrow">Gorgées</div>
       <div class="seg" id="fi-gor">
         <button data-v="bar" aria-pressed="true">Bar</button>
@@ -2075,8 +2132,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="bloc" id="fi-biomes-bloc" style="display:none">
       <div class="eyebrow">Les décors</div>
       <div id="fi-biomes"></div>
-    </div>
-
+    </div> 
+    
     <div class="bloc" id="fi-bloc-defi" style="display:none">
       <div class="eyebrow">Vos résultats</div>
       <div class="classement" id="fi-defi-liste"></div>
@@ -2416,6 +2473,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
     <button class="pari-b" id="f-pari"></button>
+    <button class="pari-b" id="f-pari-blind" style="pointer-events: auto;"></button>
     <div class="pv-bloc" id="f-pv">
       <div class="pv-l"><span>Boss</span><span id="pv-b-n">80</span></div>
       <div class="pv-b"><i id="pv-b" style="width:100%"></i></div>
@@ -2444,7 +2502,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <button class="f-quitter" id="f-quitter">Quitter la partie</button>
   <button class="cible-reflexe" id="f-reflexe"><span>STOP</span></button>
   <div class="solo-actions" id="f-solo-actions">
-    <span class="ja-cote"><button id="f-sol-recommencer">Recommencer</button></span>
+    <span class="ja-cote">
+      <button id="f-sol-recommencer">Recommencer</button>
+      <button id="f-retirer" style="display:none">− Joueur</button>
+    </span>
     <span class="ja-cote">
       <button id="f-ajouter">+ Joueur</button>
       <button id="f-sol-changer">Changer</button>
@@ -2552,7 +2613,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'bar',
-              evts:'aucun', maxTours:20, horo:true,
+              evts:'aucun', maxTours:20, horo:true, pariBlind:false,
               mode:'classique', da:'instrument', lat:'materiel', minutes:false,
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
@@ -2644,6 +2705,8 @@ function couleurLibre(){
 const MODES = [
   {id:'classique', n:'Classique',
    d:"Le barème habituel, chacun pour soi."},
+  {id:'blind', n:'Blind',
+   d:"Cible aléatoire (1 à 10s), chrono caché. La zone et les gorgées s'adaptent à la durée."},
   {id:'enchere', n:"L'enchère",
    d:"Annoncer la précision qu'on vise avant de lancer."},
   {id:'elimination', n:'Élimination',
@@ -2745,7 +2808,7 @@ const cadranCourant = () =>
 const MAREE = [100,150,200,250,300,250,200,150,100,150,200,250];
 // deux modes se jouent sans jamais arrêter le chrono : chaque appui est un tour
 const ENCHAINES = {cascade:{n:10, pas:100}};
-const REMISE_A_ZERO = ['nues','braquage','sniper','cascade'];
+const REMISE_A_ZERO = ['nues','braquage','sniper','cascade','blind'];
 // Aventure : seul un combat (gardien ou monstre) repart de zéro visuellement,
 // jamais un tour de marche normal — d'où ce helper séparé plutôt qu'un ajout
 // de 'aventure' à REMISE_A_ZERO, qui s'applique à chaque tour sans distinction.
@@ -3940,7 +4003,12 @@ function tourEnchaine(t){
   // zéro. Seul le texte change : rien n'apparaît ni ne disparaît en cours de
   // mesure, sinon la mise en page bouge et le chiffre paraît sauter.
   $('f-tour').textContent = 'Appui ' + (L.length + 1) + ' / ' + E.n;
-  $('f-obj-cible').textContent = fmt(S.cible);
+  // En mode Blind, tant que le joueur n'a pas cliqué sur "Suivant", on conserve l'ancienne cible affichée
+  if (CFG.mode === 'blind' && !S.blindPret && S.cibleBlindJouee) {
+    $('f-obj-cible').textContent = fmt(S.cibleBlindJouee);
+  } else {
+    $('f-obj-cible').textContent = fmt(S.cible);
+  }
 }
 
 // générateur déterministe : la même date produit partout la même séquence
@@ -5062,6 +5130,18 @@ function cibleSuivante(total){
     // cibles nues : le chrono repart de zéro à chaque tour, aucun repère cumulé
     return (m === 'nues' ? 0 : total) + d;
   }
+
+  // NOUVEAU : Cible du mode Blind
+  if(m === 'blind') {
+    if (CFG.diff === 'hard') {
+      // Hard : Décimales aléatoires entre 1.00s (100) et 10.00s (1000)
+      return total + 100 + Math.floor(Math.random() * 901);
+    } else {
+      // Classique : Secondes rondes pleines entre 1.00s et 10.00s
+      return total + (Math.floor(Math.random() * 10) + 1) * 100;
+    }
+  }
+
   // l'escalier monte par demi-secondes : la progression est moins brutale
   if(m === 'escalier') return total + Math.round(100 + (S.marche - 1) * 50);
   if(m === 'sprint')   return total + 100;
@@ -5108,6 +5188,19 @@ function zoneDe(nom){
     return Math.max(1, S.avt.enCombat ? Math.ceil(S.avt.zone / 2) : S.avt.zone);
   }
   if(CFG.mode === 'survie') return Math.max(1, S.zoneSurvie);
+  
+  // NOUVEAU : Zone du mode Blind (calcul proportionnel)
+  if(CFG.mode === 'blind') {
+    const dSec = (S.cibleBase - S.total) / 100;
+    // On réduit les marges : 
+    // Hard passe de 30 à 80. Classique passe de 25 à 75.
+    if (CFG.diff === 'hard') {
+      return Math.round(30 + (dSec - 1) * (50 / 9)); 
+    } else {
+      return Math.round(25 + (dSec - 1) * (50 / 9)); 
+    }
+  }
+
   // escalier : plus la marche est haute, plus la zone est étroite
   if(CFG.mode === 'escalier') return Math.max(8, 34 - (S.marche - 1) * 2);
   if(CFG.mode === 'combat')   return Math.max(3, S.gardeBoss);
@@ -5441,6 +5534,20 @@ function rafraichir(){
 function tableau(){
   const cible = $('fi-tableau');
   if(!cible) return;
+
+  if(CFG.mode === 'blind') {
+    const L = [
+      ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' (x1 à x2 selon durée) — ou riposte'],
+      ['var(--laiton)', '± 0,03', 'le suivant boit (de 2 à 8 gorgées selon durée)'],
+      ['var(--vert)',   'zone sûre', 'personne ne boit (la tolérance s\'élargit avec le temps)'],
+      ['var(--signal)', 'hors zone', 'tu bois (de 5 à 2 gorgées selon durée)']
+    ];
+    cible.innerHTML = L.map(([c,k,t],i) =>
+      `<div><span class="pastille" style="background:${c};opacity:${i>0&&i<3?.55:1}"></span>
+       <i>${k}</i><span style="flex:1; line-height:1.4; margin-top:2px">${t}</span></div>`).join('');
+    return;
+  }
+
   const L = [
     ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
     ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
@@ -5454,6 +5561,7 @@ function tableau(){
     `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
      <i>${k}</i>${t}</div>`).join('');
 }
+
 function majMem(){
   const ns = Object.keys(MEM.profils);
   const t = ns.reduce((s,n) => s + MEM.profils[n].tours, 0);
@@ -5835,6 +5943,9 @@ async function demarrerPartie(){
   MEM.joueurs = j; MEM.cfg = {...CFG};
   memoriser(j); majDatalist(); ecrireMem();
   garderEcranAllume();
+  
+  S.blindPret = true; // <-- AJOUTE CETTE LIGNE ICI
+
   afficherPret();
   return true;
 }
@@ -5990,8 +6101,25 @@ function compteursMode(p){
   $('f-sol-recommencer').style.display = solo ? 'block' : 'none';
   $('f-sol-changer').style.display = solo ? 'block' : 'none';
   $('f-ajouter').style.display = solo ? 'none' : 'block';
-  $(p+'enchere').classList.remove('on');
+  $('f-retirer').style.display = (solo || S.joueurs.length <= 2) ? 'none' : 'block';
 }
+async function retirerJoueurEnCours(){
+  if(!S.partie || S.joueurs.length <= 2) return;
+  const nom = await choisir('Retirer un joueur', 
+    'Qui quitte la table ?', 
+    S.joueurs.map((n, i) => ({label: n, val: i, doux: i === S.idx}))
+  );
+  if(nom === null) return;
+  
+  const i = nom;
+  S.joueurs.splice(i, 1);
+  if(S.idx >= S.joueurs.length) S.idx = 0;
+  MEM.joueurs = S.joueurs.slice();
+  await ecrireMem();
+  peupler();
+  fluidePret();
+}
+$('f-retirer').onclick = retirerJoueurEnCours;
 function majEnchere(){
   const e = ENCHERES.find(x => x.seuil === S.enchere);
   const txt = e ? 'Enchère ' + e.label.split(' · ')[1] : '';
@@ -6100,6 +6228,7 @@ function arreter(ev){
   if(ENCHAINES[CFG.mode]){ tourEnchaine(t); return; }
   S.encours = false;
   purgerMinuteries(); vibrer(18);
+  S.blindPret = false; // <-- AJOUTE CETTE LIGNE ICI
   afficherResultat(valeurAtteinte(enCentiemes(t - S.t0)));
 }
 addEventListener('keydown', ev => {
@@ -6168,6 +6297,7 @@ function majDetailBiome(){
 }
 
 function afficherResultat(valeur){
+  S.cibleBlindJouee = S.cible; // <-- AJOUT Mémorise la cible jouée
   if(S.evt === 'demitour') S.sens *= -1;
 
   const delta = valeur - S.cible, ecart = Math.abs(delta);
@@ -6193,20 +6323,19 @@ function afficherResultat(valeur){
   $('bande').classList.toggle('pile', ecart === 0);
 
   if(S.evt === 'choix' && S.prochain === null){
-    // Met à jour visuellement le chrono pour qu'il voie son score sous la modale
     $('f-chrono').textContent = affChrono(valeur);
     const v = evaluer(ecart);
     $('f-chrono').className = 'f-chrono ' + v.couleur;
     
     let phraseDistribution = "";
     if (v.code === 'pile') {
-        phraseDistribution = `🎯 PILE ! Tu offres 1 ${nomCulSec()} à :`;
+        phraseDistribution = `🎯 PILE ! Tu offres 1 ${nomCulSec()} et choisis qui joue après :`;
     } else if (v.code === 'frole') {
-        phraseDistribution = `✨ Frôlé ! Tu distribues ${gorg(v.n)} à :`;
+        phraseDistribution = `✨ Frôlé ! Tu donnes ${gorg(v.n)} et choisis qui joue après :`;
     } else if (v.code === 'sauf') {
-        phraseDistribution = `C'est dans la zone. Personne ne boit. À qui le tour ?`;
+        phraseDistribution = `C'est dans la marge. Qui joue après toi ?`;
     } else {
-        phraseDistribution = `❌ Raté ! Tu refiles ta peine de ${gorg(RATE[CFG.gor])} à :`;
+        phraseDistribution = `❌ Hors zone ! Tu bois ${gorg(RATE[CFG.gor])}. Qui joue après toi ?`;
     }
     
     $('f-choix-recit').textContent = phraseDistribution;
@@ -6239,7 +6368,8 @@ function resoudre(valeur, delta, ecart){
   const suiv   = S.joueurs[idxSuivant()];
   const st = S.stats[joueur];
   const T = $('ver-titre'), U = $('ver-sous');
-  const mult = S.evt === 'double' ? 2 : 1;
+  let mult = S.evt === 'double' ? 2 : 1;
+
   // en solo, tomber pile sur une minute n'a plus d'effet ni d'affichage :
   // il n'y a personne à faire boire. Réservé aux modes soirée.
   const minutePile = estMinute(valeur) && !estSolo(CFG.mode);
@@ -6808,48 +6938,130 @@ function resoudre(valeur, delta, ecart){
   else {
         const v = evaluer(ecart);
         couleur = v.couleur;
+
+        // --- LOGIQUE GORGÉES BLIND & PARIS ---
+        let nbCulsSecs = 1;
+        let gorgeesBase = RATE[CFG.gor];
+        let gorgeesFrole = v.n;
+        let gorgeesPresque = 0;
+
+        if(CFG.mode === 'blind') {
+          const dSec = Math.round(dureeVoulue / 100);
+          
+          // 1. PILE
+          nbCulsSecs = dSec < 6 ? 1 : 2; 
+          
+          // 2. RATÉ (Gorgées bues)
+          if(dSec <= 3) gorgeesBase = 5;
+          else if(dSec <= 6) gorgeesBase = 4;
+          else if(dSec <= 9) gorgeesBase = 3;
+          else gorgeesBase = 2;
+
+          if(CFG.gor === 'gros') gorgeesBase += 1;
+          
+          // 3. FRÔLÉ ET PRESQUE (Gorgées distribuées)
+          gorgeesFrole = Math.round(3 + (dSec - 1) * (5 / 9));
+          gorgeesPresque = Math.round(1 + (dSec - 1) * (4 / 9));
+
+          // 4. ZONE PRESQUE DYNAMIQUE
+          const limitePresque = CFG.diff === 'hard' 
+            ? Math.round(10 + (dSec - 1) * (25 / 9))
+            : Math.round(8 + (dSec - 1) * (22 / 9));
+
+          if (v.code === 'sauf' && ecart <= limitePresque) {
+            v.code = 'presque';
+            couleur = 't-s50';
+          }
+
+          // 5. APPLICATION DES ENJEUX DU PARI
+          // Un pari actif rend le tour strictement binaire : dans la zone
+          // annoncée au moment du pari, ou hors d'elle. Le "presque" (zone
+          // élargie de l'étape 4 ci-dessus) n'existe plus pour ce tour-là,
+          // quel que soit le v.code que l'évaluation normale avait posé :
+          // soit on réussit et l'adversaire boit, soit on rate et c'est pour
+          // nous, jamais un résultat intermédiaire.
+          if(S.pariActif) {
+            const { deltaSec, type } = S.pariActif;
+            const nouvelleDureeSec = Math.round(dureeVoulue / 100);
+            // Précision exigée par le pari : 0.15s (1s) à 0.30s (10s) -> convertie en centièmes (15 à 30)
+            const precisionViseeCentièmes = Math.round(15 + (nouvelleDureeSec - 1) * (15 / 9));
+            const pariReussi = ecart <= precisionViseeCentièmes;
+
+            if (type === 'hausse') {
+              if (pariReussi) {
+                // Pari réussi à la hausse : gorgées distribuées majorées du bonus
+                const bon = Math.abs(deltaSec);
+                gorgeesFrole += bon;
+              }
+              // raté : gorgeesBase (déjà calculé plus haut) reste la pénalité
+            } else if (type === 'baisse') {
+              if (!pariReussi) {
+                // Pari raté à la baisse : il échoue malgré la facilité -> il boit fort
+                const pen = Math.abs(deltaSec);
+                gorgeesBase += pen;
+              }
+            }
+            v.code = pariReussi ? 'frole' : 'rate';
+            couleur = pariReussi ? 't-s50' : 't-signal';
+            S.pariActif = null;
+          }
+        }
+        //--------
+   
         if(CFG.mode === 'elimination' && v.code === 'rate'){
           S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
           if(S.fautes[joueur] >= 3 && !S.elimines.includes(joueur)) S.elimines.push(joueur);
         }
+        
         if(v.code === 'pile'){
-          S.contre = 1;
-          T.textContent = suiv + ' : ' + nomCulSec();
-          U.textContent = 'pile — sauf si ' + suiv + ' fait pile aussi';
+          S.contre = nbCulsSecs * mult;
+          T.textContent = (S.evt === 'choix' ? suiv : suiv) + ' : ' + culs(S.contre);
+          U.textContent = (S.evt === 'choix' ? joueur + ' a fait pile et désigné ' + suiv : 'pile — sauf si ' + suiv + ' fait pile aussi');
           vibrer([0,60,50,60,50,140]);
         }
         else if(v.code === 'frole'){
-          const n = peine(suiv, v.n * mult, true);
+          const victime = suiv;
+          const n = peine(victime, gorgeesFrole * mult, true);
           if(S.evt === 'bouclier'){
             S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
             couleur = 't-alerte';
             T.textContent = 'Bouclier pour ' + joueur;
-            U.textContent = suiv + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
+            U.textContent = victime + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
           } else {
-            T.textContent = suiv + ' boit ' + gorg(n);
-            U.textContent = 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile'
-              + (mult>1 ? ' · doublé' : '');
+            T.textContent = victime + ' boit ' + gorg(n);
+            U.textContent = (S.evt === 'choix' ? joueur + ' a frôlé et désigné ' + victime : 'à ' + ecart + ' centième' + (ecart>1?'s':'') + ' du pile' + (mult>1 ? ' · doublé' : ''));
+          }
+        }
+        else if(v.code === 'presque'){
+          const victime = suiv;
+          const n = peine(victime, gorgeesPresque * mult, true);
+          if(S.evt === 'bouclier'){
+            S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
+            couleur = 't-alerte';
+            T.textContent = 'Bouclier pour ' + joueur;
+            U.textContent = victime + ' boit ' + gorg(n) + (mult>1 ? ' (doublé)' : '');
+          } else {
+            T.textContent = victime + ' boit ' + gorg(n);
+            U.textContent = (S.evt === 'choix' ? joueur + ' a fait un bon score et désigné ' + victime : 'joli tir à ±' + fmt(ecart) + ' !' + (mult>1 ? ' · doublé' : ''));
           }
         }
         else if(v.code === 'sauf'){
           T.textContent = 'Personne ne boit';
-          U.textContent = 'dans la marge';
+          U.textContent = (S.evt === 'choix' ? joueur + ' passe la main à ' + suiv : 'dans la marge');
         }
         else {
           if(S.evt === 'bord'){
-            S.joueurs.forEach(n => S.stats[n].gorgees += mult);
-            T.textContent = 'Toute la table boit ' + gorg(mult);
+            S.joueurs.forEach(n => S.stats[n].gorgees += gorgeesBase * mult);
+            T.textContent = 'Toute la table boit ' + gorg(gorgeesBase * mult);
             U.textContent = joueur + ' est sorti de la zone';
           } else {
-            // La victime est le joueur choisi, ou le joueur actuel s'il n'y a pas eu de choix
-            const victime = (S.evt === 'choix') ? suiv : joueur;
-            const n = peine(victime, RATE[CFG.gor] * mult);
-            T.textContent = n ? victime + ' boit ' + gorg(n) : victime + ' : bouclier consommé';
-            U.textContent = (S.evt === 'choix' ? 'peine transférée · ' : 'hors marge · ') + 'écart ±' + fmt(ecart) + (mult>1 ? ' · doublé' : '');
+            const n = peine(joueur, gorgeesBase * mult);
+            T.textContent = n ? joueur + ' boit ' + gorg(n) : joueur + ' : bouclier consommé';
+            U.textContent = (S.evt === 'choix' ? 'hors marge · ' + joueur + ' passe la main à ' + suiv : 'hors marge · écart ±' + fmt(ecart)) + (mult>1 ? ' · doublé' : '');
           }
         }
-      } // Fin du bloc "evaluer(ecart)"
-
+      } // Fin du bloc d'évaluation
+ 
       if(CFG.mode === 'elimination' && S.elimines.includes(joueur)){
         couleur = 't-signal';
         T.textContent = joueur + ' est éliminé';
@@ -7056,8 +7268,33 @@ function majPari(){
 }
 
 
+// Applique le nom et le tour mis en attente par fluidePret() quand un
+// verdict était encore affiché en mode blind (voir fluidePret). Appelée au
+// moment réel où l'on passe au joueur suivant : le tap "Suivant".
+function appliquerBadgeEnAttente(){
+  if(!S.badgeEnAttente) return;
+  $('f-nom').textContent = S.badgeEnAttente.nom;
+  surligner($('f-nom'), coulNom(S.badgeEnAttente.nom));
+  $('f-tour').textContent = S.badgeEnAttente.tourTxt;
+  S.badgeEnAttente = null;
+  // le bouton Parier était masqué tant que le verdict précédent était
+  // affiché (voir fluidePret) ; il redevient pertinent maintenant qu'on est
+  // réellement sur l'écran prêt du joueur suivant
+  const btnPariBlind = $('f-pari-blind');
+  if(btnPariBlind && CFG.mode === 'blind' && CFG.pariBlind){
+    btnPariBlind.style.display = 'flex';
+    if(!S.pariActif){
+      btnPariBlind.textContent = 'Parier';
+      btnPariBlind.classList.remove('pris');
+    }
+  }
+}
+
 function fluidePret(){
   const nom = S.joueurs[S.idx];
+  // capturé avant toute réécriture : sert à restaurer l'affichage si la mise
+  // à jour doit être reportée (voir plus bas, mode blind + verdict affiché)
+  const tourTxtAvant = $('f-tour').textContent;
   S.dureeTour = Math.max(1, Math.abs(S.cible - S.total));
   calerChrono();
   if(AVT() && S.avt){
@@ -7070,7 +7307,8 @@ function fluidePret(){
      && !musique) lancerMusique();
   // Spatial : un tour sur trois se joue sans chrono
   S.aveugleTour = !!(effB('aveugle') && S.tour % effB('aveugle') === 0)
-                  || !!(LAB() && LAB().aveugle);
+                  || !!(LAB() && LAB().aveugle)
+                  || CFG.mode === 'blind';
   // Chantier : un tour sur cinq, la poutrelle passe devant les dixièmes
   S.dixiemesTour = !!(effB('dixiemes') && S.tour % effB('dixiemes') === 0);
   majNoirMine();
@@ -7078,6 +7316,7 @@ function fluidePret(){
   S.alerteTour = !!(effB('alerte') && S.tour % effB('alerte') === 0);
   $('fluide').classList.toggle('alerte-tour', !!S.alerteTour);
   majPari();
+
   if(CFG.mode === 'survie'){
     if(S.tRdv) clearTimeout(S.tRdv);
     S.tRdv = setTimeout(() => { S.tRdv = null; proposerRendezVous(); }, 700);
@@ -7125,10 +7364,28 @@ function fluidePret(){
   else if(m === 'combat')   $('f-tour').textContent = bossCourant().n;
   else $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}`
                                               : 'Tour ' + S.tour;
-  $('f-nom').textContent = nom;
-  surligner($('f-nom'), coulNom(nom));
+  // En mode blind, si un verdict est encore affiché (S.dernier), le nom et
+  // le tour affichés ne doivent PAS changer tout de suite : ça donnait
+  // l'impression que c'était déjà au joueur suivant de boire. La mise à jour
+  // réelle est appliquée par appliquerBadgeEnAttente(), au moment du tap
+  // "Suivant" (interception blind), pas ici.
+  if(CFG.mode === 'blind' && S.dernier){
+    // le texte de tour a déjà été réécrit par la chaîne ci-dessus : on le
+    // met de côté pour plus tard, et on restaure l'ancien à l'écran
+    S.badgeEnAttente = {nom, tourTxt: $('f-tour').textContent};
+    $('f-tour').textContent = tourTxtAvant;
+  } else {
+    $('f-nom').textContent = nom;
+    surligner($('f-nom'), coulNom(nom));
+  }
   $('f-nom').closest('.f-nom-l').style.display = AVT() ? 'none' : '';
-  $('f-obj-cible').textContent = fmt(S.cible);
+  
+  if (CFG.mode === 'blind' && !S.blindPret && S.cibleBlindJouee) {
+    $('f-obj-cible').textContent = fmt(S.cibleBlindJouee);
+  } else {
+    $('f-obj-cible').textContent = fmt(S.cible);
+  }
+
   if(AVT() && $('avt-cible')) $('avt-cible').textContent = fmt(S.cible);
   // à l'escalier, c'est la durée à tenir qui compte, pas la cible cumulée
   const esc = CFG.mode === 'escalier';
@@ -7178,6 +7435,32 @@ function fluidePret(){
   compteursMode('f-');
   bandeaux('f-');
   fluidePhase('repos');
+
+  // Affichage du bouton Pari Blind : ce bloc doit s'exécuter APRÈS la remise
+  // de S.fPhase à 'repos' ci-dessus, sinon il regarde la phase du tour
+  // précédent (encore 'course') et le bouton ne s'affiche jamais. Comme
+  // fluidePret() prépare justement l'écran pour le prochain tour, à chaque
+  // joueur, ce bloc se ré-exécute naturellement à chaque tour.
+  // Pendant l'écran de résultat (verdict encore affiché, badge du joueur
+  // suivant pas encore appliqué — voir S.badgeEnAttente ci-dessus), le
+  // bouton reste masqué : parier ne concerne que le tour qui s'apprête à
+  // être joué, pas le verdict du tour qu'on est en train de lire. Il
+  // réapparaît quand appliquerBadgeEnAttente() tourne, au tap "Suivant".
+  const btnPariBlind = $('f-pari-blind');
+  if(btnPariBlind) {
+    const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
+    const verdictEnAttente = CFG.mode === 'blind' && !!S.badgeEnAttente;
+    if (actifBlindPari && S.fPhase === 'repos' && !verdictEnAttente) {
+      btnPariBlind.style.display = 'flex';
+      if (!S.pariActif) {
+        btnPariBlind.textContent = 'Parier';
+        btnPariBlind.classList.remove('pris');
+      }
+    } else {
+      btnPariBlind.style.display = 'none';
+    }
+  }
+
   montrer('fluide');
 }
 
@@ -7423,6 +7706,9 @@ function fluidePhase(ph){
   if(ph === 'fin'){
     D.classList.add('clair');
     D.querySelector('span').textContent = 'Classement';
+  } else if (CFG.mode === 'blind' && ph === 'repos' && !S.blindPret) {
+    D.classList.add('vert');
+    D.querySelector('span').textContent = 'Suivant';
   } else {
     D.classList.add('vert');
     D.querySelector('span').textContent = 'Démarrer';
@@ -7502,7 +7788,7 @@ function fluideResultat(){
     return;
   }
   avancerTour();
-  if(S.sautTour){ S.sautTour = false; avancerTour(); }   // Paradis : un tour offert
+  //if(S.sautTour){ S.sautTour = false; avancerTour(); }  // Paradis : un tour offert
   fluidePret();          // affiche le résultat ET l'objectif suivant
 }
 
@@ -7517,6 +7803,40 @@ $('fluide').addEventListener('pointerdown', ev => {
   const b = ev.target.closest && ev.target.closest('.rond');
   if(!b || b.disabled || b.id !== 'f-droite' || S.fPhase !== 'repos') return;
   if(performance.now() - S.fPhaseAt < 220) return;
+  
+  // --- Interception 2 temps pour le Blind ---
+  // avancerTour() n'est PAS rappelé ici : il a déjà été exécuté une fois,
+  // automatiquement, dès l'appui sur Arrêter (via resoudre -> fluideResultat).
+  // L'appeler une seconde fois ici sautait le joueur suivant à chaque tour
+  // (son tour n'était jamais joué, et le tour d'après lui était attribué).
+  if(CFG.mode === 'blind' && !S.blindPret) {
+    S.blindPret = true;
+    $('f-obj-cible').textContent = fmt(S.cible);
+
+    // Le nom et le numéro de tour, mis en attente par fluidePret() pendant
+    // que le verdict précédent restait affiché, ne s'appliquent qu'ici :
+    // c'est le moment réel où l'on passe au joueur suivant.
+    appliquerBadgeEnAttente();
+
+    S.fPhase = 'repos';
+   
+    // On masque tout pour le joueur suivant
+    $('f-chrono').className = 'f-chrono repos';
+    $('f-chrono').textContent = '0,00';
+    $('f-realise').classList.remove('on');
+    $('f-verdict').style.visibility = 'hidden';
+    $('f-gain').classList.remove('on');
+    $('f-blague').classList.remove('on');
+    b.querySelector('span').textContent = 'Démarrer';
+    
+    // On cache aussi le bandeau éventuel s'il y en a un
+    const evtBandeau = $('f-evt');
+    if(evtBandeau) evtBandeau.classList.remove('on');
+    
+    return; // On stoppe l'exécution ici, on attend le vrai clic de départ
+  }
+  // ----------------------------------------------------
+
   demarrer(ev);
 });
 $('fluide').addEventListener('click', ev => {
@@ -7539,7 +7859,165 @@ const fermerDetails = () => {
 };
 $('fermer').onclick = fermerDetails;
 $('det-retour').onclick = fermerDetails;
+// Fonction pour créer la modale personnalisée avec menu déroulant
+function demarrerModalPariBlind(cibleSec) {
+  return new Promise(res => {
+    const M = $('modale'), ouvertA = performance.now();
+    $('mod-titre').textContent = 'PARI TACTIQUE';
+    $('mod-sous').textContent = 'Cible initiale : ' + cibleSec + 's';
+    
+    $('mod-saisie').style.display = 'none';
+    $('mod-noms').style.display = 'none';
 
+    const b = $('mod-b');
+    b.innerHTML = `
+      <div style="width:100%; margin: 8px 0 12px 0; text-align:left;">
+        <label style="font-family:var(--mono); font-size:10.5px; color:var(--gris); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px;">
+          Nouvelle cible désirée :
+        </label>
+        <select id="pari-select" style="width:100%; background:var(--nuit); color:var(--ivoire); border:1px solid var(--bordDoux); border-radius:10px; padding:10px 12px; font-family:var(--cond); font-size:15px; font-weight:600; outline:none;">
+          ${Array.from({length: 10}, (_, i) => {
+            const s = i + 1;
+            const delta = s - cibleSec;
+            let txt = s + 's';
+            if (delta > 0) txt += ` (+${delta}s)`;
+            else if (delta < 0) txt += ` (${delta}s)`;
+            else txt += ' (Cible actuelle)';
+            return `<option value="${s * 100}" ${s === cibleSec ? 'selected' : ''}>${txt}</option>`;
+          }).join('')}
+        </select>
+        <div id="pari-enjeu-box" style="margin-top:12px; padding:14px 16px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:left;">
+          —
+        </div>
+      </div>
+    `;
+
+    const selectEl = $('pari-select');
+    const enjeuBox = $('pari-enjeu-box');
+
+    const majEnjeu = () => {
+      const val = parseInt(selectEl.value, 10) / 100;
+      const delta = val - cibleSec;
+      
+      // Calcul des gorgées de base du barème normal pour ce temps
+      let penBase = val <= 3 ? 5 : val <= 6 ? 4 : val <= 9 ? 3 : 2;
+      if (CFG.gor === 'gros') penBase += 1;
+
+      // Calcul de la précision exigée : 0.15s pour 1s, jusqu'à 0.30s pour 10s
+      const ecartVise = (0.15 + (val - 1) * (0.15 / 9)).toFixed(2);
+
+      if (delta > 0) {
+        enjeuBox.style.color = '#6BE39A';
+        enjeuBox.style.borderColor = '#6BE39A';
+        enjeuBox.innerHTML = `
+          <strong style="font-size:13px; color:#6BE39A; letter-spacing:0.05em; display:block; text-align:center;">HAUSSE (+${delta}s) · Objectif : ±${ecartVise}s</strong>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">🎁 Si réussi (écart ≤ ±${ecartVise}s) :</span> 
+            <b style="color:#6BE39A; text-align:right;">Donne +${delta} gorgée${delta > 1 ? 's' : ''} de plus</b>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">❌ Si raté :</span> 
+            <span style="color:#DC3B2A; text-align:right;">Tu bois ${penBase} gorgées</span>
+          </div>`;
+      } else if (delta < 0) {
+        const abs = Math.abs(delta);
+        const penTotale = penBase + abs;
+        enjeuBox.style.color = '#DC3B2A';
+        enjeuBox.style.borderColor = '#DC3B2A';
+        enjeuBox.innerHTML = `
+          <strong style="font-size:13px; color:#DC3B2A; letter-spacing:0.05em; display:block; text-align:center;">BAISSE (${delta}s) · Objectif : ±${ecartVise}s</strong>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">🎁 Si réussi (écart ≤ ±${ecartVise}s) :</span> 
+            <span style="color:var(--gris); text-align:right;">Barème normal</span>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">❌ Si raté :</span> 
+            <b style="color:#DC3B2A; text-align:right;">Tu bois ${penTotale} gorgées<br><span style="font-size:9.5px; opacity:0.8;">(barème ${penBase} + ${abs} de pénalité)</span></b>
+          </div>`;
+      } else {
+        enjeuBox.style.color = 'var(--gris)';
+        enjeuBox.style.borderColor = 'var(--trait)';
+        enjeuBox.innerHTML = `
+          <strong style="font-size:13px; letter-spacing:0.05em; display:block; text-align:center;">CIBLE INCHANGÉE · Objectif : ±${ecartVise}s</strong>
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
+            <span style="color:var(--gris); text-align:right;">Barème normal (${penBase} gorgées distribuées)</span>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--ivoire);">❌ Si raté :</span> 
+            <span style="color:#DC3B2A; text-align:right;">Tu bois ${penBase} gorgées</span>
+          </div>`;
+      }
+    };
+
+    selectEl.onchange = majEnjeu;
+    majEnjeu();
+
+    let clos = false;
+    const tropTot = () => performance.now() - ouvertA < 260;
+    const fin = v => {
+      if (clos) return;
+      clos = true;
+      M.classList.remove('on');
+      M.onclick = null;
+      b.innerHTML = '';
+      res(v);
+    };
+
+    const btnValider = document.createElement('button');
+    btnValider.className = 'bouton';
+    btnValider.textContent = 'Valider le pari';
+    btnValider.style.fontSize = '15px';
+    btnValider.style.padding = '12px';
+    btnValider.onclick = () => { if (!tropTot()) fin(parseInt(selectEl.value, 10)); };
+
+    const btnAnnuler = document.createElement('button');
+    btnAnnuler.className = 'bouton fantome';
+    btnAnnuler.textContent = 'Annuler';
+    btnAnnuler.style.fontSize = '12.5px';
+    btnAnnuler.style.padding = '9px';
+    btnAnnuler.style.marginTop = '6px';
+    btnAnnuler.onclick = () => { if (!tropTot()) fin(null); };
+
+    b.appendChild(btnValider);
+    b.appendChild(btnAnnuler);
+    M.onclick = e => { if (e.target === M && !tropTot()) fin(null); };
+    M.classList.add('on');
+  });
+}
+
+// Clic sur le bouton de Pari
+const btnPariBlindClick = $('f-pari-blind');
+if (btnPariBlindClick) {
+  btnPariBlindClick.onclick = async (ev) => {
+    ev.stopPropagation(); 
+    if(S.encours || S.fPhase !== 'repos') return;
+    
+    const cibleSec = Math.round((S.cible - S.total) / 100);
+    const choixSec = await demarrerModalPariBlind(cibleSec);
+    if(choixSec === null) return;
+
+    const nouvelleCibleSec = choixSec / 100;
+    const deltaSec = nouvelleCibleSec - cibleSec;
+
+    if (deltaSec === 0) return;
+
+    const nom = S.joueurs[S.idx];
+    S.dernierPari = S.dernierPari || {};
+    S.dernierPari[nom] = S.tour;
+
+    S.cible = S.total + choixSec;
+    S.cibleBase = S.cible;
+    S.zoneTour = zoneDe(nom);
+    
+    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' };
+    
+    $('f-obj-cible').textContent = fmt(S.cible);
+    btnPariBlindClick.textContent = deltaSec > 0 ? '+' + deltaSec + 's' : deltaSec + 's';
+    btnPariBlindClick.classList.add('pris');
+  };
+}
+//-----------------------------------------
 function dessinerFilm(){
   const f = $('film'); f.innerHTML = '';
   const bord = 50 - zone();
@@ -7630,6 +8108,22 @@ function afficherFin(){
   const abandonSolo = estSolo(CFG.mode) && S.abandon;
   if(!S.enregistre && !abandonSolo && !S.essaiBiome){
     S.enregistre = true;
+    
+    // NOUVEAU BLOC : Sauvegarde de l'historique Soirée
+    if (!estSolo(CFG.mode)) {
+      MEM.historiqueSoirees = MEM.historiqueSoirees || [];
+      const statsSoiree = S.joueurs.map(n => ({
+        nom: n, gorgees: S.stats[n].gorgees, culs: S.stats[n].culs, 
+        ecart: S.stats[n].ecart, tours: S.stats[n].tours, piles: S.stats[n].piles
+      })).filter(p => p.tours > 0);
+      
+      if (statsSoiree.length > 0) {
+        MEM.historiqueSoirees.unshift({ date: Date.now(), mode: CFG.mode, stats: statsSoiree });
+        if (MEM.historiqueSoirees.length > 10) MEM.historiqueSoirees.pop();
+      }
+    }
+    // FIN DU NOUVEAU BLOC
+
     S.joueurs.forEach(n => {
       const s = S.stats[n];
       if(!s || !s.tours) return;
@@ -8321,12 +8815,77 @@ $('go-boutique').onclick = () => { BOUTIQUE_RETOUR = 'test'; construireBoutique(
 $('bo-partir').onclick = () => { CFG.mode = 'aventure'; MEM.cfg = {...CFG};
   ecrireMem(); demarrerPartie(); };
 $('pr-retour').onclick = () => montrer('reglages');
+// Navigation vers l'historique
+$('pr-voir-histo').onclick = () => { 
+  construireHistoriqueSoirees(); 
+  montrer('historique-soirees'); 
+};
+$('hs-retour').onclick = () => montrer('profil');
 
+function construireHistoriqueSoirees() {
+  const cont = $('hs-liste'); // On cible la nouvelle page
+  if(!cont) return;
+  const H = MEM.historiqueSoirees || [];
+  if(!H.length) {
+    cont.innerHTML = '<div class="vide">Aucune partie soirée enregistrée sur ce téléphone.</div>';
+    return;
+  }
+  
+  cont.innerHTML = H.map((h, idx) => {
+    const d = new Date(h.date).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+    const modeObj = MODES.find(m => m.id === h.mode) || {n: h.mode};
+    const topBuveur = [...h.stats].sort((a,b) => (b.gorgees + b.culs*4) - (a.gorgees + a.culs*4))[0];
+    const topPrecis = [...h.stats].sort((a,b) => (a.ecart/a.tours) - (b.ecart/b.tours))[0];
+    
+    return `<div class="evt" data-idx="${idx}" style="cursor:pointer; border-color:var(--trait); margin-top:10px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+        <div style="font-size:18px; font-weight:700; color:var(--laiton); letter-spacing:0.04em; text-transform:uppercase;">${modeObj.n}</div>
+        <div style="font-family:var(--mono); font-size:10px; color:var(--gris);">${d}</div>
+      </div>
+      <div style="font-size:14px; line-height:1.6;">
+        <span style="opacity:0.7">Plus arrosé :</span> <b style="color:var(--signal); font-size:15px;">${esc(topBuveur.nom)}</b> <span style="font-family:var(--mono); font-size:10px; color:var(--gris); margin-left:4px;">${topBuveur.gorgees}g, ${topBuveur.culs}c</span><br>
+        <span style="opacity:0.7">Plus précis :</span> <b style="color:var(--vertVif); font-size:15px;">${esc(topPrecis.nom)}</b> <span style="font-family:var(--mono); font-size:10px; color:var(--gris); margin-left:4px;">±${fmt(Math.round(topPrecis.ecart/topPrecis.tours))}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  cont.querySelectorAll('.evt').forEach(el => {
+    el.onclick = () => {
+      const h = H[el.dataset.idx];
+      const d = new Date(h.date).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+      const modeObj = MODES.find(m => m.id === h.mode) || {n: h.mode};
+      const tri = [...h.stats].sort((a,b) => (a.ecart/a.tours) - (b.ecart/b.tours));
+      
+      const lignesHTML = tri.map((p, i) => {
+        const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
+                     p.culs ? culs(p.culs) : null,
+                     p.gorgees ? gorg(p.gorgees) : null ].filter(Boolean).join(' · ') || 'rien bu';
+                     
+        return `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--trait); text-align:left;">
+          <div style="flex:1; min-width:0; padding-right:12px;">
+            <div style="font-size:17px; font-weight:700; color:${coulHash(p.nom)}; text-transform:uppercase; letter-spacing:0.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i+1}. ${esc(p.nom)}</div>
+            <div style="font-family:var(--mono); font-size:10.5px; color:var(--gris); margin-top:4px;">${bu}</div>
+          </div>
+          <div style="color:var(--laiton); font-family:var(--mono); font-size:15px; flex-shrink:0;">±${fmt(Math.round(p.ecart/p.tours))}</div>
+        </div>`;
+      }).join('');
+
+      const tableauHTML = `<div style="max-height: 50vh; overflow-y: auto; overflow-x: hidden; padding-right: 6px;">${lignesHTML}</div>`;
+      choisir(modeObj.n.toUpperCase() + ' · ' + d, '', [{label:'Fermer', val:true}]);
+      $('mod-sous').innerHTML = tableauHTML;
+    };
+  });
+}
 async function construireProfil(){
   const p = monPro();
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   let distant = null;
-  if(s){ try{ distant = await monProfil(); }catch(e){} }
+  if(s){ 
+    try{ 
+      distant = await monProfil(); 
+      if(distant && distant.photo && !p.photo) p.photo = distant.photo;
+    }catch(e){} 
+  }
   const nom = p.pseudo || (distant && distant.pseudo)
     || (MEM.joueurs && MEM.joueurs[0]) || 'Invité';
 
@@ -9296,7 +9855,7 @@ function ouvrirFiche(id){
 
   // Chaque réglage n'apparaît que s'il change quelque chose pour ce mode.
   const imposeAff = id === 'defi';                       // le défi fixe l'affichage
-  const sansAff   = id === 'reflexe' || id === 'cascade'; // pas de zone à cadrer
+  const sansAff   = id === 'reflexe' || id === 'blind';
   const avecDiff  = !['reflexe','survie','escalier','defi','cascade'].includes(id);
   const avecGor   = !solo;                               // l'alcool ne concerne que la soirée
   const avecEvt   = id === 'classique';                  // les événements ne touchent que le classique
@@ -9305,6 +9864,7 @@ function ouvrirFiche(id){
   const aff = (bloc, on) => { const e = $(bloc); if(e) e.style.display = on ? 'block' : 'none'; };
   aff('fi-bloc-aff',  !sansAff);
   aff('fi-bloc-diff', avecDiff);
+  aff('fi-bloc-pari', id === 'blind');
   aff('fi-bloc-gor',  avecGor);
   aff('fi-bloc-evt',  avecEvt);
   aff('fi-bloc-fin',  avecFin);
@@ -9315,12 +9875,19 @@ function ouvrirFiche(id){
   $('fi-aff').style.pointerEvents = imposeAff ? 'none' : 'auto';
 
   const m = {'fi-aff':CFG.aff, 'fi-diff':CFG.diff, 'fi-gor':CFG.gor,
-             'fi-evt':CFG.evts, 'fi-fin':String(CFG.maxTours)};
+             'fi-evt':CFG.evts, 'fi-fin':String(CFG.maxTours),
+             'fi-pari': CFG.pariBlind ? 'oui' : 'non'};
   for(const k in m){ const e = $(k); if(e) e.querySelectorAll('button')
     .forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m[k])); }
 
-  if(avecDiff) $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
-    + ' s.' + (avecGor ? ' Hors zone : ' + gorg(RATE[CFG.gor]) + '.' : '');
+  if(id === 'blind') {
+    $('fi-note-diff').textContent = CFG.diff === 'hard'
+      ? "Hard : Cibles décimales (ex: 4,37s). Zone de tolérance large (±0,35 à ±0,95) qui croît avec la durée."
+      : "Simple : Cibles rondes (ex: 4,00s). Zone de tolérance standard (±0,30 à ±0,90).";
+  } else if(avecDiff) {
+    $('fi-note-diff').textContent = 'Zone sûre ± ' + fmt(zoneBase())
+      + ' s.' + (avecGor ? ' Hors zone : ' + gorg(RATE[CFG.gor]) + '.' : '');
+  }
   if(avecGor)  $('fi-note-gor').textContent = CFG.gor === 'gros'
     ? "En retard pour sortir ? Pas envie de te rappeler de la date du jour ? Envie de perdre ton téléphone dans un taxi ? T'es au bon endroit."
     : CFG.gor === 'appart'
@@ -9412,6 +9979,7 @@ segmente('fi-diff', v => { CFG.diff = v; majFiche(); });
 segmente('fi-gor',  v => { CFG.gor = v;  majFiche(); });
 segmente('fi-evt',  v => { CFG.evts = v; majFiche(); });
 segmente('fi-fin',  v => { CFG.maxTours = +v; majFiche(); });
+segmente('fi-pari', v => { CFG.pariBlind = (v === 'oui'); majFiche(); });
 $('fi-retour').onclick = () => montrer('reglages');
 $('fi-reprendre').onclick = () => reprendrePartie();
 $('fi-jouer').onclick = () => {
@@ -10256,6 +10824,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   // apparaissait ailleurs faute de ce padding.
   montrer(S.partie ? ecranJeu() : 'reglages');
 })();
+init();
 </script>
 </body>
 </html>
