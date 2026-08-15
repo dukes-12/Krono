@@ -5486,16 +5486,30 @@ function tableau(){
 
   if(CFG.mode === 'blind') {
     const L = [
-      ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
-      ['var(--laiton)', '± 0,03', 'le suivant boit (2 à 8 gorgées selon durée)'],
-      ['var(--vert)',   'zone sûre', 'personne ne boit (zone élargie selon durée)'],
-      ['var(--signal)', 'hors zone', 'tu bois (1 à 4 gorgées selon durée)']
+      ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' (x1 à x2 selon durée) — ou riposte'],
+      ['var(--laiton)', '± 0,03', 'le suivant boit (de 2 à 8 gorgées selon durée)'],
+      ['var(--vert)',   'zone sûre', 'personne ne boit (la tolérance s\'élargit avec le temps)'],
+      ['var(--signal)', 'hors zone', 'tu bois (de 5 à 2 gorgées selon durée)']
     ];
     cible.innerHTML = L.map(([c,k,t],i) =>
       `<div><span class="pastille" style="background:${c};opacity:${i>0&&i<3?.55:1}"></span>
        <i>${k}</i><span style="flex:1; line-height:1.4; margin-top:2px">${t}</span></div>`).join('');
     return;
   }
+
+  const L = [
+    ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
+    ['var(--laiton)', 'pile', 'le suivant fait ' + nomCulSec() + ' — ou riposte'],
+    ['var(--laiton)', '± 0,01', 'le suivant boit ' + gorg(calcFrole(3))],
+    ['var(--laiton)', '± 0,02', 'le suivant boit ' + gorg(calcFrole(2))],
+    ['var(--laiton)', '± 0,03', 'le suivant boit ' + gorg(calcFrole(1))],
+    ['var(--vert)',   '± ' + fmt(zoneBase()), 'personne ne boit'],
+    ['var(--signal)', 'au-delà', 'tu bois ' + gorg(RATE[CFG.gor])]
+  ];
+  cible.innerHTML = L.map(([c,k,t],i) =>
+    `<div><span class="pastille" style="background:${c};opacity:${i>1&&i<5?.55:1}"></span>
+     <i>${k}</i>${t}</div>`).join('');
+}
 
   const L = [
     ['var(--laiton)', 'la minute', 'chrono à 60,00 pile : tous les autres, ' + nomCulSec()],
@@ -6893,19 +6907,29 @@ function resoudre(valeur, delta, ecart){
         let gorgeesFrole = v.n;
 
         if(CFG.mode === 'blind') {
-          const dSec = dureeVoulue / 100;
-          nbCulsSecs = 1; // Toujours 1 seul cul sec max pour éviter les abus
+          // On arrondit à la seconde la plus proche pour situer le palier (ex: 4.8s -> 5s)
+          const dSec = Math.round(dureeVoulue / 100);
           
-          // Adoucissement drastique : 1 à 3s -> 1g | 4 à 6s -> 2g | 7 à 9s -> 3g | 10s -> 4g
-          if(dSec <= 3) gorgeesBase = 1;
-          else if(dSec <= 6) gorgeesBase = 2;
-          else if(dSec <= 9) gorgeesBase = 3;
-          else gorgeesBase = 4;
+          // 1. Le Pile (Tu donnes) : plus on attend, plus il fait mal
+          nbCulsSecs = dSec < 6 ? 1 : 2; 
+          
+          // 2. Le Raté (Tu bois) : punitif au début, clément à la fin
+          if(dSec <= 2) gorgeesBase = 5;
+          else if(dSec <= 5) gorgeesBase = 4;
+          else if(dSec <= 8) gorgeesBase = 3;
+          else gorgeesBase = 2;
 
-          // Si on est en mode "Gros buveur", on ajoute +1 à la base pour pimenter un peu
-          if(CFG.gor === 'gros') gorgeesBase += 1;
-          
-          gorgeesFrole = gorgeesBase * 2; // Le frôlé donne le double de la base (2 à 8 max)
+          // 3. Le Frôlé (Tu donnes) : récompense croissante
+          if(dSec <= 2) gorgeesFrole = 2;
+          else if(dSec <= 5) gorgeesFrole = 4;
+          else if(dSec <= 8) gorgeesFrole = 6;
+          else gorgeesFrole = 8;
+
+          // Petit malus si on est en mode "Gros buveur" dans les réglages
+          if(CFG.gor === 'gros') {
+            gorgeesBase += 1;
+            gorgeesFrole += 2;
+          }
         }
         // ------------------------------
         if(CFG.mode === 'elimination' && v.code === 'rate'){
