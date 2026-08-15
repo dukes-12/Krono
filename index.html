@@ -6332,10 +6332,6 @@ function resoudre(valeur, delta, ecart){
     const dSec = Math.round(dureeVoulue / 100);
     mult *= (dSec <= 3 ? 1 : (dSec <= 7 ? 2 : 3));
   }
-  // en solo, tomber pile sur une minute n'a plus d'effet ni d'affichage :
-  // il n'y a personne à faire boire. Réservé aux modes soirée.
-  const minutePile = estMinute(valeur) && !estSolo(CFG.mode);
-  let couleur = 't-vert', avance = true;
 
   /* ─── la minute pile : le chrono cumulé tombe rond sur une minute ─── */
   if(minutePile){
