@@ -6974,35 +6974,35 @@ function resoudre(valeur, delta, ecart){
           }
 
           // 5. APPLICATION DES ENJEUX DU PARI
+          // Un pari actif rend le tour strictement binaire : dans la zone
+          // annoncée au moment du pari, ou hors d'elle. Le "presque" (zone
+          // élargie de l'étape 4 ci-dessus) n'existe plus pour ce tour-là,
+          // quel que soit le v.code que l'évaluation normale avait posé :
+          // soit on réussit et l'adversaire boit, soit on rate et c'est pour
+          // nous, jamais un résultat intermédiaire.
           if(S.pariActif) {
             const { deltaSec, type } = S.pariActif;
             const nouvelleDureeSec = Math.round(dureeVoulue / 100);
             // Précision exigée par le pari : 0.15s (1s) à 0.30s (10s) -> convertie en centièmes (15 à 30)
             const precisionViseeCentièmes = Math.round(15 + (nouvelleDureeSec - 1) * (15 / 9));
+            const pariReussi = ecart <= precisionViseeCentièmes;
 
             if (type === 'hausse') {
-              if (ecart <= precisionViseeCentièmes) {
-                // Pari réussi à la hausse : on ajoute le bonus de gorgées distribuées
+              if (pariReussi) {
+                // Pari réussi à la hausse : gorgées distribuées majorées du bonus
                 const bon = Math.abs(deltaSec);
                 gorgeesFrole += bon;
-                gorgeesPresque += bon;
-              } else {
-                // Pari raté à la hausse : le joueur subit l'échec et boit la pénalité de base
-                v.code = 'rate';
-                couleur = 't-signal';
               }
+              // raté : gorgeesBase (déjà calculé plus haut) reste la pénalité
             } else if (type === 'baisse') {
-              if (ecart <= precisionViseeCentièmes) {
-                // Pari réussi à la baisse (le joueur a assuré sa cible plus simple)
-                // Rien de spécial à modifier, barème normal
-              } else {
+              if (!pariReussi) {
                 // Pari raté à la baisse : il échoue malgré la facilité -> il boit fort
-                v.code = 'rate';
-                couleur = 't-signal';
                 const pen = Math.abs(deltaSec);
                 gorgeesBase += pen;
               }
             }
+            v.code = pariReussi ? 'frole' : 'rate';
+            couleur = pariReussi ? 't-s50' : 't-signal';
             S.pariActif = null;
           }
         }
@@ -7268,8 +7268,33 @@ function majPari(){
 }
 
 
+// Applique le nom et le tour mis en attente par fluidePret() quand un
+// verdict était encore affiché en mode blind (voir fluidePret). Appelée au
+// moment réel où l'on passe au joueur suivant : le tap "Suivant".
+function appliquerBadgeEnAttente(){
+  if(!S.badgeEnAttente) return;
+  $('f-nom').textContent = S.badgeEnAttente.nom;
+  surligner($('f-nom'), coulNom(S.badgeEnAttente.nom));
+  $('f-tour').textContent = S.badgeEnAttente.tourTxt;
+  S.badgeEnAttente = null;
+  // le bouton Parier était masqué tant que le verdict précédent était
+  // affiché (voir fluidePret) ; il redevient pertinent maintenant qu'on est
+  // réellement sur l'écran prêt du joueur suivant
+  const btnPariBlind = $('f-pari-blind');
+  if(btnPariBlind && CFG.mode === 'blind' && CFG.pariBlind){
+    btnPariBlind.style.display = 'flex';
+    if(!S.pariActif){
+      btnPariBlind.textContent = 'Parier';
+      btnPariBlind.classList.remove('pris');
+    }
+  }
+}
+
 function fluidePret(){
   const nom = S.joueurs[S.idx];
+  // capturé avant toute réécriture : sert à restaurer l'affichage si la mise
+  // à jour doit être reportée (voir plus bas, mode blind + verdict affiché)
+  const tourTxtAvant = $('f-tour').textContent;
   S.dureeTour = Math.max(1, Math.abs(S.cible - S.total));
   calerChrono();
   if(AVT() && S.avt){
@@ -7339,8 +7364,20 @@ function fluidePret(){
   else if(m === 'combat')   $('f-tour').textContent = bossCourant().n;
   else $('f-tour').textContent = CFG.maxTours ? `Tour ${S.tour} / ${CFG.maxTours}`
                                               : 'Tour ' + S.tour;
-  $('f-nom').textContent = nom;
-  surligner($('f-nom'), coulNom(nom));
+  // En mode blind, si un verdict est encore affiché (S.dernier), le nom et
+  // le tour affichés ne doivent PAS changer tout de suite : ça donnait
+  // l'impression que c'était déjà au joueur suivant de boire. La mise à jour
+  // réelle est appliquée par appliquerBadgeEnAttente(), au moment du tap
+  // "Suivant" (interception blind), pas ici.
+  if(CFG.mode === 'blind' && S.dernier){
+    // le texte de tour a déjà été réécrit par la chaîne ci-dessus : on le
+    // met de côté pour plus tard, et on restaure l'ancien à l'écran
+    S.badgeEnAttente = {nom, tourTxt: $('f-tour').textContent};
+    $('f-tour').textContent = tourTxtAvant;
+  } else {
+    $('f-nom').textContent = nom;
+    surligner($('f-nom'), coulNom(nom));
+  }
   $('f-nom').closest('.f-nom-l').style.display = AVT() ? 'none' : '';
   
   if (CFG.mode === 'blind' && !S.blindPret && S.cibleBlindJouee) {
@@ -7404,10 +7441,16 @@ function fluidePret(){
   // précédent (encore 'course') et le bouton ne s'affiche jamais. Comme
   // fluidePret() prépare justement l'écran pour le prochain tour, à chaque
   // joueur, ce bloc se ré-exécute naturellement à chaque tour.
+  // Pendant l'écran de résultat (verdict encore affiché, badge du joueur
+  // suivant pas encore appliqué — voir S.badgeEnAttente ci-dessus), le
+  // bouton reste masqué : parier ne concerne que le tour qui s'apprête à
+  // être joué, pas le verdict du tour qu'on est en train de lire. Il
+  // réapparaît quand appliquerBadgeEnAttente() tourne, au tap "Suivant".
   const btnPariBlind = $('f-pari-blind');
   if(btnPariBlind) {
     const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
-    if (actifBlindPari && S.fPhase === 'repos') {
+    const verdictEnAttente = CFG.mode === 'blind' && !!S.badgeEnAttente;
+    if (actifBlindPari && S.fPhase === 'repos' && !verdictEnAttente) {
       btnPariBlind.style.display = 'flex';
       if (!S.pariActif) {
         btnPariBlind.textContent = 'Parier';
@@ -7761,11 +7804,19 @@ $('fluide').addEventListener('pointerdown', ev => {
   if(!b || b.disabled || b.id !== 'f-droite' || S.fPhase !== 'repos') return;
   if(performance.now() - S.fPhaseAt < 220) return;
   
-  // --- NOUVEAU : Interception 2 temps pour le Blind ---
+  // --- Interception 2 temps pour le Blind ---
+  // avancerTour() n'est PAS rappelé ici : il a déjà été exécuté une fois,
+  // automatiquement, dès l'appui sur Arrêter (via resoudre -> fluideResultat).
+  // L'appeler une seconde fois ici sautait le joueur suivant à chaque tour
+  // (son tour n'était jamais joué, et le tour d'après lui était attribué).
   if(CFG.mode === 'blind' && !S.blindPret) {
     S.blindPret = true;
-    $('f-obj-cible').textContent = fmt(S.cible); // <-- AJOUT : Met à jour la cible
-    avancerTour();
+    $('f-obj-cible').textContent = fmt(S.cible);
+
+    // Le nom et le numéro de tour, mis en attente par fluidePret() pendant
+    // que le verdict précédent restait affiché, ne s'appliquent qu'ici :
+    // c'est le moment réel où l'on passe au joueur suivant.
+    appliquerBadgeEnAttente();
 
     S.fPhase = 'repos';
    
