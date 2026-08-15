@@ -7802,28 +7802,27 @@ function demarrerModalPariBlind(cibleSec) {
     $('mod-noms').style.display = 'none';
 
     const b = $('mod-b');
-    b.innerHTML = `
-      <div style="width:100%; margin: 8px 0 12px 0; text-align:left;">
-        <label style="font-family:var(--mono); font-size:10.5px; color:var(--gris); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px;">
-          Nouvelle cible désirée :
-        </label>
-        <select id="pari-select" style="width:100%; background:var(--nuit); color:var(--ivoire); border:1px solid var(--bordDoux); border-radius:10px; padding:10px 12px; font-family:var(--cond); font-size:15px; font-weight:600; outline:none;">
-          ${Array.from({length: 10}, (_, i) => {
-            const s = i + 1;
-            const delta = s - cibleSec;
-            let txt = s + 's';
-            if (delta > 0) txt += \` (+\${delta}s)\`;
-            else if (delta < 0) txt += \` (\${delta}s)\`;
-            else txt += ' (Cible actuelle)';
-            return \`<option value="\${s * 100}" \${s === cibleSec ? 'selected' : ''}>\${txt}</option>\`;
-          }).join('')}
-        </select>
-        <div id="pari-enjeu-box" style="margin-top:12px; padding:14px 16px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:left;">
-          —
-        </div>
+  b.innerHTML = `
+    <div style="width:100%; margin: 8px 0 12px 0; text-align:left;">
+      <label style="font-family:var(--mono); font-size:10.5px; color:var(--gris); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px;">
+        Nouvelle cible désirée :
+      </label>
+      <select id="pari-select" style="width:100%; background:var(--nuit); color:var(--ivoire); border:1px solid var(--bordDoux); border-radius:10px; padding:10px 12px; font-family:var(--cond); font-size:15px; font-weight:600; outline:none;">
+        ${Array.from({length: 10}, (_, i) => {
+          const s = i + 1;
+          const delta = s - cibleSec;
+          let txt = s + 's';
+          if (delta > 0) txt += ` (+${delta}s)`;
+          else if (delta < 0) txt += ` (${delta}s)`;
+          else txt += ' (Cible actuelle)';
+          return `<option value="${s * 100}" ${s === cibleSec ? 'selected' : ''}>${txt}</option>`;
+        }).join('')}
+      </select>
+      <div id="pari-enjeu-box" style="margin-top:12px; padding:14px 16px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:left;">
+        —
       </div>
-    `;
-
+    </div>
+  `;
     const selectEl = $('pari-select');
     const enjeuBox = $('pari-enjeu-box');
 
