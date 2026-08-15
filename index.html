@@ -1076,7 +1076,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   display: none;
   position: absolute;
   right: 18px;
-  top: calc(var(--chr-y, 50%) - 55px);
+  top: calc(var(--chr-y, 50%) - 85px);
   transform: translateY(-50%);
   width: 64px;
   height: 64px;
@@ -6297,6 +6297,7 @@ function majDetailBiome(){
 }
 
 function afficherResultat(valeur){
+  S.cibleBlindJouee = S.cible; // <-- AJOUT Mémorise la cible jouée
   if(S.evt === 'demitour') S.sens *= -1;
 
   const delta = valeur - S.cible, ecart = Math.abs(delta);
@@ -6988,9 +6989,14 @@ function resoudre(valeur, delta, ecart){
               }
             }
             S.pariActif = null;
+            S.interditDePari = S.interditDePari || {};
+            S.interditDePari[joueur] = true; // Bloque le pari pour son prochain tour
+          } else {
+            S.interditDePari = S.interditDePari || {};
+            S.interditDePari[joueur] = false; // Débloque le pari s'il n'a pas parié
           }
         }
-        // ------------------------------------
+        //--------
    
         if(CFG.mode === 'elimination' && v.code === 'rate'){
           S.fautes[joueur] = (S.fautes[joueur] || 0) + 1;
@@ -7280,9 +7286,9 @@ function fluidePret(){
   const btnPariBlind = $('f-pari-blind');
   if(btnPariBlind) {
     const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
-    const dernierTourPari = S.dernierPari && S.dernierPari[nom] === S.tour - 1;
+    const pariInterdit = S.interditDePari && S.interditDePari[nom];
     
-    if (actifBlindPari && !dernierTourPari && S.fPhase === 'repos') {
+    if (actifBlindPari && !pariInterdit && S.fPhase === 'repos') {
       btnPariBlind.style.display = 'inline-block';
       btnPariBlind.textContent = 'Parier';
       btnPariBlind.classList.remove('pris');
@@ -7342,7 +7348,13 @@ function fluidePret(){
   $('f-nom').textContent = nom;
   surligner($('f-nom'), coulNom(nom));
   $('f-nom').closest('.f-nom-l').style.display = AVT() ? 'none' : '';
-  $('f-obj-cible').textContent = fmt(S.cible);
+  
+  if (CFG.mode === 'blind' && !S.blindPret && S.cibleBlindJouee) {
+    $('f-obj-cible').textContent = fmt(S.cibleBlindJouee);
+  } else {
+    $('f-obj-cible').textContent = fmt(S.cible);
+  }
+
   if(AVT() && $('avt-cible')) $('avt-cible').textContent = fmt(S.cible);
   // à l'escalier, c'est la durée à tenir qui compte, pas la cible cumulée
   const esc = CFG.mode === 'escalier';
@@ -7738,10 +7750,8 @@ $('fluide').addEventListener('pointerdown', ev => {
   // --- NOUVEAU : Interception 2 temps pour le Blind ---
   if(CFG.mode === 'blind' && !S.blindPret) {
     S.blindPret = true;
-    // Tirage et affichage de la NOUVELLE cible au clic sur Suivant
-    S.cible = S.cibleBase = cibleSuivante(S.total);
-    $('f-obj-cible').textContent = fmt(S.cible);
-
+    $('f-obj-cible').textContent = fmt(S.cible); // <-- AJOUT : Met à jour la cible
+    
     // On masque tout pour le joueur suivant
     $('f-chrono').className = 'f-chrono repos';
     $('f-chrono').textContent = '0,00';
