@@ -6976,26 +6976,35 @@ function resoudre(valeur, delta, ecart){
           // 5. APPLICATION DES ENJEUX DU PARI
           if(S.pariActif) {
             const { deltaSec, type } = S.pariActif;
-            if (v.code === 'rate') {
-              if (type === 'baisse') {
-                const pen = Math.abs(deltaSec);
-                gorgeesBase += pen;
-              }
-            } else {
-              if (type === 'hausse') {
+            const nouvelleDureeSec = Math.round(dureeVoulue / 100);
+            // Précision exigée par le pari : 0.15s (1s) à 0.30s (10s) -> convertie en centièmes (15 à 30)
+            const precisionViseeCentièmes = Math.round(15 + (nouvelleDureeSec - 1) * (15 / 9));
+
+            if (type === 'hausse') {
+              if (ecart <= precisionViseeCentièmes) {
+                // Pari réussi à la hausse : on ajoute le bonus de gorgées distribuées
                 const bon = Math.abs(deltaSec);
                 gorgeesFrole += bon;
                 gorgeesPresque += bon;
+              } else {
+                // Pari raté à la hausse : le joueur subit l'échec et boit la pénalité de base
+                v.code = 'rate';
+                couleur = 't-signal';
+              }
+            } else if (type === 'baisse') {
+              if (ecart <= precisionViseeCentièmes) {
+                // Pari réussi à la baisse (le joueur a assuré sa cible plus simple)
+                // Rien de spécial à modifier, barème normal
+              } else {
+                // Pari raté à la baisse : il échoue malgré la facilité -> il boit fort
+                v.code = 'rate';
+                couleur = 't-signal';
+                const pen = Math.abs(deltaSec);
+                gorgeesBase += pen;
               }
             }
             S.pariActif = null;
-            S.interditDePari = S.interditDePari || {};
-            S.interditDePari[joueur] = true; // Bloque le pari pour son prochain tour
-          } else {
-            S.interditDePari = S.interditDePari || {};
-            S.interditDePari[joueur] = false; // Débloque le pari s'il n'a pas parié
           }
-        }
         //--------
    
         if(CFG.mode === 'elimination' && v.code === 'rate'){
@@ -7286,12 +7295,13 @@ function fluidePret(){
   const btnPariBlind = $('f-pari-blind');
   if(btnPariBlind) {
     const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
-    const pariInterdit = S.interditDePari && S.interditDePari[nom];
-    
-    if (actifBlindPari && !pariInterdit && S.fPhase === 'repos') {
-      btnPariBlind.style.display = 'inline-block';
-      btnPariBlind.textContent = 'Parier';
-      btnPariBlind.classList.remove('pris');
+    // Le bouton s'affiche à chaque tour de repos pour chaque joueur
+    if (actifBlindPari && S.fPhase === 'repos') {
+      btnPariBlind.style.display = 'flex';
+      if (!S.pariActif) {
+        btnPariBlind.textContent = 'Parier';
+        btnPariBlind.classList.remove('pris');
+      }
     } else {
       btnPariBlind.style.display = 'none';
     }
@@ -7802,27 +7812,28 @@ function demarrerModalPariBlind(cibleSec) {
     $('mod-noms').style.display = 'none';
 
     const b = $('mod-b');
-  b.innerHTML = `
-    <div style="width:100%; margin: 8px 0 12px 0; text-align:left;">
-      <label style="font-family:var(--mono); font-size:10.5px; color:var(--gris); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px;">
-        Nouvelle cible désirée :
-      </label>
-      <select id="pari-select" style="width:100%; background:var(--nuit); color:var(--ivoire); border:1px solid var(--bordDoux); border-radius:10px; padding:10px 12px; font-family:var(--cond); font-size:15px; font-weight:600; outline:none;">
-        ${Array.from({length: 10}, (_, i) => {
-          const s = i + 1;
-          const delta = s - cibleSec;
-          let txt = s + 's';
-          if (delta > 0) txt += ` (+${delta}s)`;
-          else if (delta < 0) txt += ` (${delta}s)`;
-          else txt += ' (Cible actuelle)';
-          return `<option value="${s * 100}" ${s === cibleSec ? 'selected' : ''}>${txt}</option>`;
-        }).join('')}
-      </select>
-      <div id="pari-enjeu-box" style="margin-top:12px; padding:14px 16px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:left;">
-        —
+    b.innerHTML = `
+      <div style="width:100%; margin: 8px 0 12px 0; text-align:left;">
+        <label style="font-family:var(--mono); font-size:10.5px; color:var(--gris); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px;">
+          Nouvelle cible désirée :
+        </label>
+        <select id="pari-select" style="width:100%; background:var(--nuit); color:var(--ivoire); border:1px solid var(--bordDoux); border-radius:10px; padding:10px 12px; font-family:var(--cond); font-size:15px; font-weight:600; outline:none;">
+          ${Array.from({length: 10}, (_, i) => {
+            const s = i + 1;
+            const delta = s - cibleSec;
+            let txt = s + 's';
+            if (delta > 0) txt += ` (+${delta}s)`;
+            else if (delta < 0) txt += ` (${delta}s)`;
+            else txt += ' (Cible actuelle)';
+            return `<option value="${s * 100}" ${s === cibleSec ? 'selected' : ''}>${txt}</option>`;
+          }).join('')}
+        </select>
+        <div id="pari-enjeu-box" style="margin-top:12px; padding:14px 16px; border-radius:10px; background:var(--ardoise); border:1px solid transparent; font-family:var(--mono); font-size:11px; line-height:1.45; text-align:left;">
+          —
+        </div>
       </div>
-    </div>
-  `;
+    `;
+
     const selectEl = $('pari-select');
     const enjeuBox = $('pari-enjeu-box');
 
@@ -7830,18 +7841,21 @@ function demarrerModalPariBlind(cibleSec) {
       const val = parseInt(selectEl.value, 10) / 100;
       const delta = val - cibleSec;
       
-      // Calcul de la pénalité de base selon le nouveau temps choisi
+      // Calcul des gorgées de base du barème normal pour ce temps
       let penBase = val <= 3 ? 5 : val <= 6 ? 4 : val <= 9 ? 3 : 2;
       if (CFG.gor === 'gros') penBase += 1;
+
+      // Calcul de la précision exigée : 0.15s pour 1s, jusqu'à 0.30s pour 10s
+      const ecartVise = (0.15 + (val - 1) * (0.15 / 9)).toFixed(2);
 
       if (delta > 0) {
         enjeuBox.style.color = '#6BE39A';
         enjeuBox.style.borderColor = '#6BE39A';
         enjeuBox.innerHTML = `
-          <strong style="font-size:13px; color:#6BE39A; letter-spacing:0.05em; display:block; text-align:center;">HAUSSE (+${delta}s)</strong>
+          <strong style="font-size:13px; color:#6BE39A; letter-spacing:0.05em; display:block; text-align:center;">HAUSSE (+${delta}s) · Objectif : ±${ecartVise}s</strong>
           <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
-            <b style="color:#6BE39A; text-align:right;">Barème + ${delta} gorgée${delta > 1 ? 's' : ''} à donner</b>
+            <span style="color:var(--ivoire);">🎁 Si réussi (écart ≤ ±${ecartVise}s) :</span> 
+            <b style="color:#6BE39A; text-align:right;">Donne +${delta} gorgée${delta > 1 ? 's' : ''} de plus</b>
           </div>
           <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
             <span style="color:var(--ivoire);">❌ Si raté :</span> 
@@ -7853,23 +7867,23 @@ function demarrerModalPariBlind(cibleSec) {
         enjeuBox.style.color = '#DC3B2A';
         enjeuBox.style.borderColor = '#DC3B2A';
         enjeuBox.innerHTML = `
-          <strong style="font-size:13px; color:#DC3B2A; letter-spacing:0.05em; display:block; text-align:center;">BAISSE (${delta}s)</strong>
+          <strong style="font-size:13px; color:#DC3B2A; letter-spacing:0.05em; display:block; text-align:center;">BAISSE (${delta}s) · Objectif : ±${ecartVise}s</strong>
           <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
+            <span style="color:var(--ivoire);">🎁 Si réussi (écart ≤ ±${ecartVise}s) :</span> 
             <span style="color:var(--gris); text-align:right;">Barème normal</span>
           </div>
           <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
             <span style="color:var(--ivoire);">❌ Si raté :</span> 
-            <b style="color:#DC3B2A; text-align:right;">Tu bois ${penTotale} gorgées<br><span style="font-size:9.5px; opacity:0.8;">(dont +${abs} de pénalité)</span></b>
+            <b style="color:#DC3B2A; text-align:right;">Tu bois ${penTotale} gorgées<br><span style="font-size:9.5px; opacity:0.8;">(barème ${penBase} + ${abs} de pénalité)</span></b>
           </div>`;
       } else {
         enjeuBox.style.color = 'var(--gris)';
         enjeuBox.style.borderColor = 'var(--trait)';
         enjeuBox.innerHTML = `
-          <strong style="font-size:13px; letter-spacing:0.05em; display:block; text-align:center;">CIBLE INCHANGÉE</strong>
+          <strong style="font-size:13px; letter-spacing:0.05em; display:block; text-align:center;">CIBLE INCHANGÉE · Objectif : ±${ecartVise}s</strong>
           <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
             <span style="color:var(--ivoire);">🎁 Si réussi :</span> 
-            <span style="color:var(--gris); text-align:right;">Barème normal</span>
+            <span style="color:var(--gris); text-align:right;">Barème normal (${penBase} gorgées distribuées)</span>
           </div>
           <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
             <span style="color:var(--ivoire);">❌ Si raté :</span> 
@@ -7897,9 +7911,7 @@ function demarrerModalPariBlind(cibleSec) {
     btnValider.textContent = 'Valider le pari';
     btnValider.style.fontSize = '15px';
     btnValider.style.padding = '12px';
-    btnValider.onclick = () => {
-      if (!tropTot()) fin(parseInt(selectEl.value, 10));
-    };
+    btnValider.onclick = () => { if (!tropTot()) fin(parseInt(selectEl.value, 10)); };
 
     const btnAnnuler = document.createElement('button');
     btnAnnuler.className = 'bouton fantome';
@@ -7907,17 +7919,11 @@ function demarrerModalPariBlind(cibleSec) {
     btnAnnuler.style.fontSize = '12.5px';
     btnAnnuler.style.padding = '9px';
     btnAnnuler.style.marginTop = '6px';
-    btnAnnuler.onclick = () => {
-      if (!tropTot()) fin(null);
-    };
+    btnAnnuler.onclick = () => { if (!tropTot()) fin(null); };
 
     b.appendChild(btnValider);
     b.appendChild(btnAnnuler);
-
-    M.onclick = e => {
-      if (e.target === M && !tropTot()) fin(null);
-    };
-
+    M.onclick = e => { if (e.target === M && !tropTot()) fin(null); };
     M.classList.add('on');
   });
 }
