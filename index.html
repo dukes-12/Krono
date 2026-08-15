@@ -1603,7 +1603,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.6</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.5</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -7005,7 +7005,7 @@ function resoudre(valeur, delta, ecart){
             }
             S.pariActif = null;
           }
-         }
+        }
         //--------
    
         if(CFG.mode === 'elimination' && v.code === 'rate'){
@@ -7292,23 +7292,6 @@ function fluidePret(){
   $('fluide').classList.toggle('alerte-tour', !!S.alerteTour);
   majPari();
 
-  // --- NOUVEAU BLOC : Affichage du bouton Pari Blind ---
-  const btnPariBlind = $('f-pari-blind');
-  if(btnPariBlind) {
-    const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
-    // Le bouton s'affiche à chaque tour de repos pour chaque joueur
-    if (actifBlindPari && S.fPhase === 'repos') {
-      btnPariBlind.style.display = 'flex';
-      if (!S.pariActif) {
-        btnPariBlind.textContent = 'Parier';
-        btnPariBlind.classList.remove('pris');
-      }
-    } else {
-      btnPariBlind.style.display = 'none';
-    }
-  }
-  // ----------------------------------------------------
-
   if(CFG.mode === 'survie'){
     if(S.tRdv) clearTimeout(S.tRdv);
     S.tRdv = setTimeout(() => { S.tRdv = null; proposerRendezVous(); }, 700);
@@ -7415,6 +7398,26 @@ function fluidePret(){
   compteursMode('f-');
   bandeaux('f-');
   fluidePhase('repos');
+
+  // Affichage du bouton Pari Blind : ce bloc doit s'exécuter APRÈS la remise
+  // de S.fPhase à 'repos' ci-dessus, sinon il regarde la phase du tour
+  // précédent (encore 'course') et le bouton ne s'affiche jamais. Comme
+  // fluidePret() prépare justement l'écran pour le prochain tour, à chaque
+  // joueur, ce bloc se ré-exécute naturellement à chaque tour.
+  const btnPariBlind = $('f-pari-blind');
+  if(btnPariBlind) {
+    const actifBlindPari = CFG.mode === 'blind' && CFG.pariBlind;
+    if (actifBlindPari && S.fPhase === 'repos') {
+      btnPariBlind.style.display = 'flex';
+      if (!S.pariActif) {
+        btnPariBlind.textContent = 'Parier';
+        btnPariBlind.classList.remove('pris');
+      }
+    } else {
+      btnPariBlind.style.display = 'none';
+    }
+  }
+
   montrer('fluide');
 }
 
