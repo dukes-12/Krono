@@ -158,6 +158,26 @@ html[data-da="ultraviolet"] .avt-trans-nom,html[data-da="glacier"] .avt-trans-no
 html[data-da="ultraviolet"] .avt-bv-nom,html[data-da="glacier"] .avt-bv-nom{
   font-size:21px;letter-spacing:.01em}
 html[data-da="ultraviolet"] .u-n,html[data-da="glacier"] .u-n{font-size:13.5px}
+/* Les boutons ▲ ▾ × passaient à la ligne : .rang input a flex:1 mais garde
+   min-width:auto, donc un <input> refuse de rétrécir sous sa taille
+   intrinsèque (~20 caractères). Avec le condensé ça tenait tout juste ;
+   avec une chasse large, plus du tout. min-width:0 l'autorise à rétrécir,
+   et les boutons retrouvent leur place à droite, sur la même ligne. */
+html[data-da="ultraviolet"] .rang input,html[data-da="glacier"] .rang input{
+  min-width:0;font-size:19px;letter-spacing:0}
+html[data-da="ultraviolet"] .rang,html[data-da="glacier"] .rang{gap:7px}
+/* les trois boutons restent groupés à droite quoi qu'il arrive */
+html[data-da="ultraviolet"] .rang .monter,html[data-da="glacier"] .rang .monter{
+  margin-left:auto}
+/* les intitulés de section du menu ("Joueurs · ordre de passage · ▲ remonte")
+   passaient sur deux lignes : 20px de chasse large + .09em d'interlettrage,
+   c'est trop pour la largeur d'un téléphone */
+html[data-da="ultraviolet"] .bloc > .eyebrow,html[data-da="glacier"] .bloc > .eyebrow,
+html[data-da="ultraviolet"] #reglages .defile > .eyebrow,
+html[data-da="glacier"] #reglages .defile > .eyebrow{
+  font-size:16px;letter-spacing:.01em}
+html[data-da="ultraviolet"] .eyebrow,html[data-da="glacier"] .eyebrow{
+  letter-spacing:.12em}
 html[data-da="ultraviolet"] .bouton,html[data-da="glacier"] .bouton{font-size:17px}
 html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{font-size:13.5px}
 /* le chrono reste en mono (chasse fixe) : il n'est pas concerné */
@@ -182,28 +202,35 @@ html[data-da="ultraviolet"] .rond::after,html[data-da="glacier"] .rond::after{
   inset:0;opacity:.92}
 html[data-da="ultraviolet"] .rond:active,html[data-da="glacier"] .rond:active{
   transform:translateY(3px)}
+/* la pastille est désormais pleine (::after inset:0) : si le libellé garde
+   la couleur du bouton, il disparaît dedans. Tout texte de pastille passe
+   donc en sombre, et « Détails » cesse d'être un bouton fantôme. */
+html[data-da="ultraviolet"] .rond span{color:#2E0D66}
+html[data-da="glacier"] .rond span{color:#160E30}
+html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{font-weight:700}
+html[data-da="ultraviolet"] .rond[disabled],html[data-da="glacier"] .rond[disabled]{opacity:.4}
 
 /* ─── Ultraviolet : violet saturé et lumineux, un seul accent doré ─── */
 html[data-da="ultraviolet"]{
-  --nuit:#35107A; --ardoise:#45148A; --surface:rgba(255,255,255,.15);
+  --nuit:#2E0D66; --ardoise:#3A1178; --surface:rgba(255,255,255,.15);
   --trait:#7B3FD6;
   --bordDoux:rgba(255,255,255,.22); --ivoire:#FFFFFF; --gris:#E4D7F8;
-  /* échelle de résultat, du meilleur au pire — elle doit se lire d'un coup
-     d'œil sur un fond violet vif, donc chaque cran change aussi de
-     TEMPÉRATURE, pas seulement de teinte :
-       s100 pile      or vif        (l'accent du thème : le meilleur)
-       s50  bon       menthe        (froid, tranche nettement sur le violet)
-       s20  moyen     ambre chaud   (entre l'or et le rouge)
-       s0   raté      corail        (le rose pur se noyait dans le violet) */
-  --laiton:#FFD873; --signal:#FFA894; --vert:#6BF2C8; --alerte:#FFD873;
-  --s100:#FFD873; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
+  /* échelle de résultat, code couleur universel :
+       s100 pile      VIOLET clair   (le sommet)
+       s50  bon       VERT           (réussi)
+       s20  moyen     ambre          (le cran intermédiaire)
+       s0   raté      ROUGE          (échec)
+     l'or reste l'accent d'interface (boutons, objectif) et ne note plus
+     aucun résultat : les deux registres ne se mélangent plus. */
+  --laiton:#FFD873; --signal:#FF7A7A; --vert:#6BF2C8; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
 }
 html[data-da="ultraviolet"] body{
   /* dégradé approfondi par rapport à la maquette : au ton d'origine
      (#5B21C4 → #B23FC9), l'échelle de résultat tombait à 2,7:1 de
      contraste — le « raté » devenait illisible. Ce violet reste franc
      mais laisse respirer les couleurs qui portent l'information. */
-  background:linear-gradient(168deg,#45148A 0%,#6320AE 52%,#8B2CB4 100%);
+  background:linear-gradient(168deg,#3A1178 0%,#52198F 52%,#652286 100%);
   background-attachment:fixed;
 }
 html[data-da="ultraviolet"] .evt,html[data-da="ultraviolet"] .carte-verdict,
@@ -225,12 +252,12 @@ html[data-da="ultraviolet"] .rond.vert::after{background:#FFD873}
 html[data-da="ultraviolet"] .rond.vert span{color:#3A2705}
 html[data-da="ultraviolet"] .rond{
   box-shadow:0 5px 0 rgba(40,8,80,.3),0 10px 20px rgba(40,8,80,.25)}
-html[data-da="ultraviolet"] .rond.clair span{color:#35107A}
+html[data-da="ultraviolet"] .rond.clair span{color:#2E0D66}
 html[data-da="ultraviolet"] .seg button{background:rgba(255,255,255,.12);color:#EADCFF}
 html[data-da="ultraviolet"] .seg button[aria-pressed="true"]{
   background:#FFD873;color:#3A2705;border-color:#FFD873}
 html[data-da="ultraviolet"] .barre-bas{
-  background:rgba(53,16,122,.94);border-top-color:rgba(255,255,255,.16)}
+  background:rgba(46,13,102,.88);border-color:rgba(255,255,255,.18)}
 /* surligner() pose la couleur du joueur en inline avec un fond à 7 %
    d'opacité : sur un violet vif, ce fond disparaît et les couleurs de
    joueur sombres deviennent illisibles. On force un cartouche blanc —
@@ -238,7 +265,10 @@ html[data-da="ultraviolet"] .barre-bas{
 html[data-da="ultraviolet"] .pilule.f-nom{
   background:#fff !important;border-color:#fff !important;
   box-shadow:0 4px 14px rgba(40,8,80,.28)}
-html[data-da="ultraviolet"] .f-chrono{text-shadow:0 3px 16px rgba(40,8,80,.4)}
+/* aucune surbrillance sur le chrono : le halo brouillait la lecture du
+   chiffre, qui est la seule chose qu'on regarde vraiment pendant la mesure.
+   C'est la couleur seule qui porte le résultat. */
+html[data-da="ultraviolet"] .f-chrono{text-shadow:none}
 html[data-da="ultraviolet"] .marque h1{text-shadow:0 3px 18px rgba(40,8,80,.4)}
 
 /* ─── Glacier : violet profond et froid, accent cyan, net et posé ─── */
@@ -246,15 +276,14 @@ html[data-da="glacier"]{
   --nuit:#1A1138; --ardoise:#241B45; --surface:rgba(255,255,255,.07);
   --trait:#3A2A6B;
   --bordDoux:rgba(125,232,224,.24); --ivoire:#EDE9FA; --gris:#BAAEE4;
-  /* même échelle, transposée sur fond sombre :
-       s100 pile      cyan glacé    (l'accent du thème)
-       s50  bon       menthe
-       s20  moyen     or chaud
-       s0   raté      rose vif
-     le violet d'origine servait de « moyen » : sur ce fond violet il
-     devenait invisible, d'où l'or à la place. */
-  --laiton:#7DE8E0; --signal:#FF7A9C; --vert:#6BE8B0; --alerte:#7DE8E0;
-  --s100:#7DE8E0; --s50:#6BE8B0; --s20:#FFD27A; --vertVif:#7DE8E0;
+  /* même code couleur que l'Ultraviolet, transposé sur fond sombre :
+       s100 pile      VIOLET clair
+       s50  bon       VERT
+       s20  moyen     ambre
+       s0   raté      ROUGE
+     le cyan reste l'accent d'interface, jamais une note de résultat. */
+  --laiton:#7DE8E0; --signal:#FF7A7A; --vert:#6BF2C8; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
 }
 html[data-da="glacier"] body{
   background:
@@ -279,6 +308,7 @@ html[data-da="glacier"] .bouton.fantome{
   background:rgba(255,255,255,.08);color:#C7BFE8;
   box-shadow:0 5px 0 rgba(6,2,20,.35)}
 html[data-da="glacier"] .rond.vert{color:#7DE8E0}
+html[data-da="glacier"] .f-gain,html[data-da="ultraviolet"] .f-gain{font-weight:700}
 html[data-da="glacier"] .rond.vert::after{background:#7DE8E0}
 html[data-da="glacier"] .rond.vert span{color:#0B2E2B}
 html[data-da="glacier"] .rond{
@@ -292,13 +322,13 @@ html[data-da="glacier"] .seg button{background:rgba(255,255,255,.06);color:#C7BF
 html[data-da="glacier"] .seg button[aria-pressed="true"]{
   background:#7DE8E0;color:#0B2E2B;border-color:#7DE8E0}
 html[data-da="glacier"] .barre-bas{
-  background:rgba(26,17,56,.94);border-top-color:rgba(125,232,224,.18)}
+  background:rgba(26,17,56,.9);border-color:rgba(125,232,224,.22)}
 /* fond sombre : ici le cartouche translucide fonctionne, on l'appuie
    juste un peu pour que les couleurs de joueur sombres ressortent */
 html[data-da="glacier"] .pilule.f-nom{
   background:rgba(255,255,255,.10) !important;
   box-shadow:0 4px 14px rgba(6,2,20,.4)}
-html[data-da="glacier"] .f-chrono{text-shadow:0 0 8px rgba(125,232,224,.35),0 0 20px rgba(125,232,224,.16)}
+html[data-da="glacier"] .f-chrono{text-shadow:none}
 html[data-da="glacier"] .marque h1{text-shadow:0 0 14px rgba(125,232,224,.35)}
 
 
@@ -313,13 +343,17 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 .ecran.actif{display:flex}
 /* les écrans à onglets laissent la place à la barre du bas */
 .ecran.avec-barre{padding-bottom:0}
-.ecran.avec-barre .defile{padding-bottom:76px}
+.ecran.avec-barre .defile{padding-bottom:96px}
 
 /* ─── barre de navigation fixe ─── */
-.barre-bas{display:none;position:absolute;left:0;right:0;bottom:0;z-index:40;
-  background:rgba(14,17,22,.94);backdrop-filter:blur(14px);
-  border-top:1px solid var(--bordDoux);
-  padding:8px 6px max(6px, env(safe-area-inset-bottom));
+/* barre flottante : détachée des bords, arrondie, posée au-dessus du
+   contenu plutôt que collée en pied d'écran */
+.barre-bas{display:none;position:absolute;z-index:40;
+  left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
+  background:rgba(14,17,22,.86);backdrop-filter:blur(18px);
+  border:1px solid var(--bordDoux);border-radius:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  padding:8px 4px;
   grid-template-columns:repeat(5,1fr);gap:2px}
 .barre-bas.on{display:grid}
 .bb{display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -1787,7 +1821,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .carte-verdict.t-s20{border-left-color:var(--s20)}
 .carte-verdict.t-s0{border-left-color:var(--signal)}
 .carte-verdict .titre{font-size:23px;font-weight:700;letter-spacing:.04em;
-  text-transform:uppercase;line-height:1.12}
+  line-height:1.12}
 .carte-verdict .sous{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
   color:var(--gris);margin-top:6px;text-transform:uppercase;line-height:1.55}
 .frame .no{font-family:var(--mono);font-size:9.5px;color:var(--gris);opacity:.55;
@@ -1799,6 +1833,55 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .mini .z-vert{background:rgba(90,178,138,.24);border-radius:999px}
 .mini .z-laiton{background:rgba(214,180,86,.48)}
 .actions{padding-top:11px}
+
+/* ─── coin d'en-tête : version et ☰ centrés l'un sur l'autre ─── */
+.coin-entete{display:flex;align-items:center;gap:10px;margin-left:auto}
+.num-version{font-family:var(--mono);color:var(--gris);font-size:12px;
+  font-style:italic;letter-spacing:.1em;line-height:1}
+
+/* ─── entrées du menu principal ─── */
+.nav-carte{display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface);
+  padding:26px 20px;margin-top:12px;cursor:pointer;color:inherit;font:inherit}
+.nav-carte:active{opacity:.72}
+.nav-carte .ic{font-size:34px;line-height:1;flex-shrink:0}
+.nav-carte .txt{flex:1;min-width:0}
+/* nom et description sur deux lignes distinctes : la description n'a plus
+   à se serrer à côté du titre */
+.nav-carte .n{display:block;font-size:27px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;line-height:1.05}
+.nav-carte .d{display:block;font-family:var(--mono);font-size:11.5px;
+  line-height:1.55;color:var(--gris);margin-top:7px}
+.nav-carte .fl{font-size:24px;opacity:.4;flex-shrink:0}
+html[data-da="ultraviolet"] .nav-carte .n,html[data-da="glacier"] .nav-carte .n{
+  font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .nav-carte,html[data-da="glacier"] .nav-carte{
+  border-radius:20px;border-color:transparent}
+html[data-da="ultraviolet"] .nav-carte{background:rgba(255,255,255,.15);
+  box-shadow:0 6px 20px rgba(30,4,64,.28)}
+html[data-da="glacier"] .nav-carte{background:rgba(255,255,255,.07);
+  box-shadow:0 6px 20px rgba(6,2,20,.4)}
+
+/* ─── bouton et panneau de réglages rapides ─── */
+.btn-reglages{display:flex;flex-direction:column;justify-content:center;gap:4px;
+  width:38px;height:38px;padding:0 9px;flex-shrink:0;
+  border:1px solid var(--bordDoux);border-radius:11px;background:none}
+.btn-reglages span{display:block;height:2px;border-radius:2px;background:var(--gris)}
+.btn-reglages:active{opacity:.6}
+.panneau-reg{display:none;position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+  align-items:flex-end;justify-content:center}
+.panneau-reg.on{display:flex}
+.pnr-boite{width:100%;max-width:560px;max-height:86vh;overflow-y:auto;
+  background:var(--ardoise);border-top-left-radius:22px;border-top-right-radius:22px;
+  padding:18px 18px calc(24px + env(safe-area-inset-bottom))}
+.pnr-tete{display:flex;align-items:center;justify-content:space-between}
+.pnr-t{font-size:24px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.pnr-x{font-size:19px;color:var(--gris);padding:6px 10px;background:none;border:none}
+html[data-da="ultraviolet"] .pnr-t,html[data-da="glacier"] .pnr-t{
+  font-size:20px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .pnr-boite{background:#3A1178}
+html[data-da="glacier"] .pnr-boite{background:#241B45}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--laiton);outline-offset:3px}
@@ -1824,10 +1907,41 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.1</div>
+    <div class="coin-entete">
+      <span class="num-version">v1.0.1</span>
+      <button class="btn-reglages" id="ouvrir-reglages" aria-label="Réglages"
+              aria-haspopup="dialog"><span></span><span></span><span></span></button>
+    </div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="bloc" style="margin-top:4px">
+      <div id="menu-principal"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MENU SOLO ═══ -->
+<section class="ecran" id="menu-solo">
+  <div class="entete">
+    <div class="marque"><h1>SOLO</h1><span>un joueur, un score</span></div>
+    <div class="nav"><button id="ms-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="note">Un joueur, un score, une progression.</div>
+    <div id="modes-solo"></div>
+  </div>
+</section>
+
+<!-- ═══ MENU SOIRÉE ═══ -->
+<section class="ecran" id="menu-soiree">
+  <div class="entete">
+    <div class="marque"><h1>SOIRÉE</h1><span>un seul téléphone</span></div>
+    <div class="nav"><button id="mso-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
   <div class="defile">
@@ -1837,44 +1951,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="note" id="note-joueurs"></div>
 
     <div class="bloc">
-      <div class="eyebrow">Solo</div>
-      <div class="note">Un joueur, un score, une progression.</div>
-      <div id="modes-solo"></div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Soirée</div>
+      <div class="eyebrow">Les modes</div>
       <div class="note">Plusieurs joueurs autour d'un seul téléphone.</div>
       <div id="modes-menu"></div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Affichage du chrono</div>
-      <div class="seg" id="seg-min">
-        <button data-v="non" aria-pressed="true">Centièmes</button>
-        <button data-v="oui" aria-pressed="false">Minutes après 60 s</button>
-      </div>
-      <div class="note" id="note-min">—</div>
-    </div>
-
-    <div class="bloc" id="bloc-salon">
-      <div class="eyebrow">Salon en ligne</div>
-      <div class="note" id="salon-etat">—</div>
-      <div class="recap-b" id="salon-b">
-        <button class="bouton fantome" id="salon-creer">Créer un salon</button>
-        <button class="bouton fantome" id="salon-rejoindre">Rejoindre</button>
-      </div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Mémoire</div>
-      <div class="note" id="note-mem">—</div>
-      <div class="recap-b">
-        <button class="bouton fantome" id="exporter">Exporter la sauvegarde</button>
-        <button class="bouton fantome" id="importer">Importer</button>
-      </div>
-      <div style="margin-top:8px"><button class="bouton fantome" id="oublier">Effacer les profils</button></div>
-      <input type="file" id="fichier" accept="application/json,.json" style="display:none">
     </div>
   </div>
 </section>
@@ -2539,10 +2618,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="titre-sec">Modes de soirée en test</div>
     <div id="liste-soirees"></div>
 
-    <div class="titre-sec">Modes solo</div>
-    <div class="note">Chacun mesure une compétence différente.
-      « Lancer » démarre immédiatement une partie.</div>
-    <div id="liste-solos"></div>
 
     <div class="titre-sec">Aventure</div>
     <div class="note">Les mêmes décors que la Survie, privés de tous leurs
@@ -2553,11 +2628,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button class="bouton fantome" id="go-boutique">Ouvrir la boutique</button>
     </div>
 
-    <div class="titre-sec">Laboratoire · dix modes sans décor</div>
-    <div class="note">Les dix propositions, implémentées telles quelles et
-      volontairement sans habillage : ce qui est jugé ici, c'est le geste.
-      Toucher le nom ouvre la règle complète.</div>
-    <div id="liste-labo"></div>
 
     <div class="titre-sec">Événements</div>
     <div class="note">« Lancer » force l'événement sur le tour suivant. Si aucune partie
@@ -2799,6 +2869,43 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <button class="bb" id="bb-profil"   role="tab" aria-selected="false"><span class="ic">👤</span><span class="lb">Profil</span></button>
 </nav>
 
+<div class="panneau-reg" id="panneau-reg" role="dialog" aria-modal="true"
+     aria-labelledby="pnr-titre">
+  <div class="pnr-boite">
+    <div class="pnr-tete">
+      <div class="pnr-t" id="pnr-titre">Réglages</div>
+      <button class="pnr-x" id="pnr-fermer" aria-label="Fermer">✕</button>
+    </div>
+    <div class="titre-sec" style="margin-top:4px">Apparence</div>
+    <div class="note">Le changement s'applique tout de suite.</div>
+    <div class="seg" id="seg-da-menu"></div>
+    <div class="note" id="note-da-menu">—</div>
+
+    <div class="titre-sec">Affichage du chrono</div>
+    <div class="seg" id="seg-min">
+      <button data-v="non" aria-pressed="true">Centièmes</button>
+      <button data-v="oui" aria-pressed="false">Minutes après 60 s</button>
+    </div>
+    <div class="note" id="note-min">—</div>
+
+    <div class="titre-sec" id="bloc-salon">Salon en ligne</div>
+    <div class="note" id="salon-etat">—</div>
+    <div class="recap-b" id="salon-b">
+      <button class="bouton fantome" id="salon-creer">Créer un salon</button>
+      <button class="bouton fantome" id="salon-rejoindre">Rejoindre</button>
+    </div>
+
+    <div class="titre-sec">Mémoire</div>
+    <div class="note" id="note-mem">—</div>
+    <div class="recap-b">
+      <button class="bouton fantome" id="exporter">Exporter la sauvegarde</button>
+      <button class="bouton fantome" id="importer">Importer</button>
+    </div>
+    <div style="margin-top:8px"><button class="bouton fantome" id="oublier">Effacer les profils</button></div>
+    <input type="file" id="fichier" accept="application/json,.json" style="display:none">
+  </div>
+</div>
+
 <datalist id="prenoms"></datalist>
 <div class="modale" id="modale">
   <div class="mb">
@@ -2937,11 +3044,11 @@ const MODES = [
    d:"Le barème habituel, chacun pour soi."},
   {id:'blind', n:'Blind',
    d:"Cible aléatoire (1 à 10s), chrono caché. La zone et les gorgées s'adaptent à la durée."},
-  {id:'enchere', n:"L'enchère",
+  {id:'enchere', n:"L'enchère", test:1,
    d:"Annoncer la précision qu'on vise avant de lancer."},
-  {id:'elimination', n:'Élimination',
+  {id:'elimination', n:'Élimination', test:1,
    d:"Trois sorties de zone et l'on quitte la table."},
-  {id:'handicap', n:'Handicap',
+  {id:'handicap', n:'Handicap', test:1,
    d:"La zone s'adapte au niveau de chacun."},
   {id:'coop', n:'Coopératif', test:1,
    d:"La table partage trois vies et vise 30 secondes."},
@@ -5818,14 +5925,60 @@ function appliquerDA(){
   document.documentElement.dataset.da = CFG.da || 'instrument';
   const n = $('note-da');
   if(n) n.textContent = DA_TXT[CFG.da || 'instrument'];
+  if(typeof majSegDaMenu === 'function') majSegDaMenu();
+  /* le sélecteur de l'onglet Test suit aussi : deux entrées, un seul état */
+  const sd = $('seg-da');
+  if(sd) sd.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.v === (CFG.da || 'instrument'))));
   const m = document.querySelector('meta[name="theme-color"]');
   if(m) m.setAttribute('content', CFG.da === 'pop' ? '#FDF5E4'
                                 : CFG.da === 'synth' ? '#0B0410'
                                 : CFG.da === 'retro' ? '#0C0A06'
-                                : CFG.da === 'ultraviolet' ? '#45148A'
+                                : CFG.da === 'ultraviolet' ? '#3A1178'
                                 : CFG.da === 'glacier' ? '#2E2260' : '#0E1116');
 }
 segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA(); });
+
+/* ─── panneau de réglages rapides (bouton ☰ de l'en-tête) ───────────────
+   L'apparence n'était réglable que depuis l'onglet Test, protégé par un
+   mot de passe : autant dire nulle part pour un joueur. Ce panneau la
+   sort au premier niveau, sans toucher au sélecteur existant — les deux
+   restent synchronisés puisqu'ils écrivent le même CFG.da. */
+const DA_NOMS = [
+  ['instrument','Origine'], ['retro','Rétro'], ['synth','Synthwave'],
+  ['pop','Pop'], ['ultraviolet','Ultraviolet'], ['glacier','Glacier']
+];
+function construireSegDaMenu(){
+  const el = $('seg-da-menu');
+  if(!el || el.dataset.pret) return;
+  el.innerHTML = DA_NOMS.map(([v,n]) =>
+    `<button data-v="${v}" aria-pressed="false">${n}</button>`).join('');
+  el.dataset.pret = '1';
+  segmente('seg-da-menu', v => {
+    CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA();
+  });
+}
+function majSegDaMenu(){
+  const el = $('seg-da-menu');
+  if(!el) return;
+  const actuel = CFG.da || 'instrument';
+  el.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.v === actuel)));
+  const n = $('note-da-menu');
+  if(n) n.textContent = DA_TXT[actuel];
+}
+function ouvrirPanneauReglages(){
+  construireSegDaMenu();
+  majSegDaMenu();
+  $('panneau-reg').classList.add('on');
+}
+function fermerPanneauReglages(){ $('panneau-reg').classList.remove('on'); }
+if($('ouvrir-reglages')) $('ouvrir-reglages').onclick = ouvrirPanneauReglages;
+if($('pnr-fermer'))      $('pnr-fermer').onclick      = fermerPanneauReglages;
+/* toucher le fond ferme, toucher la boîte ne ferme pas */
+if($('panneau-reg')) $('panneau-reg').onclick = e => {
+  if(e.target === $('panneau-reg')) fermerPanneauReglages();
+};
 segmente('seg-min', v => {
   CFG.minutes = v === 'oui'; MEM.cfg = {...CFG}; ecrireMem();
   $('note-min').textContent = CFG.minutes
@@ -10109,8 +10262,14 @@ $('cp-rejoindre').onclick = async () => {
 // Ouvrir un mode montre d'abord sa règle : on ne lance pas une partie sans
 // savoir ce qu'on va devoir faire.
 let ficheId = null;
+let ecranAvantFiche = 'reglages';
 function ouvrirFiche(id){
   ficheId = id;
+  /* d'où vient-on ? le bouton « Retour » doit ramener sur la liste qu'on
+     consultait, pas systématiquement à la racine du menu */
+  const actuel = document.querySelector('.ecran.actif');
+  ecranAvantFiche = (actuel && ['menu-solo','menu-soiree'].includes(actuel.id))
+    ? actuel.id : 'reglages';
   const s = SOLOS.find(x => x.id === id) || MODES.find(x => x.id === id);
   if(!s) return;
   const solo = estSolo(id);
@@ -10249,7 +10408,7 @@ segmente('fi-gor',  v => { CFG.gor = v;  majFiche(); });
 segmente('fi-evt',  v => { CFG.evts = v; majFiche(); });
 segmente('fi-fin',  v => { CFG.maxTours = +v; majFiche(); });
 segmente('fi-pari', v => { CFG.pariBlind = (v === 'oui'); majFiche(); });
-$('fi-retour').onclick = () => montrer('reglages');
+$('fi-retour').onclick = () => montrer(ecranAvantFiche || 'reglages');
 $('fi-reprendre').onclick = () => reprendrePartie();
 $('fi-jouer').onclick = () => {
   if(ficheId === 'survie') effacerReprise();
@@ -10655,6 +10814,9 @@ function construireScores(){
 // Les modes solo mis en avant dans le menu : les autres restent en test
 // tant qu'ils n'ont pas fait leurs preuves.
 const SOLO_MENU = ['defi', 'solo', 'survie', 'cascade', 'reflexe', 'nues'];
+/* le défi du jour a sa place en tête du menu principal : l'afficher une
+   seconde fois dans la liste Solo ferait doublon */
+const SOLO_LISTE = SOLO_MENU.filter(id => id !== 'defi');
 
 function carteMode(m){
   const d = document.createElement('div');
@@ -10679,11 +10841,40 @@ function carteMode(m){
   d.onclick = () => { MEM.joueurs = lireListe(); ouvrirFiche(m.id); };
   return d;
 }
+/* Le menu ne présente plus que trois entrées : le rendez-vous du jour, et
+   deux portes vers les listes complètes. Les listes elles-mêmes n'ont pas
+   bougé — elles vivent maintenant sur leur propre écran. */
+function carteNav(ic, nom, desc, action){
+  const b = document.createElement('button');
+  b.className = 'nav-carte';
+  b.innerHTML = `<span class="ic">${ic}</span>
+    <span class="txt"><span class="n">${nom}</span><span class="d">${desc}</span></span>
+    <span class="fl">›</span>`;
+  b.onclick = action;
+  return b;
+}
+function construireMenuPrincipal(){
+  const M = $('menu-principal');
+  if(!M) return;
+  M.innerHTML = '';
+  const defi = SOLOS.find(x => x.id === 'defi');
+  if(defi) M.appendChild(carteMode(defi));
+  M.appendChild(carteNav('🎯', 'Solo',
+    'Un joueur, un score, une progression.',
+    () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-solo'); }));
+  M.appendChild(carteNav('🍻', 'Soirée',
+    "Plusieurs joueurs autour d'un seul téléphone.",
+    () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-soiree'); }));
+}
+if($('ms-retour'))  $('ms-retour').onclick  = () => montrer('reglages');
+if($('mso-retour')) $('mso-retour').onclick = () => montrer('reglages');
+
 function construireModes(){
+  construireMenuPrincipal();
   const S1 = $('modes-solo');
   if(S1){
     S1.innerHTML = '';
-    SOLO_MENU.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
+    SOLO_LISTE.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
       .forEach(m => S1.appendChild(carteMode(m)));
     // Aventure reste grisée pour tout le monde, sauf les comptes Google déjà
     // autorisés sur l'onglet Test — même liste, même logique.
@@ -10746,8 +10937,10 @@ function construireTest(){
       M.appendChild(d);
     });
   };
-  cartesSolo('liste-solos', SOLOS.filter(s => !s.labo && !s.desactive));
-  cartesSolo('liste-labo',  SOLOS.filter(s =>  s.labo));
+  /* les listes « modes solo » et « laboratoire » ont été retirées de l'onglet
+     Test : les modes solo retenus sont désormais dans le menu, et les modes
+     de laboratoire ont fini leur office. cartesSolo() gère l'absence du
+     conteneur, aucun appel n'est nécessaire ici. */
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
     const d = document.createElement('div');
@@ -10813,9 +11006,7 @@ function noterDelai(clic, delai){
   if(S.delais.length > 10) S.delais.shift();
 }
 const SV_OPTS = [
-  {c:'pari',    n:'Le pari', d:"Coupé par défaut. Sacrifier 5 centièmes avant un lancer pour doubler le gain s'il est bon."},
   {c:'flouOcean', n:'Océan flou', d:"À l'essai. Dans le biome Océan, le chiffre du chrono devient flou, comme lu à travers l'eau."},
-  {c:'evenements', n:'Les rendez-vous', d:"Coupés par défaut. Le troc, le va-tout et la série demandée, trois interruptions par partie au maximum."},
   {c:'son',     n:'Son',     d:"Battement qui s'accélère quand la zone se resserre, et retours sonores."},
   {c:'vibr',    n:'Vibration', d:"Retour haptique court sur un gain, long sur une perte."},
   {c:'anim',    n:'Anneau animé', d:"Transition douce de l'anneau et pulsation en zone critique."},
