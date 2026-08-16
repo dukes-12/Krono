@@ -41,8 +41,12 @@
 html[data-da="synth"]{
   --nuit:#0B0410; --ardoise:#160B22; --surface:#1B0E2A; --trait:#3A2050;
   --bordDoux:rgba(255,60,140,.20); --ivoire:#F4E9FF; --gris:#9A85B4;
-  --laiton:#FFE94A; --signal:#FF3C8C; --vert:#00C9A7; --alerte:#00E6FF;
-  --s100:#00E6FF; --s50:#43F2B0; --s20:#FFE94A; --vertVif:#00E6FF;
+  /* code couleur commun à tous les habillages :
+     pile = violet · bien = vert · moyen = ambre · raté = rouge.
+     Le cyan et le magenta restent l'identité du décor, mais ne notent
+     plus aucun résultat — sinon la même couleur voulait dire deux choses. */
+  --laiton:#FFE94A; --signal:#FF4D6D; --vert:#43F2B0; --alerte:#C77BFF;
+  --s100:#C77BFF; --s50:#43F2B0; --s20:#FFE94A; --vertVif:#43F2B0;
 }
 html[data-da="synth"] body{
   background:
@@ -61,8 +65,11 @@ html[data-da="synth"] .marque h1{text-shadow:0 0 14px rgba(255,60,140,.6)}
 html[data-da="retro"]{
   --nuit:#0C0A06; --ardoise:#171208; --surface:#1E170B; --trait:#4A3A16;
   --bordDoux:rgba(255,176,46,.22); --ivoire:#FFD79A; --gris:#A07C42;
-  --laiton:#FFB02E; --signal:#FF5B2E; --vert:#7BD46A; --alerte:#FFE9A8;
-  --s100:#FFE9A8; --s50:#7BD46A; --s20:#FFB02E; --vertVif:#7BD46A;
+  /* le terminal ambré ne peut pas accueillir un violet sans se renier :
+     le pile garde donc l'ambre le plus clair, presque blanc, qui joue le
+     rôle du « sommet ». Vert et rouge restent tranchés pour le reste. */
+  --laiton:#FFB02E; --signal:#FF6B4A; --vert:#8FE07A; --alerte:#FFE9A8;
+  --s100:#FFE9A8; --s50:#8FE07A; --s20:#FFB02E; --vertVif:#8FE07A;
 }
 html[data-da="retro"] body{
   background:
@@ -82,8 +89,11 @@ html[data-da="retro"] .marque h1{text-shadow:0 0 12px rgba(255,176,46,.45)}
 html[data-da="pop"]{
   --nuit:#FDF5E4; --ardoise:#F0E6D0; --surface:#FFFFFF; --trait:#141018;
   --bordDoux:rgba(20,16,24,.22); --ivoire:#141018; --gris:#6B6560;
-  --laiton:#C87A0A; --signal:#FF4D6D; --vert:#00A79B; --alerte:#7B4DFF;
-  --s100:#7B4DFF; --s50:#00897E; --s20:#B8730A; --vertVif:#00A79B;
+  /* sur fond crème, les couleurs vives d'origine tombaient à 3:1 et le
+     rouge à 2,96:1 — illisible. Toutes assombries : le fond clair impose
+     des teintes saturées et sombres, pas des teintes pastel. */
+  --laiton:#8A5200; --signal:#C62828; --vert:#00695C; --alerte:#5B21C4;
+  --s100:#5B21C4; --s50:#00695C; --s20:#8A5200; --vertVif:#00695C;
 }
 html[data-da="pop"] .rond,html[data-da="pop"] .bouton,
 html[data-da="pop"] .evt,html[data-da="pop"] .carte-verdict{
@@ -206,7 +216,6 @@ html[data-da="ultraviolet"] .rond:active,html[data-da="glacier"] .rond:active{
    la couleur du bouton, il disparaît dedans. Tout texte de pastille passe
    donc en sombre, et « Détails » cesse d'être un bouton fantôme. */
 html[data-da="ultraviolet"] .rond span{color:#2E0D66}
-html[data-da="glacier"] .rond span{color:#160E30}
 html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{font-weight:700}
 html[data-da="ultraviolet"] .rond[disabled],html[data-da="glacier"] .rond[disabled]{opacity:.4}
 
@@ -296,7 +305,7 @@ html[data-da="glacier"] body{
 }
 html[data-da="glacier"] .evt,html[data-da="glacier"] .carte-verdict,
 html[data-da="glacier"] .cn-etape,html[data-da="glacier"] .garde{
-  background:rgba(255,255,255,.07);
+  background:rgba(122,155,235,.11);
   box-shadow:0 6px 20px rgba(6,2,20,.4)}
 html[data-da="glacier"] .evt.defi-carte{
   background:rgba(125,232,224,.12);box-shadow:0 6px 22px rgba(6,2,20,.42)}
@@ -304,21 +313,29 @@ html[data-da="glacier"] .evt.defi-carte .n{color:#7DE8E0}
 html[data-da="glacier"] .bouton{
   background:#7DE8E0;color:#0B2E2B;
   box-shadow:0 5px 0 #4CB0A8,0 10px 22px rgba(6,2,20,.4)}
+/* Les boutons secondaires se remplissaient d'un lavande translucide qui,
+   sur ce fond violet sombre, rendait presque noir. On les passe à un bleu
+   franc : la famille froide du thème, mais lisible. */
 html[data-da="glacier"] .bouton.fantome{
-  background:rgba(255,255,255,.08);color:#C7BFE8;
-  box-shadow:0 5px 0 rgba(6,2,20,.35)}
+  background:#3A5AA8;color:#E8F0FF;border-color:#5A7BC4;
+  box-shadow:0 5px 0 #24396E,0 10px 20px rgba(6,2,20,.35)}
 html[data-da="glacier"] .rond.vert{color:#7DE8E0}
 html[data-da="glacier"] .f-gain,html[data-da="ultraviolet"] .f-gain{font-weight:700}
 html[data-da="glacier"] .rond.vert::after{background:#7DE8E0}
 html[data-da="glacier"] .rond.vert span{color:#0B2E2B}
-html[data-da="glacier"] .rond{
-  box-shadow:0 5px 0 rgba(6,2,20,.4),0 10px 20px rgba(6,2,20,.3)}
-html[data-da="glacier"] .rond.clair span{color:#1A1138}
+/* la pastille se remplit en currentColor : lui donner un bleu clair suffit
+   à la sortir du noir, sans toucher au mécanisme */
+html[data-da="glacier"] .rond{color:#8FB4F2;
+  box-shadow:0 5px 0 #2A3F6B,0 10px 20px rgba(6,2,20,.3)}
+html[data-da="glacier"] .rond span{color:#101C33}
+html[data-da="glacier"] .rond.clair{color:#BFD6FF}
+html[data-da="glacier"] .rond.clair span{color:#101C33}
 /* Arrêter reste en contour rose plutôt qu'en fond plein : sur ce fond
    sombre, un troisième aplat de couleur écraserait le chrono */
 html[data-da="glacier"] .rond.rouge::after{opacity:.14}
 html[data-da="glacier"] .rond.rouge{border-width:2px;box-shadow:0 5px 0 rgba(6,2,20,.4)}
-html[data-da="glacier"] .seg button{background:rgba(255,255,255,.06);color:#C7BFE8}
+html[data-da="glacier"] .seg button{background:rgba(122,155,235,.16);
+  border-color:rgba(143,180,242,.3);color:#CBD9F5}
 html[data-da="glacier"] .seg button[aria-pressed="true"]{
   background:#7DE8E0;color:#0B2E2B;border-color:#7DE8E0}
 html[data-da="glacier"] .barre-bas{
@@ -1840,6 +1857,238 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .mini .z-laiton{background:rgba(214,180,86,.48)}
 .actions{padding-top:11px}
 
+/* ═══════════════════════════════════════════════════════════════
+   Stade · Atelier · Marée
+   Comme Ultraviolet et Glacier, ces trois-là touchent aussi à la
+   FORME, pas seulement à la palette. Les polices restent celles
+   déjà embarquées en base64 (Barlow Condensed, IBM Plex Mono) ou
+   la pile système : aucune requête réseau ajoutée.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Stade : pelouse tondue, jaune de maillot, piste d'athlétisme ─── */
+html[data-da="stade"]{
+  --nuit:#0C3320; --ardoise:#123D28; --surface:rgba(255,255,255,.07);
+  --trait:#1F5637;
+  --bordDoux:rgba(232,255,74,.20); --ivoire:#F2F7F0; --gris:#9FC4AA;
+  --laiton:#E8FF4A; --signal:#FF6B5C; --vert:#5BE88A; --alerte:#C79BFF;
+  --s100:#C79BFF; --s50:#5BE88A; --s20:#E8FF4A; --vertVif:#5BE88A;
+}
+html[data-da="stade"] body{
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 30px,transparent 30px 60px),
+    linear-gradient(178deg,#0C3320 0%,#092817 60%,#061A10 100%);
+  background-attachment:fixed;
+}
+/* l'anneau devient une piste épaisse : un filet fin se perdait sur le vert */
+html[data-da="stade"] #f-anneau-c{stroke-width:9}
+html[data-da="stade"] .evt,html[data-da="stade"] .carte-verdict,
+html[data-da="stade"] .nav-carte,html[data-da="stade"] .garde{
+  background:rgba(255,255,255,.07);border-color:transparent;
+  border-left:3px solid var(--laiton);border-radius:4px 16px 16px 4px}
+html[data-da="stade"] .bouton{
+  background:#E8FF4A;color:#0A2818;border-color:#E8FF4A;
+  box-shadow:0 5px 0 #B5C82E,0 10px 20px rgba(0,0,0,.3)}
+html[data-da="stade"] .bouton.fantome{
+  background:rgba(255,255,255,.09);color:#C3DCC9;
+  box-shadow:0 5px 0 rgba(0,0,0,.28)}
+html[data-da="stade"] .bouton:active{transform:translateY(3px)}
+html[data-da="stade"] .rond{color:#C3DCC9;
+  box-shadow:0 5px 0 rgba(0,0,0,.32),0 10px 18px rgba(0,0,0,.25)}
+html[data-da="stade"] .rond.vert{color:#E8FF4A}
+html[data-da="stade"] .rond span{color:#0A2818}
+html[data-da="stade"] .rond:active{transform:translateY(3px)}
+html[data-da="stade"] .pilule{border-radius:5px}
+html[data-da="stade"] .seg button[aria-pressed="true"]{
+  background:#E8FF4A;color:#0A2818;border-color:#E8FF4A}
+html[data-da="stade"] .barre-bas{background:rgba(9,40,23,.9);
+  border-color:rgba(232,255,74,.2)}
+
+/* ─── Atelier : établi, papier millimétré, cuivre ─── */
+html[data-da="atelier"]{
+  --nuit:#1C1A17; --ardoise:#252220; --surface:#252220; --trait:#3A3530;
+  --bordDoux:rgba(214,138,58,.24); --ivoire:#EFE9DE; --gris:#9A8F7E;
+  --laiton:#D68A3A; --signal:#E05B42; --vert:#7FCB6B; --alerte:#B98CFF;
+  --s100:#B98CFF; --s50:#7FCB6B; --s20:#D68A3A; --vertVif:#7FCB6B;
+}
+html[data-da="atelier"] body{
+  background:
+    repeating-linear-gradient(0deg,rgba(214,138,58,.05) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(90deg,rgba(214,138,58,.04) 0 1px,transparent 1px 22px),
+    #1C1A17;
+  background-attachment:fixed;
+}
+/* aucun arrondi : c'est un instrument, pas une application de loisir */
+html[data-da="atelier"] .evt,html[data-da="atelier"] .carte-verdict,
+html[data-da="atelier"] .nav-carte,html[data-da="atelier"] .garde,
+html[data-da="atelier"] .bouton,html[data-da="atelier"] .seg button,
+html[data-da="atelier"] .pilule,html[data-da="atelier"] .m-carte{border-radius:3px}
+html[data-da="atelier"] .bouton{background:#D68A3A;color:#1C1A17;border-color:#D68A3A}
+html[data-da="atelier"] .bouton.fantome{background:#252220;color:#9A8F7E;border-color:#3A3530}
+html[data-da="atelier"] .rond{border-radius:6px;border-width:2px;border-color:#3A3530}
+html[data-da="atelier"] .rond.vert{border-color:#D68A3A;color:#D68A3A}
+html[data-da="atelier"] .pilule{border-width:2px}
+html[data-da="atelier"] .barre-bas{background:rgba(28,26,23,.94);border-radius:6px;
+  border-color:rgba(214,138,58,.22)}
+html[data-da="atelier"] .hairline{background:#D68A3A;opacity:.35}
+
+/* ─── Marée : turquoise profond qui s'éclaircit vers le bas ─── */
+html[data-da="maree"]{
+  --nuit:#04333C; --ardoise:#0A4A50; --surface:rgba(255,255,255,.12);
+  --trait:#0F6A66;
+  --bordDoux:rgba(255,255,255,.18); --ivoire:#EAFBF8; --gris:#A8D6D1;
+  --laiton:#FFD9A0; --signal:#FF8F7F; --vert:#7BF0B4; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#7BF0B4; --s20:#FFD9A0; --vertVif:#7BF0B4;
+}
+html[data-da="maree"] body{
+  /* le bas du dégradé s'arrête à #064B46 et non au turquoise clair de la
+     maquette : au-delà, le rouge d'échec tombait à 2,3:1, illisible.
+     L'écran s'éclaircit toujours vers le bas, mais sans noyer l'information. */
+  background:linear-gradient(180deg,#04333C 0%,#05423F 55%,#064B46 100%);
+  background-attachment:fixed;
+}
+html[data-da="maree"] .evt,html[data-da="maree"] .carte-verdict,
+html[data-da="maree"] .nav-carte,html[data-da="maree"] .garde{
+  background:rgba(255,255,255,.12);border-color:transparent;border-radius:18px;
+  box-shadow:0 6px 18px rgba(0,20,22,.22)}
+html[data-da="maree"] .bouton{
+  background:#FFD9A0;color:#123B38;border-color:#FFD9A0;
+  box-shadow:0 5px 0 #C9A671,0 10px 20px rgba(0,20,22,.25);border-radius:16px}
+html[data-da="maree"] .bouton.fantome{
+  background:rgba(255,255,255,.14);color:#CFEDE9;
+  box-shadow:0 5px 0 rgba(0,20,22,.2)}
+html[data-da="maree"] .bouton:active{transform:translateY(3px)}
+html[data-da="maree"] .rond{color:#BFE8E3;
+  box-shadow:0 5px 0 rgba(0,20,22,.25),0 10px 18px rgba(0,20,22,.2)}
+html[data-da="maree"] .rond.vert{color:#FFD9A0}
+html[data-da="maree"] .rond span{color:#123B38}
+html[data-da="maree"] .rond:active{transform:translateY(3px)}
+html[data-da="maree"] .seg button[aria-pressed="true"]{
+  background:#FFD9A0;color:#123B38;border-color:#FFD9A0}
+html[data-da="maree"] .barre-bas{background:rgba(6,60,66,.86);
+  border-color:rgba(255,255,255,.2)}
+
+/* Atelier et Marée sortent du condensé, comme Ultraviolet et Glacier */
+html[data-da="atelier"],html[data-da="maree"]{
+  --cond:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html[data-da="atelier"] .marque h1,html[data-da="maree"] .marque h1{
+  font-size:clamp(21px,6vw,28px);letter-spacing:.02em}
+html[data-da="atelier"] .bloc > .eyebrow,html[data-da="maree"] .bloc > .eyebrow,
+html[data-da="atelier"] #reglages .defile > .eyebrow,
+html[data-da="maree"] #reglages .defile > .eyebrow{
+  font-size:16px;letter-spacing:.01em}
+html[data-da="atelier"] .rang input,html[data-da="maree"] .rang input{
+  min-width:0;font-size:19px;letter-spacing:0}
+html[data-da="atelier"] .f-nom,html[data-da="maree"] .f-nom{
+  font-size:clamp(19px,5.8vw,28px);letter-spacing:0}
+html[data-da="atelier"] .nav-carte .n,html[data-da="maree"] .nav-carte .n{
+  font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="atelier"] .f-verdict .titre,html[data-da="maree"] .f-verdict .titre{
+  font-size:17.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="atelier"] .bouton,html[data-da="maree"] .bouton{
+  font-size:17px;letter-spacing:.02em;text-transform:none}
+html[data-da="atelier"] .rond,html[data-da="maree"] .rond{
+  font-size:13.5px;letter-spacing:.02em;text-transform:none;font-weight:700}
+
+/* ─── Casino : feutre vert, or vieilli, liseré de table de jeu ─── */
+html[data-da="casino"]{
+  --nuit:#0B3226; --ardoise:#0F3E2F; --surface:rgba(255,255,255,.055);
+  --trait:#1C5642;
+  --bordDoux:rgba(212,175,90,.26); --ivoire:#F5EED8; --gris:#BFAE86;
+  /* le feutre est vert : le « bien » doit être un vert nettement plus clair
+     que le fond, sinon la réussite se confond avec le décor */
+  --laiton:#D4AF5A; --signal:#FF7A6B; --vert:#6BD98F; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#6BD98F; --s20:#D4AF5A; --vertVif:#6BD98F;
+}
+html[data-da="casino"] body{
+  background:
+    radial-gradient(1px 1px at 14% 22%,rgba(255,255,255,.05),transparent),
+    radial-gradient(1px 1px at 58% 41%,rgba(255,255,255,.045),transparent),
+    radial-gradient(1px 1px at 33% 68%,rgba(255,255,255,.045),transparent),
+    radial-gradient(1px 1px at 78% 79%,rgba(255,255,255,.04),transparent),
+    /* le haut du dégradé descend de #14513B à #0D3A29 : au ton d'origine,
+       le rouge d'échec tombait à 2,5:1 sur la partie éclairée du feutre */
+    radial-gradient(120% 80% at 50% 0%,#0D3A29 0%,#0A2E23 45%,#061C15 100%);
+  background-attachment:fixed;
+}
+/* l'anneau de zone prend la tranche crantée d'un jeton */
+html[data-da="casino"] #f-anneau-c{stroke-dasharray:7 5;stroke-width:8}
+html[data-da="casino"] .evt,html[data-da="casino"] .carte-verdict,
+html[data-da="casino"] .nav-carte,html[data-da="casino"] .garde{
+  background:rgba(255,255,255,.055);border-color:rgba(212,175,90,.24)}
+html[data-da="casino"] .bouton{background:#D4AF5A;color:#0B3226;border-color:#D4AF5A;
+  border-radius:999px}
+html[data-da="casino"] .bouton.fantome{background:transparent;color:#C9B583;
+  border-color:rgba(212,175,90,.42)}
+html[data-da="casino"] .rond{border-color:rgba(212,175,90,.42);color:#C9B583}
+html[data-da="casino"] .rond.vert{border-color:#D4AF5A;color:#D4AF5A}
+html[data-da="casino"] .pilule{border-radius:999px}
+html[data-da="casino"] .seg button{border-radius:999px}
+html[data-da="casino"] .seg button[aria-pressed="true"]{
+  background:#D4AF5A;color:#0B3226;border-color:#D4AF5A}
+html[data-da="casino"] .barre-bas{background:rgba(11,50,38,.9);
+  border-color:rgba(212,175,90,.3)}
+html[data-da="casino"] .hairline{background:#D4AF5A;opacity:.4}
+
+/* ─── Bar : bois sombre, ambre de whisky, enseigne au néon ─── */
+html[data-da="bar"]{
+  --nuit:#1A0E0B; --ardoise:#241410; --surface:rgba(255,255,255,.06);
+  --trait:#3A2318;
+  --bordDoux:rgba(255,176,58,.20); --ivoire:#F6E7D2; --gris:#A88C6E;
+  --laiton:#FFB03A; --signal:#FF5C7A; --vert:#7BE08F; --alerte:#C79BFF;
+  --s100:#C79BFF; --s50:#7BE08F; --s20:#FFB03A; --vertVif:#7BE08F;
+}
+html[data-da="bar"] body{
+  background:
+    repeating-linear-gradient(91deg,rgba(255,176,58,.03) 0 2px,transparent 2px 17px),
+    linear-gradient(178deg,#241410 0%,#1A0E0B 60%,#120907 100%);
+  background-attachment:fixed;
+}
+/* l'enseigne : le seul élément « allumé » d'un décor entièrement mat */
+html[data-da="bar"] .hairline{height:3px;opacity:1;
+  background:linear-gradient(90deg,#FF5C7A,#FFB03A,#FF5C7A);
+  box-shadow:0 0 14px rgba(255,92,122,.5)}
+html[data-da="bar"] .evt,html[data-da="bar"] .carte-verdict,
+html[data-da="bar"] .nav-carte,html[data-da="bar"] .garde{
+  background:rgba(255,255,255,.06);border-color:transparent;border-radius:16px}
+html[data-da="bar"] .bouton{background:#FFB03A;color:#241410;border-color:#FFB03A;
+  border-radius:999px;box-shadow:0 5px 0 #C4832A,0 10px 20px rgba(0,0,0,.34)}
+html[data-da="bar"] .bouton.fantome{background:rgba(255,255,255,.08);color:#D6BC9C;
+  box-shadow:0 5px 0 rgba(0,0,0,.3)}
+html[data-da="bar"] .bouton:active{transform:translateY(3px)}
+html[data-da="bar"] .rond{color:#D6BC9C;
+  box-shadow:0 5px 0 rgba(0,0,0,.34),0 10px 18px rgba(0,0,0,.28)}
+html[data-da="bar"] .rond.vert{color:#FFB03A}
+html[data-da="bar"] .rond span{color:#241410}
+html[data-da="bar"] .rond:active{transform:translateY(3px)}
+html[data-da="bar"] .pilule{border-radius:999px}
+html[data-da="bar"] .seg button{border-radius:999px}
+html[data-da="bar"] .seg button[aria-pressed="true"]{
+  background:#FFB03A;color:#241410;border-color:#FFB03A}
+html[data-da="bar"] .barre-bas{background:rgba(26,14,11,.9);
+  border-color:rgba(255,176,58,.24)}
+
+/* Bar sort du condensé comme Atelier et Marée ; Casino garde le condensé,
+   qui tient mieux le rôle de titrage de table que la pile système */
+html[data-da="bar"]{--cond:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html[data-da="bar"] .marque h1{font-size:clamp(21px,6vw,28px);letter-spacing:.02em}
+html[data-da="bar"] .bloc > .eyebrow,
+html[data-da="bar"] #reglages .defile > .eyebrow{font-size:16px;letter-spacing:.01em}
+html[data-da="bar"] .rang input{min-width:0;font-size:19px;letter-spacing:0}
+html[data-da="bar"] .f-nom{font-size:clamp(19px,5.8vw,28px);letter-spacing:0}
+html[data-da="bar"] .nav-carte .n{font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="bar"] .f-verdict .titre{font-size:17.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="bar"] .bouton{font-size:17px;letter-spacing:.02em;text-transform:none}
+html[data-da="bar"] .rond{font-size:13.5px;letter-spacing:.02em;text-transform:none;font-weight:700}
+
+/* ─── réglages numériques du banc d'essai de score ─── */
+.pscore{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:9px 0;border-bottom:1px solid var(--bordDoux)}
+.pscore .lb{font-size:15px;color:#C3BCAE;flex:1;min-width:0;line-height:1.3}
+.pscore input{width:78px;flex-shrink:0;text-align:right;background:var(--ardoise);
+  border:1px solid var(--bordDoux);border-radius:9px;color:var(--ivoire);
+  font-family:var(--mono);font-size:14px;padding:7px 9px;outline:none}
+.pscore input:focus{border-color:var(--laiton)}
+
 /* ─── bouton retour, injecté dans chaque barre de navigation ─── */
 .nav .btn-retour{font-family:var(--cond);font-size:19px;font-weight:700;
   letter-spacing:0;line-height:1;padding:4px 12px 7px;color:var(--ivoire);
@@ -1871,7 +2120,7 @@ html[data-da="ultraviolet"] .nav-carte,html[data-da="glacier"] .nav-carte{
   border-radius:20px;border-color:transparent}
 html[data-da="ultraviolet"] .nav-carte{background:rgba(255,255,255,.15);
   box-shadow:0 6px 20px rgba(30,4,64,.28)}
-html[data-da="glacier"] .nav-carte{background:rgba(255,255,255,.07);
+html[data-da="glacier"] .nav-carte{background:rgba(122,155,235,.11);
   box-shadow:0 6px 20px rgba(6,2,20,.4)}
 
 /* ─── bouton et panneau de réglages rapides ─── */
@@ -2612,6 +2861,11 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
       <button data-v="pop" aria-pressed="false">Pop</button>
       <button data-v="ultraviolet" aria-pressed="false">Ultraviolet</button>
       <button data-v="glacier" aria-pressed="false">Glacier</button>
+      <button data-v="stade" aria-pressed="false">Stade</button>
+      <button data-v="atelier" aria-pressed="false">Atelier</button>
+      <button data-v="maree" aria-pressed="false">Marée</button>
+      <button data-v="casino" aria-pressed="false">Casino</button>
+      <button data-v="bar" aria-pressed="false">Bar</button>
     </div>
     <div class="note" id="note-da">—</div>
 
@@ -2633,6 +2887,14 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
     <div class="titre-sec">Modes en essai</div>
     <div class="note">Pas encore dans le menu. « Lancer » démarre une partie tout de suite.</div>
     <div id="liste-essai"></div>
+
+    <div class="titre-sec">Réglages du nouveau score</div>
+    <div class="note">Appliqués au mode « Nouveau score ». Modifiez, relancez une
+      partie, comparez. « Défauts » remet les valeurs d'origine.</div>
+    <div id="params-score"></div>
+    <div style="margin-top:10px">
+      <button class="bouton fantome" id="score-defauts">Défauts</button>
+    </div>
 
 
     <div class="titre-sec">Aventure</div>
@@ -3575,11 +3837,177 @@ const LABOS = [
               : 'La zone ne se resserre jamais : c\'est vous qui montez la mise.')}};
  }},
 
+/* ─── 12 · Nouveau score ─────────────────────────────────────────────
+   Banc d'essai du barème à combos. Rien n'est figé : tous les nombres
+   ci-dessous sont réglables depuis l'onglet Test, pour pouvoir juger le
+   ressenti sans recompiler.
+
+   Deux notions distinctes, à ne pas confondre :
+     · la CHAÎNE DE PILES  — pile après pile, 100 → 500, plafonnée à 5.
+       C'est le barème existant du Solo classique, conservé tel quel.
+     · la SÉRIE            — tours consécutifs réussis, un pile OU un
+       frôlé. Elle casse au-delà du seuil de rupture (3 centièmes par
+       défaut) : rester dans la zone large ne suffit pas à la tenir. */
+{id:'scoring', n:'Nouveau score', tours:10,
+ d:"Banc d'essai : chaîne de piles, multiplicateur de série et primes de figures.",
+ regle:"Dix tours. Les points de base ne changent pas — pile 100, frôlé 50, "
+   + "dans la zone 20, hors zone 0 — et la chaîne de piles reste celle du Solo "
+   + "classique : 100, 200, 300, 400, 500, puis plafond. Ce qui s'ajoute, c'est "
+   + "la série : chaque tour à 3 centièmes ou moins la prolonge, et elle "
+   + "multiplie les points du tour. Un tour au-delà de 3 centièmes la remet à "
+   + "zéro, même s'il est resté dans la zone. Trois figures rapportent une "
+   + "prime : le Doublé, la Remontée et le Sans-faute.",
+ astuce:"Le seuil qui compte n'est plus la zone mais les 3 centièmes. Un tour "
+   + "à 0,20 rapporte quelques points mais casse tout ce qui était en cours — "
+   + "c'est le changement le plus important du barème.",
+ cible:() => ((S.tour * 3) % 7 + 2) * 100,
+ zone:() => zoneBase(),
+ tour(c){
+   const P = paramsScore();
+   const L = S.lab;
+   const e = c.ecart;
+   const pile = e === 0;
+   const tenu = e <= P.seuil;          // ce qui prolonge la série
+   const primes = [];
+
+   /* ── 1. points de base, chaîne de piles inchangée ── */
+   let base;
+   if(pile){
+     L.piles = (L.piles || 0) + 1;
+     base = PTS.pile * Math.min(MULT_MAX, L.piles);   // 100 → 500
+   } else {
+     L.piles = 0;
+     base = e <= PRES ? PTS.frole : e <= zoneBase() ? PTS.zone : PTS.rate;
+   }
+
+   /* ── 2. série : elle vit sur le seuil, pas sur la zone ── */
+   const avant = L.serie || 0;
+   L.serie = tenu ? avant + 1 : 0;
+   L.meilleureSerie = Math.max(L.meilleureSerie || 0, L.serie);
+   if(!tenu) L.sansFaute = false;
+   const multi = tenu ? multiSerie(L.serie, P) : 1;
+
+   /* ── 3. figures ── */
+   if(pile && L.pilesAvant) primes.push({n:'Doublé', v:P.double});
+   if(pile && L.dernierRate) primes.push({n:'Remontée', v:P.remontee});
+   L.pilesAvant = pile;
+   L.dernierRate = !tenu;
+
+   const gagnePrimes = primes.reduce((a,p) => a + p.v, 0);
+   const pts = Math.round(base * multi) + gagnePrimes;
+   L.base = (L.base || 0) + base;
+   L.apport = (L.apport || 0) + (Math.round(base * multi) - base);
+   L.primes = (L.primes || 0) + gagnePrimes;
+   L.detail = L.detail || [];
+   primes.forEach(p => L.detail.push(p));
+   S.points += pts;
+
+   const calc = base + (multi > 1 ? ' × ' + multi.toFixed(1).replace('.', ',') : '')
+     + (gagnePrimes ? ' + ' + gagnePrimes : '')
+     + ' = ' + pts;
+   return {pts:0,
+     couleur:pile ? 't-s100' : e <= PRES ? 't-s50' : e <= zoneBase() ? 't-s20' : 't-s0',
+     titre:'+' + pts + ' points'
+       + (primes.length ? '  ·  ' + primes.map(p => p.n).join(' + ') : ''),
+     sous:calc + ' · série ' + L.serie
+        + (L.piles > 1 ? ' · chaîne de ' + L.piles + ' piles' : '')
+        + ' · total ' + S.points};
+ },
+ fini:() => S.tour >= 10,
+ fin:() => {
+   const L = S.lab, P = paramsScore();
+   let total = S.points;
+   let bonus = '';
+   if(L.sansFaute !== false){
+     total = Math.round(total * P.sansFaute);
+     bonus = ' · sans-faute ×' + P.sansFaute.toFixed(1).replace('.', ',');
+   }
+   S.points = total;
+   const noms = {};
+   (L.detail || []).forEach(p => noms[p.n] = (noms[p.n] || 0) + 1);
+   const listeP = Object.keys(noms)
+     .map(n => n + (noms[n] > 1 ? ' ×' + noms[n] : '')).join(' · ');
+   return {t:total + ' points',
+     r:'Nouveau score · base ' + (L.base || 0)
+       + ' · multiplicateurs +' + (L.apport || 0)
+       + ' · primes +' + (L.primes || 0) + bonus,
+     rev:{t:'Ce qui a payé',
+       s:'Meilleure série : ' + (L.meilleureSerie || 0) + ' tours. '
+         + (listeP ? 'Figures : ' + listeP + '. ' : 'Aucune figure. ')
+         + ((L.apport || 0) > (L.base || 0) / 2
+            ? 'Les multiplicateurs ont pesé plus que les points eux-mêmes : '
+              + 'c\'est exactement ce que ce barème cherche à provoquer.'
+            : 'Les séries sont restées courtes — le barème ne s\'est jamais '
+              + 'emballé, il faudrait peut-être adoucir le seuil de rupture.')}};
+ }},
+
 ];
 
 const LAB = () => LABOS.find(l => l.id === CFG.mode);
 /* modes visibles uniquement dans l'onglet Test, le temps de les juger */
-const ESSAIS = ['quitte'];
+const ESSAIS = ['quitte', 'scoring'];
+
+/* ─── paramètres réglables du nouveau barème ──────────────────────────
+   Chaque valeur est modifiable depuis l'onglet Test et persiste dans la
+   sauvegarde : le but est de pouvoir tester plusieurs équilibrages dans
+   la même soirée sans toucher au code. */
+const SCORE_DEF = {
+  seuil:3,        // centièmes — au-delà, la série casse (frôlé = 3)
+  palier:0.5,     // ce que chaque cran de série ajoute au multiplicateur
+  plafond:4,      // multiplicateur maximum
+  double:150,     // prime pour deux piles d'affilée
+  remontee:100,   // prime pour un pile juste après une rupture
+  sansFaute:1.5   // multiplicateur du total si aucun tour au-dessus du seuil
+};
+const SCORE_LBL = {
+  seuil:'Seuil de rupture (centièmes)',
+  palier:'Gain de multiplicateur par cran',
+  plafond:'Plafond du multiplicateur',
+  double:'Prime · Doublé',
+  remontee:'Prime · Remontée',
+  sansFaute:'Bonus · Sans-faute (× total)'
+};
+function construireParamsScore(){
+  const M = $('params-score');
+  if(!M) return;
+  const P = paramsScore();
+  M.innerHTML = '';
+  Object.keys(SCORE_DEF).forEach(k => {
+    const l = document.createElement('label');
+    l.className = 'pscore';
+    /* pas est adapté à la nature du réglage : les primes se comptent en
+       dizaines de points, les multiplicateurs au dixième */
+    const decimal = (k === 'palier' || k === 'sansFaute' || k === 'plafond');
+    l.innerHTML = '<span class="lb">' + SCORE_LBL[k] + '</span>';
+    const i = document.createElement('input');
+    i.type = 'number';
+    i.step = decimal ? '0.1' : (k === 'seuil' ? '1' : '10');
+    i.min = '0';
+    i.value = P[k];
+    i.oninput = () => {
+      const v = parseFloat(i.value);
+      if(isNaN(v)) return;
+      MEM.score = Object.assign({}, paramsScore(), {[k]:v});
+      ecrireMem();
+    };
+    l.appendChild(i);
+    M.appendChild(l);
+  });
+  /* liaison ici plutôt qu'au niveau supérieur : ce bloc s'exécute avant la
+     définition de $, et une liaison globale déclenchait une erreur de zone
+     morte temporelle qui bloquait tout le script */
+  const d = $('score-defauts');
+  if(d) d.onclick = () => { MEM.score = null; ecrireMem(); construireParamsScore(); };
+}
+
+function paramsScore(){
+  return Object.assign({}, SCORE_DEF, (MEM.score || {}));
+}
+/* série 1 → ×1, puis +palier par cran, borné au plafond */
+function multiSerie(n, P){
+  if(n <= 1) return 1;
+  return Math.min(P.plafond, 1 + (n - 1) * P.palier);
+}
 LABOS.forEach(l => SOLOS.push({id:l.id, n:l.n, tours:l.tours || 0, fam:'labo',
   regle:l.regle, astuce:l.astuce, d:l.d, labo:1}));
 
@@ -3588,7 +4016,10 @@ function initLabo(){
   S.lab = {laps:[], cadrans:[], cadran:0, alarme:0, ouvert:false,
            duree:100, ricochets:0, palier:0, plis:0,
            pas:0, mesPoints:0, sesPoints:0, fantome:[],
-           cagnotte:0, encaisse:false};
+           cagnotte:0, encaisse:false,
+           piles:0, serie:0, meilleureSerie:0, sansFaute:true,
+           pilesAvant:false, dernierRate:false,
+           base:0, apport:0, primes:0, detail:[]};
   S.mort = false;
   if(!l) return;
   if(l.id === 'ricochet') S.lab.duree = 200;
@@ -6029,7 +6460,12 @@ const DA_TXT = {
   synth:"Rétro-futurisme années 80 : halos, grille spatiale, chiffres électriques. Plus spectaculaire, un peu moins net.",
   pop:"Fond clair, ombres dures, couleurs franches. Chaleureux et accessible, mais il éblouit dans le noir.",
   ultraviolet:"Violet saturé, un seul accent doré réservé à ce qui s'appuie. Énergique sans grille ni bruit — le plus vif des cinq.",
-  glacier:"Violet profond et froid, accent cyan plutôt que doré. Le plus net et le plus posé, pensé pour de longues sessions."
+  glacier:"Violet profond et froid, accent cyan plutôt que doré. Le plus net et le plus posé, pensé pour de longues sessions.",
+  stade:"Pelouse et jaune de maillot, capitales condensées de panneau d'affichage. L'anneau devient une piste. Le plus compétitif.",
+  atelier:"Établi, papier millimétré et cuivre. Un instrument de mesure plutôt qu'un jeu : angles droits et coins de repère.",
+  maree:"Turquoise profond qui s'éclaircit vers le bas, sable en accent. Le seul décor qui éclaire là où sont les boutons.",
+  casino:"Feutre vert et or vieilli, liseré de table de jeu. L'anneau devient un jeton à tranche crantée. Cérémonieux et tendu.",
+  bar:"Bois sombre, ambre de whisky, une enseigne au néon en haut d'écran. Le plus confortable dans une pièce mal éclairée."
 };
 function appliquerDA(){
   document.documentElement.dataset.da = CFG.da || 'instrument';
@@ -6045,7 +6481,12 @@ function appliquerDA(){
                                 : CFG.da === 'synth' ? '#0B0410'
                                 : CFG.da === 'retro' ? '#0C0A06'
                                 : CFG.da === 'ultraviolet' ? '#3A1178'
-                                : CFG.da === 'glacier' ? '#2E2260' : '#0E1116');
+                                : CFG.da === 'glacier' ? '#2E2260'
+                                : CFG.da === 'stade' ? '#0C3320'
+                                : CFG.da === 'atelier' ? '#1C1A17'
+                                : CFG.da === 'maree' ? '#04333C'
+                                : CFG.da === 'casino' ? '#0B3226'
+                                : CFG.da === 'bar' ? '#1A0E0B' : '#0E1116');
 }
 segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA(); });
 
@@ -6056,7 +6497,9 @@ segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquer
    restent synchronisés puisqu'ils écrivent le même CFG.da. */
 const DA_NOMS = [
   ['instrument','Origine'], ['retro','Rétro'], ['synth','Synthwave'],
-  ['pop','Pop'], ['ultraviolet','Ultraviolet'], ['glacier','Glacier']
+  ['pop','Pop'], ['ultraviolet','Ultraviolet'], ['glacier','Glacier'],
+  ['stade','Stade'], ['atelier','Atelier'], ['maree','Marée'],
+  ['casino','Casino'], ['bar','Bar']
 ];
 function construireSegDaMenu(){
   const el = $('seg-da-menu');
@@ -11072,6 +11515,7 @@ function construireTest(){
      laboratoire ont fini leur office. Seuls restent ici les modes en essai,
      pas encore jugés bons pour le menu. */
   cartesSolo('liste-essai', SOLOS.filter(s => ESSAIS.includes(s.id)));
+  construireParamsScore();
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
     const d = document.createElement('div');
