@@ -1595,6 +1595,19 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--laiton);outline-offset:3px}
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GTM-TGGK7XB7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Configuration de base : on désactive les pages vues automatiques sur les changements d'historique 
+  // puisqu'il s'agit d'une app sur une seule page.
+  gtag('config', 'GTM-TGGK7XB7', {
+    send_page_view: false 
+  });
+</script>
 </head>
 <body>
 <div id="app">
@@ -1603,7 +1616,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.0</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.1</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2593,7 +2606,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 <script>
 'use strict';
-
+// Fonction sécurisée pour envoyer des événements à GA4
+function trackEvent(eventName, eventParams = {}) {
+  if (typeof gtag === 'function') {
+    gtag('event', eventName, eventParams);
+  } else {
+    console.warn(`GA bloqué, événement ignoré : ${eventName}`, eventParams);
+  }
+}
 /* ═══════════════════════════════════════════════════════════════
    MODE EN LIGNE — clés du projet Supabase.
    La clé ci-dessous est la clé « anon public » : elle est destinée à
@@ -3849,6 +3869,12 @@ function afficherVictoireBoss(nom, biomeQuitteId){
   const fl = document.getElementById('fluide');
   if(fl) fl.classList.add('avt-popup-actif');
   document.getElementById('avt-boss-vaincu').classList.add('on');
+ // À intégrer dans afficherVictoireBoss()
+  trackEvent('unlock_achievement', {
+    achievement_id: 'boss_vaincu',
+    achievement_name: nom, // Le nom du boss (ex: "Le Guetteur des lianes")
+    biome: biomeQuitteId
+  });
 }
 
 function afficherTransitionBiome(id){
@@ -5947,6 +5973,13 @@ async function demarrerPartie(){
   S.blindPret = true; // <-- AJOUTE CETTE LIGNE ICI
 
   afficherPret();
+ // À intégrer dans demarrerPartie()
+  trackEvent('level_start', {
+    level_name: CFG.mode, // ex: 'survie', 'blind', 'classique'
+    difficulty: CFG.diff, // ex: 'simple', 'hard'
+    player_count: S.joueurs.length,
+    blind_bet_active: CFG.pariBlind ? 'oui' : 'non'
+  });
   return true;
 }
 
@@ -8010,7 +8043,14 @@ if (btnPariBlindClick) {
     S.cibleBase = S.cible;
     S.zoneTour = zoneDe(nom);
     
-    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' };
+    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' 
+    // À intégrer dans btnPariBlindClick.onclick, juste après avoir défini S.pariActif
+    trackEvent('spend_virtual_currency', {
+     item_name: 'pari_tactique',
+     virtual_currency_name: 'zone_securite',
+     value: deltaSec, // Le temps misé (+ ou -)
+     pari_type: deltaSec > 0 ? 'hausse' : 'baisse'
+    });              
     
     $('f-obj-cible').textContent = fmt(S.cible);
     btnPariBlindClick.textContent = deltaSec > 0 ? '+' + deltaSec + 's' : deltaSec + 's';
@@ -8143,7 +8183,21 @@ function afficherFin(){
       }
     });
     ecrireMem(); majMem();
-    publierPartie();          // envoi au salon, sans bloquer l'affichage
+    publierPartie();// envoi au salon, sans bloquer l'affichage
+    // À intégrer dans afficherFin()
+  trackEvent('level_end', {
+    level_name: CFG.mode,
+    success: S.mort ? 'false' : 'true'
+  });
+
+  // Si c'est un mode solo avec des points, on envoie le score
+  if (estSolo(CFG.mode) && S.points > 0) {
+    trackEvent('post_score', {
+      level: CFG.mode,
+      character: S.joueurs[0], // Identifie si c'est un habitué
+      score: S.points
+    });
+  }
     publierPerf();            // et au compte, si l'on est connecté
   }
   // l'usage compte TOUTES les parties, abandons compris : c'est le taux
