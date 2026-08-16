@@ -3850,7 +3850,9 @@ const LABOS = [
        défaut) : rester dans la zone large ne suffit pas à la tenir. */
 {id:'scoring', n:'Nouveau score', tours:10,
  d:"Banc d'essai : chaîne de piles, multiplicateur de série et primes de figures.",
- regle:"Dix tours. Les points de base ne changent pas — pile 100, frôlé 50, "
+ regle:"Dix tours, comme le Solo classique : les cibles vont de 1,00 à 10,00, "
+   + "de seconde en seconde, sur un chrono qui ne se remet jamais à zéro. "
+   + "Les points de base ne changent pas non plus — pile 100, frôlé 50, "
    + "dans la zone 20, hors zone 0 — et la chaîne de piles reste celle du Solo "
    + "classique : 100, 200, 300, 400, 500, puis plafond. Ce qui s'ajoute, c'est "
    + "la série : chaque tour à 3 centièmes ou moins la prolonge, et elle "
@@ -3860,7 +3862,11 @@ const LABOS = [
  astuce:"Le seuil qui compte n'est plus la zone mais les 3 centièmes. Un tour "
    + "à 0,20 rapporte quelques points mais casse tout ce qui était en cours — "
    + "c'est le changement le plus important du barème.",
- cible:() => ((S.tour * 3) % 7 + 2) * 100,
+ /* exactement la trajectoire du Solo classique : la seconde ronde suivante
+    sur le chrono cumulé, donc 1,00 puis 2,00 … jusqu'à 10,00. On appelle
+    prochaineCible() plutôt que de recopier la formule, pour que les deux
+    modes ne puissent jamais diverger. */
+ cible:(total) => prochaineCible(total),
  zone:() => zoneBase(),
  tour(c){
    const P = paramsScore();
