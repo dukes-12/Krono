@@ -2,7 +2,7 @@
    Stratégie : on sert d'abord le cache (démarrage instantané, hors ligne),
    et on rafraîchit en arrière-plan pour la prochaine ouverture.
    Changez VERSION à chaque mise à jour du jeu pour purger l'ancien cache. */
-const VERSION = 'krono-v157';
+const VERSION = 'krono-v158';
 const FICHIERS = [
   './', './index.html', './manifest.json',
   './icone-180.png', './icone-192.png', './icone-512.png', './icone-512-maskable.png'
@@ -21,6 +21,9 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  if (event.request.url.includes('google-analytics.com') || event.request.url.includes('googletagmanager.com')) {
+    return; // Laisse la requête passer normalement sans l'intercepter
+  } 
   if(e.request.method !== 'GET') return;
   // les appels au serveur de salon ne passent jamais par le cache
   if(e.request.url.includes('supabase.co')) return;
