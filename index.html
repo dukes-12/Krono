@@ -1314,6 +1314,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border:1px solid var(--alerte);border-radius:999px;padding:7px 14px}
 .pari-b.on{display:inline-block}
 .pari-b.pris{background:rgba(155,107,240,.18)}
+/* Encaisser est une action qui met fin à la partie : il prend la couleur
+   des bons résultats, jamais celle du pari */
+#f-encaisser{color:var(--vertVif);border-color:var(--vertVif);pointer-events:auto}
+#f-encaisser.on{display:inline-block}
 #f-pari-blind {
   display: none;
   position: absolute;
@@ -1822,8 +1826,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .carte-verdict.t-s0{border-left-color:var(--signal)}
 .carte-verdict .titre{font-size:23px;font-weight:700;letter-spacing:.04em;
   line-height:1.12}
-.carte-verdict .sous{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-  color:var(--gris);margin-top:6px;text-transform:uppercase;line-height:1.55}
+/* la description de règle se lit comme une phrase, pas comme un panneau :
+   les capitales forcées la rendaient agressive et plus lente à parcourir */
+.carte-verdict .sous{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;
+  color:var(--gris);margin-top:7px;line-height:1.6}
 .frame .no{font-family:var(--mono);font-size:9.5px;color:var(--gris);opacity:.55;
   width:18px;text-align:right}
 .frame{padding:7px 11px;margin-top:5px;border-radius:12px;background:var(--surface);
@@ -1833,6 +1839,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .mini .z-vert{background:rgba(90,178,138,.24);border-radius:999px}
 .mini .z-laiton{background:rgba(214,180,86,.48)}
 .actions{padding-top:11px}
+
+/* ─── bouton retour, injecté dans chaque barre de navigation ─── */
+.nav .btn-retour{font-family:var(--cond);font-size:19px;font-weight:700;
+  letter-spacing:0;line-height:1;padding:4px 12px 7px;color:var(--ivoire);
+  order:99}
+.nav .btn-retour:active{background:var(--ardoise)}
 
 /* ─── coin d'en-tête : version et ☰ centrés l'un sur l'autre ─── */
 .coin-entete{display:flex;align-items:center;gap:10px;margin-left:auto}
@@ -2618,6 +2630,10 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
     <div class="titre-sec">Modes de soirée en test</div>
     <div id="liste-soirees"></div>
 
+    <div class="titre-sec">Modes en essai</div>
+    <div class="note">Pas encore dans le menu. « Lancer » démarre une partie tout de suite.</div>
+    <div id="liste-essai"></div>
+
 
     <div class="titre-sec">Aventure</div>
     <div class="note">Les mêmes décors que la Survie, privés de tous leurs
@@ -2765,6 +2781,7 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
     </svg>
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
+    <button class="pari-b" id="f-encaisser">Encaisser</button>
     <button class="pari-b" id="f-pari"></button>
     <button class="pari-b" id="f-pari-blind" style="pointer-events: auto;"></button>
     <div class="pv-bloc" id="f-pv">
@@ -3504,11 +3521,65 @@ const LABOS = [
  fin:() => ({t:S.lab.plis >= 8 ? 'Motif achevé' : S.lab.plis + ' plis sur 8',
    r:'Origami · ' + S.tour + ' tour' + (S.tour > 1 ? 's' : '')
      + ' · écart moyen ± ' + fmt(Math.round(moyEcarts()))
-     + (S.lab.plis >= 8 ? ' · terminé en ' + S.tour + ' tours' : ' · vingt tours au maximum')})}
+     + (S.lab.plis >= 8 ? ' · terminé en ' + S.tour + ' tours' : ' · vingt tours au maximum')})},
+
+/* ─── 11 · Quitte ou double ──────────────────────────────────────── */
+{id:'quitte', n:'Quitte ou double', tours:0,
+ d:"Chaque cible réussie double la cagnotte. Encaisser, ou continuer ?",
+ regle:"La cible est toujours une seconde ronde et la zone ne bouge jamais : "
+   + "±0,12 du début à la fin. Chaque réussite double la cagnotte — 10, 20, "
+   + "40, 80, 160… Après chaque tour réussi, deux boutons : encaisser et "
+   + "s'arrêter là, ou relancer. Un seul tour manqué et la cagnotte tombe à "
+   + "zéro. Le score retenu est ce que vous avez encaissé, jamais ce que vous "
+   + "auriez pu avoir.",
+ astuce:"Ce mode ne mesure pas la précision mais le sang-froid : la zone est "
+   + "large et constante, donc chaque tour a à peu près les mêmes chances. "
+   + "Ce qui change, c'est ce que vous mettez en jeu. Un joueur moyen qui "
+   + "s'arrête à six tours bat un excellent joueur qui vise le neuvième.",
+ cible:() => (S.lab.pas + 1) * 100,
+ zone:() => 12,
+ tour(c){
+   const ok = c.ecart <= 12;
+   if(!ok){
+     // tout est perdu : la cagnotte ne suit pas le joueur hors de la zone
+     S.lab.cagnotte = 0;
+     S.mort = true;
+     return {pts:0, couleur:'t-signal',
+       titre:'Cagnotte perdue',
+       sous:'± ' + fmt(c.ecart) + ' · il fallait rester sous 0,12'};
+   }
+   S.lab.pas++;
+   S.lab.cagnotte = S.lab.cagnotte ? S.lab.cagnotte * 2 : 10;
+   S.points = S.lab.cagnotte;
+   return {pts:0, couleur:c.ecart <= 4 ? 't-s100' : 't-s50',
+     titre:S.lab.cagnotte + ' en jeu',
+     sous:'tour ' + S.lab.pas + ' · ± ' + fmt(c.ecart)
+        + ' · encaisser ou doubler'};
+ },
+ fini:() => S.mort === true || S.lab.encaisse === true,
+ fin:() => {
+   const encaisse = S.lab.encaisse ? S.lab.cagnotte : 0;
+   S.points = encaisse;
+   return {t:encaisse + ' points',
+     r:'Quitte ou double · ' + S.lab.pas + ' tour' + (S.lab.pas > 1 ? 's' : '')
+       + ' tenu' + (S.lab.pas > 1 ? 's' : '')
+       + (S.lab.encaisse ? ' · encaissé' : ' · perdu au tour ' + (S.lab.pas + 1)),
+     rev:{t:S.lab.encaisse ? 'Bien vu' : 'Le tour de trop',
+       s:S.lab.encaisse
+         ? 'Encaissé à ' + encaisse + ' après ' + S.lab.pas + ' tours. '
+           + (S.lab.pas >= 6 ? 'Peu de joueurs vont aussi loin sans tout perdre.'
+              : 'Prudent, mais un point encaissé vaut mieux que dix rêvés.')
+         : 'La cagnotte était à ' + (S.lab.pas ? Math.pow(2, S.lab.pas - 1) * 10 : 0)
+           + ' avant ce dernier tour. '
+           + (S.lab.pas >= 6 ? 'À ce niveau, s\'arrêter était le bon calcul.'
+              : 'La zone ne se resserre jamais : c\'est vous qui montez la mise.')}};
+ }},
 
 ];
 
 const LAB = () => LABOS.find(l => l.id === CFG.mode);
+/* modes visibles uniquement dans l'onglet Test, le temps de les juger */
+const ESSAIS = ['quitte'];
 LABOS.forEach(l => SOLOS.push({id:l.id, n:l.n, tours:l.tours || 0, fam:'labo',
   regle:l.regle, astuce:l.astuce, d:l.d, labo:1}));
 
@@ -3516,7 +3587,8 @@ function initLabo(){
   const l = LAB();
   S.lab = {laps:[], cadrans:[], cadran:0, alarme:0, ouvert:false,
            duree:100, ricochets:0, palier:0, plis:0,
-           pas:0, mesPoints:0, sesPoints:0, fantome:[]};
+           pas:0, mesPoints:0, sesPoints:0, fantome:[],
+           cagnotte:0, encaisse:false};
   S.mort = false;
   if(!l) return;
   if(l.id === 'ricochet') S.lab.duree = 200;
@@ -5350,9 +5422,46 @@ const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', trophees:'
 const ECRANS_SANS_BARRE = ['fluide', 'resultat', 'fin'];
 const porteBarre = id => !ECRANS_SANS_BARRE.includes(id);
 
-function montrer(id){
+/* ─── historique de navigation ─────────────────────────────────────────
+   Un bouton « ‹ » est injecté à gauche de chaque barre de navigation et
+   ramène à l'écran précédemment quitté. La pile est plafonnée : sans ça,
+   un aller-retour répété entre deux écrans la ferait grossir sans fin. */
+const PILE_ECRANS = [];
+const SANS_RETOUR = ['reglages'];   // la racine n'a nulle part où revenir
+function retourEcran(){
+  const cible = PILE_ECRANS.pop();
+  montrer(cible || 'reglages', true);
+}
+function majBoutonsRetour(){
+  const dispo = PILE_ECRANS.length > 0;
+  document.querySelectorAll('.btn-retour').forEach(b => {
+    const ec = b.closest('.ecran');
+    b.style.display = (dispo && ec && !SANS_RETOUR.includes(ec.id)) ? '' : 'none';
+  });
+}
+function injecterRetours(){
+  document.querySelectorAll('.ecran .nav').forEach(nav => {
+    const ec = nav.closest('.ecran');
+    if(!ec || SANS_RETOUR.includes(ec.id) || nav.querySelector('.btn-retour')) return;
+    const b = document.createElement('button');
+    b.className = 'btn-retour';
+    b.setAttribute('aria-label', 'Revenir à l\'écran précédent');
+    b.textContent = '‹';
+    b.onclick = retourEcran;
+    nav.insertBefore(b, nav.firstChild);
+  });
+  majBoutonsRetour();
+}
+
+function montrer(id, sansPile){
   const ecrans = document.querySelectorAll('.ecran');
   if(![...ecrans].some(e => e.id === id)) id = S.partie ? ecranJeu() : 'reglages';
+  const avant = document.querySelector('.ecran.actif');
+  /* on n'empile ni les retours eux-mêmes, ni un écran vers lui-même */
+  if(!sansPile && avant && avant.id !== id){
+    PILE_ECRANS.push(avant.id);
+    if(PILE_ECRANS.length > 12) PILE_ECRANS.shift();
+  }
   ecrans.forEach(e => {
     const actif = e.id === id;
     e.classList.toggle('actif', actif);
@@ -5368,6 +5477,7 @@ function montrer(id){
     B.querySelectorAll('.bb').forEach(b =>
       b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
   }
+  majBoutonsRetour();
 }
 
 // horodatage matériel de l'événement quand il est fiable : supprime le délai
@@ -7660,6 +7770,25 @@ async function proposerPari(){
   majAnneau(); compteursMode('f-');
   vibrerSv(20);
 }
+/* Quitte ou double : le bouton n'apparaît qu'entre deux tours, quand une
+   cagnotte est réellement en jeu. Il est masqué pendant la mesure — comme
+   tout le reste, rien ne doit bouger pendant qu'on chronomètre. */
+function majEncaisser(){
+  const b = $('f-encaisser');
+  if(!b) return;
+  const actif = CFG.mode === 'quitte' && S.partie && !S.encours
+             && S.lab && S.lab.cagnotte > 0 && !S.lab.encaisse && !S.mort;
+  b.classList.toggle('on', !!actif);
+  if(actif) b.textContent = 'Encaisser ' + S.lab.cagnotte;
+}
+if($('f-encaisser')) $('f-encaisser').onclick = () => {
+  if(!S.lab || !S.lab.cagnotte || S.lab.encaisse) return;
+  S.lab.encaisse = true;
+  majEncaisser();
+  /* fini() renvoie désormais true : afficherFin() lira le bilan du mode */
+  afficherFin();
+};
+
 function majPari(){
   const b = $('f-pari');
   b.classList.toggle('on', CFG.mode === 'survie' && S.partie && !!S.pariSurvie);
@@ -7716,6 +7845,7 @@ function fluidePret(){
   S.alerteTour = !!(effB('alerte') && S.tour % effB('alerte') === 0);
   $('fluide').classList.toggle('alerte-tour', !!S.alerteTour);
   majPari();
+  majEncaisser();
 
   if(CFG.mode === 'survie'){
     if(S.tRdv) clearTimeout(S.tRdv);
@@ -10938,9 +11068,10 @@ function construireTest(){
     });
   };
   /* les listes « modes solo » et « laboratoire » ont été retirées de l'onglet
-     Test : les modes solo retenus sont désormais dans le menu, et les modes
-     de laboratoire ont fini leur office. cartesSolo() gère l'absence du
-     conteneur, aucun appel n'est nécessaire ici. */
+     Test : les modes solo retenus sont dans le menu, et les modes de
+     laboratoire ont fini leur office. Seuls restent ici les modes en essai,
+     pas encore jugés bons pour le menu. */
+  cartesSolo('liste-essai', SOLOS.filter(s => ESSAIS.includes(s.id)));
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
     const d = document.createElement('div');
@@ -11282,7 +11413,8 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   // sa classe .avec-barre (qui réserve la place en bas) : elle restait
   // invisible au lancement, puis chevauchait le contenu dès qu'elle
   // apparaissait ailleurs faute de ce padding.
-  montrer(S.partie ? ecranJeu() : 'reglages');
+  injecterRetours();
+  montrer(S.partie ? ecranJeu() : 'reglages', true);
 })();
 </script>
 </body>
