@@ -8043,14 +8043,15 @@ if (btnPariBlindClick) {
     S.cibleBase = S.cible;
     S.zoneTour = zoneDe(nom);
     
-    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' 
+    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' }; // <--- AJOUTE }; ICI
+    
     // À intégrer dans btnPariBlindClick.onclick, juste après avoir défini S.pariActif
     trackEvent('spend_virtual_currency', {
      item_name: 'pari_tactique',
      virtual_currency_name: 'zone_securite',
      value: deltaSec, // Le temps misé (+ ou -)
      pari_type: deltaSec > 0 ? 'hausse' : 'baisse'
-    });              
+    });          
     
     $('f-obj-cible').textContent = fmt(S.cible);
     btnPariBlindClick.textContent = deltaSec > 0 ? '+' + deltaSec + 's' : deltaSec + 's';
