@@ -93,6 +93,46 @@ html[data-da="pop"] .pilule{border-width:2px;box-shadow:3px 3px 0 #141018}
 html[data-da="pop"] .hairline{background:#141018;opacity:1;height:2px}
 html[data-da="pop"] .f-chrono{text-shadow:3px 3px 0 rgba(20,16,24,.15)}
 
+/* ─── Ultraviolet : violet saturé, un seul accent doré, énergique ─── */
+html[data-da="ultraviolet"]{
+  --nuit:#120626; --ardoise:#1E0C3A; --surface:#241040; --trait:#4A2080;
+  --bordDoux:rgba(178,63,201,.24); --ivoire:#F3E9FF; --gris:#B49BD6;
+  --laiton:#FFC94A; --signal:#FF4D8D; --vert:#43F2B0; --alerte:#B23FC9;
+  --s100:#B23FC9; --s50:#8B4FC9; --s20:#FFC94A; --vertVif:#43F2B0;
+}
+html[data-da="ultraviolet"] body{
+  background:
+    radial-gradient(120% 70% at 50% 120%,rgba(178,63,201,.32),transparent 62%),
+    radial-gradient(90% 50% at 50% -10%,rgba(91,33,196,.28),transparent 60%),
+    #120626;
+  background-attachment:fixed;
+}
+html[data-da="ultraviolet"] .f-chrono{text-shadow:0 0 10px rgba(255,201,74,.5),0 0 26px rgba(178,63,201,.4)}
+html[data-da="ultraviolet"] .rond{box-shadow:0 0 18px rgba(178,63,201,.4)}
+html[data-da="ultraviolet"] .pilule{box-shadow:0 0 16px rgba(255,201,74,.3)}
+html[data-da="ultraviolet"] .marque h1{text-shadow:0 0 16px rgba(178,63,201,.55)}
+
+/* ─── Glacier : violet froid, accent cyan plutôt que doré, net et posé ─── */
+html[data-da="glacier"]{
+  --nuit:#140C28; --ardoise:#1C1440; --surface:#241B45; --trait:#3A2A6B;
+  --bordDoux:rgba(125,232,224,.20); --ivoire:#EDE9FA; --gris:#A79BD6;
+  --laiton:#7DE8E0; --signal:#FF7A9C; --vert:#6BE8B0; --alerte:#7A6BD6;
+  --s100:#7A6BD6; --s50:#5FA8D6; --s20:#7DE8E0; --vertVif:#7DE8E0;
+}
+html[data-da="glacier"] body{
+  background:
+    radial-gradient(2px 2px at 20% 30%,rgba(125,232,224,.5),transparent),
+    radial-gradient(1.5px 1.5px at 68% 22%,rgba(125,232,224,.4),transparent),
+    radial-gradient(2px 2px at 44% 62%,rgba(125,232,224,.32),transparent),
+    radial-gradient(1.5px 1.5px at 80% 70%,rgba(125,232,224,.28),transparent),
+    linear-gradient(165deg,#241B45,#140C28 70%);
+  background-attachment:fixed;
+}
+html[data-da="glacier"] .f-chrono{text-shadow:0 0 6px rgba(125,232,224,.45),0 0 16px rgba(125,232,224,.22)}
+html[data-da="glacier"] .rond{box-shadow:0 0 12px rgba(125,232,224,.28)}
+html[data-da="glacier"] .pilule{box-shadow:0 0 12px rgba(125,232,224,.22)}
+html[data-da="glacier"] .marque h1{text-shadow:0 0 12px rgba(125,232,224,.4)}
+
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -1595,6 +1635,19 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--laiton);outline-offset:3px}
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2DL9TC9V1P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Configuration de base : on désactive les pages vues automatiques sur les changements d'historique 
+  // puisqu'il s'agit d'une app sur une seule page.
+  gtag('config', 'G-2DL9TC9V1P', {
+    send_page_view: false 
+  });
+</script>
 </head>
 <body>
 <div id="app">
@@ -1603,7 +1656,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.2.5</div>
+    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.1</div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
@@ -2298,6 +2351,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button data-v="retro" aria-pressed="false">Rétro</button>
       <button data-v="synth" aria-pressed="false">Synthwave</button>
       <button data-v="pop" aria-pressed="false">Pop</button>
+      <button data-v="ultraviolet" aria-pressed="false">Ultraviolet</button>
+      <button data-v="glacier" aria-pressed="false">Glacier</button>
     </div>
     <div class="note" id="note-da">—</div>
 
@@ -2593,7 +2648,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 <script>
 'use strict';
-
+// Fonction sécurisée pour envoyer des événements à GA4
+function trackEvent(eventName, eventParams = {}) {
+  if (typeof gtag === 'function') {
+    gtag('event', eventName, eventParams);
+  } else {
+    console.warn(`GA bloqué, événement ignoré : ${eventName}`, eventParams);
+  }
+}
 /* ═══════════════════════════════════════════════════════════════
    MODE EN LIGNE — clés du projet Supabase.
    La clé ci-dessous est la clé « anon public » : elle est destinée à
@@ -3849,6 +3911,12 @@ function afficherVictoireBoss(nom, biomeQuitteId){
   const fl = document.getElementById('fluide');
   if(fl) fl.classList.add('avt-popup-actif');
   document.getElementById('avt-boss-vaincu').classList.add('on');
+ // À intégrer dans afficherVictoireBoss()
+  trackEvent('unlock_achievement', {
+    achievement_id: 'boss_vaincu',
+    achievement_name: nom, // Le nom du boss (ex: "Le Guetteur des lianes")
+    biome: biomeQuitteId
+  });
 }
 
 function afficherTransitionBiome(id){
@@ -5569,12 +5637,14 @@ function majMem(){
     ? ns.length + ' profil' + (ns.length>1?'s':'') + ' · ' + t + ' tours enregistrés'
     : "Rien d'enregistré. Les profils se créent à la fin d'une partie.";
 }
-// Trois habillages : mêmes composants, palettes différentes.
+// Cinq habillages : mêmes composants, palettes différentes.
 const DA_TXT = {
   instrument:"L'apparence d'origine. Sobre et contrastée, pensée pour rester lisible à bout de bras dans une pièce sombre.",
   retro:"Terminal à phosphore ambré : balayage cathodique, angles droits, une seule couleur chaude. Rétro-futurisme sobre, très lisible.",
   synth:"Rétro-futurisme années 80 : halos, grille spatiale, chiffres électriques. Plus spectaculaire, un peu moins net.",
-  pop:"Fond clair, ombres dures, couleurs franches. Chaleureux et accessible, mais il éblouit dans le noir."
+  pop:"Fond clair, ombres dures, couleurs franches. Chaleureux et accessible, mais il éblouit dans le noir.",
+  ultraviolet:"Violet saturé, un seul accent doré réservé à ce qui s'appuie. Énergique sans grille ni bruit — le plus vif des cinq.",
+  glacier:"Violet profond et froid, accent cyan plutôt que doré. Le plus net et le plus posé, pensé pour de longues sessions."
 };
 function appliquerDA(){
   document.documentElement.dataset.da = CFG.da || 'instrument';
@@ -5583,7 +5653,9 @@ function appliquerDA(){
   const m = document.querySelector('meta[name="theme-color"]');
   if(m) m.setAttribute('content', CFG.da === 'pop' ? '#FDF5E4'
                                 : CFG.da === 'synth' ? '#0B0410'
-                                : CFG.da === 'retro' ? '#0C0A06' : '#0E1116');
+                                : CFG.da === 'retro' ? '#0C0A06'
+                                : CFG.da === 'ultraviolet' ? '#120626'
+                                : CFG.da === 'glacier' ? '#140C28' : '#0E1116');
 }
 segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA(); });
 segmente('seg-min', v => {
@@ -5947,6 +6019,13 @@ async function demarrerPartie(){
   S.blindPret = true; // <-- AJOUTE CETTE LIGNE ICI
 
   afficherPret();
+ // À intégrer dans demarrerPartie()
+  trackEvent('level_start', {
+    level_name: CFG.mode, // ex: 'survie', 'blind', 'classique'
+    difficulty: CFG.diff, // ex: 'simple', 'hard'
+    player_count: S.joueurs.length,
+    blind_bet_active: CFG.pariBlind ? 'oui' : 'non'
+  });
   return true;
 }
 
@@ -8010,7 +8089,15 @@ if (btnPariBlindClick) {
     S.cibleBase = S.cible;
     S.zoneTour = zoneDe(nom);
     
-    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' };
+    S.pariActif = { deltaSec, type: deltaSec > 0 ? 'hausse' : 'baisse' }; // <--- AJOUTE }; ICI
+    
+    // À intégrer dans btnPariBlindClick.onclick, juste après avoir défini S.pariActif
+    trackEvent('spend_virtual_currency', {
+     item_name: 'pari_tactique',
+     virtual_currency_name: 'zone_securite',
+     value: deltaSec, // Le temps misé (+ ou -)
+     pari_type: deltaSec > 0 ? 'hausse' : 'baisse'
+    });          
     
     $('f-obj-cible').textContent = fmt(S.cible);
     btnPariBlindClick.textContent = deltaSec > 0 ? '+' + deltaSec + 's' : deltaSec + 's';
@@ -8143,7 +8230,21 @@ function afficherFin(){
       }
     });
     ecrireMem(); majMem();
-    publierPartie();          // envoi au salon, sans bloquer l'affichage
+    publierPartie();// envoi au salon, sans bloquer l'affichage
+    // À intégrer dans afficherFin()
+  trackEvent('level_end', {
+    level_name: CFG.mode,
+    success: S.mort ? 'false' : 'true'
+  });
+
+  // Si c'est un mode solo avec des points, on envoie le score
+  if (estSolo(CFG.mode) && S.points > 0) {
+    trackEvent('post_score', {
+      level: CFG.mode,
+      character: S.joueurs[0], // Identifie si c'est un habitué
+      score: S.points
+    });
+  }
     publierPerf();            // et au compte, si l'on est connecté
   }
   // l'usage compte TOUTES les parties, abandons compris : c'est le taux
@@ -10824,7 +10925,6 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   // apparaissait ailleurs faute de ce padding.
   montrer(S.partie ? ecranJeu() : 'reglages');
 })();
-init();
 </script>
 </body>
 </html>
