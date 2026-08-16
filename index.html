@@ -128,6 +128,40 @@ html[data-da="ultraviolet"] .pilule,html[data-da="glacier"] .pilule{
 html[data-da="ultraviolet"] .garde .t,html[data-da="glacier"] .garde .t{
   letter-spacing:.01em;text-transform:none}
 
+/* ÉCHELLE TYPOGRAPHIQUE — une chasse normale occupe ~30 % de plus qu'un
+   condensé à taille égale. Les tailles ci-dessous ne sont pas un choix
+   esthétique mais une remise à niveau : sans elles, les titres longs
+   ("PERSONNALISATION", un nom de joueur en 12 lettres, un verdict sur
+   deux lignes) débordent de boîtes dont la hauteur, elle, est fixe. */
+html[data-da="ultraviolet"] .marque h1,html[data-da="glacier"] .marque h1{
+  font-size:clamp(21px,6vw,28px)}
+html[data-da="ultraviolet"] .f-nom,html[data-da="glacier"] .f-nom{
+  font-size:clamp(19px,5.8vw,28px);letter-spacing:0}
+html[data-da="ultraviolet"] .f-verdict .titre,html[data-da="glacier"] .f-verdict .titre{
+  font-size:17.5px;letter-spacing:.01em;text-transform:none;line-height:1.2}
+html[data-da="ultraviolet"] .carte-verdict .titre,html[data-da="glacier"] .carte-verdict .titre{
+  font-size:18.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .evt .n,html[data-da="glacier"] .evt .n{
+  font-size:17px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .recap-titre,html[data-da="glacier"] .recap-titre{
+  font-size:22px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .pr-pseudo,html[data-da="glacier"] .pr-pseudo{
+  font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .tro .n,html[data-da="glacier"] .tro .n{
+  font-size:16.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .garde .t,html[data-da="glacier"] .garde .t{
+  font-size:20px}
+html[data-da="ultraviolet"] .lg-tete .nm,html[data-da="glacier"] .lg-tete .nm{
+  font-size:21px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .avt-trans-nom,html[data-da="glacier"] .avt-trans-nom{
+  font-size:26px;letter-spacing:.01em}
+html[data-da="ultraviolet"] .avt-bv-nom,html[data-da="glacier"] .avt-bv-nom{
+  font-size:21px;letter-spacing:.01em}
+html[data-da="ultraviolet"] .u-n,html[data-da="glacier"] .u-n{font-size:13.5px}
+html[data-da="ultraviolet"] .bouton,html[data-da="glacier"] .bouton{font-size:17px}
+html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{font-size:13.5px}
+/* le chrono reste en mono (chasse fixe) : il n'est pas concerné */
+
 /* cartes : pas de filet dur, un fond translucide et une vraie ombre */
 html[data-da="ultraviolet"] .evt,html[data-da="glacier"] .evt,
 html[data-da="ultraviolet"] .carte-verdict,html[data-da="glacier"] .carte-verdict,
@@ -151,14 +185,25 @@ html[data-da="ultraviolet"] .rond:active,html[data-da="glacier"] .rond:active{
 
 /* ─── Ultraviolet : violet saturé et lumineux, un seul accent doré ─── */
 html[data-da="ultraviolet"]{
-  --nuit:#3E1A8C; --ardoise:#4E22A8; --surface:rgba(255,255,255,.15);
+  --nuit:#35107A; --ardoise:#45148A; --surface:rgba(255,255,255,.15);
   --trait:#7B3FD6;
-  --bordDoux:rgba(255,255,255,.20); --ivoire:#FFFFFF; --gris:#DCC9F5;
-  --laiton:#FFC94A; --signal:#FF6BA8; --vert:#43F2B0; --alerte:#FFC94A;
-  --s100:#FFC94A; --s50:#43F2B0; --s20:#FF9EC7; --vertVif:#43F2B0;
+  --bordDoux:rgba(255,255,255,.22); --ivoire:#FFFFFF; --gris:#E4D7F8;
+  /* échelle de résultat, du meilleur au pire — elle doit se lire d'un coup
+     d'œil sur un fond violet vif, donc chaque cran change aussi de
+     TEMPÉRATURE, pas seulement de teinte :
+       s100 pile      or vif        (l'accent du thème : le meilleur)
+       s50  bon       menthe        (froid, tranche nettement sur le violet)
+       s20  moyen     ambre chaud   (entre l'or et le rouge)
+       s0   raté      corail        (le rose pur se noyait dans le violet) */
+  --laiton:#FFD873; --signal:#FFA894; --vert:#6BF2C8; --alerte:#FFD873;
+  --s100:#FFD873; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
 }
 html[data-da="ultraviolet"] body{
-  background:linear-gradient(168deg,#5B21C4 0%,#8331D6 52%,#B23FC9 100%);
+  /* dégradé approfondi par rapport à la maquette : au ton d'origine
+     (#5B21C4 → #B23FC9), l'échelle de résultat tombait à 2,7:1 de
+     contraste — le « raté » devenait illisible. Ce violet reste franc
+     mais laisse respirer les couleurs qui portent l'information. */
+  background:linear-gradient(168deg,#45148A 0%,#6320AE 52%,#8B2CB4 100%);
   background-attachment:fixed;
 }
 html[data-da="ultraviolet"] .evt,html[data-da="ultraviolet"] .carte-verdict,
@@ -166,26 +211,33 @@ html[data-da="ultraviolet"] .cn-etape,html[data-da="ultraviolet"] .garde{
   background:rgba(255,255,255,.15);
   box-shadow:0 6px 20px rgba(40,8,80,.28)}
 html[data-da="ultraviolet"] .evt.defi-carte{
-  background:rgba(255,201,74,.20);box-shadow:0 6px 22px rgba(40,8,80,.3)}
+  background:rgba(255,216,115,.20);box-shadow:0 6px 22px rgba(40,8,80,.3)}
 html[data-da="ultraviolet"] .evt.defi-carte .n{color:#FFE9A8}
 /* le doré est réservé à ce qui s'appuie : c'est lui qui porte l'action */
 html[data-da="ultraviolet"] .bouton{
-  background:#FFC94A;color:#3A2705;
-  box-shadow:0 5px 0 #C99A1E,0 10px 22px rgba(40,8,80,.35)}
+  background:#FFD873;color:#3A2705;
+  box-shadow:0 5px 0 #C9A23E,0 10px 22px rgba(30,4,64,.4)}
 html[data-da="ultraviolet"] .bouton.fantome{
   background:rgba(255,255,255,.16);color:#fff;
   box-shadow:0 5px 0 rgba(40,8,80,.22)}
-html[data-da="ultraviolet"] .rond.vert{color:#FFC94A}
-html[data-da="ultraviolet"] .rond.vert::after{background:#FFC94A}
+html[data-da="ultraviolet"] .rond.vert{color:#FFD873}
+html[data-da="ultraviolet"] .rond.vert::after{background:#FFD873}
 html[data-da="ultraviolet"] .rond.vert span{color:#3A2705}
 html[data-da="ultraviolet"] .rond{
   box-shadow:0 5px 0 rgba(40,8,80,.3),0 10px 20px rgba(40,8,80,.25)}
-html[data-da="ultraviolet"] .rond.clair span{color:#3E1A8C}
+html[data-da="ultraviolet"] .rond.clair span{color:#35107A}
 html[data-da="ultraviolet"] .seg button{background:rgba(255,255,255,.12);color:#EADCFF}
 html[data-da="ultraviolet"] .seg button[aria-pressed="true"]{
-  background:#FFC94A;color:#3A2705;border-color:#FFC94A}
+  background:#FFD873;color:#3A2705;border-color:#FFD873}
 html[data-da="ultraviolet"] .barre-bas{
-  background:rgba(62,26,140,.92);border-top-color:rgba(255,255,255,.16)}
+  background:rgba(53,16,122,.94);border-top-color:rgba(255,255,255,.16)}
+/* surligner() pose la couleur du joueur en inline avec un fond à 7 %
+   d'opacité : sur un violet vif, ce fond disparaît et les couleurs de
+   joueur sombres deviennent illisibles. On force un cartouche blanc —
+   la couleur du joueur reste portée par le texte, comme sur la maquette. */
+html[data-da="ultraviolet"] .pilule.f-nom{
+  background:#fff !important;border-color:#fff !important;
+  box-shadow:0 4px 14px rgba(40,8,80,.28)}
 html[data-da="ultraviolet"] .f-chrono{text-shadow:0 3px 16px rgba(40,8,80,.4)}
 html[data-da="ultraviolet"] .marque h1{text-shadow:0 3px 18px rgba(40,8,80,.4)}
 
@@ -193,9 +245,16 @@ html[data-da="ultraviolet"] .marque h1{text-shadow:0 3px 18px rgba(40,8,80,.4)}
 html[data-da="glacier"]{
   --nuit:#1A1138; --ardoise:#241B45; --surface:rgba(255,255,255,.07);
   --trait:#3A2A6B;
-  --bordDoux:rgba(125,232,224,.22); --ivoire:#EDE9FA; --gris:#A79BD6;
-  --laiton:#7DE8E0; --signal:#FF7A9C; --vert:#6BE8B0; --alerte:#7A6BD6;
-  --s100:#7DE8E0; --s50:#6BE8B0; --s20:#7A6BD6; --vertVif:#7DE8E0;
+  --bordDoux:rgba(125,232,224,.24); --ivoire:#EDE9FA; --gris:#BAAEE4;
+  /* même échelle, transposée sur fond sombre :
+       s100 pile      cyan glacé    (l'accent du thème)
+       s50  bon       menthe
+       s20  moyen     or chaud
+       s0   raté      rose vif
+     le violet d'origine servait de « moyen » : sur ce fond violet il
+     devenait invisible, d'où l'or à la place. */
+  --laiton:#7DE8E0; --signal:#FF7A9C; --vert:#6BE8B0; --alerte:#7DE8E0;
+  --s100:#7DE8E0; --s50:#6BE8B0; --s20:#FFD27A; --vertVif:#7DE8E0;
 }
 html[data-da="glacier"] body{
   background:
@@ -234,6 +293,11 @@ html[data-da="glacier"] .seg button[aria-pressed="true"]{
   background:#7DE8E0;color:#0B2E2B;border-color:#7DE8E0}
 html[data-da="glacier"] .barre-bas{
   background:rgba(26,17,56,.94);border-top-color:rgba(125,232,224,.18)}
+/* fond sombre : ici le cartouche translucide fonctionne, on l'appuie
+   juste un peu pour que les couleurs de joueur sombres ressortent */
+html[data-da="glacier"] .pilule.f-nom{
+  background:rgba(255,255,255,.10) !important;
+  box-shadow:0 4px 14px rgba(6,2,20,.4)}
 html[data-da="glacier"] .f-chrono{text-shadow:0 0 8px rgba(125,232,224,.35),0 0 20px rgba(125,232,224,.16)}
 html[data-da="glacier"] .marque h1{text-shadow:0 0 14px rgba(125,232,224,.35)}
 
@@ -5758,7 +5822,7 @@ function appliquerDA(){
   if(m) m.setAttribute('content', CFG.da === 'pop' ? '#FDF5E4'
                                 : CFG.da === 'synth' ? '#0B0410'
                                 : CFG.da === 'retro' ? '#0C0A06'
-                                : CFG.da === 'ultraviolet' ? '#5B21C4'
+                                : CFG.da === 'ultraviolet' ? '#45148A'
                                 : CFG.da === 'glacier' ? '#2E2260' : '#0E1116');
 }
 segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA(); });
