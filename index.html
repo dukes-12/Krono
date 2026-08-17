@@ -2080,6 +2080,37 @@ html[data-da="bar"] .f-verdict .titre{font-size:17.5px;letter-spacing:.01em;text
 html[data-da="bar"] .bouton{font-size:17px;letter-spacing:.02em;text-transform:none}
 html[data-da="bar"] .rond{font-size:13.5px;letter-spacing:.02em;text-transform:none;font-weight:700}
 
+/* ─── décompte animé de fin de partie ───────────────────────────────
+   Chaque ligne du calcul apparaît l'une après l'autre, puis le total
+   défile jusqu'à sa valeur. L'animation ne tourne QUE sur l'écran de
+   fin : aucune mesure de précision n'est en cours à ce moment-là. */
+.decompte{margin-top:14px;border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:14px 16px 16px;overflow:hidden}
+.dc-l{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:7px 0;opacity:0;transform:translateY(6px);
+  animation:dcEntre .34s ease forwards}
+.dc-l + .dc-l{border-top:1px solid var(--bordDoux)}
+.dc-l .lb{font-size:15.5px;color:#C3BCAE;line-height:1.3}
+.dc-l .vl{font-family:var(--mono);font-size:15px;font-weight:500;white-space:nowrap}
+.dc-l.prime .lb{color:var(--ivoire)}
+.dc-l.prime .vl{color:var(--laiton)}
+.dc-l.bonus .vl{color:var(--vertVif)}
+.dc-tot{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  margin-top:12px;padding-top:13px;border-top:2px solid var(--laiton);
+  opacity:0;animation:dcEntre .34s ease forwards}
+.dc-tot .lb{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gris)}
+.dc-tot .vl{font-family:var(--mono);font-size:32px;font-weight:600;
+  color:var(--laiton);line-height:1;white-space:nowrap}
+.dc-note{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gris);margin-top:9px;
+  opacity:0;animation:dcEntre .34s ease forwards}
+@keyframes dcEntre{to{opacity:1;transform:translateY(0)}}
+/* respect du réglage système : pas de mouvement, mais tout reste lisible */
+@media (prefers-reduced-motion:reduce){
+  .dc-l,.dc-tot,.dc-note{opacity:1;transform:none;animation:none}
+}
+
 /* ─── réglages numériques du banc d'essai de score ─── */
 .pscore{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:9px 0;border-bottom:1px solid var(--bordDoux)}
@@ -2232,6 +2263,7 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
   <div class="recap-titre" id="fin-titre">Le plus précis</div>
   <div class="note" id="fin-resume">—</div>
   <div class="record-banniere" id="fin-record" style="display:none"></div>
+  <div class="decompte" id="fin-decompte" style="display:none"></div>
   <div class="revelation" id="revelation">
     <div class="t">Ce que dit le chrono</div>
     <div class="s" id="rev-texte">—</div>
@@ -3924,19 +3956,45 @@ const LABOS = [
    const L = S.lab, P = paramsScore();
    let total = S.points;
    let bonus = '';
+   /* les lignes du décompte sont construites ici, dans l'ordre où elles
+      seront révélées à l'écran de fin */
+   const lignes = [
+     {lb:'Points de base', vl:'+' + (L.base || 0)},
+     {lb:'Apport des multiplicateurs', vl:'+' + (L.apport || 0), cls:'bonus'}
+   ];
+   const compte = {};
+   (L.detail || []).forEach(p => {
+     compte[p.n] = compte[p.n] || {n:0, v:0};
+     compte[p.n].n++; compte[p.n].v += p.v;
+   });
+   Object.keys(compte).forEach(n => {
+     lignes.push({lb:n + (compte[n].n > 1 ? ' ×' + compte[n].n : ''),
+                  vl:'+' + compte[n].v, cls:'prime'});
+   });
+   if(!Object.keys(compte).length)
+     lignes.push({lb:'Aucune figure', vl:'—'});
    if(L.sansFaute !== false){
      total = Math.round(total * P.sansFaute);
      bonus = ' · sans-faute ×' + P.sansFaute.toFixed(1).replace('.', ',');
+     lignes.push({lb:'Sans-faute · dix tours dans les ' + P.seuil + ' centièmes',
+                  vl:'×' + P.sansFaute.toFixed(1).replace('.', ','), cls:'bonus'});
+   } else {
+     lignes.push({lb:'Sans-faute', vl:'manqué'});
    }
+   S.decompte = {lignes, total,
+     note:'meilleure série : ' + (L.meilleureSerie || 0) + ' tours'};
    S.points = total;
    const noms = {};
    (L.detail || []).forEach(p => noms[p.n] = (noms[p.n] || 0) + 1);
    const listeP = Object.keys(noms)
      .map(n => n + (noms[n] > 1 ? ' ×' + noms[n] : '')).join(' · ');
-   return {t:total + ' points',
-     r:'Nouveau score · base ' + (L.base || 0)
-       + ' · multiplicateurs +' + (L.apport || 0)
-       + ' · primes +' + (L.primes || 0) + bonus,
+   /* le titre ne donne PAS le total : il est révélé par le décompte juste
+      en dessous, sinon l'animation ne sert plus à rien */
+   return {t:(L.meilleureSerie || 0) >= 8 ? 'Presque parfait'
+            : (L.meilleureSerie || 0) >= 5 ? 'Belle série'
+            : (L.meilleureSerie || 0) >= 3 ? 'Ça tenait' : 'Décousu',
+     r:'Nouveau score · meilleure série ' + (L.meilleureSerie || 0)
+       + ' tours' + bonus,
      rev:{t:'Ce qui a payé',
        s:'Meilleure série : ' + (L.meilleureSerie || 0) + ' tours. '
          + (listeP ? 'Figures : ' + listeP + '. ' : 'Aucune figure. ')
@@ -9088,6 +9146,64 @@ async function detecterRecord(){
   }catch(e){ /* silencieux : la bannière personnelle reste affichée */ }
 }
 
+/* Révèle le calcul ligne par ligne, puis fait défiler le total.
+   Les minuteries passent par S.minuteries : quitter l'écran avant la fin
+   de l'animation les purge, sinon un décompte fantôme continuerait de
+   tourner sur l'écran suivant. */
+function afficherDecompte(d){
+  const M = $('fin-decompte');
+  if(!M) return;
+  if(!d || !d.lignes || !d.lignes.length){
+    M.style.display = 'none'; M.innerHTML = ''; return;
+  }
+  M.innerHTML = '';
+  M.style.display = 'block';
+  const PAS = 260;      // délai entre deux lignes
+
+  d.lignes.forEach((l, i) => {
+    const el = document.createElement('div');
+    el.className = 'dc-l' + (l.cls ? ' ' + l.cls : '');
+    el.style.animationDelay = (i * PAS) + 'ms';
+    el.innerHTML = '<span class="lb"></span><span class="vl"></span>';
+    el.querySelector('.lb').textContent = l.lb;
+    el.querySelector('.vl').textContent = l.vl;
+    M.appendChild(el);
+  });
+
+  const tot = document.createElement('div');
+  tot.className = 'dc-tot';
+  tot.style.animationDelay = (d.lignes.length * PAS) + 'ms';
+  tot.innerHTML = '<span class="lb">Total</span><span class="vl">0</span>';
+  M.appendChild(tot);
+
+  if(d.note){
+    const n = document.createElement('div');
+    n.className = 'dc-note';
+    n.style.animationDelay = ((d.lignes.length + 1) * PAS) + 'ms';
+    n.textContent = d.note;
+    M.appendChild(n);
+  }
+
+  /* le total défile de 0 à sa valeur, en sortie douce */
+  const cible = d.total || 0;
+  const V = tot.querySelector('.vl');
+  const bouge = !window.matchMedia
+    || !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!bouge){ V.textContent = cible; return; }
+
+  S.minuteries.push(setTimeout(() => {
+    const DUREE = 900, t0 = performance.now();
+    const pas = () => {
+      const p = Math.min(1, (performance.now() - t0) / DUREE);
+      // interpolation en sortie douce : rapide au début, freine à l'arrivée
+      V.textContent = Math.round(cible * (1 - Math.pow(1 - p, 3)));
+      if(p < 1) requestAnimationFrame(pas);
+      else { V.textContent = cible; vibrer(20); }
+    };
+    requestAnimationFrame(pas);
+  }, d.lignes.length * PAS + 120));
+}
+
 function afficherFin(){
   purgerMinuteries();
   S.partie = false; S.encours = false;
@@ -9160,6 +9276,8 @@ function afficherFin(){
   }
   const R = $('fin-resume'), TI = $('fin-titre');
   TI.textContent = 'Le plus précis'; R.textContent = MODE().n;
+  const DC = $('fin-decompte');
+  if(DC){ DC.style.display = 'none'; DC.innerHTML = ''; }
   detecterRecord();
   if(CFG.mode === 'elimination'){
     const v = actifs();
@@ -9275,9 +9393,11 @@ function afficherFin(){
         + "abat le gardien en moins de coups, ce qui coûte moins d'erreurs.";
   }
   if(LAB()){
+    S.decompte = null;
     const f = LAB().fin();
     TI.textContent = f.t;
     R.innerHTML = f.r;
+    afficherDecompte(S.decompte);
     if(f.rev){
       rev0.style.display = 'block';
       rev0.querySelector('.t').textContent = f.rev.t;
@@ -9370,7 +9490,10 @@ function afficherFin(){
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
     // réflexe et combat ont déjà écrit leur propre résumé
     const propre = CFG.mode === 'reflexe' || CFG.mode === 'combat';
-    if(CFG.mode !== 'survie') TI.textContent = S.points + ' points';
+    /* le banc d'essai de score révèle son total par le décompte animé :
+       l'écrire dans le titre ici le divulguerait avant l'animation */
+    if(CFG.mode !== 'survie' && CFG.mode !== 'scoring')
+      TI.textContent = S.points + ' points';
     let l = libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
