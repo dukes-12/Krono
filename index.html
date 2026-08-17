@@ -6655,6 +6655,12 @@ function enregistrerListe(){
 }
 function peupler(){
   const solo = estSolo(CFG.mode);
+  if(solo){
+    // même logique qu'à lireListe() : la ligne affichée doit déjà montrer
+    // le bon nom, pas seulement le nom utilisé au lancement de la partie
+    const pseudo = pseudoConnecte();
+    if(pseudo) MEM.joueurs[0] = pseudo;
+  }
   const liste = solo ? MEM.joueurs.slice(0,1) : MEM.joueurs;
   $('liste').innerHTML = '';
   liste.forEach((n,i) => $('liste').appendChild(rang(n, i+1)));
@@ -6666,6 +6672,16 @@ function peupler(){
     : '';
   renumeroter();
 }
+/* Nom de profil du compte connecté, à imposer en solo. Vérification
+   purement locale (lireSession() lit le stockage, sans requête réseau) :
+   un simple changement d'écran ne doit jamais attendre le serveur. Si le
+   profil local n'a pas encore de pseudo synchronisé, on ne force rien —
+   le joueur garde la main tant que son compte n'a pas de nom. */
+function pseudoConnecte(){
+  if(!lireSession()) return null;
+  const p = monPro();
+  return (p && p.pseudo) || null;
+}
 function lireListe(){
   const vus = [...$('liste').querySelectorAll('input')]
     .map((i,k) => i.value.trim() || 'Joueur ' + (k+1));
@@ -6673,6 +6689,10 @@ function lireListe(){
   const gardes = (MEM.joueurs || []).slice();
   if(!gardes.length) return vus;
   gardes[0] = vus[0] || gardes[0];
+  // le pseudo du compte prime toujours en solo : ni le champ texte, ni un
+  // ancien nom mémorisé ne doivent plus jamais s'afficher à sa place
+  const pseudo = pseudoConnecte();
+  if(pseudo) gardes[0] = pseudo;
   return gardes;
 }
 $('ajouter').onclick = () => {
