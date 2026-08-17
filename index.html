@@ -784,6 +784,25 @@ html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement
 .lg-rang.moi .st{color:#9AA5B4}
 .lg-rang .s{font-family:var(--mono);font-size:15px;color:var(--laiton)}
 .lg-rang.moi{background:rgba(201,162,39,.07);border-radius:6px}
+/* ─── écran Global : cartes edge-to-edge plutôt que de simples lignes ───
+   Contrairement à une ligue (quelques membres, liste sobre), un
+   classement à 40 comptes mérite plus de poids visuel par ligne — et un
+   contenu qui va davantage jusqu'aux bords, comme une vraie page de
+   classement plutôt qu'un sous-écran de réglages. On réduit le padding
+   latéral de l'écran ENTIER (en-tête compris) pour que tout reste aligné
+   — pas seulement la liste, sinon le titre resterait en retrait pendant
+   que les cartes s'étireraient plus loin, un décalage plus laid que
+   l'ancien padding uniforme. */
+#global{padding-left:10px;padding-right:10px}
+#global .lg-rang{border:1px solid var(--bordDoux);border-radius:16px;
+  background:var(--surface);padding:13px 14px;margin-top:8px;border-bottom:none}
+#global .lg-rang .p{width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:var(--ardoise);border:1px solid var(--bordDoux);opacity:1}
+#global .lg-rang:nth-child(1) .p{background:var(--laiton);color:#161006;
+  border-color:var(--laiton);font-weight:600}
+#global .lg-rang:nth-child(1){border-color:rgba(201,162,39,.35)}
+#global .lg-rang.moi{background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.4)}
 /* ─── boutique de l'Aventure ─── */
 .bo-tete{display:flex;align-items:baseline;gap:12px;margin-top:6px}
 .bo-xp{font-family:var(--mono);font-size:26px;color:var(--laiton);
@@ -2747,9 +2766,9 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 
     <!-- connecté : la liste -->
     <div id="lgs-dans" style="display:none">
-      <button class="nav-carte" id="lgs-monde" style="margin-top:0">
+      <button class="nav-carte" id="lgs-global" style="margin-top:0">
         <span class="ic">🌍</span>
-        <span class="txt"><span class="n">Classement mondial</span>
+        <span class="txt"><span class="n">Classement global</span>
           <span class="d">Le meilleur score de chaque compte, tous joueurs confondus. Aucune ligue à rejoindre.</span></span>
         <span class="fl">›</span>
       </button>
@@ -2765,16 +2784,16 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 </section>
 
 <!-- ═══ CLASSEMENT MONDIAL ═══ -->
-<section class="ecran" id="monde">
+<section class="ecran" id="global">
   <div class="entete">
-    <div class="marque"><h1>MONDE</h1><span>tous les comptes</span></div>
-    <div class="nav"><button id="mo-retour">Ligues</button></div>
+    <div class="marque"><h1>GLOBAL</h1><span>tous les comptes</span></div>
+    <div class="nav"><button id="gl-retour">Ligues</button></div>
   </div>
   <div class="hairline"></div>
   <div class="defile">
-    <div class="seg" id="seg-mo" style="margin-bottom:8px"></div>
-    <div class="note" id="mo-note">—</div>
-    <div id="mo-classement"></div>
+    <div class="seg" id="seg-gl" style="margin-bottom:8px"></div>
+    <div class="note" id="gl-note">—</div>
+    <div id="gl-classement"></div>
   </div>
 </section>
 
@@ -11045,7 +11064,7 @@ $('pr-ligue').onclick = async () => {
 let INVITATION = null;          // code reçu par lien, à rejoindre après connexion
 let LG_COURANTE = null;          // ligue ouverte dans l'écran de classement
 let LG_MODE = 'solo';            // mode affiché dans son classement
-let MONDE_MODE = 'solo';         // mode affiché dans le classement mondial
+let GLOBAL_MODE = 'solo';        // mode affiché dans le classement global
 
 function messageCompte(e){
   const m = String(e && e.message || e);
@@ -11279,36 +11298,36 @@ async function ouvrirLigues(){
   await majLigues();
 }
 
-/* ─── classement mondial ────────────────────────────────────────────
+/* ─── classement global ─────────────────────────────────────────────
    Même principe qu'une ligue (meilleur score par compte, un mode à la
    fois), mais sans notion d'adhésion : tous les comptes y figurent
    d'office. Contrairement au classement de ligue — qui télécharge les
    perfs des quelques membres puis réduit côté client — l'agrégation se
-   fait ici côté base (fonction classement_mondial), le nombre de
+   fait ici côté base (fonction classement_global), le nombre de
    comptes n'étant pas borné. */
-async function ouvrirMonde(){
-  $('seg-mo').innerHTML = modesLigue().map(id => {
+async function ouvrirGlobal(){
+  $('seg-gl').innerHTML = modesLigue().map(id => {
     const m = SOLOS.find(s => s.id === id) || {n:id};
-    return `<button data-v="${id}" aria-pressed="${id === MONDE_MODE}">${esc(m.n)}</button>`;
+    return `<button data-v="${id}" aria-pressed="${id === GLOBAL_MODE}">${esc(m.n)}</button>`;
   }).join('');
-  $('seg-mo').querySelectorAll('button').forEach(b => b.onclick = () => {
-    MONDE_MODE = b.dataset.v;
-    $('seg-mo').querySelectorAll('button').forEach(x =>
+  $('seg-gl').querySelectorAll('button').forEach(b => b.onclick = () => {
+    GLOBAL_MODE = b.dataset.v;
+    $('seg-gl').querySelectorAll('button').forEach(x =>
       x.setAttribute('aria-pressed', x === b));
-    chargerClassementMonde();
+    chargerClassementGlobal();
   });
-  montrer('monde');
-  await chargerClassementMonde();
+  montrer('global');
+  await chargerClassementGlobal();
 }
-async function chargerClassementMonde(){
-  const C = $('mo-classement');
+async function chargerClassementGlobal(){
+  const C = $('gl-classement');
   C.innerHTML = '';
-  $('mo-note').textContent = 'Chargement…';
+  $('gl-note').textContent = 'Chargement…';
   try{
     const s = await rafraichirSession();
-    const rangs = await apiAuth('rpc/classement_mondial?p_mode=' + MONDE_MODE + '&p_limite=40') || [];
-    const mode = SOLOS.find(x => x.id === MONDE_MODE) || {n:MONDE_MODE};
-    $('mo-note').textContent = !rangs.length
+    const rangs = await apiAuth('rpc/classement_global?p_mode=' + GLOBAL_MODE + '&p_limite=40') || [];
+    const mode = SOLOS.find(x => x.id === GLOBAL_MODE) || {n:GLOBAL_MODE};
+    $('gl-note').textContent = !rangs.length
       ? mode.n + ' · personne n\'a encore publié de score sur ce mode.'
       : mode.n + ' · meilleure partie de chacun · ' + rangs.length
         + ' compte' + (rangs.length > 1 ? 's' : '') + (rangs.length >= 40 ? ' (les 40 premiers)' : '');
@@ -11330,11 +11349,11 @@ async function chargerClassementMonde(){
       </div>`;
     }).join('');
   }catch(e){
-    $('mo-note').textContent = messageCompte(e);
+    $('gl-note').textContent = messageCompte(e);
   }
 }
-$('lgs-monde').onclick = () => ouvrirMonde();
-$('mo-retour').onclick = () => ouvrirLigues();
+$('lgs-global').onclick = () => ouvrirGlobal();
+$('gl-retour').onclick = () => ouvrirLigues();
 
 async function majLigues(){
   const s = EN_LIGNE() ? await rafraichirSession() : null;
