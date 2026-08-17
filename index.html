@@ -354,8 +354,18 @@ html,body{height:100%}
 /* iOS Safari peut laisser voir le blanc par défaut du document pendant
    un rebond de défilement (le fond de <html> n'était jamais posé, seul
    celui de <body> l'était) — visible en filet sous la barre flottante. */
-html{background:var(--nuit)}
+html{background:var(--nuit);height:100%}
 body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
+  /* la bande observée en bas vient d'ailleurs : <body> n'avait aucune
+     hauteur déclarée et dépendait d'un calcul implicite. Sur iOS, la
+     barre d'outils de Safari qui se réduit pendant le défilement change
+     la hauteur visuelle du viewport en cours de route ; ce calcul
+     implicite reste alors périmé un instant, et body s'arrête un peu
+     trop tôt — révélant le fond plat de <html> juste en dessous plutôt
+     que le dégradé texturé du thème. 100dvh (hauteur dynamique du
+     viewport) est justement l'unité prévue pour ce cas : elle se
+     recalcule avec la barre d'outils au lieu de rester figée. */
+  height:100%;min-height:100dvh;
   user-select:none;-webkit-user-select:none;touch-action:manipulation;
   overscroll-behavior:none;overflow:hidden}
 #app{height:100%;max-width:480px;margin:0 auto;position:relative;
@@ -2818,6 +2828,14 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
       </div>
       <div class="note" id="fi-note-duree">—</div></div>
 
+    <div class="bloc" id="fi-bloc-figures" style="display:none">
+      <div class="eyebrow">Nouveau score</div>
+      <details class="depliant">
+        <summary>Figures et combos · Détail</summary>
+        <div class="interieur" id="fi-figures"></div>
+      </details>
+    </div>
+
     <div class="bloc" id="fi-biomes-bloc" style="display:none">
       <div class="eyebrow">Les décors</div>
       <div id="fi-biomes"></div>
@@ -3976,20 +3994,14 @@ const LABOS = [
      · la SÉRIE            — tours consécutifs réussis, un pile OU un
        frôlé. Elle casse au-delà du seuil de rupture (3 centièmes par
        défaut) : rester dans la zone large ne suffit pas à la tenir. */
-{id:'scoring', n:'Nouveau score', tours:10,
- d:"Banc d'essai : chaîne de piles, multiplicateur de série et primes de figures.",
- regle:"Dix tours, comme le Solo classique : les cibles vont de 1,00 à 10,00, "
-   + "de seconde en seconde, sur un chrono qui ne se remet jamais à zéro. "
-   + "Les points de base ne changent pas non plus — pile 100, frôlé 50, "
-   + "dans la zone 20, hors zone 0 — et la chaîne de piles reste celle du Solo "
-   + "classique : 100, 200, 300, 400, 500, puis plafond. Ce qui s'ajoute, c'est "
-   + "la série : chaque tour à 3 centièmes ou moins la prolonge, et elle "
-   + "multiplie les points du tour. Un tour au-delà de 3 centièmes la remet à "
-   + "zéro, même s'il est resté dans la zone. Trois figures rapportent une "
-   + "prime : le Doublé, la Remontée et le Sans-faute.",
- astuce:"Le seuil qui compte n'est plus la zone mais les 3 centièmes. Un tour "
-   + "à 0,20 rapporte quelques points mais casse tout ce qui était en cours — "
-   + "c'est le changement le plus important du barème.",
+{id:'scoring', n:'Scoring', tours:10,
+ d:"Chaîne de piles, série qui multiplie, dix figures.",
+ regle:"Dix tours, cibles de 1,00 à 10,00 comme avant. Pile 100, frôlé 50, "
+   + "zone 20. Les piles d'affilée enchaînent 100, 200, 300… jusqu'à 500. "
+   + "Une série sous 3 centièmes multiplie les points, jusqu'à ×4 — un "
+   + "tour au-delà la casse. Des figures ajoutent des primes, détaillées "
+   + "plus bas.",
+ astuce:"Le seuil qui compte, c'est 3 centièmes — pas la zone.",
  /* exactement la trajectoire du Solo classique : la seconde ronde suivante
     sur le chrono cumulé, donc 1,00 puis 2,00 … jusqu'à 10,00. On appelle
     prochaineCible() plutôt que de recopier la formule, pour que les deux
@@ -4031,7 +4043,7 @@ const LABOS = [
    L.deltas.push(c.delta);
 
    /* ── 4. figures ── */
-   if(pile && L.pilesAvant) primes.push({n:'Doublé', v:P.double});
+   if(pile && L.pilesAvant && P.double > 0) primes.push({n:'Doublé', v:P.double});
    if(pile && L.dernierRate) primes.push({n:'Remontée', v:P.remontee});
 
    /* Métronome — trois tours du même côté, à P.metro centièmes près.
@@ -4243,7 +4255,7 @@ const LABOS = [
 
 const LAB = () => LABOS.find(l => l.id === CFG.mode);
 /* modes visibles uniquement dans l'onglet Test, le temps de les juger */
-const ESSAIS = ['quitte', 'scoring'];
+const ESSAIS = ['quitte', 'solo'];   // Solo classique repart en essai, Nouveau score devient réel
 
 /* ─── paramètres réglables du nouveau barème ──────────────────────────
    Chaque valeur est modifiable depuis l'onglet Test et persiste dans la
@@ -4253,7 +4265,7 @@ const SCORE_DEF = {
   seuil:3,          // centièmes — au-delà, la série casse (frôlé = 3)
   palier:0.5,       // ce que chaque cran de série ajoute au multiplicateur
   plafond:4,        // multiplicateur maximum
-  double:150,       // prime pour deux piles d'affilée
+  double:0,         // désactivé par défaut : redondant avec la chaîne de piles (100→500)
   remontee:100,     // prime pour un pile juste après une rupture
   metronome:200,    // prime pour trois tours du même côté
   metro:2,          // dispersion tolérée entre ces trois écarts
@@ -11736,6 +11748,34 @@ function ouvrirFiche(id){
   aff('fi-bloc-gor',  avecGor);
   aff('fi-bloc-evt',  avecEvt);
   aff('fi-bloc-fin',  avecFin);
+  aff('fi-bloc-figures', id === 'scoring');
+  if(id === 'scoring'){
+    const P = paramsScore();
+    const pct = m => { let s = m.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+      return '×' + s.replace('.', ','); };
+    const FIGURES = [
+      ['Chaîne de piles', 'Piles d\'affilée : 100, 200, 300… jusqu\'à 500.'],
+      ['Série', 'Tour ≤ ' + P.seuil + ' cts : multiplie les points, jusqu\'à ' + pct(P.plafond) + '.'],
+      ...(P.double > 0 ? [['Doublé', 'Deux piles d\'affilée. +' + P.double + '.']] : []),
+      ['Remontée', 'Pile juste après une rupture. +' + P.remontee + '.'],
+      ['Métronome', '3 tours du même côté, écarts proches. +' + P.metronome + '.'],
+      ['Verrou', '5 tours à ' + P.verrouSeuil + ' ct' + (P.verrouSeuil>1?'s':'') + ' max. +' + P.verrou + '.'],
+      ['Crescendo', '4 écarts qui diminuent d\'affilée. +' + P.crescendo + '.'],
+      ['Le dernier mot', 'Pile au 10ᵉ tour. +' + P.dernierMot + '.'],
+      ['Coup double', '2 figures le même tour. +' + P.coupDouble + '.'],
+      ['Symétrie', 'Biais final proche de zéro. +' + P.symetriePrime + '.'],
+      ['Main sûre', P.mainSure + ' tours tenus sur 10, en vrac. +' + P.mainSurePrime + '.'],
+      ['Montée en régime', '2ᵉ moitié ' + P.montee + '× meilleure. +' + P.monteePrime + '.'],
+      ['Sans filet', 'Jamais hors zone. ' + pct(P.sansFilet) + '.'],
+      ['Précision globale', 'Palier selon la moyenne, jusqu\'à ' + pct(PALIERS_PRECISION[0].mult) + '.'],
+      [P.eclipse ? 'Éclipse' : 'Sans-faute', '10/10 dans le seuil. ' + pct(P.sansFaute)
+        + (P.eclipse ? ', remplace Sans filet et Main sûre.' : '.')]
+    ];
+    $('fi-figures').innerHTML = FIGURES.map(([n,d]) =>
+      `<div class="rang-evt" style="cursor:default"><div class="txt">
+        <div class="n">${esc(n)}</div><div class="d">${esc(d)}</div>
+      </div></div>`).join('');
+  }
 
    
 
@@ -12253,7 +12293,7 @@ function construireScores(){
 // les modes sont des réglages à part entière : on les choisit, on ne les lance pas
 // Les modes solo mis en avant dans le menu : les autres restent en test
 // tant qu'ils n'ont pas fait leurs preuves.
-const SOLO_MENU = ['defi', 'solo', 'survie', 'cascade', 'reflexe', 'nues'];
+const SOLO_MENU = ['defi', 'scoring', 'survie', 'cascade', 'reflexe', 'nues'];
 /* le défi du jour a sa place en tête du menu principal : l'afficher une
    seconde fois dans la liste Solo ferait doublon */
 const SOLO_LISTE = SOLO_MENU.filter(id => id !== 'defi');
