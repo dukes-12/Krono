@@ -41,8 +41,12 @@
 html[data-da="synth"]{
   --nuit:#0B0410; --ardoise:#160B22; --surface:#1B0E2A; --trait:#3A2050;
   --bordDoux:rgba(255,60,140,.20); --ivoire:#F4E9FF; --gris:#9A85B4;
-  --laiton:#FFE94A; --signal:#FF3C8C; --vert:#00C9A7; --alerte:#00E6FF;
-  --s100:#00E6FF; --s50:#43F2B0; --s20:#FFE94A; --vertVif:#00E6FF;
+  /* code couleur commun à tous les habillages :
+     pile = violet · bien = vert · moyen = ambre · raté = rouge.
+     Le cyan et le magenta restent l'identité du décor, mais ne notent
+     plus aucun résultat — sinon la même couleur voulait dire deux choses. */
+  --laiton:#FFE94A; --signal:#FF4D6D; --vert:#43F2B0; --alerte:#C77BFF;
+  --s100:#C77BFF; --s50:#43F2B0; --s20:#FFE94A; --vertVif:#43F2B0;
 }
 html[data-da="synth"] body{
   background:
@@ -61,8 +65,11 @@ html[data-da="synth"] .marque h1{text-shadow:0 0 14px rgba(255,60,140,.6)}
 html[data-da="retro"]{
   --nuit:#0C0A06; --ardoise:#171208; --surface:#1E170B; --trait:#4A3A16;
   --bordDoux:rgba(255,176,46,.22); --ivoire:#FFD79A; --gris:#A07C42;
-  --laiton:#FFB02E; --signal:#FF5B2E; --vert:#7BD46A; --alerte:#FFE9A8;
-  --s100:#FFE9A8; --s50:#7BD46A; --s20:#FFB02E; --vertVif:#7BD46A;
+  /* le terminal ambré ne peut pas accueillir un violet sans se renier :
+     le pile garde donc l'ambre le plus clair, presque blanc, qui joue le
+     rôle du « sommet ». Vert et rouge restent tranchés pour le reste. */
+  --laiton:#FFB02E; --signal:#FF6B4A; --vert:#8FE07A; --alerte:#FFE9A8;
+  --s100:#FFE9A8; --s50:#8FE07A; --s20:#FFB02E; --vertVif:#8FE07A;
 }
 html[data-da="retro"] body{
   background:
@@ -82,8 +89,11 @@ html[data-da="retro"] .marque h1{text-shadow:0 0 12px rgba(255,176,46,.45)}
 html[data-da="pop"]{
   --nuit:#FDF5E4; --ardoise:#F0E6D0; --surface:#FFFFFF; --trait:#141018;
   --bordDoux:rgba(20,16,24,.22); --ivoire:#141018; --gris:#6B6560;
-  --laiton:#C87A0A; --signal:#FF4D6D; --vert:#00A79B; --alerte:#7B4DFF;
-  --s100:#7B4DFF; --s50:#00897E; --s20:#B8730A; --vertVif:#00A79B;
+  /* sur fond crème, les couleurs vives d'origine tombaient à 3:1 et le
+     rouge à 2,96:1 — illisible. Toutes assombries : le fond clair impose
+     des teintes saturées et sombres, pas des teintes pastel. */
+  --laiton:#8A5200; --signal:#C62828; --vert:#00695C; --alerte:#5B21C4;
+  --s100:#5B21C4; --s50:#00695C; --s20:#8A5200; --vertVif:#00695C;
 }
 html[data-da="pop"] .rond,html[data-da="pop"] .bouton,
 html[data-da="pop"] .evt,html[data-da="pop"] .carte-verdict{
@@ -92,6 +102,251 @@ html[data-da="pop"] .rond{border-width:3px}
 html[data-da="pop"] .pilule{border-width:2px;box-shadow:3px 3px 0 #141018}
 html[data-da="pop"] .hairline{background:#141018;opacity:1;height:2px}
 html[data-da="pop"] .f-chrono{text-shadow:3px 3px 0 rgba(20,16,24,.15)}
+
+/* ═══════════════════════════════════════════════════════════════
+   Ultraviolet et Glacier : ces deux habillages ne se contentent
+   pas de permuter la palette. Ils changent aussi la FORME —
+   police non condensée, cartes très arrondies posées en relief,
+   boutons à ombre portée. C'est ce qui fait la différence entre
+   « les mêmes écrans en violet » et une vraie direction mobile.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Fabrique commune aux deux : formes rondes, relief, sans condensé.
+   La police passe sur la pile système (SF Pro sur iOS) : géométrique
+   et large, à l'opposé du Barlow Condensed — et surtout aucune
+   requête réseau, donc rien que Safari puisse bloquer. */
+html[data-da="ultraviolet"],html[data-da="glacier"]{
+  --cond:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:20px;
+}
+/* le condensé encaissait un fort interlettrage ; une chasse normale
+   se déliterait avec les mêmes valeurs — on les resserre partout */
+html[data-da="ultraviolet"] .marque h1,html[data-da="glacier"] .marque h1{
+  letter-spacing:.02em;font-size:34px}
+html[data-da="ultraviolet"] .titre-sec,html[data-da="glacier"] .titre-sec{
+  letter-spacing:.14em}
+html[data-da="ultraviolet"] .eyebrow,html[data-da="glacier"] .eyebrow{
+  letter-spacing:.14em}
+html[data-da="ultraviolet"] .bouton,html[data-da="glacier"] .bouton{
+  letter-spacing:.02em;text-transform:none;font-size:19px}
+html[data-da="ultraviolet"] .bouton.fantome,html[data-da="glacier"] .bouton.fantome{
+  letter-spacing:.02em;text-transform:none;font-size:15px}
+html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{
+  letter-spacing:.02em;text-transform:none;font-size:15px}
+html[data-da="ultraviolet"] .pilule,html[data-da="glacier"] .pilule{
+  letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .garde .t,html[data-da="glacier"] .garde .t{
+  letter-spacing:.01em;text-transform:none}
+
+/* ÉCHELLE TYPOGRAPHIQUE — une chasse normale occupe ~30 % de plus qu'un
+   condensé à taille égale. Les tailles ci-dessous ne sont pas un choix
+   esthétique mais une remise à niveau : sans elles, les titres longs
+   ("PERSONNALISATION", un nom de joueur en 12 lettres, un verdict sur
+   deux lignes) débordent de boîtes dont la hauteur, elle, est fixe. */
+html[data-da="ultraviolet"] .marque h1,html[data-da="glacier"] .marque h1{
+  font-size:clamp(21px,6vw,28px)}
+html[data-da="ultraviolet"] .f-nom,html[data-da="glacier"] .f-nom{
+  font-size:clamp(19px,5.8vw,28px);letter-spacing:0}
+html[data-da="ultraviolet"] .f-verdict .titre,html[data-da="glacier"] .f-verdict .titre{
+  font-size:17.5px;letter-spacing:.01em;text-transform:none;line-height:1.2}
+html[data-da="ultraviolet"] .carte-verdict .titre,html[data-da="glacier"] .carte-verdict .titre{
+  font-size:18.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .evt .n,html[data-da="glacier"] .evt .n{
+  font-size:17px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .recap-titre,html[data-da="glacier"] .recap-titre{
+  font-size:22px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .pr-pseudo,html[data-da="glacier"] .pr-pseudo{
+  font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .tro .n,html[data-da="glacier"] .tro .n{
+  font-size:16.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .garde .t,html[data-da="glacier"] .garde .t{
+  font-size:20px}
+html[data-da="ultraviolet"] .lg-tete .nm,html[data-da="glacier"] .lg-tete .nm{
+  font-size:21px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .avt-trans-nom,html[data-da="glacier"] .avt-trans-nom{
+  font-size:26px;letter-spacing:.01em}
+html[data-da="ultraviolet"] .avt-bv-nom,html[data-da="glacier"] .avt-bv-nom{
+  font-size:21px;letter-spacing:.01em}
+html[data-da="ultraviolet"] .u-n,html[data-da="glacier"] .u-n{font-size:13.5px}
+/* Les boutons ▲ ▾ × passaient à la ligne : .rang input a flex:1 mais garde
+   min-width:auto, donc un <input> refuse de rétrécir sous sa taille
+   intrinsèque (~20 caractères). Avec le condensé ça tenait tout juste ;
+   avec une chasse large, plus du tout. min-width:0 l'autorise à rétrécir,
+   et les boutons retrouvent leur place à droite, sur la même ligne. */
+html[data-da="ultraviolet"] .rang input,html[data-da="glacier"] .rang input{
+  min-width:0;font-size:19px;letter-spacing:0}
+html[data-da="ultraviolet"] .rang,html[data-da="glacier"] .rang{gap:7px}
+/* les trois boutons restent groupés à droite quoi qu'il arrive */
+html[data-da="ultraviolet"] .rang .monter,html[data-da="glacier"] .rang .monter{
+  margin-left:auto}
+/* les intitulés de section du menu ("Joueurs · ordre de passage · ▲ remonte")
+   passaient sur deux lignes : 20px de chasse large + .09em d'interlettrage,
+   c'est trop pour la largeur d'un téléphone */
+html[data-da="ultraviolet"] .bloc > .eyebrow,html[data-da="glacier"] .bloc > .eyebrow,
+html[data-da="ultraviolet"] #reglages .defile > .eyebrow,
+html[data-da="glacier"] #reglages .defile > .eyebrow{
+  font-size:16px;letter-spacing:.01em}
+html[data-da="ultraviolet"] .eyebrow,html[data-da="glacier"] .eyebrow{
+  letter-spacing:.12em}
+html[data-da="ultraviolet"] .bouton,html[data-da="glacier"] .bouton{font-size:17px}
+html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{font-size:13.5px}
+/* le chrono reste en mono (chasse fixe) : il n'est pas concerné */
+
+/* cartes : pas de filet dur, un fond translucide et une vraie ombre */
+html[data-da="ultraviolet"] .evt,html[data-da="glacier"] .evt,
+html[data-da="ultraviolet"] .carte-verdict,html[data-da="glacier"] .carte-verdict,
+html[data-da="ultraviolet"] .cn-etape,html[data-da="glacier"] .cn-etape,
+html[data-da="ultraviolet"] .garde,html[data-da="glacier"] .garde{
+  border-radius:20px;border-color:transparent}
+html[data-da="ultraviolet"] .seg button,html[data-da="glacier"] .seg button{
+  border-radius:14px;letter-spacing:.06em}
+
+/* boutons : relief franc, un liseré plus foncé en pied comme une touche */
+html[data-da="ultraviolet"] .bouton,html[data-da="glacier"] .bouton{
+  border-radius:18px}
+html[data-da="ultraviolet"] .bouton:active,html[data-da="glacier"] .bouton:active{
+  transform:translateY(3px)}
+html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{
+  border-width:0}
+html[data-da="ultraviolet"] .rond::after,html[data-da="glacier"] .rond::after{
+  inset:0;opacity:.92}
+html[data-da="ultraviolet"] .rond:active,html[data-da="glacier"] .rond:active{
+  transform:translateY(3px)}
+/* la pastille est désormais pleine (::after inset:0) : si le libellé garde
+   la couleur du bouton, il disparaît dedans. Tout texte de pastille passe
+   donc en sombre, et « Détails » cesse d'être un bouton fantôme. */
+html[data-da="ultraviolet"] .rond span{color:#2E0D66}
+html[data-da="ultraviolet"] .rond,html[data-da="glacier"] .rond{font-weight:700}
+html[data-da="ultraviolet"] .rond[disabled],html[data-da="glacier"] .rond[disabled]{opacity:.4}
+
+/* ─── Ultraviolet : violet saturé et lumineux, un seul accent doré ─── */
+html[data-da="ultraviolet"]{
+  --nuit:#2E0D66; --ardoise:#3A1178; --surface:rgba(255,255,255,.15);
+  --trait:#7B3FD6;
+  --bordDoux:rgba(255,255,255,.22); --ivoire:#FFFFFF; --gris:#E4D7F8;
+  /* échelle de résultat, code couleur universel :
+       s100 pile      VIOLET clair   (le sommet)
+       s50  bon       VERT           (réussi)
+       s20  moyen     ambre          (le cran intermédiaire)
+       s0   raté      ROUGE          (échec)
+     l'or reste l'accent d'interface (boutons, objectif) et ne note plus
+     aucun résultat : les deux registres ne se mélangent plus. */
+  --laiton:#FFD873; --signal:#FF7A7A; --vert:#6BF2C8; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
+}
+html[data-da="ultraviolet"] body{
+  /* dégradé approfondi par rapport à la maquette : au ton d'origine
+     (#5B21C4 → #B23FC9), l'échelle de résultat tombait à 2,7:1 de
+     contraste — le « raté » devenait illisible. Ce violet reste franc
+     mais laisse respirer les couleurs qui portent l'information. */
+  background:linear-gradient(168deg,#3A1178 0%,#52198F 52%,#652286 100%);
+  background-attachment:fixed;
+}
+html[data-da="ultraviolet"] .evt,html[data-da="ultraviolet"] .carte-verdict,
+html[data-da="ultraviolet"] .cn-etape,html[data-da="ultraviolet"] .garde{
+  background:rgba(255,255,255,.15);
+  box-shadow:0 6px 20px rgba(40,8,80,.28)}
+html[data-da="ultraviolet"] .evt.defi-carte{
+  background:rgba(255,216,115,.20);box-shadow:0 6px 22px rgba(40,8,80,.3)}
+html[data-da="ultraviolet"] .evt.defi-carte .n{color:#FFE9A8}
+/* le doré est réservé à ce qui s'appuie : c'est lui qui porte l'action */
+html[data-da="ultraviolet"] .bouton{
+  background:#FFD873;color:#3A2705;
+  box-shadow:0 5px 0 #C9A23E,0 10px 22px rgba(30,4,64,.4)}
+html[data-da="ultraviolet"] .bouton.fantome{
+  background:rgba(255,255,255,.16);color:#fff;
+  box-shadow:0 5px 0 rgba(40,8,80,.22)}
+html[data-da="ultraviolet"] .rond.vert{color:#FFD873}
+html[data-da="ultraviolet"] .rond.vert::after{background:#FFD873}
+html[data-da="ultraviolet"] .rond.vert span{color:#3A2705}
+html[data-da="ultraviolet"] .rond{
+  box-shadow:0 5px 0 rgba(40,8,80,.3),0 10px 20px rgba(40,8,80,.25)}
+html[data-da="ultraviolet"] .rond.clair span{color:#2E0D66}
+html[data-da="ultraviolet"] .seg button{background:rgba(255,255,255,.12);color:#EADCFF}
+html[data-da="ultraviolet"] .seg button[aria-pressed="true"]{
+  background:#FFD873;color:#3A2705;border-color:#FFD873}
+html[data-da="ultraviolet"] .barre-bas{
+  background:rgba(46,13,102,.88);border-color:rgba(255,255,255,.18)}
+/* surligner() pose la couleur du joueur en inline avec un fond à 7 %
+   d'opacité : sur un violet vif, ce fond disparaît et les couleurs de
+   joueur sombres deviennent illisibles. On force un cartouche blanc —
+   la couleur du joueur reste portée par le texte, comme sur la maquette. */
+html[data-da="ultraviolet"] .pilule.f-nom{
+  background:#fff !important;border-color:#fff !important;
+  box-shadow:0 4px 14px rgba(40,8,80,.28)}
+/* aucune surbrillance sur le chrono : le halo brouillait la lecture du
+   chiffre, qui est la seule chose qu'on regarde vraiment pendant la mesure.
+   C'est la couleur seule qui porte le résultat. */
+html[data-da="ultraviolet"] .f-chrono{text-shadow:none}
+html[data-da="ultraviolet"] .marque h1{text-shadow:0 3px 18px rgba(40,8,80,.4)}
+
+/* ─── Glacier : violet profond et froid, accent cyan, net et posé ─── */
+html[data-da="glacier"]{
+  --nuit:#1A1138; --ardoise:#241B45; --surface:rgba(255,255,255,.07);
+  --trait:#3A2A6B;
+  --bordDoux:rgba(125,232,224,.24); --ivoire:#EDE9FA; --gris:#BAAEE4;
+  /* même code couleur que l'Ultraviolet, transposé sur fond sombre :
+       s100 pile      VIOLET clair
+       s50  bon       VERT
+       s20  moyen     ambre
+       s0   raté      ROUGE
+     le cyan reste l'accent d'interface, jamais une note de résultat. */
+  --laiton:#7DE8E0; --signal:#FF7A7A; --vert:#6BF2C8; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
+}
+html[data-da="glacier"] body{
+  background:
+    radial-gradient(2px 2px at 18% 24%,rgba(125,232,224,.45),transparent),
+    radial-gradient(1.5px 1.5px at 72% 18%,rgba(125,232,224,.34),transparent),
+    radial-gradient(2px 2px at 42% 66%,rgba(125,232,224,.26),transparent),
+    radial-gradient(1.5px 1.5px at 84% 74%,rgba(125,232,224,.22),transparent),
+    linear-gradient(165deg,#2E2260 0%,#241B45 45%,#160E30 100%);
+  background-attachment:fixed;
+}
+html[data-da="glacier"] .evt,html[data-da="glacier"] .carte-verdict,
+html[data-da="glacier"] .cn-etape,html[data-da="glacier"] .garde{
+  background:rgba(122,155,235,.11);
+  box-shadow:0 6px 20px rgba(6,2,20,.4)}
+html[data-da="glacier"] .evt.defi-carte{
+  background:rgba(125,232,224,.12);box-shadow:0 6px 22px rgba(6,2,20,.42)}
+html[data-da="glacier"] .evt.defi-carte .n{color:#7DE8E0}
+html[data-da="glacier"] .bouton{
+  background:#7DE8E0;color:#0B2E2B;
+  box-shadow:0 5px 0 #4CB0A8,0 10px 22px rgba(6,2,20,.4)}
+/* Les boutons secondaires se remplissaient d'un lavande translucide qui,
+   sur ce fond violet sombre, rendait presque noir. On les passe à un bleu
+   franc : la famille froide du thème, mais lisible. */
+html[data-da="glacier"] .bouton.fantome{
+  background:#3A5AA8;color:#E8F0FF;border-color:#5A7BC4;
+  box-shadow:0 5px 0 #24396E,0 10px 20px rgba(6,2,20,.35)}
+html[data-da="glacier"] .rond.vert{color:#7DE8E0}
+html[data-da="glacier"] .f-gain,html[data-da="ultraviolet"] .f-gain{font-weight:700}
+html[data-da="glacier"] .rond.vert::after{background:#7DE8E0}
+html[data-da="glacier"] .rond.vert span{color:#0B2E2B}
+/* la pastille se remplit en currentColor : lui donner un bleu clair suffit
+   à la sortir du noir, sans toucher au mécanisme */
+html[data-da="glacier"] .rond{color:#8FB4F2;
+  box-shadow:0 5px 0 #2A3F6B,0 10px 20px rgba(6,2,20,.3)}
+html[data-da="glacier"] .rond span{color:#101C33}
+html[data-da="glacier"] .rond.clair{color:#BFD6FF}
+html[data-da="glacier"] .rond.clair span{color:#101C33}
+/* Arrêter reste en contour rose plutôt qu'en fond plein : sur ce fond
+   sombre, un troisième aplat de couleur écraserait le chrono */
+html[data-da="glacier"] .rond.rouge::after{opacity:.14}
+html[data-da="glacier"] .rond.rouge{border-width:2px;box-shadow:0 5px 0 rgba(6,2,20,.4)}
+html[data-da="glacier"] .seg button{background:rgba(122,155,235,.16);
+  border-color:rgba(143,180,242,.3);color:#CBD9F5}
+html[data-da="glacier"] .seg button[aria-pressed="true"]{
+  background:#7DE8E0;color:#0B2E2B;border-color:#7DE8E0}
+html[data-da="glacier"] .barre-bas{
+  background:rgba(26,17,56,.9);border-color:rgba(125,232,224,.22)}
+/* fond sombre : ici le cartouche translucide fonctionne, on l'appuie
+   juste un peu pour que les couleurs de joueur sombres ressortent */
+html[data-da="glacier"] .pilule.f-nom{
+  background:rgba(255,255,255,.10) !important;
+  box-shadow:0 4px 14px rgba(6,2,20,.4)}
+html[data-da="glacier"] .f-chrono{text-shadow:none}
+html[data-da="glacier"] .marque h1{text-shadow:0 0 14px rgba(125,232,224,.35)}
 
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -105,13 +360,17 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 .ecran.actif{display:flex}
 /* les écrans à onglets laissent la place à la barre du bas */
 .ecran.avec-barre{padding-bottom:0}
-.ecran.avec-barre .defile{padding-bottom:76px}
+.ecran.avec-barre .defile{padding-bottom:96px}
 
 /* ─── barre de navigation fixe ─── */
-.barre-bas{display:none;position:absolute;left:0;right:0;bottom:0;z-index:40;
-  background:rgba(14,17,22,.94);backdrop-filter:blur(14px);
-  border-top:1px solid var(--bordDoux);
-  padding:8px 6px max(6px, env(safe-area-inset-bottom));
+/* barre flottante : détachée des bords, arrondie, posée au-dessus du
+   contenu plutôt que collée en pied d'écran */
+.barre-bas{display:none;position:absolute;z-index:40;
+  left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
+  background:rgba(14,17,22,.86);backdrop-filter:blur(18px);
+  border:1px solid var(--bordDoux);border-radius:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  padding:8px 4px;
   grid-template-columns:repeat(5,1fr);gap:2px}
 .barre-bas.on{display:grid}
 .bb{display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -363,6 +622,24 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .ligne .qui{flex:1;font-size:21px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .ligne .moy{font-family:var(--mono);font-size:13px}
 .attente{color:var(--gris);opacity:.7;font-size:11px}
+/* le classement de fin de partie, seul : cartes arrondies plutôt que de
+   simples lignes séparées par un filet — cohérent avec le reste de la
+   DA (nav-carte, tc-flot) plutôt qu'un vestige de l'ancien style */
+#classement .ligne{border:1px solid var(--bordDoux);border-radius:18px;
+  background:var(--surface);padding:14px 15px;margin-top:10px;border-bottom:none}
+#classement .ligne .pos{width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ardoise);border:1px solid var(--bordDoux);color:var(--gris)}
+#classement .ligne.premier{border-color:rgba(201,162,39,.35)}
+#classement .ligne.premier .pos{background:var(--laiton);color:#161006;
+  border-color:var(--laiton)}
+#classement .jauge{border-radius:7px}
+#classement .jauge .disp{border-radius:7px}
+html[data-da="ultraviolet"] #classement .ligne,html[data-da="glacier"] #classement .ligne,
+html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement .qui{
+  border-radius:20px}
+html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement .qui{
+  font-size:17px;letter-spacing:.01em;text-transform:none}
 /* ligne du panthéon du défi : quatre colonnes fixes, rien ne se chevauche */
 .l-defi{display:grid;grid-template-columns:44px 1fr auto 34px;align-items:baseline;
   gap:10px;padding:11px 0;border-bottom:1px solid var(--trait)}
@@ -1072,6 +1349,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   border:1px solid var(--alerte);border-radius:999px;padding:7px 14px}
 .pari-b.on{display:inline-block}
 .pari-b.pris{background:rgba(155,107,240,.18)}
+/* Encaisser est une action qui met fin à la partie : il prend la couleur
+   des bons résultats, jamais celle du pari */
+#f-encaisser{color:var(--vertVif);border-color:var(--vertVif);pointer-events:auto}
+#f-encaisser.on{display:inline-block}
 #f-pari-blind {
   display: none;
   position: absolute;
@@ -1579,9 +1860,11 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .carte-verdict.t-s20{border-left-color:var(--s20)}
 .carte-verdict.t-s0{border-left-color:var(--signal)}
 .carte-verdict .titre{font-size:23px;font-weight:700;letter-spacing:.04em;
-  text-transform:uppercase;line-height:1.12}
-.carte-verdict .sous{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-  color:var(--gris);margin-top:6px;text-transform:uppercase;line-height:1.55}
+  line-height:1.12}
+/* la description de règle se lit comme une phrase, pas comme un panneau :
+   les capitales forcées la rendaient agressive et plus lente à parcourir */
+.carte-verdict .sous{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;
+  color:var(--gris);margin-top:7px;line-height:1.6}
 .frame .no{font-family:var(--mono);font-size:9.5px;color:var(--gris);opacity:.55;
   width:18px;text-align:right}
 .frame{padding:7px 11px;margin-top:5px;border-radius:12px;background:var(--surface);
@@ -1591,6 +1874,379 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .mini .z-vert{background:rgba(90,178,138,.24);border-radius:999px}
 .mini .z-laiton{background:rgba(214,180,86,.48)}
 .actions{padding-top:11px}
+
+/* ═══════════════════════════════════════════════════════════════
+   Stade · Atelier · Marée
+   Comme Ultraviolet et Glacier, ces trois-là touchent aussi à la
+   FORME, pas seulement à la palette. Les polices restent celles
+   déjà embarquées en base64 (Barlow Condensed, IBM Plex Mono) ou
+   la pile système : aucune requête réseau ajoutée.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Stade : pelouse tondue, jaune de maillot, piste d'athlétisme ─── */
+html[data-da="stade"]{
+  --nuit:#0C3320; --ardoise:#123D28; --surface:rgba(255,255,255,.07);
+  --trait:#1F5637;
+  --bordDoux:rgba(232,255,74,.20); --ivoire:#F2F7F0; --gris:#9FC4AA;
+  --laiton:#E8FF4A; --signal:#FF6B5C; --vert:#5BE88A; --alerte:#C79BFF;
+  --s100:#C79BFF; --s50:#5BE88A; --s20:#E8FF4A; --vertVif:#5BE88A;
+}
+html[data-da="stade"] body{
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 30px,transparent 30px 60px),
+    linear-gradient(178deg,#0C3320 0%,#092817 60%,#061A10 100%);
+  background-attachment:fixed;
+}
+/* l'anneau devient une piste épaisse : un filet fin se perdait sur le vert */
+html[data-da="stade"] #f-anneau-c{stroke-width:9}
+html[data-da="stade"] .evt,html[data-da="stade"] .carte-verdict,
+html[data-da="stade"] .nav-carte,html[data-da="stade"] .garde{
+  background:rgba(255,255,255,.07);border-color:transparent;
+  border-left:3px solid var(--laiton);border-radius:4px 16px 16px 4px}
+html[data-da="stade"] .bouton{
+  background:#E8FF4A;color:#0A2818;border-color:#E8FF4A;
+  box-shadow:0 5px 0 #B5C82E,0 10px 20px rgba(0,0,0,.3)}
+html[data-da="stade"] .bouton.fantome{
+  background:rgba(255,255,255,.09);color:#C3DCC9;
+  box-shadow:0 5px 0 rgba(0,0,0,.28)}
+html[data-da="stade"] .bouton:active{transform:translateY(3px)}
+html[data-da="stade"] .rond{color:#C3DCC9;
+  box-shadow:0 5px 0 rgba(0,0,0,.32),0 10px 18px rgba(0,0,0,.25)}
+html[data-da="stade"] .rond.vert{color:#E8FF4A}
+html[data-da="stade"] .rond span{color:#0A2818}
+html[data-da="stade"] .rond:active{transform:translateY(3px)}
+html[data-da="stade"] .pilule{border-radius:5px}
+html[data-da="stade"] .seg button[aria-pressed="true"]{
+  background:#E8FF4A;color:#0A2818;border-color:#E8FF4A}
+html[data-da="stade"] .barre-bas{background:rgba(9,40,23,.9);
+  border-color:rgba(232,255,74,.2)}
+
+/* ─── Atelier : établi, papier millimétré, cuivre ─── */
+html[data-da="atelier"]{
+  --nuit:#1C1A17; --ardoise:#252220; --surface:#252220; --trait:#3A3530;
+  --bordDoux:rgba(214,138,58,.24); --ivoire:#EFE9DE; --gris:#9A8F7E;
+  --laiton:#D68A3A; --signal:#E05B42; --vert:#7FCB6B; --alerte:#B98CFF;
+  --s100:#B98CFF; --s50:#7FCB6B; --s20:#D68A3A; --vertVif:#7FCB6B;
+}
+html[data-da="atelier"] body{
+  background:
+    repeating-linear-gradient(0deg,rgba(214,138,58,.05) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(90deg,rgba(214,138,58,.04) 0 1px,transparent 1px 22px),
+    #1C1A17;
+  background-attachment:fixed;
+}
+/* aucun arrondi : c'est un instrument, pas une application de loisir */
+html[data-da="atelier"] .evt,html[data-da="atelier"] .carte-verdict,
+html[data-da="atelier"] .nav-carte,html[data-da="atelier"] .garde,
+html[data-da="atelier"] .bouton,html[data-da="atelier"] .seg button,
+html[data-da="atelier"] .pilule,html[data-da="atelier"] .m-carte{border-radius:3px}
+html[data-da="atelier"] .bouton{background:#D68A3A;color:#1C1A17;border-color:#D68A3A}
+html[data-da="atelier"] .bouton.fantome{background:#252220;color:#9A8F7E;border-color:#3A3530}
+html[data-da="atelier"] .rond{border-radius:6px;border-width:2px;border-color:#3A3530}
+html[data-da="atelier"] .rond.vert{border-color:#D68A3A;color:#D68A3A}
+html[data-da="atelier"] .pilule{border-width:2px}
+html[data-da="atelier"] .barre-bas{background:rgba(28,26,23,.94);border-radius:6px;
+  border-color:rgba(214,138,58,.22)}
+html[data-da="atelier"] .hairline{background:#D68A3A;opacity:.35}
+
+/* ─── Marée : turquoise profond qui s'éclaircit vers le bas ─── */
+html[data-da="maree"]{
+  --nuit:#04333C; --ardoise:#0A4A50; --surface:rgba(255,255,255,.12);
+  --trait:#0F6A66;
+  --bordDoux:rgba(255,255,255,.18); --ivoire:#EAFBF8; --gris:#A8D6D1;
+  --laiton:#FFD9A0; --signal:#FF8F7F; --vert:#7BF0B4; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#7BF0B4; --s20:#FFD9A0; --vertVif:#7BF0B4;
+}
+html[data-da="maree"] body{
+  /* le bas du dégradé s'arrête à #064B46 et non au turquoise clair de la
+     maquette : au-delà, le rouge d'échec tombait à 2,3:1, illisible.
+     L'écran s'éclaircit toujours vers le bas, mais sans noyer l'information. */
+  background:linear-gradient(180deg,#04333C 0%,#05423F 55%,#064B46 100%);
+  background-attachment:fixed;
+}
+html[data-da="maree"] .evt,html[data-da="maree"] .carte-verdict,
+html[data-da="maree"] .nav-carte,html[data-da="maree"] .garde{
+  background:rgba(255,255,255,.12);border-color:transparent;border-radius:18px;
+  box-shadow:0 6px 18px rgba(0,20,22,.22)}
+html[data-da="maree"] .bouton{
+  background:#FFD9A0;color:#123B38;border-color:#FFD9A0;
+  box-shadow:0 5px 0 #C9A671,0 10px 20px rgba(0,20,22,.25);border-radius:16px}
+html[data-da="maree"] .bouton.fantome{
+  background:rgba(255,255,255,.14);color:#CFEDE9;
+  box-shadow:0 5px 0 rgba(0,20,22,.2)}
+html[data-da="maree"] .bouton:active{transform:translateY(3px)}
+html[data-da="maree"] .rond{color:#BFE8E3;
+  box-shadow:0 5px 0 rgba(0,20,22,.25),0 10px 18px rgba(0,20,22,.2)}
+html[data-da="maree"] .rond.vert{color:#FFD9A0}
+html[data-da="maree"] .rond span{color:#123B38}
+html[data-da="maree"] .rond:active{transform:translateY(3px)}
+html[data-da="maree"] .seg button[aria-pressed="true"]{
+  background:#FFD9A0;color:#123B38;border-color:#FFD9A0}
+html[data-da="maree"] .barre-bas{background:rgba(6,60,66,.86);
+  border-color:rgba(255,255,255,.2)}
+
+/* Atelier et Marée sortent du condensé, comme Ultraviolet et Glacier */
+html[data-da="atelier"],html[data-da="maree"]{
+  --cond:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html[data-da="atelier"] .marque h1,html[data-da="maree"] .marque h1{
+  font-size:clamp(21px,6vw,28px);letter-spacing:.02em}
+html[data-da="atelier"] .bloc > .eyebrow,html[data-da="maree"] .bloc > .eyebrow,
+html[data-da="atelier"] #reglages .defile > .eyebrow,
+html[data-da="maree"] #reglages .defile > .eyebrow{
+  font-size:16px;letter-spacing:.01em}
+html[data-da="atelier"] .rang input,html[data-da="maree"] .rang input{
+  min-width:0;font-size:19px;letter-spacing:0}
+html[data-da="atelier"] .f-nom,html[data-da="maree"] .f-nom{
+  font-size:clamp(19px,5.8vw,28px);letter-spacing:0}
+html[data-da="atelier"] .nav-carte .n,html[data-da="maree"] .nav-carte .n{
+  font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="atelier"] .f-verdict .titre,html[data-da="maree"] .f-verdict .titre{
+  font-size:17.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="atelier"] .bouton,html[data-da="maree"] .bouton{
+  font-size:17px;letter-spacing:.02em;text-transform:none}
+html[data-da="atelier"] .rond,html[data-da="maree"] .rond{
+  font-size:13.5px;letter-spacing:.02em;text-transform:none;font-weight:700}
+
+/* ─── Casino : feutre vert, or vieilli, liseré de table de jeu ─── */
+html[data-da="casino"]{
+  --nuit:#0B3226; --ardoise:#0F3E2F; --surface:rgba(255,255,255,.055);
+  --trait:#1C5642;
+  --bordDoux:rgba(212,175,90,.26); --ivoire:#F5EED8; --gris:#BFAE86;
+  /* le feutre est vert : le « bien » doit être un vert nettement plus clair
+     que le fond, sinon la réussite se confond avec le décor */
+  --laiton:#D4AF5A; --signal:#FF7A6B; --vert:#6BD98F; --alerte:#D9B8FF;
+  --s100:#D9B8FF; --s50:#6BD98F; --s20:#D4AF5A; --vertVif:#6BD98F;
+}
+html[data-da="casino"] body{
+  background:
+    radial-gradient(1px 1px at 14% 22%,rgba(255,255,255,.05),transparent),
+    radial-gradient(1px 1px at 58% 41%,rgba(255,255,255,.045),transparent),
+    radial-gradient(1px 1px at 33% 68%,rgba(255,255,255,.045),transparent),
+    radial-gradient(1px 1px at 78% 79%,rgba(255,255,255,.04),transparent),
+    /* le haut du dégradé descend de #14513B à #0D3A29 : au ton d'origine,
+       le rouge d'échec tombait à 2,5:1 sur la partie éclairée du feutre */
+    radial-gradient(120% 80% at 50% 0%,#0D3A29 0%,#0A2E23 45%,#061C15 100%);
+  background-attachment:fixed;
+}
+/* l'anneau de zone prend la tranche crantée d'un jeton */
+html[data-da="casino"] #f-anneau-c{stroke-dasharray:7 5;stroke-width:8}
+html[data-da="casino"] .evt,html[data-da="casino"] .carte-verdict,
+html[data-da="casino"] .nav-carte,html[data-da="casino"] .garde{
+  background:rgba(255,255,255,.055);border-color:rgba(212,175,90,.24)}
+html[data-da="casino"] .bouton{background:#D4AF5A;color:#0B3226;border-color:#D4AF5A;
+  border-radius:999px}
+html[data-da="casino"] .bouton.fantome{background:transparent;color:#C9B583;
+  border-color:rgba(212,175,90,.42)}
+html[data-da="casino"] .rond{border-color:rgba(212,175,90,.42);color:#C9B583}
+html[data-da="casino"] .rond.vert{border-color:#D4AF5A;color:#D4AF5A}
+html[data-da="casino"] .pilule{border-radius:999px}
+html[data-da="casino"] .seg button{border-radius:999px}
+html[data-da="casino"] .seg button[aria-pressed="true"]{
+  background:#D4AF5A;color:#0B3226;border-color:#D4AF5A}
+html[data-da="casino"] .barre-bas{background:rgba(11,50,38,.9);
+  border-color:rgba(212,175,90,.3)}
+html[data-da="casino"] .hairline{background:#D4AF5A;opacity:.4}
+
+/* ─── Bar : bois sombre, ambre de whisky, enseigne au néon ─── */
+html[data-da="bar"]{
+  --nuit:#1A0E0B; --ardoise:#241410; --surface:rgba(255,255,255,.06);
+  --trait:#3A2318;
+  --bordDoux:rgba(255,176,58,.20); --ivoire:#F6E7D2; --gris:#A88C6E;
+  --laiton:#FFB03A; --signal:#FF5C7A; --vert:#7BE08F; --alerte:#C79BFF;
+  --s100:#C79BFF; --s50:#7BE08F; --s20:#FFB03A; --vertVif:#7BE08F;
+}
+html[data-da="bar"] body{
+  background:
+    repeating-linear-gradient(91deg,rgba(255,176,58,.03) 0 2px,transparent 2px 17px),
+    linear-gradient(178deg,#241410 0%,#1A0E0B 60%,#120907 100%);
+  background-attachment:fixed;
+}
+/* l'enseigne : le seul élément « allumé » d'un décor entièrement mat */
+html[data-da="bar"] .hairline{height:3px;opacity:1;
+  background:linear-gradient(90deg,#FF5C7A,#FFB03A,#FF5C7A);
+  box-shadow:0 0 14px rgba(255,92,122,.5)}
+html[data-da="bar"] .evt,html[data-da="bar"] .carte-verdict,
+html[data-da="bar"] .nav-carte,html[data-da="bar"] .garde{
+  background:rgba(255,255,255,.06);border-color:transparent;border-radius:16px}
+html[data-da="bar"] .bouton{background:#FFB03A;color:#241410;border-color:#FFB03A;
+  border-radius:999px;box-shadow:0 5px 0 #C4832A,0 10px 20px rgba(0,0,0,.34)}
+html[data-da="bar"] .bouton.fantome{background:rgba(255,255,255,.08);color:#D6BC9C;
+  box-shadow:0 5px 0 rgba(0,0,0,.3)}
+html[data-da="bar"] .bouton:active{transform:translateY(3px)}
+html[data-da="bar"] .rond{color:#D6BC9C;
+  box-shadow:0 5px 0 rgba(0,0,0,.34),0 10px 18px rgba(0,0,0,.28)}
+html[data-da="bar"] .rond.vert{color:#FFB03A}
+html[data-da="bar"] .rond span{color:#241410}
+html[data-da="bar"] .rond:active{transform:translateY(3px)}
+html[data-da="bar"] .pilule{border-radius:999px}
+html[data-da="bar"] .seg button{border-radius:999px}
+html[data-da="bar"] .seg button[aria-pressed="true"]{
+  background:#FFB03A;color:#241410;border-color:#FFB03A}
+html[data-da="bar"] .barre-bas{background:rgba(26,14,11,.9);
+  border-color:rgba(255,176,58,.24)}
+
+/* Bar sort du condensé comme Atelier et Marée ; Casino garde le condensé,
+   qui tient mieux le rôle de titrage de table que la pile système */
+html[data-da="bar"]{--cond:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html[data-da="bar"] .marque h1{font-size:clamp(21px,6vw,28px);letter-spacing:.02em}
+html[data-da="bar"] .bloc > .eyebrow,
+html[data-da="bar"] #reglages .defile > .eyebrow{font-size:16px;letter-spacing:.01em}
+html[data-da="bar"] .rang input{min-width:0;font-size:19px;letter-spacing:0}
+html[data-da="bar"] .f-nom{font-size:clamp(19px,5.8vw,28px);letter-spacing:0}
+html[data-da="bar"] .nav-carte .n{font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="bar"] .f-verdict .titre{font-size:17.5px;letter-spacing:.01em;text-transform:none}
+html[data-da="bar"] .bouton{font-size:17px;letter-spacing:.02em;text-transform:none}
+html[data-da="bar"] .rond{font-size:13.5px;letter-spacing:.02em;text-transform:none;font-weight:700}
+
+/* ─── carrousel des titres de fin de soirée : cartes flottantes ────
+   Contrairement au décompte, ce carrousel attend une interaction (le
+   joueur tape « Suivant ») plutôt que de s'enchaîner tout seul : c'est
+   un moment qu'on fait durer autour de la table, pas un résultat à lire
+   vite. Aucune animation en boucle — tout repose sur une seule
+   transition d'entrée par carte, comme le décompte. */
+.titres-c{position:relative;margin-top:16px;padding:8px 2px 2px;overflow:hidden}
+.tc-tete{display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+.tc-halo{position:absolute;left:50%;top:70px;width:260px;height:260px;
+  transform:translateX(-50%);border-radius:50%;pointer-events:none;z-index:0;
+  transition:background .35s ease}
+.tc-flot{position:relative;z-index:2;margin-top:16px;border-radius:26px;
+  padding:28px 20px 24px;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 18px 38px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.03) inset;
+  animation:tcEntre .4s cubic-bezier(.2,.9,.3,1.3)}
+.tc-ic{font-size:44px;line-height:1}
+.tc-lb{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;margin-top:14px}
+.tc-nm{font-size:29px;font-weight:700;letter-spacing:.02em;margin-top:5px;
+  line-height:1.05;color:var(--ivoire)}
+.tc-ch{font-family:var(--mono);font-size:11px;color:var(--gris);margin-top:8px}
+.tc-ph{font-size:13.5px;font-style:italic;line-height:1.42;margin-top:14px;
+  color:#C3BCAE;padding:0 4px}
+@keyframes tcEntre{from{opacity:0;transform:translateY(16px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}}
+.tc-pile{position:relative;z-index:1;margin:0 auto;border-radius:22px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.tc-pile.p1{width:88%;height:14px;margin-top:-7px}
+.tc-pile.p2{width:76%;height:14px;margin-top:-7px}
+.tc-points{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.tc-points span{width:7px;height:7px;border-radius:50%;background:var(--gris);opacity:.3}
+.tc-points span.on{opacity:1}
+.tc-bas{display:flex;gap:9px;margin-top:14px}
+.tc-btn{flex:1;text-align:center;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:12px 0;border-radius:14px;
+  border:1px solid var(--bordDoux);color:var(--gris);background:none}
+.tc-btn.on{color:var(--nuit);border-color:transparent}
+@media (prefers-reduced-motion:reduce){.tc-flot{animation:none}}
+
+/* vue « Tout voir » : les mêmes titres, empilés en colonne compacte */
+.tc-colonne{position:relative;z-index:2;display:none;flex-direction:column;
+  gap:9px;margin-top:16px}
+.tc-col-item{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;
+  border-radius:16px;border:1px solid;animation:tcEntre .3s ease forwards;opacity:0}
+.tc-col-ic{font-size:22px;line-height:1;flex-shrink:0;width:26px;text-align:center}
+.tc-col-cx{flex:1;min-width:0}
+.tc-col-lb{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+.tc-col-nm{font-size:18px;font-weight:700;letter-spacing:.02em;color:var(--ivoire);
+  margin-top:2px;line-height:1.05}
+.tc-col-ch{font-family:var(--mono);font-size:10px;color:var(--gris);margin-top:3px}
+.tc-col-ph{font-size:12px;font-style:italic;color:#C3BCAE;margin-top:6px;line-height:1.35}
+
+/* ─── décompte animé de fin de partie ───────────────────────────────
+   Chaque ligne du calcul apparaît l'une après l'autre, puis le total
+   défile jusqu'à sa valeur. L'animation ne tourne QUE sur l'écran de
+   fin : aucune mesure de précision n'est en cours à ce moment-là. */
+.decompte{margin-top:14px;border:1px solid var(--bordDoux);border-radius:var(--r);
+  background:var(--surface);padding:14px 16px 16px;overflow:hidden}
+.dc-l{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:7px 0;opacity:0;transform:translateY(6px);
+  animation:dcEntre .34s ease forwards}
+.dc-l + .dc-l{border-top:1px solid var(--bordDoux)}
+.dc-l .lb{font-size:15.5px;color:#C3BCAE;line-height:1.3}
+.dc-l .vl{font-family:var(--mono);font-size:15px;font-weight:500;white-space:nowrap}
+.dc-l.prime .lb{color:var(--ivoire)}
+.dc-l.prime .vl{color:var(--laiton)}
+.dc-l.bonus .vl{color:var(--vertVif)}
+.dc-tot{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  margin-top:12px;padding-top:13px;border-top:2px solid var(--laiton);
+  opacity:0;animation:dcEntre .34s ease forwards}
+.dc-tot .lb{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gris)}
+.dc-tot .vl{font-family:var(--mono);font-size:32px;font-weight:600;
+  color:var(--laiton);line-height:1;white-space:nowrap}
+.dc-note{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gris);margin-top:9px;
+  opacity:0;animation:dcEntre .34s ease forwards}
+@keyframes dcEntre{to{opacity:1;transform:translateY(0)}}
+/* respect du réglage système : pas de mouvement, mais tout reste lisible */
+@media (prefers-reduced-motion:reduce){
+  .dc-l,.dc-tot,.dc-note{opacity:1;transform:none;animation:none}
+}
+
+/* ─── réglages numériques du banc d'essai de score ─── */
+.pscore{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:9px 0;border-bottom:1px solid var(--bordDoux)}
+.pscore .lb{font-size:15px;color:#C3BCAE;flex:1;min-width:0;line-height:1.3}
+.pscore input{width:78px;flex-shrink:0;text-align:right;background:var(--ardoise);
+  border:1px solid var(--bordDoux);border-radius:9px;color:var(--ivoire);
+  font-family:var(--mono);font-size:14px;padding:7px 9px;outline:none}
+.pscore input:focus{border-color:var(--laiton)}
+
+/* ─── bouton retour, injecté dans chaque barre de navigation ─── */
+.nav .btn-retour{font-family:var(--cond);font-size:19px;font-weight:700;
+  letter-spacing:0;line-height:1;padding:4px 12px 7px;color:var(--ivoire);
+  order:99}
+.nav .btn-retour:active{background:var(--ardoise)}
+
+/* ─── coin d'en-tête : version et ☰ centrés l'un sur l'autre ─── */
+.coin-entete{display:flex;align-items:center;gap:10px;margin-left:auto}
+.num-version{font-family:var(--mono);color:var(--gris);font-size:12px;
+  font-style:italic;letter-spacing:.1em;line-height:1}
+
+/* ─── entrées du menu principal ─── */
+.nav-carte{display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  border:1px solid var(--bordDoux);border-radius:var(--r);background:var(--surface);
+  padding:26px 20px;margin-top:12px;cursor:pointer;color:inherit;font:inherit}
+.nav-carte:active{opacity:.72}
+.nav-carte .ic{font-size:34px;line-height:1;flex-shrink:0}
+.nav-carte .txt{flex:1;min-width:0}
+/* nom et description sur deux lignes distinctes : la description n'a plus
+   à se serrer à côté du titre */
+.nav-carte .n{display:block;font-size:27px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;line-height:1.05}
+.nav-carte .d{display:block;font-family:var(--mono);font-size:11.5px;
+  line-height:1.55;color:var(--gris);margin-top:7px}
+.nav-carte .fl{font-size:24px;opacity:.4;flex-shrink:0}
+html[data-da="ultraviolet"] .nav-carte .n,html[data-da="glacier"] .nav-carte .n{
+  font-size:23px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .nav-carte,html[data-da="glacier"] .nav-carte{
+  border-radius:20px;border-color:transparent}
+html[data-da="ultraviolet"] .nav-carte{background:rgba(255,255,255,.15);
+  box-shadow:0 6px 20px rgba(30,4,64,.28)}
+html[data-da="glacier"] .nav-carte{background:rgba(122,155,235,.11);
+  box-shadow:0 6px 20px rgba(6,2,20,.4)}
+
+/* ─── bouton et panneau de réglages rapides ─── */
+.btn-reglages{display:flex;flex-direction:column;justify-content:center;gap:4px;
+  width:38px;height:38px;padding:0 9px;flex-shrink:0;
+  border:1px solid var(--bordDoux);border-radius:11px;background:none}
+.btn-reglages span{display:block;height:2px;border-radius:2px;background:var(--gris)}
+.btn-reglages:active{opacity:.6}
+.panneau-reg{display:none;position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+  align-items:flex-end;justify-content:center}
+.panneau-reg.on{display:flex}
+.pnr-boite{width:100%;max-width:560px;max-height:86vh;overflow-y:auto;
+  background:var(--ardoise);border-top-left-radius:22px;border-top-right-radius:22px;
+  padding:18px 18px calc(24px + env(safe-area-inset-bottom))}
+.pnr-tete{display:flex;align-items:center;justify-content:space-between}
+.pnr-t{font-size:24px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.pnr-x{font-size:19px;color:var(--gris);padding:6px 10px;background:none;border:none}
+html[data-da="ultraviolet"] .pnr-t,html[data-da="glacier"] .pnr-t{
+  font-size:20px;letter-spacing:.01em;text-transform:none}
+html[data-da="ultraviolet"] .pnr-boite{background:#3A1178}
+html[data-da="glacier"] .pnr-boite{background:#241B45}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--laiton);outline-offset:3px}
@@ -1616,10 +2272,41 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 <section class="ecran actif" id="reglages">
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
-    <div style="font-family: var(--mono); color: var(--gris); font-size: 12px; font-style: italic; letter-spacing: 0.1em; margin-top: 12px;">v1.0.1</div>
+    <div class="coin-entete">
+      <span class="num-version">v1.0.1</span>
+      <button class="btn-reglages" id="ouvrir-reglages" aria-label="Réglages"
+              aria-haspopup="dialog"><span></span><span></span><span></span></button>
+    </div>
     <div class="nav" style="display: none;">
       <button id="go-test">Test</button>
     </div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="bloc" style="margin-top:4px">
+      <div id="menu-principal"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MENU SOLO ═══ -->
+<section class="ecran" id="menu-solo">
+  <div class="entete">
+    <div class="marque"><h1>SOLO</h1><span>un joueur, un score</span></div>
+    <div class="nav"><button id="ms-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="note">Un joueur, un score, une progression.</div>
+    <div id="modes-solo"></div>
+  </div>
+</section>
+
+<!-- ═══ MENU SOIRÉE ═══ -->
+<section class="ecran" id="menu-soiree">
+  <div class="entete">
+    <div class="marque"><h1>SOIRÉE</h1><span>un seul téléphone</span></div>
+    <div class="nav"><button id="mso-retour">Menu</button></div>
   </div>
   <div class="hairline"></div>
   <div class="defile">
@@ -1629,44 +2316,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="note" id="note-joueurs"></div>
 
     <div class="bloc">
-      <div class="eyebrow">Solo</div>
-      <div class="note">Un joueur, un score, une progression.</div>
-      <div id="modes-solo"></div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Soirée</div>
+      <div class="eyebrow">Les modes</div>
       <div class="note">Plusieurs joueurs autour d'un seul téléphone.</div>
       <div id="modes-menu"></div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Affichage du chrono</div>
-      <div class="seg" id="seg-min">
-        <button data-v="non" aria-pressed="true">Centièmes</button>
-        <button data-v="oui" aria-pressed="false">Minutes après 60 s</button>
-      </div>
-      <div class="note" id="note-min">—</div>
-    </div>
-
-    <div class="bloc" id="bloc-salon">
-      <div class="eyebrow">Salon en ligne</div>
-      <div class="note" id="salon-etat">—</div>
-      <div class="recap-b" id="salon-b">
-        <button class="bouton fantome" id="salon-creer">Créer un salon</button>
-        <button class="bouton fantome" id="salon-rejoindre">Rejoindre</button>
-      </div>
-    </div>
-
-    <div class="bloc">
-      <div class="eyebrow">Mémoire</div>
-      <div class="note" id="note-mem">—</div>
-      <div class="recap-b">
-        <button class="bouton fantome" id="exporter">Exporter la sauvegarde</button>
-        <button class="bouton fantome" id="importer">Importer</button>
-      </div>
-      <div style="margin-top:8px"><button class="bouton fantome" id="oublier">Effacer les profils</button></div>
-      <input type="file" id="fichier" accept="application/json,.json" style="display:none">
     </div>
   </div>
 </section>
@@ -1684,9 +2336,29 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <div class="recap-titre" id="fin-titre">Le plus précis</div>
   <div class="note" id="fin-resume">—</div>
   <div class="record-banniere" id="fin-record" style="display:none"></div>
+  <div class="decompte" id="fin-decompte" style="display:none"></div>
   <div class="revelation" id="revelation">
     <div class="t">Ce que dit le chrono</div>
     <div class="s" id="rev-texte">—</div>
+  </div>
+  <div class="titres-c" id="titres-c" style="display:none">
+    <div class="tc-halo" id="tc-halo"></div>
+    <div class="tc-tete"><span>Les titres</span><span id="tc-compte">1 / 4</span></div>
+    <div class="tc-flot" id="tc-flot">
+      <div class="tc-ic" id="tc-ic">👑</div>
+      <div class="tc-lb" id="tc-lb">—</div>
+      <div class="tc-nm" id="tc-nm">—</div>
+      <div class="tc-ch" id="tc-ch">—</div>
+      <div class="tc-ph" id="tc-ph">—</div>
+    </div>
+    <div class="tc-pile p1" id="tc-p1"></div>
+    <div class="tc-pile p2" id="tc-p2"></div>
+    <div class="tc-points" id="tc-points"></div>
+    <div class="tc-colonne" id="tc-colonne"></div>
+    <div class="tc-bas">
+      <button class="tc-btn" id="tc-tout">Tout voir</button>
+      <button class="tc-btn on" id="tc-suivant">Suivant</button>
+    </div>
   </div>
   <div class="classement" id="classement"></div>
   <div class="recap-b">
@@ -2311,6 +2983,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button data-v="retro" aria-pressed="false">Rétro</button>
       <button data-v="synth" aria-pressed="false">Synthwave</button>
       <button data-v="pop" aria-pressed="false">Pop</button>
+      <button data-v="ultraviolet" aria-pressed="false">Ultraviolet</button>
+      <button data-v="glacier" aria-pressed="false">Glacier</button>
+      <button data-v="stade" aria-pressed="false">Stade</button>
+      <button data-v="atelier" aria-pressed="false">Atelier</button>
+      <button data-v="maree" aria-pressed="false">Marée</button>
+      <button data-v="casino" aria-pressed="false">Casino</button>
+      <button data-v="bar" aria-pressed="false">Bar</button>
     </div>
     <div class="note" id="note-da">—</div>
 
@@ -2329,10 +3008,18 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     <div class="titre-sec">Modes de soirée en test</div>
     <div id="liste-soirees"></div>
 
-    <div class="titre-sec">Modes solo</div>
-    <div class="note">Chacun mesure une compétence différente.
-      « Lancer » démarre immédiatement une partie.</div>
-    <div id="liste-solos"></div>
+    <div class="titre-sec">Modes en essai</div>
+    <div class="note">Pas encore dans le menu. « Lancer » démarre une partie tout de suite.</div>
+    <div id="liste-essai"></div>
+
+    <div class="titre-sec">Réglages du nouveau score</div>
+    <div class="note">Appliqués au mode « Nouveau score ». Modifiez, relancez une
+      partie, comparez. « Défauts » remet les valeurs d'origine.</div>
+    <div id="params-score"></div>
+    <div style="margin-top:10px">
+      <button class="bouton fantome" id="score-defauts">Défauts</button>
+    </div>
+
 
     <div class="titre-sec">Aventure</div>
     <div class="note">Les mêmes décors que la Survie, privés de tous leurs
@@ -2343,11 +3030,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <button class="bouton fantome" id="go-boutique">Ouvrir la boutique</button>
     </div>
 
-    <div class="titre-sec">Laboratoire · dix modes sans décor</div>
-    <div class="note">Les dix propositions, implémentées telles quelles et
-      volontairement sans habillage : ce qui est jugé ici, c'est le geste.
-      Toucher le nom ouvre la règle complète.</div>
-    <div id="liste-labo"></div>
 
     <div class="titre-sec">Événements</div>
     <div class="note">« Lancer » force l'événement sur le tour suivant. Si aucune partie
@@ -2485,6 +3167,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
     </svg>
     <div class="f-chrono repos" id="f-chrono">0,00</div>
   
+    <button class="pari-b" id="f-encaisser">Encaisser</button>
     <button class="pari-b" id="f-pari"></button>
     <button class="pari-b" id="f-pari-blind" style="pointer-events: auto;"></button>
     <div class="pv-bloc" id="f-pv">
@@ -2589,6 +3272,43 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <button class="bb" id="bb-profil"   role="tab" aria-selected="false"><span class="ic">👤</span><span class="lb">Profil</span></button>
 </nav>
 
+<div class="panneau-reg" id="panneau-reg" role="dialog" aria-modal="true"
+     aria-labelledby="pnr-titre">
+  <div class="pnr-boite">
+    <div class="pnr-tete">
+      <div class="pnr-t" id="pnr-titre">Réglages</div>
+      <button class="pnr-x" id="pnr-fermer" aria-label="Fermer">✕</button>
+    </div>
+    <div class="titre-sec" style="margin-top:4px">Apparence</div>
+    <div class="note">Le changement s'applique tout de suite.</div>
+    <div class="seg" id="seg-da-menu"></div>
+    <div class="note" id="note-da-menu">—</div>
+
+    <div class="titre-sec">Affichage du chrono</div>
+    <div class="seg" id="seg-min">
+      <button data-v="non" aria-pressed="true">Centièmes</button>
+      <button data-v="oui" aria-pressed="false">Minutes après 60 s</button>
+    </div>
+    <div class="note" id="note-min">—</div>
+
+    <div class="titre-sec" id="bloc-salon">Salon en ligne</div>
+    <div class="note" id="salon-etat">—</div>
+    <div class="recap-b" id="salon-b">
+      <button class="bouton fantome" id="salon-creer">Créer un salon</button>
+      <button class="bouton fantome" id="salon-rejoindre">Rejoindre</button>
+    </div>
+
+    <div class="titre-sec">Mémoire</div>
+    <div class="note" id="note-mem">—</div>
+    <div class="recap-b">
+      <button class="bouton fantome" id="exporter">Exporter la sauvegarde</button>
+      <button class="bouton fantome" id="importer">Importer</button>
+    </div>
+    <div style="margin-top:8px"><button class="bouton fantome" id="oublier">Effacer les profils</button></div>
+    <input type="file" id="fichier" accept="application/json,.json" style="display:none">
+  </div>
+</div>
+
 <datalist id="prenoms"></datalist>
 <div class="modale" id="modale">
   <div class="mb">
@@ -2634,7 +3354,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'bar',
               evts:'aucun', maxTours:20, horo:true, pariBlind:false,
-              mode:'classique', da:'instrument', lat:'materiel', minutes:false,
+              mode:'classique', da:'casino', lat:'materiel', minutes:false,
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
       ambiance:true, bloquer:true, fonds:true, flouOcean:false} };
@@ -2727,11 +3447,11 @@ const MODES = [
    d:"Le barème habituel, chacun pour soi."},
   {id:'blind', n:'Blind',
    d:"Cible aléatoire (1 à 10s), chrono caché. La zone et les gorgées s'adaptent à la durée."},
-  {id:'enchere', n:"L'enchère",
+  {id:'enchere', n:"L'enchère", test:1,
    d:"Annoncer la précision qu'on vise avant de lancer."},
-  {id:'elimination', n:'Élimination',
+  {id:'elimination', n:'Élimination', test:1,
    d:"Trois sorties de zone et l'on quitte la table."},
-  {id:'handicap', n:'Handicap',
+  {id:'handicap', n:'Handicap', test:1,
    d:"La zone s'adapte au niveau de chacun."},
   {id:'coop', n:'Coopératif', test:1,
    d:"La table partage trois vies et vise 30 secondes."},
@@ -3187,11 +3907,429 @@ const LABOS = [
  fin:() => ({t:S.lab.plis >= 8 ? 'Motif achevé' : S.lab.plis + ' plis sur 8',
    r:'Origami · ' + S.tour + ' tour' + (S.tour > 1 ? 's' : '')
      + ' · écart moyen ± ' + fmt(Math.round(moyEcarts()))
-     + (S.lab.plis >= 8 ? ' · terminé en ' + S.tour + ' tours' : ' · vingt tours au maximum')})}
+     + (S.lab.plis >= 8 ? ' · terminé en ' + S.tour + ' tours' : ' · vingt tours au maximum')})},
+
+/* ─── 11 · Quitte ou double ──────────────────────────────────────── */
+{id:'quitte', n:'Quitte ou double', tours:0,
+ d:"Chaque cible réussie double la cagnotte. Encaisser, ou continuer ?",
+ regle:"La cible est toujours une seconde ronde et la zone ne bouge jamais : "
+   + "±0,12 du début à la fin. Chaque réussite double la cagnotte — 10, 20, "
+   + "40, 80, 160… Après chaque tour réussi, deux boutons : encaisser et "
+   + "s'arrêter là, ou relancer. Un seul tour manqué et la cagnotte tombe à "
+   + "zéro. Le score retenu est ce que vous avez encaissé, jamais ce que vous "
+   + "auriez pu avoir.",
+ astuce:"Ce mode ne mesure pas la précision mais le sang-froid : la zone est "
+   + "large et constante, donc chaque tour a à peu près les mêmes chances. "
+   + "Ce qui change, c'est ce que vous mettez en jeu. Un joueur moyen qui "
+   + "s'arrête à six tours bat un excellent joueur qui vise le neuvième.",
+ cible:() => (S.lab.pas + 1) * 100,
+ zone:() => 12,
+ tour(c){
+   const ok = c.ecart <= 12;
+   if(!ok){
+     // tout est perdu : la cagnotte ne suit pas le joueur hors de la zone
+     S.lab.cagnotte = 0;
+     S.mort = true;
+     return {pts:0, couleur:'t-signal',
+       titre:'Cagnotte perdue',
+       sous:'± ' + fmt(c.ecart) + ' · il fallait rester sous 0,12'};
+   }
+   S.lab.pas++;
+   S.lab.cagnotte = S.lab.cagnotte ? S.lab.cagnotte * 2 : 10;
+   S.points = S.lab.cagnotte;
+   return {pts:0, couleur:c.ecart <= 4 ? 't-s100' : 't-s50',
+     titre:S.lab.cagnotte + ' en jeu',
+     sous:'tour ' + S.lab.pas + ' · ± ' + fmt(c.ecart)
+        + ' · encaisser ou doubler'};
+ },
+ fini:() => S.mort === true || S.lab.encaisse === true,
+ fin:() => {
+   const encaisse = S.lab.encaisse ? S.lab.cagnotte : 0;
+   S.points = encaisse;
+   return {t:encaisse + ' points',
+     r:'Quitte ou double · ' + S.lab.pas + ' tour' + (S.lab.pas > 1 ? 's' : '')
+       + ' tenu' + (S.lab.pas > 1 ? 's' : '')
+       + (S.lab.encaisse ? ' · encaissé' : ' · perdu au tour ' + (S.lab.pas + 1)),
+     rev:{t:S.lab.encaisse ? 'Bien vu' : 'Le tour de trop',
+       s:S.lab.encaisse
+         ? 'Encaissé à ' + encaisse + ' après ' + S.lab.pas + ' tours. '
+           + (S.lab.pas >= 6 ? 'Peu de joueurs vont aussi loin sans tout perdre.'
+              : 'Prudent, mais un point encaissé vaut mieux que dix rêvés.')
+         : 'La cagnotte était à ' + (S.lab.pas ? Math.pow(2, S.lab.pas - 1) * 10 : 0)
+           + ' avant ce dernier tour. '
+           + (S.lab.pas >= 6 ? 'À ce niveau, s\'arrêter était le bon calcul.'
+              : 'La zone ne se resserre jamais : c\'est vous qui montez la mise.')}};
+ }},
+
+/* ─── 12 · Nouveau score ─────────────────────────────────────────────
+   Banc d'essai du barème à combos. Rien n'est figé : tous les nombres
+   ci-dessous sont réglables depuis l'onglet Test, pour pouvoir juger le
+   ressenti sans recompiler.
+
+   Deux notions distinctes, à ne pas confondre :
+     · la CHAÎNE DE PILES  — pile après pile, 100 → 500, plafonnée à 5.
+       C'est le barème existant du Solo classique, conservé tel quel.
+     · la SÉRIE            — tours consécutifs réussis, un pile OU un
+       frôlé. Elle casse au-delà du seuil de rupture (3 centièmes par
+       défaut) : rester dans la zone large ne suffit pas à la tenir. */
+{id:'scoring', n:'Nouveau score', tours:10,
+ d:"Banc d'essai : chaîne de piles, multiplicateur de série et primes de figures.",
+ regle:"Dix tours, comme le Solo classique : les cibles vont de 1,00 à 10,00, "
+   + "de seconde en seconde, sur un chrono qui ne se remet jamais à zéro. "
+   + "Les points de base ne changent pas non plus — pile 100, frôlé 50, "
+   + "dans la zone 20, hors zone 0 — et la chaîne de piles reste celle du Solo "
+   + "classique : 100, 200, 300, 400, 500, puis plafond. Ce qui s'ajoute, c'est "
+   + "la série : chaque tour à 3 centièmes ou moins la prolonge, et elle "
+   + "multiplie les points du tour. Un tour au-delà de 3 centièmes la remet à "
+   + "zéro, même s'il est resté dans la zone. Trois figures rapportent une "
+   + "prime : le Doublé, la Remontée et le Sans-faute.",
+ astuce:"Le seuil qui compte n'est plus la zone mais les 3 centièmes. Un tour "
+   + "à 0,20 rapporte quelques points mais casse tout ce qui était en cours — "
+   + "c'est le changement le plus important du barème.",
+ /* exactement la trajectoire du Solo classique : la seconde ronde suivante
+    sur le chrono cumulé, donc 1,00 puis 2,00 … jusqu'à 10,00. On appelle
+    prochaineCible() plutôt que de recopier la formule, pour que les deux
+    modes ne puissent jamais diverger. */
+ cible:(total) => prochaineCible(total),
+ zone:() => zoneBase(),
+ tour(c){
+   const P = paramsScore();
+   const L = S.lab;
+   const e = c.ecart;
+   const pile = e === 0;
+   const tenu = e <= P.seuil;          // ce qui prolonge la série
+   const primes = [];
+
+   /* ── 1. points de base, chaîne de piles inchangée ── */
+   let base;
+   if(pile){
+     L.piles = (L.piles || 0) + 1;
+     base = PTS.pile * Math.min(MULT_MAX, L.piles);   // 100 → 500
+   } else {
+     L.piles = 0;
+     base = e <= PRES ? PTS.frole : e <= zoneBase() ? PTS.zone : PTS.rate;
+   }
+
+   /* ── 2. série : elle vit sur le seuil, pas sur la zone ── */
+   const avant = L.serie || 0;
+   L.serie = tenu ? avant + 1 : 0;
+   L.meilleureSerie = Math.max(L.meilleureSerie || 0, L.serie);
+   if(!tenu) L.sansFaute = false;
+   const multi = tenu ? multiSerie(L.serie, P) : 1;
+
+   /* ── 3. mémoire des tours ──
+      On garde l'écart ET son signe : plusieurs figures ne se calculent
+      qu'à partir du côté de l'erreur (trop tôt / trop tard), une donnée
+      que le barème n'exploitait pas du tout jusqu'ici. */
+   L.ecarts = L.ecarts || [];
+   L.deltas = L.deltas || [];
+   L.ecarts.push(e);
+   L.deltas.push(c.delta);
+
+   /* ── 4. figures ── */
+   if(pile && L.pilesAvant) primes.push({n:'Doublé', v:P.double});
+   if(pile && L.dernierRate) primes.push({n:'Remontée', v:P.remontee});
+
+   /* Métronome — trois tours du même côté, à P.metro centièmes près.
+      Récompense l'erreur CONSTANTE, qui est une compétence : c'est elle
+      qu'un joueur doit repérer chez lui pour se corriger. */
+   const d3 = L.deltas.slice(-3);
+   if(d3.length === 3 && !L.metroPris){
+     const memeCote = d3.every(x => x > 0) || d3.every(x => x < 0);
+     const es = d3.map(Math.abs);
+     if(memeCote && Math.max(...es) - Math.min(...es) <= P.metro){
+       primes.push({n:'Métronome', v:P.metronome});
+       L.metroPris = true;      // une seule fois : sinon 5 tours réguliers en donnent 3
+     }
+   }
+
+   /* Verrou — cinq tours d'affilée à 1 centième ou moins. Un second
+      palier de précision, bien plus dur que le seuil de série. */
+   const e5 = L.ecarts.slice(-5);
+   if(e5.length === 5 && !L.verrouPris && e5.every(x => x <= P.verrouSeuil)){
+     primes.push({n:'Verrou', v:P.verrou});
+     L.verrouPris = true;
+   }
+
+   /* Crescendo — quatre écarts qui diminuent strictement. La seule figure
+      qui puisse tomber après un mauvais départ : elle donne une raison de
+      continuer quand la partie commence mal. */
+   const e4 = L.ecarts.slice(-4);
+   if(e4.length === 4 && !L.crescPris
+      && e4[3] < e4[2] && e4[2] < e4[1] && e4[1] < e4[0]){
+     primes.push({n:'Crescendo', v:P.crescendo});
+     L.crescPris = true;
+   }
+
+   /* Le dernier mot — un pile au tour 10. Le seul coup dont on sait, en le
+      jouant, qu'il est le dernier : ça donne enfin un enjeu au tour final. */
+   if(pile && S.tour >= 10 && !L.motPris){
+     primes.push({n:'Le dernier mot', v:P.dernierMot});
+     L.motPris = true;
+   }
+
+   /* Coup double — figure méta : elle récompense la coïncidence de deux
+      figures dans le même tour. Calculée en dernier, sur la liste déjà
+      figée, pour qu'elle ne puisse pas se déclencher sur elle-même. */
+   if(primes.length >= 2) primes.push({n:'Coup double', v:P.coupDouble});
+
+   L.pilesAvant = pile;
+   L.dernierRate = !tenu;
+
+   const gagnePrimes = primes.reduce((a,p) => a + p.v, 0);
+   const pts = Math.round(base * multi) + gagnePrimes;
+   L.base = (L.base || 0) + base;
+   L.apport = (L.apport || 0) + (Math.round(base * multi) - base);
+   L.primes = (L.primes || 0) + gagnePrimes;
+   L.detail = L.detail || [];
+   primes.forEach(p => L.detail.push(p));
+   S.points += pts;
+
+   const calc = base + (multi > 1 ? ' × ' + multi.toFixed(1).replace('.', ',') : '')
+     + (gagnePrimes ? ' + ' + gagnePrimes : '')
+     + ' = ' + pts;
+   return {pts:0,
+     couleur:pile ? 't-s100' : e <= PRES ? 't-s50' : e <= zoneBase() ? 't-s20' : 't-s0',
+     titre:'+' + pts + ' points'
+       + (primes.length ? '  ·  ' + primes.map(p => p.n).join(' + ') : ''),
+     sous:calc + ' · série ' + L.serie
+        + (L.piles > 1 ? ' · chaîne de ' + L.piles + ' piles' : '')
+        + ' · total ' + S.points};
+ },
+ fini:() => S.tour >= 10,
+ fin:() => {
+   const L = S.lab, P = paramsScore();
+   let total = S.points;
+   let bonus = '';
+   /* les lignes du décompte sont construites ici, dans l'ordre où elles
+      seront révélées à l'écran de fin */
+   const lignes = [
+     {lb:'Points de base', vl:'+' + (L.base || 0)},
+     {lb:'Apport des multiplicateurs', vl:'+' + (L.apport || 0), cls:'bonus'}
+   ];
+   const compte = {};
+   (L.detail || []).forEach(p => {
+     compte[p.n] = compte[p.n] || {n:0, v:0};
+     compte[p.n].n++; compte[p.n].v += p.v;
+   });
+   Object.keys(compte).forEach(n => {
+     lignes.push({lb:n + (compte[n].n > 1 ? ' ×' + compte[n].n : ''),
+                  vl:'+' + compte[n].v, cls:'prime'});
+   });
+   /* ── Symétrie : figure de bilan, jamais de tour ──
+      Le biais cumulé (somme des deltas SIGNÉS) finit près de zéro : les
+      avances et les retards se sont compensés. Le jeu mesure déjà cette
+      qualité dans le profil, mais ne l'avait jamais récompensée.
+      Elle est calculée AVANT la ligne « aucune figure », sinon celle-ci
+      s'afficherait juste au-dessus d'une figure obtenue. */
+   const biais = (L.deltas || []).reduce((a, b) => a + b, 0);
+   const symOk = (L.deltas || []).length && Math.abs(biais) <= P.symetrie;
+   if(symOk){
+     total += P.symetriePrime;
+     L.primes = (L.primes || 0) + P.symetriePrime;
+     lignes.push({lb:'Symétrie · biais final ' + (biais > 0 ? '+' : '')
+                    + fmt(biais), vl:'+' + P.symetriePrime, cls:'prime'});
+   }
+   if(!Object.keys(compte).length && !symOk)
+     lignes.push({lb:'Aucune figure', vl:'—'});
+
+   /* ── Main sûre : huit tours tenus, même non consécutifs ──
+      Tout le reste du barème repose sur la consécutivité : une erreur au
+      tour 5 efface la série et la plupart des figures. C'est la seule
+      figure qui juge le total sans se soucier de l'ordre. */
+   const tenus = (L.ecarts || []).filter(x => x <= P.seuil).length;
+   if(tenus >= P.mainSure){
+     total += P.mainSurePrime;
+     L.primes = (L.primes || 0) + P.mainSurePrime;
+     lignes.push({lb:'Main sûre · ' + tenus + ' tours dans les ' + P.seuil
+                    + ' centièmes', vl:'+' + P.mainSurePrime, cls:'prime'});
+   }
+
+   /* ── Montée en régime : la seconde moitié bat la première ──
+      Crescendo exige quatre tours qui s'améliorent d'affilée, ce qui est
+      rare. Celle-ci juge la tendance, donc elle récompense l'apprentissage
+      en cours de partie et tombe bien plus souvent. */
+   const E = L.ecarts || [];
+   if(E.length >= 6){
+     const moit = Math.floor(E.length / 2);
+     const m1 = E.slice(0, moit).reduce((a, b) => a + b, 0) / moit;
+     const m2 = E.slice(-moit).reduce((a, b) => a + b, 0) / moit;
+     if(m2 * P.montee <= m1 && m1 > 0){
+       total += P.monteePrime;
+       L.primes = (L.primes || 0) + P.monteePrime;
+       lignes.push({lb:'Montée en régime · ± ' + fmt(Math.round(m1))
+                      + ' puis ± ' + fmt(Math.round(m2)),
+                    vl:'+' + P.monteePrime, cls:'prime'});
+     }
+   }
+
+   /* ── Sans filet : aucun tour sorti de la zone ──
+      Critère bien plus large que le Sans-faute : c'est le palier d'entrée
+      du même registre, celui qu'un joueur voit dès ses premières parties. */
+   if(E.length && E.every(x => x <= zoneBase())){
+     const g = Math.round(total * (P.sansFilet - 1));
+     total += g;
+     L.primes = (L.primes || 0) + g;
+     lignes.push({lb:'Sans filet · jamais sorti de la zone',
+                  vl:'×' + P.sansFilet.toFixed(2).replace('.', ','), cls:'bonus'});
+   }
+
+   /* ── Palier de précision ──
+      Le seul élément du barème qui juge la précision MOYENNE plutôt qu'une
+      séquence. Un joueur régulier mais sans figure sort enfin récompensé. */
+   const moy = (L.ecarts || []).length
+     ? (L.ecarts.reduce((a, b) => a + b, 0) / L.ecarts.length) : 999;
+   const pal = PALIERS_PRECISION.find(p => moy <= p.max);
+   if(pal){
+     const gain = Math.round(total * (pal.mult - 1));
+     total += gain;
+     L.primes = (L.primes || 0) + gain;
+     lignes.push({lb:'Précision · ' + pal.n + ' (moyenne ± ' + fmt(Math.round(moy)) + ')',
+                  vl:'×' + pal.mult.toFixed(2).replace('.', ','), cls:'bonus'});
+   } else {
+     lignes.push({lb:'Précision · moyenne ± ' + fmt(Math.round(moy)), vl:'—'});
+   }
+
+   if(L.sansFaute !== false){
+     total = Math.round(total * P.sansFaute);
+     bonus = ' · sans-faute ×' + P.sansFaute.toFixed(1).replace('.', ',');
+     lignes.push({lb:'Sans-faute · dix tours dans les ' + P.seuil + ' centièmes',
+                  vl:'×' + P.sansFaute.toFixed(1).replace('.', ','), cls:'bonus'});
+   } else {
+     lignes.push({lb:'Sans-faute', vl:'manqué'});
+   }
+   S.decompte = {lignes, total,
+     note:'meilleure série : ' + (L.meilleureSerie || 0) + ' tours'};
+   S.points = total;
+   const noms = {};
+   (L.detail || []).forEach(p => noms[p.n] = (noms[p.n] || 0) + 1);
+   const listeP = Object.keys(noms)
+     .map(n => n + (noms[n] > 1 ? ' ×' + noms[n] : '')).join(' · ');
+   /* le titre ne donne PAS le total : il est révélé par le décompte juste
+      en dessous, sinon l'animation ne sert plus à rien */
+   return {t:(L.meilleureSerie || 0) >= 8 ? 'Presque parfait'
+            : (L.meilleureSerie || 0) >= 5 ? 'Belle série'
+            : (L.meilleureSerie || 0) >= 3 ? 'Ça tenait' : 'Décousu',
+     r:'Nouveau score · meilleure série ' + (L.meilleureSerie || 0)
+       + ' tours' + bonus,
+     rev:{t:'Ce qui a payé',
+       s:'Meilleure série : ' + (L.meilleureSerie || 0) + ' tours. '
+         + (listeP ? 'Figures : ' + listeP + '. ' : 'Aucune figure. ')
+         + ((L.apport || 0) > (L.base || 0) / 2
+            ? 'Les multiplicateurs ont pesé plus que les points eux-mêmes : '
+              + 'c\'est exactement ce que ce barème cherche à provoquer.'
+            : 'Les séries sont restées courtes — le barème ne s\'est jamais '
+              + 'emballé, il faudrait peut-être adoucir le seuil de rupture.')}};
+ }},
 
 ];
 
 const LAB = () => LABOS.find(l => l.id === CFG.mode);
+/* modes visibles uniquement dans l'onglet Test, le temps de les juger */
+const ESSAIS = ['quitte', 'scoring'];
+
+/* ─── paramètres réglables du nouveau barème ──────────────────────────
+   Chaque valeur est modifiable depuis l'onglet Test et persiste dans la
+   sauvegarde : le but est de pouvoir tester plusieurs équilibrages dans
+   la même soirée sans toucher au code. */
+const SCORE_DEF = {
+  seuil:3,          // centièmes — au-delà, la série casse (frôlé = 3)
+  palier:0.5,       // ce que chaque cran de série ajoute au multiplicateur
+  plafond:4,        // multiplicateur maximum
+  double:150,       // prime pour deux piles d'affilée
+  remontee:100,     // prime pour un pile juste après une rupture
+  metronome:200,    // prime pour trois tours du même côté
+  metro:2,          // dispersion tolérée entre ces trois écarts
+  verrou:220,       // prime pour cinq tours très serrés
+  verrouSeuil:1,    // « très serré » = 1 centième ou moins
+  crescendo:250,    // prime pour quatre écarts qui diminuent
+  symetriePrime:160,// prime pour un biais final quasi nul
+  symetrie:3,       // tolérance sur ce biais, en centièmes
+  dernierMot:250,   // prime pour un pile au dernier tour
+  coupDouble:150,   // prime quand deux figures tombent le même tour
+  mainSure:8,       // nombre de tours tenus exigé, ordre indifférent
+  mainSurePrime:180,
+  montee:2,         // la 2e moitié doit être N fois meilleure que la 1re
+  monteePrime:240,
+  sansFilet:1.10,   // multiplicateur si aucun tour hors de la zone
+  sansFaute:1.5     // multiplicateur du total si aucun tour au-dessus du seuil
+};
+const SCORE_LBL = {
+  seuil:'Seuil de rupture (centièmes)',
+  palier:'Gain de multiplicateur par cran',
+  plafond:'Plafond du multiplicateur',
+  double:'Prime · Doublé',
+  remontee:'Prime · Remontée',
+  metronome:'Prime · Métronome',
+  metro:'Métronome · dispersion tolérée',
+  verrou:'Prime · Verrou',
+  verrouSeuil:'Verrou · seuil (centièmes)',
+  crescendo:'Prime · Crescendo',
+  symetriePrime:'Prime · Symétrie',
+  symetrie:'Symétrie · biais toléré',
+  dernierMot:'Prime · Le dernier mot',
+  coupDouble:'Prime · Coup double',
+  mainSure:'Main sûre · tours exigés',
+  mainSurePrime:'Prime · Main sûre',
+  montee:'Montée · facteur exigé',
+  monteePrime:'Prime · Montée en régime',
+  sansFilet:'Bonus · Sans filet (× total)',
+  sansFaute:'Bonus · Sans-faute (× total)'
+};
+
+/* Paliers de précision globale — le seul élément du barème qui juge la
+   précision MOYENNE de la partie plutôt qu'une séquence de tours. Un
+   joueur régulier qui ne déclenche aucune figure sort enfin récompensé.
+   L'ordre compte : on retient le PREMIER palier atteint, donc du plus
+   exigeant au plus large. */
+const PALIERS_PRECISION = [
+  {max:2,  n:'chirurgical', mult:1.60},
+  {max:4,  n:'excellent',   mult:1.40},
+  {max:7,  n:'très bon',    mult:1.25},
+  {max:12, n:'bon',         mult:1.12},
+  {max:20, n:'correct',     mult:1.05}
+];
+function construireParamsScore(){
+  const M = $('params-score');
+  if(!M) return;
+  const P = paramsScore();
+  M.innerHTML = '';
+  Object.keys(SCORE_DEF).forEach(k => {
+    const l = document.createElement('label');
+    l.className = 'pscore';
+    /* pas est adapté à la nature du réglage : les primes se comptent en
+       dizaines de points, les multiplicateurs au dixième */
+    const decimal = (k === 'palier' || k === 'sansFaute' || k === 'plafond');
+    l.innerHTML = '<span class="lb">' + SCORE_LBL[k] + '</span>';
+    const i = document.createElement('input');
+    i.type = 'number';
+    i.step = decimal ? '0.1' : (k === 'seuil' ? '1' : '10');
+    i.min = '0';
+    i.value = P[k];
+    i.oninput = () => {
+      const v = parseFloat(i.value);
+      if(isNaN(v)) return;
+      MEM.score = Object.assign({}, paramsScore(), {[k]:v});
+      ecrireMem();
+    };
+    l.appendChild(i);
+    M.appendChild(l);
+  });
+  /* liaison ici plutôt qu'au niveau supérieur : ce bloc s'exécute avant la
+     définition de $, et une liaison globale déclenchait une erreur de zone
+     morte temporelle qui bloquait tout le script */
+  const d = $('score-defauts');
+  if(d) d.onclick = () => { MEM.score = null; ecrireMem(); construireParamsScore(); };
+}
+
+function paramsScore(){
+  return Object.assign({}, SCORE_DEF, (MEM.score || {}));
+}
+/* série 1 → ×1, puis +palier par cran, borné au plafond */
+function multiSerie(n, P){
+  if(n <= 1) return 1;
+  return Math.min(P.plafond, 1 + (n - 1) * P.palier);
+}
 LABOS.forEach(l => SOLOS.push({id:l.id, n:l.n, tours:l.tours || 0, fam:'labo',
   regle:l.regle, astuce:l.astuce, d:l.d, labo:1}));
 
@@ -3199,7 +4337,13 @@ function initLabo(){
   const l = LAB();
   S.lab = {laps:[], cadrans:[], cadran:0, alarme:0, ouvert:false,
            duree:100, ricochets:0, palier:0, plis:0,
-           pas:0, mesPoints:0, sesPoints:0, fantome:[]};
+           pas:0, mesPoints:0, sesPoints:0, fantome:[],
+           cagnotte:0, encaisse:false,
+           piles:0, serie:0, meilleureSerie:0, sansFaute:true,
+           pilesAvant:false, dernierRate:false,
+           ecarts:[], deltas:[],
+           metroPris:false, verrouPris:false, crescPris:false, motPris:false,
+           base:0, apport:0, primes:0, detail:[]};
   S.mort = false;
   if(!l) return;
   if(l.id === 'ricochet') S.lab.duree = 200;
@@ -5033,9 +6177,46 @@ const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', trophees:'
 const ECRANS_SANS_BARRE = ['fluide', 'resultat', 'fin'];
 const porteBarre = id => !ECRANS_SANS_BARRE.includes(id);
 
-function montrer(id){
+/* ─── historique de navigation ─────────────────────────────────────────
+   Un bouton « ‹ » est injecté à gauche de chaque barre de navigation et
+   ramène à l'écran précédemment quitté. La pile est plafonnée : sans ça,
+   un aller-retour répété entre deux écrans la ferait grossir sans fin. */
+const PILE_ECRANS = [];
+const SANS_RETOUR = ['reglages'];   // la racine n'a nulle part où revenir
+function retourEcran(){
+  const cible = PILE_ECRANS.pop();
+  montrer(cible || 'reglages', true);
+}
+function majBoutonsRetour(){
+  const dispo = PILE_ECRANS.length > 0;
+  document.querySelectorAll('.btn-retour').forEach(b => {
+    const ec = b.closest('.ecran');
+    b.style.display = (dispo && ec && !SANS_RETOUR.includes(ec.id)) ? '' : 'none';
+  });
+}
+function injecterRetours(){
+  document.querySelectorAll('.ecran .nav').forEach(nav => {
+    const ec = nav.closest('.ecran');
+    if(!ec || SANS_RETOUR.includes(ec.id) || nav.querySelector('.btn-retour')) return;
+    const b = document.createElement('button');
+    b.className = 'btn-retour';
+    b.setAttribute('aria-label', 'Revenir à l\'écran précédent');
+    b.textContent = '‹';
+    b.onclick = retourEcran;
+    nav.insertBefore(b, nav.firstChild);
+  });
+  majBoutonsRetour();
+}
+
+function montrer(id, sansPile){
   const ecrans = document.querySelectorAll('.ecran');
   if(![...ecrans].some(e => e.id === id)) id = S.partie ? ecranJeu() : 'reglages';
+  const avant = document.querySelector('.ecran.actif');
+  /* on n'empile ni les retours eux-mêmes, ni un écran vers lui-même */
+  if(!sansPile && avant && avant.id !== id){
+    PILE_ECRANS.push(avant.id);
+    if(PILE_ECRANS.length > 12) PILE_ECRANS.shift();
+  }
   ecrans.forEach(e => {
     const actif = e.id === id;
     e.classList.toggle('actif', actif);
@@ -5051,6 +6232,7 @@ function montrer(id){
     B.querySelectorAll('.bb').forEach(b =>
       b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
   }
+  majBoutonsRetour();
 }
 
 // horodatage matériel de l'événement quand il est fiable : supprime le délai
@@ -5215,15 +6397,18 @@ function zoneDe(nom){
   }
   if(CFG.mode === 'survie') return Math.max(1, S.zoneSurvie);
   
-  // NOUVEAU : Zone du mode Blind (calcul proportionnel)
+  // Zone du mode Blind (calcul proportionnel, gelé au-delà de 6 s)
   if(CFG.mode === 'blind') {
     const dSec = (S.cibleBase - S.total) / 100;
-    // On réduit les marges : 
-    // Hard passe de 30 à 80. Classique passe de 25 à 75.
+    // La zone s'élargissait sans jamais s'arrêter (jusqu'à ±0,75 en
+    // Simple, ±0,80 en Hard à 10 s) : au-delà de 6 s, une cible longue
+    // devenait beaucoup trop confortable. On gèle donc la croissance à
+    // sa valeur de 6 s — rien ne change avant cette durée.
+    const dGel = Math.min(dSec, 6);
     if (CFG.diff === 'hard') {
-      return Math.round(30 + (dSec - 1) * (50 / 9)); 
+      return Math.round(30 + (dGel - 1) * (50 / 9));
     } else {
-      return Math.round(25 + (dSec - 1) * (50 / 9)); 
+      return Math.round(25 + (dGel - 1) * (50 / 9));
     }
   }
 
@@ -5505,6 +6690,12 @@ function enregistrerListe(){
 }
 function peupler(){
   const solo = estSolo(CFG.mode);
+  if(solo){
+    // même logique qu'à lireListe() : la ligne affichée doit déjà montrer
+    // le bon nom, pas seulement le nom utilisé au lancement de la partie
+    const pseudo = pseudoConnecte();
+    if(pseudo) MEM.joueurs[0] = pseudo;
+  }
   const liste = solo ? MEM.joueurs.slice(0,1) : MEM.joueurs;
   $('liste').innerHTML = '';
   liste.forEach((n,i) => $('liste').appendChild(rang(n, i+1)));
@@ -5516,6 +6707,16 @@ function peupler(){
     : '';
   renumeroter();
 }
+/* Nom de profil du compte connecté, à imposer en solo. Vérification
+   purement locale (lireSession() lit le stockage, sans requête réseau) :
+   un simple changement d'écran ne doit jamais attendre le serveur. Si le
+   profil local n'a pas encore de pseudo synchronisé, on ne force rien —
+   le joueur garde la main tant que son compte n'a pas de nom. */
+function pseudoConnecte(){
+  if(!lireSession()) return null;
+  const p = monPro();
+  return (p && p.pseudo) || null;
+}
 function lireListe(){
   const vus = [...$('liste').querySelectorAll('input')]
     .map((i,k) => i.value.trim() || 'Joueur ' + (k+1));
@@ -5523,6 +6724,10 @@ function lireListe(){
   const gardes = (MEM.joueurs || []).slice();
   if(!gardes.length) return vus;
   gardes[0] = vus[0] || gardes[0];
+  // le pseudo du compte prime toujours en solo : ni le champ texte, ni un
+  // ancien nom mémorisé ne doivent plus jamais s'afficher à sa place
+  const pseudo = pseudoConnecte();
+  if(pseudo) gardes[0] = pseudo;
   return gardes;
 }
 $('ajouter').onclick = () => {
@@ -5595,23 +6800,88 @@ function majMem(){
     ? ns.length + ' profil' + (ns.length>1?'s':'') + ' · ' + t + ' tours enregistrés'
     : "Rien d'enregistré. Les profils se créent à la fin d'une partie.";
 }
-// Trois habillages : mêmes composants, palettes différentes.
+// Cinq habillages : mêmes composants, palettes différentes.
 const DA_TXT = {
   instrument:"L'apparence d'origine. Sobre et contrastée, pensée pour rester lisible à bout de bras dans une pièce sombre.",
   retro:"Terminal à phosphore ambré : balayage cathodique, angles droits, une seule couleur chaude. Rétro-futurisme sobre, très lisible.",
   synth:"Rétro-futurisme années 80 : halos, grille spatiale, chiffres électriques. Plus spectaculaire, un peu moins net.",
-  pop:"Fond clair, ombres dures, couleurs franches. Chaleureux et accessible, mais il éblouit dans le noir."
+  pop:"Fond clair, ombres dures, couleurs franches. Chaleureux et accessible, mais il éblouit dans le noir.",
+  ultraviolet:"Violet saturé, un seul accent doré réservé à ce qui s'appuie. Énergique sans grille ni bruit — le plus vif des cinq.",
+  glacier:"Violet profond et froid, accent cyan plutôt que doré. Le plus net et le plus posé, pensé pour de longues sessions.",
+  stade:"Pelouse et jaune de maillot, capitales condensées de panneau d'affichage. L'anneau devient une piste. Le plus compétitif.",
+  atelier:"Établi, papier millimétré et cuivre. Un instrument de mesure plutôt qu'un jeu : angles droits et coins de repère.",
+  maree:"Turquoise profond qui s'éclaircit vers le bas, sable en accent. Le seul décor qui éclaire là où sont les boutons.",
+  casino:"Feutre vert et or vieilli, liseré de table de jeu. L'anneau devient un jeton à tranche crantée. Cérémonieux et tendu.",
+  bar:"Bois sombre, ambre de whisky, une enseigne au néon en haut d'écran. Le plus confortable dans une pièce mal éclairée."
 };
 function appliquerDA(){
-  document.documentElement.dataset.da = CFG.da || 'instrument';
+  document.documentElement.dataset.da = CFG.da || 'casino';
   const n = $('note-da');
-  if(n) n.textContent = DA_TXT[CFG.da || 'instrument'];
+  if(n) n.textContent = DA_TXT[CFG.da || 'casino'];
+  if(typeof majSegDaMenu === 'function') majSegDaMenu();
+  /* le sélecteur de l'onglet Test suit aussi : deux entrées, un seul état */
+  const sd = $('seg-da');
+  if(sd) sd.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.v === (CFG.da || 'casino'))));
   const m = document.querySelector('meta[name="theme-color"]');
   if(m) m.setAttribute('content', CFG.da === 'pop' ? '#FDF5E4'
                                 : CFG.da === 'synth' ? '#0B0410'
-                                : CFG.da === 'retro' ? '#0C0A06' : '#0E1116');
+                                : CFG.da === 'retro' ? '#0C0A06'
+                                : CFG.da === 'ultraviolet' ? '#3A1178'
+                                : CFG.da === 'glacier' ? '#2E2260'
+                                : CFG.da === 'stade' ? '#0C3320'
+                                : CFG.da === 'atelier' ? '#1C1A17'
+                                : CFG.da === 'maree' ? '#04333C'
+                                : CFG.da === 'casino' ? '#0B3226'
+                                : CFG.da === 'bar' ? '#1A0E0B' : '#0E1116');
 }
 segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA(); });
+
+/* ─── panneau de réglages rapides (bouton ☰ de l'en-tête) ───────────────
+   L'apparence n'était réglable que depuis l'onglet Test, protégé par un
+   mot de passe : autant dire nulle part pour un joueur. Ce panneau la
+   sort au premier niveau, sans toucher au sélecteur existant — les deux
+   restent synchronisés puisqu'ils écrivent le même CFG.da. */
+/* Rétro, Synthwave et Pop restent codés et accessibles depuis l'onglet
+   Test, mais disparaissent du panneau rapide le temps qu'on tranche —
+   Casino devient l'habillage par défaut du jeu. */
+const DA_NOMS = [
+  ['casino','Casino'], ['instrument','Origine'],
+  ['ultraviolet','Ultraviolet'], ['glacier','Glacier'],
+  ['stade','Stade'], ['atelier','Atelier'], ['maree','Marée'],
+  ['bar','Bar']
+];
+function construireSegDaMenu(){
+  const el = $('seg-da-menu');
+  if(!el || el.dataset.pret) return;
+  el.innerHTML = DA_NOMS.map(([v,n]) =>
+    `<button data-v="${v}" aria-pressed="false">${n}</button>`).join('');
+  el.dataset.pret = '1';
+  segmente('seg-da-menu', v => {
+    CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquerDA();
+  });
+}
+function majSegDaMenu(){
+  const el = $('seg-da-menu');
+  if(!el) return;
+  const actuel = CFG.da || 'casino';
+  el.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.v === actuel)));
+  const n = $('note-da-menu');
+  if(n) n.textContent = DA_TXT[actuel];
+}
+function ouvrirPanneauReglages(){
+  construireSegDaMenu();
+  majSegDaMenu();
+  $('panneau-reg').classList.add('on');
+}
+function fermerPanneauReglages(){ $('panneau-reg').classList.remove('on'); }
+if($('ouvrir-reglages')) $('ouvrir-reglages').onclick = ouvrirPanneauReglages;
+if($('pnr-fermer'))      $('pnr-fermer').onclick      = fermerPanneauReglages;
+/* toucher le fond ferme, toucher la boîte ne ferme pas */
+if($('panneau-reg')) $('panneau-reg').onclick = e => {
+  if(e.target === $('panneau-reg')) fermerPanneauReglages();
+};
 segmente('seg-min', v => {
   CFG.minutes = v === 'oui'; MEM.cfg = {...CFG}; ecrireMem();
   $('note-min').textContent = CFG.minutes
@@ -5634,7 +6904,7 @@ function appliquerCfg(){
   if(nm) nm.textContent = CFG.minutes
     ? "Au-delà de la minute, le chrono affiche 1:00,00 plutôt que 60,00."
     : "Le chrono affiche toujours des centièmes : 60,00 puis 61,00.";
-  const m = {'seg-da':CFG.da || 'instrument', 'seg-lat':CFG.lat || 'materiel',
+  const m = {'seg-da':CFG.da || 'casino', 'seg-lat':CFG.lat || 'materiel',
              'seg-intro':(CFG.sv && CFG.sv.intro) || 'cine',
              'seg-min':CFG.minutes ? 'oui' : 'non',
              'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
@@ -5674,7 +6944,7 @@ async function ajouterJoueurEnCours(){
   if(!n) return;
   S.joueurs.splice(S.idx, 0, n);   // devant le joueur courant dans le tableau…
   S.idx++;                         // …qui garde donc la main
-  S.stats[n] = {gorgees:0, culs:0, ecart:0, tours:0, piles:0, biais:0, carres:0, minutes:0};
+  S.stats[n] = {gorgees:0, donnees:0, culs:0, ecart:0, tours:0, piles:0, biais:0, carres:0, minutes:0, hist:[]};
   S.jetons[n] = 0; S.fautes[n] = 0;
   S.couleurs[n] = couleurLibre();
   memoriser(n);
@@ -5926,10 +7196,11 @@ async function demarrerPartie(){
   }
   S.joueurs = j; S.stats = {}; S.jetons = {}; S.couleurs = {};
   j.forEach((n,i) => S.couleurs[n] = coul(i));
-  j.forEach(n => { S.stats[n] = {gorgees:0, culs:0, ecart:0, tours:0,
-                                 piles:0, biais:0, carres:0, minutes:0}; S.jetons[n] = 0; });
+  j.forEach(n => { S.stats[n] = {gorgees:0, donnees:0, culs:0, ecart:0, tours:0,
+                                 piles:0, biais:0, carres:0, minutes:0, hist:[]}; S.jetons[n] = 0; });
   S.idx = 0; S.sens = 1; S.total = 0; S.tour = 1; S.contre = 0;
   S.historique = []; S.enregistre = false; S.partie = true;
+  if($('titres-c')) $('titres-c').style.display = 'none';
   // une partie relancée pendant qu'un chrono tourne laissait S.encours à vrai :
   // l'écran repartait en pensant être en pleine mesure
   S.encours = false;
@@ -6286,9 +7557,16 @@ function depassements(){
     + (neufs.length > 2 ? 's' : '');
 }
 
-function peine(nom, n, attaque = false){
+/* auteur : qui inflige la peine, quand ce n'est pas la victime elle-même.
+   Sert au titre L'inévitable (gorgées distribuées) et au Bourreau. On ne
+   compte que ce qui est réellement bu (après bouclier éventuel), pour que
+   « distribué » et « bu » restent deux chiffres cohérents entre eux. */
+function peine(nom, n, attaque = false, auteur = null){
   if(!attaque && S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
-  S.stats[nom].gorgees += n; return n;
+  S.stats[nom].gorgees += n;
+  if(auteur && auteur !== nom && S.stats[auteur])
+    S.stats[auteur].donnees = (S.stats[auteur].donnees || 0) + n;
+  return n;
 }
 
 // rappel du biome en cours dans l'écran de détails
@@ -6339,6 +7617,11 @@ function afficherResultat(valeur){
 
   if(!(S.evt && EVT(S.evt).fausse)){
     st.ecart += ecart; st.tours++; st.biais += delta; st.carres += delta*delta;
+    /* historique par tour, nécessaire aux titres de fin de soirée qui
+       comparent la première et la seconde moitié de partie (Le grimpeur,
+       L'essoufflé). On ne le pousse pas sur un tour faussé (evt.fausse),
+       cohérent avec le reste des compteurs ci-dessus. */
+    (st.hist = st.hist || []).push(ecart);
   }
   if(ecart === 0) st.piles++;
   (S.ecarts = S.ecarts || []).push(ecart);
@@ -6957,7 +8240,7 @@ function resoudre(valeur, delta, ecart){
           vibrer([0,60,50,60,50,140]);
         } else if(ecart <= e.seuil){
           couleur = 't-vert';
-          const n = peine(suiv, e.n * mult, true);
+          const n = peine(suiv, e.n * mult, true, joueur);
           T.textContent = suiv + ' boit ' + gorg(n);
           U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
         } else { 
@@ -6985,8 +8268,13 @@ function resoudre(valeur, delta, ecart){
           nbCulsSecs = dSec < 6 ? 1 : 2; 
           
           // 2. RATÉ (Gorgées bues)
-          if(dSec <= 3) gorgeesBase = 5;
-          else if(dSec <= 6) gorgeesBase = 4;
+          // Les deux tranches courtes (1-6s, les plus dures à viser) sont
+          // unifiées à 3 gorgées : avant, une cible de 2s punissait plus
+          // fort (5) qu'une cible de 8s (3), alors que la première est
+          // nettement plus difficile à honorer. Les tranches longues
+          // (7-10s) restent inchangées côté gorgées — c'est la zone sûre
+          // ci-dessous qui se charge de les rééquilibrer.
+          if(dSec <= 6) gorgeesBase = 3;
           else if(dSec <= 9) gorgeesBase = 3;
           else gorgeesBase = 2;
 
@@ -7054,7 +8342,7 @@ function resoudre(valeur, delta, ecart){
         }
         else if(v.code === 'frole'){
           const victime = suiv;
-          const n = peine(victime, gorgeesFrole * mult, true);
+          const n = peine(victime, gorgeesFrole * mult, true, joueur);
           if(S.evt === 'bouclier'){
             S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
             couleur = 't-alerte';
@@ -7067,7 +8355,7 @@ function resoudre(valeur, delta, ecart){
         }
         else if(v.code === 'presque'){
           const victime = suiv;
-          const n = peine(victime, gorgeesPresque * mult, true);
+          const n = peine(victime, gorgeesPresque * mult, true, joueur);
           if(S.evt === 'bouclier'){
             S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
             couleur = 't-alerte';
@@ -7293,6 +8581,25 @@ async function proposerPari(){
   majAnneau(); compteursMode('f-');
   vibrerSv(20);
 }
+/* Quitte ou double : le bouton n'apparaît qu'entre deux tours, quand une
+   cagnotte est réellement en jeu. Il est masqué pendant la mesure — comme
+   tout le reste, rien ne doit bouger pendant qu'on chronomètre. */
+function majEncaisser(){
+  const b = $('f-encaisser');
+  if(!b) return;
+  const actif = CFG.mode === 'quitte' && S.partie && !S.encours
+             && S.lab && S.lab.cagnotte > 0 && !S.lab.encaisse && !S.mort;
+  b.classList.toggle('on', !!actif);
+  if(actif) b.textContent = 'Encaisser ' + S.lab.cagnotte;
+}
+if($('f-encaisser')) $('f-encaisser').onclick = () => {
+  if(!S.lab || !S.lab.cagnotte || S.lab.encaisse) return;
+  S.lab.encaisse = true;
+  majEncaisser();
+  /* fini() renvoie désormais true : afficherFin() lira le bilan du mode */
+  afficherFin();
+};
+
 function majPari(){
   const b = $('f-pari');
   b.classList.toggle('on', CFG.mode === 'survie' && S.partie && !!S.pariSurvie);
@@ -7349,6 +8656,7 @@ function fluidePret(){
   S.alerteTour = !!(effB('alerte') && S.tour % effB('alerte') === 0);
   $('fluide').classList.toggle('alerte-tour', !!S.alerteTour);
   majPari();
+  majEncaisser();
 
   if(CFG.mode === 'survie'){
     if(S.tRdv) clearTimeout(S.tRdv);
@@ -8142,6 +9450,448 @@ async function detecterRecord(){
   }catch(e){ /* silencieux : la bannière personnelle reste affichée */ }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   TITRES DE FIN DE SOIRÉE
+   ───────────────────────────────────────────────────────────────
+   Neuf titres, chacun croisant deux ou trois mesures — jamais une
+   seule. C'est volontaire : la précision, les piles et les gorgées
+   distribuées se ressemblent trop pour être jugées séparément, sinon
+   le même joueur rafle tout. On les évalue dans un ordre de priorité
+   (le plus exigeant d'abord) et on n'attribue jamais deux titres au
+   même joueur — dès qu'il en a un, il sort de la liste des candidats
+   pour les suivants.
+   ═══════════════════════════════════════════════════════════════ */
+
+function rangDe(liste, valeur, sens){
+  // sens 'max' : le plus grand est 1er.  sens 'min' : le plus petit est 1er.
+  const tri = [...liste].sort((a,b) =>
+    sens === 'max' ? valeur(b) - valeur(a) : valeur(a) - valeur(b));
+  const m = new Map();
+  tri.forEach((p,i) => m.set(p.n, i + 1));
+  return m;
+}
+function mediane(vals){
+  const t = [...vals].sort((a,b) => a - b);
+  const m = Math.floor(t.length / 2);
+  return t.length % 2 ? t[m] : (t[m-1] + t[m]) / 2;
+}
+
+/* Construit, pour chaque joueur ayant joué au moins un tour, l'ensemble
+   des mesures dérivées dont les titres ont besoin. Ne dépend que de
+   S.stats — donc réutilisable aussi bien en fin de partie qu'en test. */
+function statsJoueurs(){
+  const J = S.joueurs
+    .map(n => ({n, ...S.stats[n]}))
+    .filter(p => p.tours > 0);
+  if(J.length < 2) return [];   // pas assez de monde pour comparer qui que ce soit
+
+  J.forEach(p => {
+    p.precision = p.ecart / p.tours;
+    p.biaisMoy = p.biais / p.tours;
+    p.disp = Math.sqrt(Math.max(0, p.carres / p.tours - p.biaisMoy * p.biaisMoy));
+  });
+
+  const rP  = rangDe(J, p => p.precision, 'min');   // 1 = le plus précis
+  const rPi = rangDe(J, p => p.piles, 'max');        // 1 = le plus de piles
+  const rD  = rangDe(J, p => p.donnees || 0, 'max'); // 1 = a le plus fait boire
+  const rG  = rangDe(J, p => p.gorgees, 'max');      // 1 = a le plus bu
+  const rDisp    = rangDe(J, p => p.disp, 'min');    // 1 = le plus régulier
+  const rDispInv = rangDe(J, p => p.disp, 'max');    // 1 = le plus dispersé
+  const rBiaisL  = rangDe(J, p => p.biaisMoy, 'max');// 1 = le plus en retard
+  const rBiaisP  = rangDe(J, p => p.biaisMoy, 'min');// 1 = le plus en avance
+  const medPiles = mediane(J.map(p => p.piles));
+  const medDisp  = mediane(J.map(p => p.disp));
+  const n = J.length;
+
+  J.forEach(p => {
+    p.rP = rP.get(p.n); p.rPi = rPi.get(p.n); p.rD = rD.get(p.n);
+    p.rG = rG.get(p.n); p.rDisp = rDisp.get(p.n); p.rDispInv = rDispInv.get(p.n);
+    p.rBiaisL = rBiaisL.get(p.n); p.rBiaisP = rBiaisP.get(p.n);
+    p.classement = p.rP;             // le classement général reste la précision
+    p.medianePiles = medPiles; p.medianeDisp = medDisp; p.nbJoueurs = n;
+  });
+  return J;
+}
+
+/* Chaque phrase est tirée au hasard à l'affichage — quelques variantes
+   suffisent pour qu'une soirée ne ressemble jamais tout à fait à la
+   précédente. Elles visent le rôle, jamais la personne. */
+const PHRASES_TITRE = {
+  inevitable: ["On a vérifié, il n'a pas de montre dans la main.",
+    "Il n'a rien laissé aux autres. Ni le classement, ni le silence.",
+    "À ce stade, ce n'est plus un joueur, c'est un étalon."],
+  bourreau: ["Il ne vise pas bien. Il vise fort.",
+    "Il rate neuf fois et démolit la dixième.",
+    "La table entière a payé pour ses piles."],
+  chirurgien: ["Il n'a jamais visé le centre. Il n'en a pas eu besoin.",
+    "Précis et prudent : la combinaison qui gagne sur la durée.",
+    "Aucun éclat. Juste jamais d'erreur non plus."],
+  funambule: ["Entre deux piles, il y a eu des moments difficiles.",
+    "Le meilleur et le pire de la soirée, dans la même personne.",
+    "On ne sait jamais lequel va se présenter."],
+  stoique: ["Il boit plus que tout le monde et gagne quand même. C'est vexant.",
+    "Il encaisse et il vise juste. C'est agaçant.",
+    "Rien ne semble jamais le déranger. Ni le chrono, ni le verre."],
+  eponge: ["Statistiquement, le vrai vainqueur de la soirée.",
+    "Il a tout encaissé sans jamais se plaindre. Respect.",
+    "Le chrono ne l'aime pas. Le bar, si."],
+  ombre: ["A-t-il vraiment joué ce soir ? Les archives sont formelles.",
+    "Ni brillant ni catastrophique. Juste... présent.",
+    "Personne ne se souvient de son premier tour. Ni du dernier."],
+  joker: ["Personne ne comprend comment il est si bien classé. Lui non plus.",
+    "Le chaos, ce soir, a choisi son camp.",
+    "Statistiquement improbable. Et pourtant, le voilà."],
+  lent: ["Il arrive toujours. Un peu après tout le monde.",
+    "Fiable dans son retard, au moins.",
+    "On l'attend. On l'attend encore."],
+  presse: ["Personne ne lui a dit qu'il fallait attendre.",
+    "Toujours le premier à partir. Rarement au bon moment.",
+    "Une seconde d'avance, systématiquement offerte au chrono."],
+  grimpeur: ["Il a compris le jeu vers la moitié de la partie.",
+    "Débuts hésitants, fin qui n'a plus rien à voir.",
+    "Il a mis du temps à se chauffer. Mais alors."],
+  essouffle: ["Il partait bien. On ne sait pas ce qui s'est passé.",
+    "Excellent début. Le reste s'est un peu perdu en route.",
+    "La forme du premier tour n'a pas tenu jusqu'au dernier."],
+  regulier: ["Il n'a rien gagné, rien perdu. Une performance.",
+    "Jamais en tête, jamais en fond. Le centre de gravité de la table.",
+    "Ni héros ni victime. Le socle sur lequel la soirée a tenu."]
+};
+function phraseTitre(id){
+  const L = PHRASES_TITRE[id] || [''];
+  return L[Math.floor(Math.random() * L.length)];
+}
+
+/* Chaque définition renvoie un joueur ou null. L'ordre de la liste EST
+   la priorité : les titres les plus exigeants sont tranchés en premier,
+   pendant que tous les candidats sont encore disponibles. */
+const DEFS_TITRES = [
+  {id:'inevitable', ic:'👑', nom:"L'inévitable", coul:'#C9A227',
+   test(J){
+     const strict = J.filter(p => p.rP===1 && p.rPi===1 && p.rD===1);
+     if(strict.length) return strict[0];
+     const paires = J.filter(p =>
+       [p.rP===1, p.rPi===1, p.rD===1].filter(Boolean).length >= 2);
+     if(!paires.length) return null;
+     paires.sort((a,b) => (a.rP+a.rPi+a.rD) - (b.rP+b.rPi+b.rD));
+     return paires[0];
+   }},
+  {id:'bourreau', ic:'🩸', nom:'Le bourreau', coul:'#B98CFF',
+   test(J){
+     const c = J.filter(p => p.rPi<=2 && p.rD<=2 && p.rP!==1);
+     if(!c.length) return null;
+     c.sort((a,b) => (a.rPi+a.rD) - (b.rPi+b.rD));
+     return c[0];
+   }},
+  {id:'chirurgien', ic:'🧊', nom:'Le chirurgien', coul:'#5AD2DC',
+   test(J){
+     const c = J.filter(p => p.rP<=2 && p.rDisp<=2 && p.piles<=p.medianePiles);
+     if(!c.length) return null;
+     c.sort((a,b) => (a.rP+a.rDisp) - (b.rP+b.rDisp));
+     return c[0];
+   }},
+  {id:'funambule', ic:'🎢', nom:'Le funambule', coul:'#FF8A5B',
+   test(J){
+     const c = J.filter(p => p.rPi<=2 && p.rDispInv===1);
+     return c[0] || null;
+   }},
+  {id:'joker', ic:'🎲', nom:'Le joker', coul:'#B98CFF',
+   test(J){
+     const c = J.filter(p => p.classement<=2 && p.rDispInv===1);
+     return c[0] || null;
+   }},
+  /* stoïque et éponge partagent le même candidat de départ — celui qui a
+     le plus bu — et se séparent seulement sur son classement final */
+  {id:'stoique', ic:'🗿', nom:'Le stoïque', coul:'#FF7BC8',
+   test(J){
+     const c = J.find(p => p.rG===1);
+     return (c && c.classement<=3) ? c : null;
+   }},
+  {id:'eponge', ic:'🧽', nom:"L'éponge", coul:'#FF7BC8',
+   test(J){
+     const c = J.find(p => p.rG===1);
+     return (c && c.classement>3) ? c : null;
+   }},
+  {id:'ombre', ic:'👻', nom:"L'ombre", coul:'#7C8797',
+   test(J){
+     const n = J.length, bas = Math.floor(n/3), haut = n - Math.floor(n/3);
+     const c = J.filter(p => p.piles===0 && (p.donnees||0)===0
+       && p.classement>bas && p.classement<=haut);
+     return c[0] || null;
+   }},
+  {id:'lent', ic:'🐌', nom:'Le lent', coul:'#FF7BC8',
+   test(J){
+     const c = J.find(p => p.rBiaisL===1 && p.biaisMoy>0);
+     return c || null;
+   }},
+  {id:'presse', ic:'⚡', nom:'Le pressé', coul:'#FF8A5B',
+   test(J){
+     const c = J.find(p => p.rBiaisP===1 && p.biaisMoy<0);
+     return c || null;
+   }},
+  {id:'grimpeur', ic:'📈', nom:'Le grimpeur', coul:'#35C46B',
+   test(J){
+     const c = J.filter(p => (p.hist||[]).length >= 6).map(p => {
+       const h = p.hist, m = Math.floor(h.length/2);
+       const m1 = h.slice(0,m).reduce((a,b)=>a+b,0)/m;
+       const m2 = h.slice(-m).reduce((a,b)=>a+b,0)/m;
+       return {...p, m1, m2};
+     }).filter(p => p.m1>0 && p.m2*2<=p.m1);
+     if(!c.length) return null;
+     c.sort((a,b) => (b.m1/b.m2) - (a.m1/a.m2));   // le progrès le plus net
+     return c[0];
+   }},
+  {id:'essouffle', ic:'📉', nom:"L'essoufflé", coul:'#DC3B2A',
+   test(J){
+     const c = J.filter(p => (p.hist||[]).length >= 6).map(p => {
+       const h = p.hist, m = Math.floor(h.length/2);
+       const m1 = h.slice(0,m).reduce((a,b)=>a+b,0)/m;
+       const m2 = h.slice(-m).reduce((a,b)=>a+b,0)/m;
+       return {...p, m1, m2};
+     }).filter(p => p.m2>0 && p.m1*2<=p.m2);
+     if(!c.length) return null;
+     c.sort((a,b) => (b.m2/b.m1) - (a.m2/a.m1));
+     return c[0];
+   }},
+  {id:'regulier', ic:'🎭', nom:'Le régulier', coul:'#5AD2DC',
+   test(J){
+     const c = J.filter(p => p.classement>1 && p.classement<p.nbJoueurs
+       && p.disp<=p.medianeDisp);
+     return c[0] || null;
+   }}
+];
+
+/* Calcule jusqu'à QUATRE titres, jamais deux fois le même joueur. On
+   parcourt les définitions dans leur ordre de priorité en retirant à
+   chaque fois le joueur retenu de la liste des candidats — donc les
+   titres évalués tôt (L'inévitable) ont accès à tout le monde, ceux
+   évalués tard (Le régulier) composent avec ce qu'il reste. */
+function calculerTitres(){
+  let J = statsJoueurs();
+  if(!J.length) return [];
+  const resultat = [];
+  for(const def of DEFS_TITRES){
+    if(resultat.length >= 4) break;
+    const gagnant = def.test(J);
+    if(!gagnant) continue;
+    resultat.push({...def, joueur:gagnant, phrase:phraseTitre(def.id)});
+    J = J.filter(p => p.n !== gagnant.n);
+  }
+  return resultat;
+}
+
+/* Révèle le calcul ligne par ligne, puis fait défiler le total.
+ le calcul ligne par ligne, puis fait défiler le total.
+   Les minuteries passent par S.minuteries : quitter l'écran avant la fin
+   de l'animation les purge, sinon un décompte fantôme continuerait de
+   tourner sur l'écran suivant. */
+/* Décompte générique, pour tous les modes solo qui n'en produisent pas
+   eux-mêmes. Il ne réinvente aucun calcul : il met en forme ce que la
+   partie a déjà mesuré (piles, série, précision moyenne, biais) et se
+   contente de présenter le score final. Aucune prime n'est ajoutée. */
+function decompteSolo(){
+  const st = S.stats[S.joueurs[0]];
+  if(!st || !st.tours) return null;
+  const moy = Math.round(st.ecart / st.tours);
+  const biais = Math.round(st.biais / st.tours);
+  const lignes = [
+    {lb:'Tours joués', vl:String(st.tours)},
+    {lb:'Piles', vl:st.piles ? '+' + st.piles : '—',
+     cls:st.piles ? 'prime' : ''},
+    {lb:'Meilleure série', vl:(S.meilleureChaine || 0) + ' tours'},
+    {lb:'Précision moyenne', vl:'± ' + fmt(moy), cls:'bonus'},
+    {lb:'Biais moyen · ' + (biais > 0 ? 'plutôt trop tard'
+        : biais < 0 ? 'plutôt trop tôt' : 'centré'),
+     vl:(biais > 0 ? '+' : '') + fmt(biais)}
+  ];
+  return {lignes, total:S.points || 0,
+    note:'précision moyenne sur ' + st.tours + ' tour'
+       + (st.tours > 1 ? 's' : '')};
+}
+
+function afficherDecompte(d){
+  const M = $('fin-decompte');
+  if(!M) return;
+  S.decompte = d || null;
+  if(!d || !d.lignes || !d.lignes.length){
+    M.style.display = 'none'; M.innerHTML = ''; return;
+  }
+  M.innerHTML = '';
+  M.style.display = 'block';
+  const PAS = 260;      // délai entre deux lignes
+
+  d.lignes.forEach((l, i) => {
+    const el = document.createElement('div');
+    el.className = 'dc-l' + (l.cls ? ' ' + l.cls : '');
+    el.style.animationDelay = (i * PAS) + 'ms';
+    el.innerHTML = '<span class="lb"></span><span class="vl"></span>';
+    el.querySelector('.lb').textContent = l.lb;
+    el.querySelector('.vl').textContent = l.vl;
+    M.appendChild(el);
+  });
+
+  const tot = document.createElement('div');
+  tot.className = 'dc-tot';
+  tot.style.animationDelay = (d.lignes.length * PAS) + 'ms';
+  tot.innerHTML = '<span class="lb">Total</span><span class="vl">0</span>';
+  M.appendChild(tot);
+
+  if(d.note){
+    const n = document.createElement('div');
+    n.className = 'dc-note';
+    n.style.animationDelay = ((d.lignes.length + 1) * PAS) + 'ms';
+    n.textContent = d.note;
+    M.appendChild(n);
+  }
+
+  /* le total défile de 0 à sa valeur, en sortie douce */
+  const cible = d.total || 0;
+  const V = tot.querySelector('.vl');
+  const bouge = !window.matchMedia
+    || !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!bouge){ V.textContent = cible; return; }
+
+  S.minuteries.push(setTimeout(() => {
+    const DUREE = 900, t0 = performance.now();
+    const pas = () => {
+      const p = Math.min(1, (performance.now() - t0) / DUREE);
+      // interpolation en sortie douce : rapide au début, freine à l'arrivée
+      V.textContent = Math.round(cible * (1 - Math.pow(1 - p, 3)));
+      if(p < 1) requestAnimationFrame(pas);
+      else { V.textContent = cible; vibrer(20); }
+    };
+    requestAnimationFrame(pas);
+  }, d.lignes.length * PAS + 120));
+}
+
+/* Fait vivre le carrousel de titres : une carte à la fois, tapée pour
+   avancer, avec les cartes déjà vues empilées derrière comme repère
+   visuel de progression. « Tout voir » saute directement au classement
+   complet — jamais plus de quatre appuis imposés. */
+let TC_ETAT = {liste:[], idx:0};
+function tcRendreCarte(){
+  const t = TC_ETAT.liste[TC_ETAT.idx];
+  if(!t) return;
+  $('tc-ic').textContent = t.ic;
+  $('tc-lb').textContent = t.nom;
+  $('tc-lb').style.color = t.coul;
+  $('tc-nm').textContent = t.joueur.n;
+  $('tc-nm').style.color = t.coul;
+  $('tc-ch').textContent = tcChiffres(t);
+  $('tc-ph').textContent = '« ' + t.phrase + ' »';
+  $('tc-compte').textContent = (TC_ETAT.idx + 1) + ' / ' + TC_ETAT.liste.length;
+  $('tc-halo').style.background =
+    'radial-gradient(circle,' + hexA(t.coul, .22) + ',transparent 70%)';
+  $('tc-points').innerHTML = TC_ETAT.liste.map((_,i) =>
+    '<span class="' + (i === TC_ETAT.idx ? 'on' : '') + '"'
+    + (i === TC_ETAT.idx ? ' style="background:' + t.coul + '"' : '') + '></span>'
+  ).join('');
+  // le carrousel boucle : le bouton garde toujours le même libellé
+  const suiv = $('tc-suivant');
+  suiv.textContent = 'Suivant';
+  suiv.style.background = t.coul;
+  // relance l'animation d'entrée à chaque carte
+  const F = $('tc-flot');
+  F.style.animation = 'none'; void F.offsetWidth; F.style.animation = '';
+}
+function tcChiffres(t){
+  const p = t.joueur;
+  const moy = p.tours ? Math.round(p.ecart / p.tours) : 0;
+  switch(t.id){
+    case 'inevitable':
+    case 'chirurgien':
+      return 'précision ± ' + fmt(moy) + ' · ' + p.piles + ' pile' + (p.piles>1?'s':'');
+    case 'bourreau':
+      return p.piles + ' pile' + (p.piles>1?'s':'') + ' · '
+           + (p.donnees||0) + ' gorgées distribuées';
+    case 'funambule':
+    case 'joker':
+      return 'régularité ± ' + fmt(Math.round(p.disp)) + ' · classement '
+           + p.classement + 'e';
+    case 'stoique':
+    case 'eponge':
+      return p.gorgees + ' gorgée' + (p.gorgees>1?'s':'') + ' bue'
+           + (p.gorgees>1?'s':'');
+    case 'lent':
+    case 'presse':
+      return 'biais ' + (p.biaisMoy>0?'+':'') + fmt(Math.round(p.biaisMoy));
+    case 'grimpeur':
+    case 'essouffle':
+      return 'précision ± ' + fmt(moy) + ' sur ' + p.tours + ' tours';
+    default:
+      return p.tours + ' tours · précision ± ' + fmt(moy);
+  }
+}
+function afficherTitresCarrousel(titres){
+  const bloc = $('titres-c');
+  if(!bloc) return;
+  if(!titres || !titres.length){ bloc.style.display = 'none'; return; }
+  TC_ETAT = {liste:titres, idx:0, vue:'carrousel'};
+  bloc.style.display = 'block';
+  tcAfficherCarrousel();
+}
+/* le classement en dessous reste toujours visible, quelle que soit la
+   vue choisie ici : « suivant » ne fait donc jamais qu'avancer une
+   carte, en boucle — jamais fermer ni révéler quoi que ce soit d'autre. */
+function tcAvancer(sens){
+  const n = TC_ETAT.liste.length;
+  TC_ETAT.idx = (TC_ETAT.idx + sens + n) % n;
+  tcRendreCarte();
+}
+function tcAfficherCarrousel(){
+  TC_ETAT.vue = 'carrousel';
+  $('tc-flot').style.display = '';
+  $('tc-p1').style.display = '';
+  $('tc-p2').style.display = '';
+  $('tc-points').style.display = '';
+  $('tc-colonne').style.display = 'none';
+  $('tc-suivant').style.display = '';
+  $('tc-tout').textContent = 'Tout voir';
+  tcRendreCarte();
+}
+function tcAfficherColonne(){
+  TC_ETAT.vue = 'colonne';
+  $('tc-flot').style.display = 'none';
+  $('tc-p1').style.display = 'none';
+  $('tc-p2').style.display = 'none';
+  $('tc-points').style.display = 'none';
+  $('tc-suivant').style.display = 'none';
+  $('tc-tout').textContent = 'Une carte à la fois';
+  const col = $('tc-colonne');
+  col.style.display = 'flex';
+  col.innerHTML = TC_ETAT.liste.map((t,i) => `
+    <div class="tc-col-item" style="animation-delay:${i*70}ms;
+      border-color:${hexA(t.coul,.35)};background:${hexA(t.coul,.07)}">
+      <span class="tc-col-ic">${t.ic}</span>
+      <div class="tc-col-cx">
+        <div class="tc-col-lb" style="color:${t.coul}">${esc(t.nom)}</div>
+        <div class="tc-col-nm">${esc(t.joueur.n)}</div>
+        <div class="tc-col-ch">${esc(tcChiffres(t))}</div>
+        <div class="tc-col-ph">« ${esc(t.phrase)} »</div>
+      </div>
+    </div>`).join('');
+}
+if($('tc-suivant')) $('tc-suivant').onclick = () => tcAvancer(1);
+if($('tc-tout')) $('tc-tout').onclick = () =>
+  (TC_ETAT.vue === 'colonne') ? tcAfficherCarrousel() : tcAfficherColonne();
+
+/* balayer la carte pour naviguer, en plus du bouton — seulement en vue
+   carrousel, une seule liaison suffit puisque tcRendreCarte() ne fait
+   que réécrire le contenu d'un élément qui reste le même dans le DOM */
+(function(){
+  const el = $('tc-flot');
+  if(!el) return;
+  let x0 = null;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, {passive:true});
+  el.addEventListener('touchend', e => {
+    if(x0 === null || TC_ETAT.vue !== 'carrousel') return;
+    const dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if(Math.abs(dx) < 40) return;   // pas assez ample pour être un vrai geste
+    tcAvancer(dx < 0 ? 1 : -1);
+  }, {passive:true});
+})();
+
 function afficherFin(){
   purgerMinuteries();
   S.partie = false; S.encours = false;
@@ -8154,8 +9904,9 @@ function afficherFin(){
     if (!estSolo(CFG.mode)) {
       MEM.historiqueSoirees = MEM.historiqueSoirees || [];
       const statsSoiree = S.joueurs.map(n => ({
-        nom: n, gorgees: S.stats[n].gorgees, culs: S.stats[n].culs, 
-        ecart: S.stats[n].ecart, tours: S.stats[n].tours, piles: S.stats[n].piles
+        nom: n, gorgees: S.stats[n].gorgees, donnees: S.stats[n].donnees || 0,
+        culs: S.stats[n].culs, ecart: S.stats[n].ecart, tours: S.stats[n].tours,
+        piles: S.stats[n].piles
       })).filter(p => p.tours > 0);
       
       if (statsSoiree.length > 0) {
@@ -8214,6 +9965,8 @@ function afficherFin(){
   }
   const R = $('fin-resume'), TI = $('fin-titre');
   TI.textContent = 'Le plus précis'; R.textContent = MODE().n;
+  const DC = $('fin-decompte');
+  if(DC){ DC.style.display = 'none'; DC.innerHTML = ''; }
   detecterRecord();
   if(CFG.mode === 'elimination'){
     const v = actifs();
@@ -8329,9 +10082,14 @@ function afficherFin(){
         + "abat le gardien en moins de coups, ce qui coûte moins d'erreurs.";
   }
   if(LAB()){
+    S.decompte = null;
     const f = LAB().fin();
     TI.textContent = f.t;
     R.innerHTML = f.r;
+    /* un mode de laboratoire qui ne produit pas son propre décompte
+       reçoit quand même le décompte générique : tous les modes solo
+       affichent leur bilan chiffré, sans exception */
+    afficherDecompte(S.decompte || decompteSolo());
     if(f.rev){
       rev0.style.display = 'block';
       rev0.querySelector('.t').textContent = f.rev.t;
@@ -8372,6 +10130,15 @@ function afficherFin(){
     montrer('fin');
     return;
   }
+  /* les titres se calculent AVANT le tri du classement classique, mais ne
+     s'affichent que s'il y a bien matière à comparer : statsJoueurs() se
+     charge lui-même de renvoyer une liste vide en solo. */
+  const titresSoiree = calculerTitres();
+  afficherTitresCarrousel(titresSoiree);
+  // « Le plus précis » n'a plus de sens dès qu'un palmarès à quatre
+  // entrées existe déjà en dessous — un intitulé neutre laisse le
+  // carrousel porter le message, sans le doublonner ni le contredire
+  if(titresSoiree.length) TI.textContent = 'Fin de partie';
   const rangs = S.joueurs.map(n => ({n, ...S.stats[n]}))
     .filter(p => p.tours > 0)
     .sort((a,b) => a.ecart/a.tours - b.ecart/b.tours);
@@ -8386,10 +10153,11 @@ function afficherFin(){
                 analyse({tours:p.tours, somme:p.ecart, biais:p.biais, carres:p.carres});
     const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
                  p.culs ? culs(p.culs) : null,
-                 p.gorgees ? gorg(p.gorgees) : null ]
+                 p.gorgees ? gorg(p.gorgees) + ' bues' : null,
+                 p.donnees ? gorg(p.donnees) + ' données' : null ]
                .filter(Boolean).join(' · ') || 'rien bu';
     const d = document.createElement('div');
-    d.className = 'ligne';
+    d.className = 'ligne' + (i === 0 ? ' premier' : '');
     d.innerHTML = `<span class="pos">${i+1}</span>
       <span class="qui" style="color:${coulNom(p.n)}">${esc(p.n)}</span>
       <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(p.ecart/p.tours))}</span>
@@ -8422,9 +10190,16 @@ function afficherFin(){
     ecrireMem();
     const apres = scoresDe(sig);
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
+    /* tous les modes solo affichent désormais leur décompte de fin ; les
+       modes qui en produisent un eux-mêmes (banc d'essai de score) l'ont
+       déjà posé plus haut et ne sont pas écrasés ici */
+    if(!S.decompte && CFG.mode !== 'combat') afficherDecompte(decompteSolo());
     // réflexe et combat ont déjà écrit leur propre résumé
     const propre = CFG.mode === 'reflexe' || CFG.mode === 'combat';
-    if(CFG.mode !== 'survie') TI.textContent = S.points + ' points';
+    /* le banc d'essai de score révèle son total par le décompte animé :
+       l'écrire dans le titre ici le divulguerait avant l'animation */
+    if(CFG.mode !== 'survie' && CFG.mode !== 'scoring')
+      TI.textContent = S.points + ' points';
     let l = libelleSig(sig) + ' · '
           + rang + (rang === 1 ? 're' : 'e') + ' place sur ' + apres.length;
     if(meilleurAvant !== null && S.points > meilleurAvant) l += ' — record battu';
@@ -8448,7 +10223,12 @@ function afficherFin(){
       + fmt(Math.round(cible.a.precision)) + ' à ±' + fmt(Math.round(cible.a.disp)) + '.';
   } else rev.style.display = 'none';
 
-  if(S.gagnes && S.gagnes.length){
+  // Les trophées sont liés au compte du propriétaire du téléphone, pas
+  // aux noms tapés pour les autres joueurs d'une soirée : afficher
+  // « Charles · Baptême or » n'aurait aucun sens, Charles n'ayant pas de
+  // compte. Le calcul de S.gagnes reste inchangé (rien ne dépend de son
+  // affichage), seule cette ligne de résumé est réservée au solo.
+  if(estSolo(CFG.mode) && S.gagnes && S.gagnes.length){
     const t = S.gagnes.slice(0, 4)
       .map(g => g.n + ' · ' + g.nom + ' ' + g.rang).join('  —  ');
     // textContent écraserait la courbe : on complète le HTML
@@ -8914,7 +10694,9 @@ function construireHistoriqueSoirees() {
       const lignesHTML = tri.map((p, i) => {
         const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
                      p.culs ? culs(p.culs) : null,
-                     p.gorgees ? gorg(p.gorgees) : null ].filter(Boolean).join(' · ') || 'rien bu';
+                     p.gorgees ? gorg(p.gorgees) + ' bues' : null,
+                     p.donnees ? gorg(p.donnees) + ' données' : null
+                   ].filter(Boolean).join(' · ') || 'rien bu';
                      
         return `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--trait); text-align:left;">
           <div style="flex:1; min-width:0; padding-right:12px;">
@@ -9895,8 +11677,14 @@ $('cp-rejoindre').onclick = async () => {
 // Ouvrir un mode montre d'abord sa règle : on ne lance pas une partie sans
 // savoir ce qu'on va devoir faire.
 let ficheId = null;
+let ecranAvantFiche = 'reglages';
 function ouvrirFiche(id){
   ficheId = id;
+  /* d'où vient-on ? le bouton « Retour » doit ramener sur la liste qu'on
+     consultait, pas systématiquement à la racine du menu */
+  const actuel = document.querySelector('.ecran.actif');
+  ecranAvantFiche = (actuel && ['menu-solo','menu-soiree'].includes(actuel.id))
+    ? actuel.id : 'reglages';
   const s = SOLOS.find(x => x.id === id) || MODES.find(x => x.id === id);
   if(!s) return;
   const solo = estSolo(id);
@@ -10035,7 +11823,7 @@ segmente('fi-gor',  v => { CFG.gor = v;  majFiche(); });
 segmente('fi-evt',  v => { CFG.evts = v; majFiche(); });
 segmente('fi-fin',  v => { CFG.maxTours = +v; majFiche(); });
 segmente('fi-pari', v => { CFG.pariBlind = (v === 'oui'); majFiche(); });
-$('fi-retour').onclick = () => montrer('reglages');
+$('fi-retour').onclick = () => montrer(ecranAvantFiche || 'reglages');
 $('fi-reprendre').onclick = () => reprendrePartie();
 $('fi-jouer').onclick = () => {
   if(ficheId === 'survie') effacerReprise();
@@ -10441,6 +12229,9 @@ function construireScores(){
 // Les modes solo mis en avant dans le menu : les autres restent en test
 // tant qu'ils n'ont pas fait leurs preuves.
 const SOLO_MENU = ['defi', 'solo', 'survie', 'cascade', 'reflexe', 'nues'];
+/* le défi du jour a sa place en tête du menu principal : l'afficher une
+   seconde fois dans la liste Solo ferait doublon */
+const SOLO_LISTE = SOLO_MENU.filter(id => id !== 'defi');
 
 function carteMode(m){
   const d = document.createElement('div');
@@ -10465,11 +12256,40 @@ function carteMode(m){
   d.onclick = () => { MEM.joueurs = lireListe(); ouvrirFiche(m.id); };
   return d;
 }
+/* Le menu ne présente plus que trois entrées : le rendez-vous du jour, et
+   deux portes vers les listes complètes. Les listes elles-mêmes n'ont pas
+   bougé — elles vivent maintenant sur leur propre écran. */
+function carteNav(ic, nom, desc, action){
+  const b = document.createElement('button');
+  b.className = 'nav-carte';
+  b.innerHTML = `<span class="ic">${ic}</span>
+    <span class="txt"><span class="n">${nom}</span><span class="d">${desc}</span></span>
+    <span class="fl">›</span>`;
+  b.onclick = action;
+  return b;
+}
+function construireMenuPrincipal(){
+  const M = $('menu-principal');
+  if(!M) return;
+  M.innerHTML = '';
+  const defi = SOLOS.find(x => x.id === 'defi');
+  if(defi) M.appendChild(carteMode(defi));
+  M.appendChild(carteNav('🎯', 'Solo',
+    'Un joueur, un score, une progression.',
+    () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-solo'); }));
+  M.appendChild(carteNav('🍻', 'Soirée',
+    "Plusieurs joueurs autour d'un seul téléphone.",
+    () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-soiree'); }));
+}
+if($('ms-retour'))  $('ms-retour').onclick  = () => montrer('reglages');
+if($('mso-retour')) $('mso-retour').onclick = () => montrer('reglages');
+
 function construireModes(){
+  construireMenuPrincipal();
   const S1 = $('modes-solo');
   if(S1){
     S1.innerHTML = '';
-    SOLO_MENU.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
+    SOLO_LISTE.map(id => SOLOS.find(s => s.id === id)).filter(Boolean)
       .forEach(m => S1.appendChild(carteMode(m)));
     // Aventure reste grisée pour tout le monde, sauf les comptes Google déjà
     // autorisés sur l'onglet Test — même liste, même logique.
@@ -10532,8 +12352,12 @@ function construireTest(){
       M.appendChild(d);
     });
   };
-  cartesSolo('liste-solos', SOLOS.filter(s => !s.labo && !s.desactive));
-  cartesSolo('liste-labo',  SOLOS.filter(s =>  s.labo));
+  /* les listes « modes solo » et « laboratoire » ont été retirées de l'onglet
+     Test : les modes solo retenus sont dans le menu, et les modes de
+     laboratoire ont fini leur office. Seuls restent ici les modes en essai,
+     pas encore jugés bons pour le menu. */
+  cartesSolo('liste-essai', SOLOS.filter(s => ESSAIS.includes(s.id)));
+  construireParamsScore();
   const L = $('liste-evts'); L.innerHTML = '';
   EVTS.forEach(e => {
     const d = document.createElement('div');
@@ -10599,9 +12423,7 @@ function noterDelai(clic, delai){
   if(S.delais.length > 10) S.delais.shift();
 }
 const SV_OPTS = [
-  {c:'pari',    n:'Le pari', d:"Coupé par défaut. Sacrifier 5 centièmes avant un lancer pour doubler le gain s'il est bon."},
   {c:'flouOcean', n:'Océan flou', d:"À l'essai. Dans le biome Océan, le chiffre du chrono devient flou, comme lu à travers l'eau."},
-  {c:'evenements', n:'Les rendez-vous', d:"Coupés par défaut. Le troc, le va-tout et la série demandée, trois interruptions par partie au maximum."},
   {c:'son',     n:'Son',     d:"Battement qui s'accélère quand la zone se resserre, et retours sonores."},
   {c:'vibr',    n:'Vibration', d:"Retour haptique court sur un gain, long sur une perte."},
   {c:'anim',    n:'Anneau animé', d:"Transition douce de l'anneau et pulsation en zone critique."},
@@ -10877,7 +12699,8 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   // sa classe .avec-barre (qui réserve la place en bas) : elle restait
   // invisible au lancement, puis chevauchait le contenu dès qu'elle
   // apparaissait ailleurs faute de ce padding.
-  montrer(S.partie ? ecranJeu() : 'reglages');
+  injecterRetours();
+  montrer(S.partie ? ecranJeu() : 'reglages', true);
 })();
 </script>
 </body>
