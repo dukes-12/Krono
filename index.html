@@ -2080,6 +2080,48 @@ html[data-da="bar"] .f-verdict .titre{font-size:17.5px;letter-spacing:.01em;text
 html[data-da="bar"] .bouton{font-size:17px;letter-spacing:.02em;text-transform:none}
 html[data-da="bar"] .rond{font-size:13.5px;letter-spacing:.02em;text-transform:none;font-weight:700}
 
+/* ─── carrousel des titres de fin de soirée : cartes flottantes ────
+   Contrairement au décompte, ce carrousel attend une interaction (le
+   joueur tape « Suivant ») plutôt que de s'enchaîner tout seul : c'est
+   un moment qu'on fait durer autour de la table, pas un résultat à lire
+   vite. Aucune animation en boucle — tout repose sur une seule
+   transition d'entrée par carte, comme le décompte. */
+.titres-c{position:relative;margin-top:16px;padding:8px 2px 2px;overflow:hidden}
+.tc-tete{display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+.tc-halo{position:absolute;left:50%;top:70px;width:260px;height:260px;
+  transform:translateX(-50%);border-radius:50%;pointer-events:none;z-index:0;
+  transition:background .35s ease}
+.tc-flot{position:relative;z-index:2;margin-top:16px;border-radius:26px;
+  padding:28px 20px 24px;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 18px 38px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.03) inset;
+  animation:tcEntre .4s cubic-bezier(.2,.9,.3,1.3)}
+.tc-ic{font-size:44px;line-height:1}
+.tc-lb{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;margin-top:14px}
+.tc-nm{font-size:29px;font-weight:700;letter-spacing:.02em;margin-top:5px;
+  line-height:1.05;color:var(--ivoire)}
+.tc-ch{font-family:var(--mono);font-size:11px;color:var(--gris);margin-top:8px}
+.tc-ph{font-size:13.5px;font-style:italic;line-height:1.42;margin-top:14px;
+  color:#C3BCAE;padding:0 4px}
+@keyframes tcEntre{from{opacity:0;transform:translateY(16px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}}
+.tc-pile{position:relative;z-index:1;margin:0 auto;border-radius:22px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.tc-pile.p1{width:88%;height:14px;margin-top:-7px}
+.tc-pile.p2{width:76%;height:14px;margin-top:-7px}
+.tc-points{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.tc-points span{width:7px;height:7px;border-radius:50%;background:var(--gris);opacity:.3}
+.tc-points span.on{opacity:1}
+.tc-bas{display:flex;gap:9px;margin-top:14px}
+.tc-btn{flex:1;text-align:center;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:12px 0;border-radius:14px;
+  border:1px solid var(--bordDoux);color:var(--gris);background:none}
+.tc-btn.on{color:var(--nuit);border-color:transparent}
+@media (prefers-reduced-motion:reduce){.tc-flot{animation:none}}
+
 /* ─── décompte animé de fin de partie ───────────────────────────────
    Chaque ligne du calcul apparaît l'une après l'autre, puis le total
    défile jusqu'à sa valeur. L'animation ne tourne QUE sur l'écran de
@@ -2267,6 +2309,24 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
   <div class="revelation" id="revelation">
     <div class="t">Ce que dit le chrono</div>
     <div class="s" id="rev-texte">—</div>
+  </div>
+  <div class="titres-c" id="titres-c" style="display:none">
+    <div class="tc-halo" id="tc-halo"></div>
+    <div class="tc-tete"><span>Les titres</span><span id="tc-compte">1 / 4</span></div>
+    <div class="tc-flot" id="tc-flot">
+      <div class="tc-ic" id="tc-ic">👑</div>
+      <div class="tc-lb" id="tc-lb">—</div>
+      <div class="tc-nm" id="tc-nm">—</div>
+      <div class="tc-ch" id="tc-ch">—</div>
+      <div class="tc-ph" id="tc-ph">—</div>
+    </div>
+    <div class="tc-pile p1" id="tc-p1"></div>
+    <div class="tc-pile p2" id="tc-p2"></div>
+    <div class="tc-points" id="tc-points"></div>
+    <div class="tc-bas">
+      <button class="tc-btn" id="tc-tout">Tout voir</button>
+      <button class="tc-btn on" id="tc-suivant">Suivant</button>
+    </div>
   </div>
   <div class="classement" id="classement"></div>
   <div class="recap-b">
@@ -3925,9 +3985,62 @@ const LABOS = [
    if(!tenu) L.sansFaute = false;
    const multi = tenu ? multiSerie(L.serie, P) : 1;
 
-   /* ── 3. figures ── */
+   /* ── 3. mémoire des tours ──
+      On garde l'écart ET son signe : plusieurs figures ne se calculent
+      qu'à partir du côté de l'erreur (trop tôt / trop tard), une donnée
+      que le barème n'exploitait pas du tout jusqu'ici. */
+   L.ecarts = L.ecarts || [];
+   L.deltas = L.deltas || [];
+   L.ecarts.push(e);
+   L.deltas.push(c.delta);
+
+   /* ── 4. figures ── */
    if(pile && L.pilesAvant) primes.push({n:'Doublé', v:P.double});
    if(pile && L.dernierRate) primes.push({n:'Remontée', v:P.remontee});
+
+   /* Métronome — trois tours du même côté, à P.metro centièmes près.
+      Récompense l'erreur CONSTANTE, qui est une compétence : c'est elle
+      qu'un joueur doit repérer chez lui pour se corriger. */
+   const d3 = L.deltas.slice(-3);
+   if(d3.length === 3 && !L.metroPris){
+     const memeCote = d3.every(x => x > 0) || d3.every(x => x < 0);
+     const es = d3.map(Math.abs);
+     if(memeCote && Math.max(...es) - Math.min(...es) <= P.metro){
+       primes.push({n:'Métronome', v:P.metronome});
+       L.metroPris = true;      // une seule fois : sinon 5 tours réguliers en donnent 3
+     }
+   }
+
+   /* Verrou — cinq tours d'affilée à 1 centième ou moins. Un second
+      palier de précision, bien plus dur que le seuil de série. */
+   const e5 = L.ecarts.slice(-5);
+   if(e5.length === 5 && !L.verrouPris && e5.every(x => x <= P.verrouSeuil)){
+     primes.push({n:'Verrou', v:P.verrou});
+     L.verrouPris = true;
+   }
+
+   /* Crescendo — quatre écarts qui diminuent strictement. La seule figure
+      qui puisse tomber après un mauvais départ : elle donne une raison de
+      continuer quand la partie commence mal. */
+   const e4 = L.ecarts.slice(-4);
+   if(e4.length === 4 && !L.crescPris
+      && e4[3] < e4[2] && e4[2] < e4[1] && e4[1] < e4[0]){
+     primes.push({n:'Crescendo', v:P.crescendo});
+     L.crescPris = true;
+   }
+
+   /* Le dernier mot — un pile au tour 10. Le seul coup dont on sait, en le
+      jouant, qu'il est le dernier : ça donne enfin un enjeu au tour final. */
+   if(pile && S.tour >= 10 && !L.motPris){
+     primes.push({n:'Le dernier mot', v:P.dernierMot});
+     L.motPris = true;
+   }
+
+   /* Coup double — figure méta : elle récompense la coïncidence de deux
+      figures dans le même tour. Calculée en dernier, sur la liste déjà
+      figée, pour qu'elle ne puisse pas se déclencher sur elle-même. */
+   if(primes.length >= 2) primes.push({n:'Coup double', v:P.coupDouble});
+
    L.pilesAvant = pile;
    L.dernierRate = !tenu;
 
@@ -3971,8 +4084,80 @@ const LABOS = [
      lignes.push({lb:n + (compte[n].n > 1 ? ' ×' + compte[n].n : ''),
                   vl:'+' + compte[n].v, cls:'prime'});
    });
-   if(!Object.keys(compte).length)
+   /* ── Symétrie : figure de bilan, jamais de tour ──
+      Le biais cumulé (somme des deltas SIGNÉS) finit près de zéro : les
+      avances et les retards se sont compensés. Le jeu mesure déjà cette
+      qualité dans le profil, mais ne l'avait jamais récompensée.
+      Elle est calculée AVANT la ligne « aucune figure », sinon celle-ci
+      s'afficherait juste au-dessus d'une figure obtenue. */
+   const biais = (L.deltas || []).reduce((a, b) => a + b, 0);
+   const symOk = (L.deltas || []).length && Math.abs(biais) <= P.symetrie;
+   if(symOk){
+     total += P.symetriePrime;
+     L.primes = (L.primes || 0) + P.symetriePrime;
+     lignes.push({lb:'Symétrie · biais final ' + (biais > 0 ? '+' : '')
+                    + fmt(biais), vl:'+' + P.symetriePrime, cls:'prime'});
+   }
+   if(!Object.keys(compte).length && !symOk)
      lignes.push({lb:'Aucune figure', vl:'—'});
+
+   /* ── Main sûre : huit tours tenus, même non consécutifs ──
+      Tout le reste du barème repose sur la consécutivité : une erreur au
+      tour 5 efface la série et la plupart des figures. C'est la seule
+      figure qui juge le total sans se soucier de l'ordre. */
+   const tenus = (L.ecarts || []).filter(x => x <= P.seuil).length;
+   if(tenus >= P.mainSure){
+     total += P.mainSurePrime;
+     L.primes = (L.primes || 0) + P.mainSurePrime;
+     lignes.push({lb:'Main sûre · ' + tenus + ' tours dans les ' + P.seuil
+                    + ' centièmes', vl:'+' + P.mainSurePrime, cls:'prime'});
+   }
+
+   /* ── Montée en régime : la seconde moitié bat la première ──
+      Crescendo exige quatre tours qui s'améliorent d'affilée, ce qui est
+      rare. Celle-ci juge la tendance, donc elle récompense l'apprentissage
+      en cours de partie et tombe bien plus souvent. */
+   const E = L.ecarts || [];
+   if(E.length >= 6){
+     const moit = Math.floor(E.length / 2);
+     const m1 = E.slice(0, moit).reduce((a, b) => a + b, 0) / moit;
+     const m2 = E.slice(-moit).reduce((a, b) => a + b, 0) / moit;
+     if(m2 * P.montee <= m1 && m1 > 0){
+       total += P.monteePrime;
+       L.primes = (L.primes || 0) + P.monteePrime;
+       lignes.push({lb:'Montée en régime · ± ' + fmt(Math.round(m1))
+                      + ' puis ± ' + fmt(Math.round(m2)),
+                    vl:'+' + P.monteePrime, cls:'prime'});
+     }
+   }
+
+   /* ── Sans filet : aucun tour sorti de la zone ──
+      Critère bien plus large que le Sans-faute : c'est le palier d'entrée
+      du même registre, celui qu'un joueur voit dès ses premières parties. */
+   if(E.length && E.every(x => x <= zoneBase())){
+     const g = Math.round(total * (P.sansFilet - 1));
+     total += g;
+     L.primes = (L.primes || 0) + g;
+     lignes.push({lb:'Sans filet · jamais sorti de la zone',
+                  vl:'×' + P.sansFilet.toFixed(2).replace('.', ','), cls:'bonus'});
+   }
+
+   /* ── Palier de précision ──
+      Le seul élément du barème qui juge la précision MOYENNE plutôt qu'une
+      séquence. Un joueur régulier mais sans figure sort enfin récompensé. */
+   const moy = (L.ecarts || []).length
+     ? (L.ecarts.reduce((a, b) => a + b, 0) / L.ecarts.length) : 999;
+   const pal = PALIERS_PRECISION.find(p => moy <= p.max);
+   if(pal){
+     const gain = Math.round(total * (pal.mult - 1));
+     total += gain;
+     L.primes = (L.primes || 0) + gain;
+     lignes.push({lb:'Précision · ' + pal.n + ' (moyenne ± ' + fmt(Math.round(moy)) + ')',
+                  vl:'×' + pal.mult.toFixed(2).replace('.', ','), cls:'bonus'});
+   } else {
+     lignes.push({lb:'Précision · moyenne ± ' + fmt(Math.round(moy)), vl:'—'});
+   }
+
    if(L.sansFaute !== false){
      total = Math.round(total * P.sansFaute);
      bonus = ' · sans-faute ×' + P.sansFaute.toFixed(1).replace('.', ',');
@@ -4016,12 +4201,26 @@ const ESSAIS = ['quitte', 'scoring'];
    sauvegarde : le but est de pouvoir tester plusieurs équilibrages dans
    la même soirée sans toucher au code. */
 const SCORE_DEF = {
-  seuil:3,        // centièmes — au-delà, la série casse (frôlé = 3)
-  palier:0.5,     // ce que chaque cran de série ajoute au multiplicateur
-  plafond:4,      // multiplicateur maximum
-  double:150,     // prime pour deux piles d'affilée
-  remontee:100,   // prime pour un pile juste après une rupture
-  sansFaute:1.5   // multiplicateur du total si aucun tour au-dessus du seuil
+  seuil:3,          // centièmes — au-delà, la série casse (frôlé = 3)
+  palier:0.5,       // ce que chaque cran de série ajoute au multiplicateur
+  plafond:4,        // multiplicateur maximum
+  double:150,       // prime pour deux piles d'affilée
+  remontee:100,     // prime pour un pile juste après une rupture
+  metronome:200,    // prime pour trois tours du même côté
+  metro:2,          // dispersion tolérée entre ces trois écarts
+  verrou:220,       // prime pour cinq tours très serrés
+  verrouSeuil:1,    // « très serré » = 1 centième ou moins
+  crescendo:250,    // prime pour quatre écarts qui diminuent
+  symetriePrime:160,// prime pour un biais final quasi nul
+  symetrie:3,       // tolérance sur ce biais, en centièmes
+  dernierMot:250,   // prime pour un pile au dernier tour
+  coupDouble:150,   // prime quand deux figures tombent le même tour
+  mainSure:8,       // nombre de tours tenus exigé, ordre indifférent
+  mainSurePrime:180,
+  montee:2,         // la 2e moitié doit être N fois meilleure que la 1re
+  monteePrime:240,
+  sansFilet:1.10,   // multiplicateur si aucun tour hors de la zone
+  sansFaute:1.5     // multiplicateur du total si aucun tour au-dessus du seuil
 };
 const SCORE_LBL = {
   seuil:'Seuil de rupture (centièmes)',
@@ -4029,8 +4228,35 @@ const SCORE_LBL = {
   plafond:'Plafond du multiplicateur',
   double:'Prime · Doublé',
   remontee:'Prime · Remontée',
+  metronome:'Prime · Métronome',
+  metro:'Métronome · dispersion tolérée',
+  verrou:'Prime · Verrou',
+  verrouSeuil:'Verrou · seuil (centièmes)',
+  crescendo:'Prime · Crescendo',
+  symetriePrime:'Prime · Symétrie',
+  symetrie:'Symétrie · biais toléré',
+  dernierMot:'Prime · Le dernier mot',
+  coupDouble:'Prime · Coup double',
+  mainSure:'Main sûre · tours exigés',
+  mainSurePrime:'Prime · Main sûre',
+  montee:'Montée · facteur exigé',
+  monteePrime:'Prime · Montée en régime',
+  sansFilet:'Bonus · Sans filet (× total)',
   sansFaute:'Bonus · Sans-faute (× total)'
 };
+
+/* Paliers de précision globale — le seul élément du barème qui juge la
+   précision MOYENNE de la partie plutôt qu'une séquence de tours. Un
+   joueur régulier qui ne déclenche aucune figure sort enfin récompensé.
+   L'ordre compte : on retient le PREMIER palier atteint, donc du plus
+   exigeant au plus large. */
+const PALIERS_PRECISION = [
+  {max:2,  n:'chirurgical', mult:1.60},
+  {max:4,  n:'excellent',   mult:1.40},
+  {max:7,  n:'très bon',    mult:1.25},
+  {max:12, n:'bon',         mult:1.12},
+  {max:20, n:'correct',     mult:1.05}
+];
 function construireParamsScore(){
   const M = $('params-score');
   if(!M) return;
@@ -4083,6 +4309,8 @@ function initLabo(){
            cagnotte:0, encaisse:false,
            piles:0, serie:0, meilleureSerie:0, sansFaute:true,
            pilesAvant:false, dernierRate:false,
+           ecarts:[], deltas:[],
+           metroPris:false, verrouPris:false, crescPris:false, motPris:false,
            base:0, apport:0, primes:0, detail:[]};
   S.mort = false;
   if(!l) return;
@@ -6658,7 +6886,7 @@ async function ajouterJoueurEnCours(){
   if(!n) return;
   S.joueurs.splice(S.idx, 0, n);   // devant le joueur courant dans le tableau…
   S.idx++;                         // …qui garde donc la main
-  S.stats[n] = {gorgees:0, culs:0, ecart:0, tours:0, piles:0, biais:0, carres:0, minutes:0};
+  S.stats[n] = {gorgees:0, donnees:0, culs:0, ecart:0, tours:0, piles:0, biais:0, carres:0, minutes:0, hist:[]};
   S.jetons[n] = 0; S.fautes[n] = 0;
   S.couleurs[n] = couleurLibre();
   memoriser(n);
@@ -6910,10 +7138,11 @@ async function demarrerPartie(){
   }
   S.joueurs = j; S.stats = {}; S.jetons = {}; S.couleurs = {};
   j.forEach((n,i) => S.couleurs[n] = coul(i));
-  j.forEach(n => { S.stats[n] = {gorgees:0, culs:0, ecart:0, tours:0,
-                                 piles:0, biais:0, carres:0, minutes:0}; S.jetons[n] = 0; });
+  j.forEach(n => { S.stats[n] = {gorgees:0, donnees:0, culs:0, ecart:0, tours:0,
+                                 piles:0, biais:0, carres:0, minutes:0, hist:[]}; S.jetons[n] = 0; });
   S.idx = 0; S.sens = 1; S.total = 0; S.tour = 1; S.contre = 0;
   S.historique = []; S.enregistre = false; S.partie = true;
+  if($('titres-c')) $('titres-c').style.display = 'none';
   // une partie relancée pendant qu'un chrono tourne laissait S.encours à vrai :
   // l'écran repartait en pensant être en pleine mesure
   S.encours = false;
@@ -7270,9 +7499,16 @@ function depassements(){
     + (neufs.length > 2 ? 's' : '');
 }
 
-function peine(nom, n, attaque = false){
+/* auteur : qui inflige la peine, quand ce n'est pas la victime elle-même.
+   Sert au titre L'inévitable (gorgées distribuées) et au Bourreau. On ne
+   compte que ce qui est réellement bu (après bouclier éventuel), pour que
+   « distribué » et « bu » restent deux chiffres cohérents entre eux. */
+function peine(nom, n, attaque = false, auteur = null){
   if(!attaque && S.jetons[nom] > 0){ S.jetons[nom]--; return 0; }
-  S.stats[nom].gorgees += n; return n;
+  S.stats[nom].gorgees += n;
+  if(auteur && auteur !== nom && S.stats[auteur])
+    S.stats[auteur].donnees = (S.stats[auteur].donnees || 0) + n;
+  return n;
 }
 
 // rappel du biome en cours dans l'écran de détails
@@ -7323,6 +7559,11 @@ function afficherResultat(valeur){
 
   if(!(S.evt && EVT(S.evt).fausse)){
     st.ecart += ecart; st.tours++; st.biais += delta; st.carres += delta*delta;
+    /* historique par tour, nécessaire aux titres de fin de soirée qui
+       comparent la première et la seconde moitié de partie (Le grimpeur,
+       L'essoufflé). On ne le pousse pas sur un tour faussé (evt.fausse),
+       cohérent avec le reste des compteurs ci-dessus. */
+    (st.hist = st.hist || []).push(ecart);
   }
   if(ecart === 0) st.piles++;
   (S.ecarts = S.ecarts || []).push(ecart);
@@ -7941,7 +8182,7 @@ function resoudre(valeur, delta, ecart){
           vibrer([0,60,50,60,50,140]);
         } else if(ecart <= e.seuil){
           couleur = 't-vert';
-          const n = peine(suiv, e.n * mult, true);
+          const n = peine(suiv, e.n * mult, true, joueur);
           T.textContent = suiv + ' boit ' + gorg(n);
           U.textContent = 'enchère tenue à ±' + fmt(e.seuil) + ' · écart ±' + fmt(ecart);
         } else { 
@@ -8038,7 +8279,7 @@ function resoudre(valeur, delta, ecart){
         }
         else if(v.code === 'frole'){
           const victime = suiv;
-          const n = peine(victime, gorgeesFrole * mult, true);
+          const n = peine(victime, gorgeesFrole * mult, true, joueur);
           if(S.evt === 'bouclier'){
             S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
             couleur = 't-alerte';
@@ -8051,7 +8292,7 @@ function resoudre(valeur, delta, ecart){
         }
         else if(v.code === 'presque'){
           const victime = suiv;
-          const n = peine(victime, gorgeesPresque * mult, true);
+          const n = peine(victime, gorgeesPresque * mult, true, joueur);
           if(S.evt === 'bouclier'){
             S.jetons[joueur] = (S.jetons[joueur]||0) + 1;
             couleur = 't-alerte';
@@ -9146,13 +9387,269 @@ async function detecterRecord(){
   }catch(e){ /* silencieux : la bannière personnelle reste affichée */ }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   TITRES DE FIN DE SOIRÉE
+   ───────────────────────────────────────────────────────────────
+   Neuf titres, chacun croisant deux ou trois mesures — jamais une
+   seule. C'est volontaire : la précision, les piles et les gorgées
+   distribuées se ressemblent trop pour être jugées séparément, sinon
+   le même joueur rafle tout. On les évalue dans un ordre de priorité
+   (le plus exigeant d'abord) et on n'attribue jamais deux titres au
+   même joueur — dès qu'il en a un, il sort de la liste des candidats
+   pour les suivants.
+   ═══════════════════════════════════════════════════════════════ */
+
+function rangDe(liste, valeur, sens){
+  // sens 'max' : le plus grand est 1er.  sens 'min' : le plus petit est 1er.
+  const tri = [...liste].sort((a,b) =>
+    sens === 'max' ? valeur(b) - valeur(a) : valeur(a) - valeur(b));
+  const m = new Map();
+  tri.forEach((p,i) => m.set(p.n, i + 1));
+  return m;
+}
+function mediane(vals){
+  const t = [...vals].sort((a,b) => a - b);
+  const m = Math.floor(t.length / 2);
+  return t.length % 2 ? t[m] : (t[m-1] + t[m]) / 2;
+}
+
+/* Construit, pour chaque joueur ayant joué au moins un tour, l'ensemble
+   des mesures dérivées dont les titres ont besoin. Ne dépend que de
+   S.stats — donc réutilisable aussi bien en fin de partie qu'en test. */
+function statsJoueurs(){
+  const J = S.joueurs
+    .map(n => ({n, ...S.stats[n]}))
+    .filter(p => p.tours > 0);
+  if(J.length < 2) return [];   // pas assez de monde pour comparer qui que ce soit
+
+  J.forEach(p => {
+    p.precision = p.ecart / p.tours;
+    p.biaisMoy = p.biais / p.tours;
+    p.disp = Math.sqrt(Math.max(0, p.carres / p.tours - p.biaisMoy * p.biaisMoy));
+  });
+
+  const rP  = rangDe(J, p => p.precision, 'min');   // 1 = le plus précis
+  const rPi = rangDe(J, p => p.piles, 'max');        // 1 = le plus de piles
+  const rD  = rangDe(J, p => p.donnees || 0, 'max'); // 1 = a le plus fait boire
+  const rG  = rangDe(J, p => p.gorgees, 'max');      // 1 = a le plus bu
+  const rDisp    = rangDe(J, p => p.disp, 'min');    // 1 = le plus régulier
+  const rDispInv = rangDe(J, p => p.disp, 'max');    // 1 = le plus dispersé
+  const rBiaisL  = rangDe(J, p => p.biaisMoy, 'max');// 1 = le plus en retard
+  const rBiaisP  = rangDe(J, p => p.biaisMoy, 'min');// 1 = le plus en avance
+  const medPiles = mediane(J.map(p => p.piles));
+  const medDisp  = mediane(J.map(p => p.disp));
+  const n = J.length;
+
+  J.forEach(p => {
+    p.rP = rP.get(p.n); p.rPi = rPi.get(p.n); p.rD = rD.get(p.n);
+    p.rG = rG.get(p.n); p.rDisp = rDisp.get(p.n); p.rDispInv = rDispInv.get(p.n);
+    p.rBiaisL = rBiaisL.get(p.n); p.rBiaisP = rBiaisP.get(p.n);
+    p.classement = p.rP;             // le classement général reste la précision
+    p.medianePiles = medPiles; p.medianeDisp = medDisp; p.nbJoueurs = n;
+  });
+  return J;
+}
+
+/* Chaque phrase est tirée au hasard à l'affichage — quelques variantes
+   suffisent pour qu'une soirée ne ressemble jamais tout à fait à la
+   précédente. Elles visent le rôle, jamais la personne. */
+const PHRASES_TITRE = {
+  inevitable: ["On a vérifié, il n'a pas de montre dans la main.",
+    "Il n'a rien laissé aux autres. Ni le classement, ni le silence.",
+    "À ce stade, ce n'est plus un joueur, c'est un étalon."],
+  bourreau: ["Il ne vise pas bien. Il vise fort.",
+    "Il rate neuf fois et démolit la dixième.",
+    "La table entière a payé pour ses piles."],
+  chirurgien: ["Il n'a jamais visé le centre. Il n'en a pas eu besoin.",
+    "Précis et prudent : la combinaison qui gagne sur la durée.",
+    "Aucun éclat. Juste jamais d'erreur non plus."],
+  funambule: ["Entre deux piles, il y a eu des moments difficiles.",
+    "Le meilleur et le pire de la soirée, dans la même personne.",
+    "On ne sait jamais lequel va se présenter."],
+  stoique: ["Il boit plus que tout le monde et gagne quand même. C'est vexant.",
+    "Il encaisse et il vise juste. C'est agaçant.",
+    "Rien ne semble jamais le déranger. Ni le chrono, ni le verre."],
+  eponge: ["Statistiquement, le vrai vainqueur de la soirée.",
+    "Il a tout encaissé sans jamais se plaindre. Respect.",
+    "Le chrono ne l'aime pas. Le bar, si."],
+  ombre: ["A-t-il vraiment joué ce soir ? Les archives sont formelles.",
+    "Ni brillant ni catastrophique. Juste... présent.",
+    "Personne ne se souvient de son premier tour. Ni du dernier."],
+  joker: ["Personne ne comprend comment il est si bien classé. Lui non plus.",
+    "Le chaos, ce soir, a choisi son camp.",
+    "Statistiquement improbable. Et pourtant, le voilà."],
+  lent: ["Il arrive toujours. Un peu après tout le monde.",
+    "Fiable dans son retard, au moins.",
+    "On l'attend. On l'attend encore."],
+  presse: ["Personne ne lui a dit qu'il fallait attendre.",
+    "Toujours le premier à partir. Rarement au bon moment.",
+    "Une seconde d'avance, systématiquement offerte au chrono."],
+  grimpeur: ["Il a compris le jeu vers la moitié de la partie.",
+    "Débuts hésitants, fin qui n'a plus rien à voir.",
+    "Il a mis du temps à se chauffer. Mais alors."],
+  essouffle: ["Il partait bien. On ne sait pas ce qui s'est passé.",
+    "Excellent début. Le reste s'est un peu perdu en route.",
+    "La forme du premier tour n'a pas tenu jusqu'au dernier."],
+  regulier: ["Il n'a rien gagné, rien perdu. Une performance.",
+    "Jamais en tête, jamais en fond. Le centre de gravité de la table.",
+    "Ni héros ni victime. Le socle sur lequel la soirée a tenu."]
+};
+function phraseTitre(id){
+  const L = PHRASES_TITRE[id] || [''];
+  return L[Math.floor(Math.random() * L.length)];
+}
+
+/* Chaque définition renvoie un joueur ou null. L'ordre de la liste EST
+   la priorité : les titres les plus exigeants sont tranchés en premier,
+   pendant que tous les candidats sont encore disponibles. */
+const DEFS_TITRES = [
+  {id:'inevitable', ic:'👑', nom:"L'inévitable", coul:'#C9A227',
+   test(J){
+     const strict = J.filter(p => p.rP===1 && p.rPi===1 && p.rD===1);
+     if(strict.length) return strict[0];
+     const paires = J.filter(p =>
+       [p.rP===1, p.rPi===1, p.rD===1].filter(Boolean).length >= 2);
+     if(!paires.length) return null;
+     paires.sort((a,b) => (a.rP+a.rPi+a.rD) - (b.rP+b.rPi+b.rD));
+     return paires[0];
+   }},
+  {id:'bourreau', ic:'🩸', nom:'Le bourreau', coul:'#B98CFF',
+   test(J){
+     const c = J.filter(p => p.rPi<=2 && p.rD<=2 && p.rP!==1);
+     if(!c.length) return null;
+     c.sort((a,b) => (a.rPi+a.rD) - (b.rPi+b.rD));
+     return c[0];
+   }},
+  {id:'chirurgien', ic:'🧊', nom:'Le chirurgien', coul:'#5AD2DC',
+   test(J){
+     const c = J.filter(p => p.rP<=2 && p.rDisp<=2 && p.piles<=p.medianePiles);
+     if(!c.length) return null;
+     c.sort((a,b) => (a.rP+a.rDisp) - (b.rP+b.rDisp));
+     return c[0];
+   }},
+  {id:'funambule', ic:'🎢', nom:'Le funambule', coul:'#FF8A5B',
+   test(J){
+     const c = J.filter(p => p.rPi<=2 && p.rDispInv===1);
+     return c[0] || null;
+   }},
+  {id:'joker', ic:'🎲', nom:'Le joker', coul:'#B98CFF',
+   test(J){
+     const c = J.filter(p => p.classement<=2 && p.rDispInv===1);
+     return c[0] || null;
+   }},
+  /* stoïque et éponge partagent le même candidat de départ — celui qui a
+     le plus bu — et se séparent seulement sur son classement final */
+  {id:'stoique', ic:'🗿', nom:'Le stoïque', coul:'#FF7BC8',
+   test(J){
+     const c = J.find(p => p.rG===1);
+     return (c && c.classement<=3) ? c : null;
+   }},
+  {id:'eponge', ic:'🧽', nom:"L'éponge", coul:'#FF7BC8',
+   test(J){
+     const c = J.find(p => p.rG===1);
+     return (c && c.classement>3) ? c : null;
+   }},
+  {id:'ombre', ic:'👻', nom:"L'ombre", coul:'#7C8797',
+   test(J){
+     const n = J.length, bas = Math.floor(n/3), haut = n - Math.floor(n/3);
+     const c = J.filter(p => p.piles===0 && (p.donnees||0)===0
+       && p.classement>bas && p.classement<=haut);
+     return c[0] || null;
+   }},
+  {id:'lent', ic:'🐌', nom:'Le lent', coul:'#FF7BC8',
+   test(J){
+     const c = J.find(p => p.rBiaisL===1 && p.biaisMoy>0);
+     return c || null;
+   }},
+  {id:'presse', ic:'⚡', nom:'Le pressé', coul:'#FF8A5B',
+   test(J){
+     const c = J.find(p => p.rBiaisP===1 && p.biaisMoy<0);
+     return c || null;
+   }},
+  {id:'grimpeur', ic:'📈', nom:'Le grimpeur', coul:'#35C46B',
+   test(J){
+     const c = J.filter(p => (p.hist||[]).length >= 6).map(p => {
+       const h = p.hist, m = Math.floor(h.length/2);
+       const m1 = h.slice(0,m).reduce((a,b)=>a+b,0)/m;
+       const m2 = h.slice(-m).reduce((a,b)=>a+b,0)/m;
+       return {...p, m1, m2};
+     }).filter(p => p.m1>0 && p.m2*2<=p.m1);
+     if(!c.length) return null;
+     c.sort((a,b) => (b.m1/b.m2) - (a.m1/a.m2));   // le progrès le plus net
+     return c[0];
+   }},
+  {id:'essouffle', ic:'📉', nom:"L'essoufflé", coul:'#DC3B2A',
+   test(J){
+     const c = J.filter(p => (p.hist||[]).length >= 6).map(p => {
+       const h = p.hist, m = Math.floor(h.length/2);
+       const m1 = h.slice(0,m).reduce((a,b)=>a+b,0)/m;
+       const m2 = h.slice(-m).reduce((a,b)=>a+b,0)/m;
+       return {...p, m1, m2};
+     }).filter(p => p.m2>0 && p.m1*2<=p.m2);
+     if(!c.length) return null;
+     c.sort((a,b) => (b.m2/b.m1) - (a.m2/a.m1));
+     return c[0];
+   }},
+  {id:'regulier', ic:'🎭', nom:'Le régulier', coul:'#5AD2DC',
+   test(J){
+     const c = J.filter(p => p.classement>1 && p.classement<p.nbJoueurs
+       && p.disp<=p.medianeDisp);
+     return c[0] || null;
+   }}
+];
+
+/* Calcule jusqu'à QUATRE titres, jamais deux fois le même joueur. On
+   parcourt les définitions dans leur ordre de priorité en retirant à
+   chaque fois le joueur retenu de la liste des candidats — donc les
+   titres évalués tôt (L'inévitable) ont accès à tout le monde, ceux
+   évalués tard (Le régulier) composent avec ce qu'il reste. */
+function calculerTitres(){
+  let J = statsJoueurs();
+  if(!J.length) return [];
+  const resultat = [];
+  for(const def of DEFS_TITRES){
+    if(resultat.length >= 4) break;
+    const gagnant = def.test(J);
+    if(!gagnant) continue;
+    resultat.push({...def, joueur:gagnant, phrase:phraseTitre(def.id)});
+    J = J.filter(p => p.n !== gagnant.n);
+  }
+  return resultat;
+}
+
 /* Révèle le calcul ligne par ligne, puis fait défiler le total.
+ le calcul ligne par ligne, puis fait défiler le total.
    Les minuteries passent par S.minuteries : quitter l'écran avant la fin
    de l'animation les purge, sinon un décompte fantôme continuerait de
    tourner sur l'écran suivant. */
+/* Décompte générique, pour tous les modes solo qui n'en produisent pas
+   eux-mêmes. Il ne réinvente aucun calcul : il met en forme ce que la
+   partie a déjà mesuré (piles, série, précision moyenne, biais) et se
+   contente de présenter le score final. Aucune prime n'est ajoutée. */
+function decompteSolo(){
+  const st = S.stats[S.joueurs[0]];
+  if(!st || !st.tours) return null;
+  const moy = Math.round(st.ecart / st.tours);
+  const biais = Math.round(st.biais / st.tours);
+  const lignes = [
+    {lb:'Tours joués', vl:String(st.tours)},
+    {lb:'Piles', vl:st.piles ? '+' + st.piles : '—',
+     cls:st.piles ? 'prime' : ''},
+    {lb:'Meilleure série', vl:(S.meilleureChaine || 0) + ' tours'},
+    {lb:'Précision moyenne', vl:'± ' + fmt(moy), cls:'bonus'},
+    {lb:'Biais moyen · ' + (biais > 0 ? 'plutôt trop tard'
+        : biais < 0 ? 'plutôt trop tôt' : 'centré'),
+     vl:(biais > 0 ? '+' : '') + fmt(biais)}
+  ];
+  return {lignes, total:S.points || 0,
+    note:'précision moyenne sur ' + st.tours + ' tour'
+       + (st.tours > 1 ? 's' : '')};
+}
+
 function afficherDecompte(d){
   const M = $('fin-decompte');
   if(!M) return;
+  S.decompte = d || null;
   if(!d || !d.lignes || !d.lignes.length){
     M.style.display = 'none'; M.innerHTML = ''; return;
   }
@@ -9203,6 +9700,78 @@ function afficherDecompte(d){
     requestAnimationFrame(pas);
   }, d.lignes.length * PAS + 120));
 }
+
+/* Fait vivre le carrousel de titres : une carte à la fois, tapée pour
+   avancer, avec les cartes déjà vues empilées derrière comme repère
+   visuel de progression. « Tout voir » saute directement au classement
+   complet — jamais plus de quatre appuis imposés. */
+let TC_ETAT = {liste:[], idx:0};
+function tcRendreCarte(){
+  const t = TC_ETAT.liste[TC_ETAT.idx];
+  if(!t) return;
+  $('tc-ic').textContent = t.ic;
+  $('tc-lb').textContent = t.nom;
+  $('tc-lb').style.color = t.coul;
+  $('tc-nm').textContent = t.joueur.n;
+  $('tc-nm').style.color = t.coul;
+  $('tc-ch').textContent = tcChiffres(t);
+  $('tc-ph').textContent = '« ' + t.phrase + ' »';
+  $('tc-compte').textContent = (TC_ETAT.idx + 1) + ' / ' + TC_ETAT.liste.length;
+  $('tc-halo').style.background =
+    'radial-gradient(circle,' + hexA(t.coul, .22) + ',transparent 70%)';
+  $('tc-points').innerHTML = TC_ETAT.liste.map((_,i) =>
+    '<span class="' + (i === TC_ETAT.idx ? 'on' : '') + '"'
+    + (i === TC_ETAT.idx ? ' style="background:' + t.coul + '"' : '') + '></span>'
+  ).join('');
+  const dernier = TC_ETAT.idx === TC_ETAT.liste.length - 1;
+  const suiv = $('tc-suivant');
+  suiv.textContent = dernier ? 'Classement' : 'Suivant';
+  suiv.style.background = t.coul;
+  // relance l'animation d'entrée à chaque carte
+  const F = $('tc-flot');
+  F.style.animation = 'none'; void F.offsetWidth; F.style.animation = '';
+}
+function tcChiffres(t){
+  const p = t.joueur;
+  const moy = p.tours ? Math.round(p.ecart / p.tours) : 0;
+  switch(t.id){
+    case 'inevitable':
+    case 'chirurgien':
+      return 'précision ± ' + fmt(moy) + ' · ' + p.piles + ' pile' + (p.piles>1?'s':'');
+    case 'bourreau':
+      return p.piles + ' pile' + (p.piles>1?'s':'') + ' · '
+           + (p.donnees||0) + ' gorgées distribuées';
+    case 'funambule':
+    case 'joker':
+      return 'régularité ± ' + fmt(Math.round(p.disp)) + ' · classement '
+           + p.classement + 'e';
+    case 'stoique':
+    case 'eponge':
+      return p.gorgees + ' gorgée' + (p.gorgees>1?'s':'') + ' bue'
+           + (p.gorgees>1?'s':'');
+    case 'lent':
+    case 'presse':
+      return 'biais ' + (p.biaisMoy>0?'+':'') + fmt(Math.round(p.biaisMoy));
+    case 'grimpeur':
+    case 'essouffle':
+      return 'précision ± ' + fmt(moy) + ' sur ' + p.tours + ' tours';
+    default:
+      return p.tours + ' tours · précision ± ' + fmt(moy);
+  }
+}
+function afficherTitresCarrousel(titres){
+  const bloc = $('titres-c');
+  if(!bloc) return;
+  if(!titres || !titres.length){ bloc.style.display = 'none'; return; }
+  TC_ETAT = {liste:titres, idx:0};
+  bloc.style.display = 'block';
+  tcRendreCarte();
+}
+if($('tc-suivant')) $('tc-suivant').onclick = () => {
+  if(TC_ETAT.idx < TC_ETAT.liste.length - 1){ TC_ETAT.idx++; tcRendreCarte(); }
+  else { $('titres-c').style.display = 'none'; }   // dernier titre lu : on referme
+};
+if($('tc-tout')) $('tc-tout').onclick = () => { $('titres-c').style.display = 'none'; };
 
 function afficherFin(){
   purgerMinuteries();
@@ -9397,7 +9966,10 @@ function afficherFin(){
     const f = LAB().fin();
     TI.textContent = f.t;
     R.innerHTML = f.r;
-    afficherDecompte(S.decompte);
+    /* un mode de laboratoire qui ne produit pas son propre décompte
+       reçoit quand même le décompte générique : tous les modes solo
+       affichent leur bilan chiffré, sans exception */
+    afficherDecompte(S.decompte || decompteSolo());
     if(f.rev){
       rev0.style.display = 'block';
       rev0.querySelector('.t').textContent = f.rev.t;
@@ -9438,6 +10010,10 @@ function afficherFin(){
     montrer('fin');
     return;
   }
+  /* les titres se calculent AVANT le tri du classement classique, mais ne
+     s'affichent que s'il y a bien matière à comparer : statsJoueurs() se
+     charge lui-même de renvoyer une liste vide en solo. */
+  afficherTitresCarrousel(calculerTitres());
   const rangs = S.joueurs.map(n => ({n, ...S.stats[n]}))
     .filter(p => p.tours > 0)
     .sort((a,b) => a.ecart/a.tours - b.ecart/b.tours);
@@ -9488,6 +10064,10 @@ function afficherFin(){
     ecrireMem();
     const apres = scoresDe(sig);
     const rang = apres.findIndex(e => e.p === S.points && e.n === nom) + 1;
+    /* tous les modes solo affichent désormais leur décompte de fin ; les
+       modes qui en produisent un eux-mêmes (banc d'essai de score) l'ont
+       déjà posé plus haut et ne sont pas écrasés ici */
+    if(!S.decompte && CFG.mode !== 'combat') afficherDecompte(decompteSolo());
     // réflexe et combat ont déjà écrit leur propre résumé
     const propre = CFG.mode === 'reflexe' || CFG.mode === 'combat';
     /* le banc d'essai de score révèle son total par le décompte animé :
