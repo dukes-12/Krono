@@ -48,7 +48,19 @@ html[data-da="synth"]{
   --laiton:#FFE94A; --signal:#FF4D6D; --vert:#43F2B0; --alerte:#C77BFF;
   --s100:#C77BFF; --s50:#43F2B0; --s20:#FFE94A; --vertVif:#43F2B0;
 }
-html[data-da="synth"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="synth"]{
+  background:
+    repeating-linear-gradient(0deg,rgba(255,60,140,.05) 0 1px,transparent 1px 38px),
+    repeating-linear-gradient(90deg,rgba(0,230,255,.04) 0 1px,transparent 1px 38px),
+    radial-gradient(120% 70% at 50% 118%,rgba(255,60,140,.20),transparent 62%),
+    #0B0410;
+}
 html[data-da="synth"] body{
   background:
     repeating-linear-gradient(0deg,rgba(255,60,140,.05) 0 1px,transparent 1px 38px),
@@ -72,7 +84,18 @@ html[data-da="retro"]{
   --laiton:#FFB02E; --signal:#FF6B4A; --vert:#8FE07A; --alerte:#FFE9A8;
   --s100:#FFE9A8; --s50:#8FE07A; --s20:#FFB02E; --vertVif:#8FE07A;
 }
-html[data-da="retro"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="retro"]{
+  background:
+    repeating-linear-gradient(180deg,rgba(255,176,46,.055) 0 1px,transparent 1px 3px),
+    radial-gradient(130% 95% at 50% 42%,rgba(255,176,46,.10),transparent 68%),
+    #0C0A06;
+}
 html[data-da="retro"] body{
   background:
     repeating-linear-gradient(180deg,rgba(255,176,46,.055) 0 1px,transparent 1px 3px),
@@ -236,7 +259,19 @@ html[data-da="ultraviolet"]{
   --laiton:#FFD873; --signal:#FF7A7A; --vert:#6BF2C8; --alerte:#D9B8FF;
   --s100:#D9B8FF; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
 }
-html[data-da="ultraviolet"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="ultraviolet"]{
+  /* dégradé approfondi par rapport à la maquette : au ton d'origine
+     (#5B21C4 → #B23FC9), l'échelle de résultat tombait à 2,7:1 de
+     contraste — le « raté » devenait illisible. Ce violet reste franc
+     mais laisse respirer les couleurs qui portent l'information. */
+  background:linear-gradient(168deg,#3A1178 0%,#52198F 52%,#652286 100%);
+}
 html[data-da="ultraviolet"] body{
   /* dégradé approfondi par rapport à la maquette : au ton d'origine
      (#5B21C4 → #B23FC9), l'échelle de résultat tombait à 2,7:1 de
@@ -297,7 +332,20 @@ html[data-da="glacier"]{
   --laiton:#7DE8E0; --signal:#FF7A7A; --vert:#6BF2C8; --alerte:#D9B8FF;
   --s100:#D9B8FF; --s50:#6BF2C8; --s20:#FFC48A; --vertVif:#6BF2C8;
 }
-html[data-da="glacier"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="glacier"]{
+  background:
+    radial-gradient(2px 2px at 18% 24%,rgba(125,232,224,.45),transparent),
+    radial-gradient(1.5px 1.5px at 72% 18%,rgba(125,232,224,.34),transparent),
+    radial-gradient(2px 2px at 42% 66%,rgba(125,232,224,.26),transparent),
+    radial-gradient(1.5px 1.5px at 84% 74%,rgba(125,232,224,.22),transparent),
+    linear-gradient(165deg,#2E2260 0%,#241B45 45%,#160E30 100%);
+}
 html[data-da="glacier"] body{
   background:
     radial-gradient(2px 2px at 18% 24%,rgba(125,232,224,.45),transparent),
@@ -1910,7 +1958,17 @@ html[data-da="stade"]{
   --laiton:#E8FF4A; --signal:#FF6B5C; --vert:#5BE88A; --alerte:#C79BFF;
   --s100:#C79BFF; --s50:#5BE88A; --s20:#E8FF4A; --vertVif:#5BE88A;
 }
-html[data-da="stade"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="stade"]{
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 30px,transparent 30px 60px),
+    linear-gradient(178deg,#0C3320 0%,#092817 60%,#061A10 100%);
+}
 html[data-da="stade"] body{
   background:
     repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 30px,transparent 30px 60px),
@@ -1948,7 +2006,18 @@ html[data-da="atelier"]{
   --laiton:#D68A3A; --signal:#E05B42; --vert:#7FCB6B; --alerte:#B98CFF;
   --s100:#B98CFF; --s50:#7FCB6B; --s20:#D68A3A; --vertVif:#7FCB6B;
 }
-html[data-da="atelier"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="atelier"]{
+  background:
+    repeating-linear-gradient(0deg,rgba(214,138,58,.05) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(90deg,rgba(214,138,58,.04) 0 1px,transparent 1px 22px),
+    #1C1A17;
+}
 html[data-da="atelier"] body{
   background:
     repeating-linear-gradient(0deg,rgba(214,138,58,.05) 0 1px,transparent 1px 22px),
@@ -1978,7 +2047,18 @@ html[data-da="maree"]{
   --laiton:#FFD9A0; --signal:#FF8F7F; --vert:#7BF0B4; --alerte:#D9B8FF;
   --s100:#D9B8FF; --s50:#7BF0B4; --s20:#FFD9A0; --vertVif:#7BF0B4;
 }
-html[data-da="maree"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="maree"]{
+  /* le bas du dégradé s'arrête à #064B46 et non au turquoise clair de la
+     maquette : au-delà, le rouge d'échec tombait à 2,3:1, illisible.
+     L'écran s'éclaircit toujours vers le bas, mais sans noyer l'information. */
+  background:linear-gradient(180deg,#04333C 0%,#05423F 55%,#064B46 100%);
+}
 html[data-da="maree"] body{
   /* le bas du dégradé s'arrête à #064B46 et non au turquoise clair de la
      maquette : au-delà, le rouge d'échec tombait à 2,3:1, illisible.
@@ -2039,7 +2119,22 @@ html[data-da="casino"]{
   --laiton:#D4AF5A; --signal:#FF7A6B; --vert:#6BD98F; --alerte:#D9B8FF;
   --s100:#D9B8FF; --s50:#6BD98F; --s20:#D4AF5A; --vertVif:#6BD98F;
 }
-html[data-da="casino"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="casino"]{
+  background:
+    radial-gradient(1px 1px at 14% 22%,rgba(255,255,255,.05),transparent),
+    radial-gradient(1px 1px at 58% 41%,rgba(255,255,255,.045),transparent),
+    radial-gradient(1px 1px at 33% 68%,rgba(255,255,255,.045),transparent),
+    radial-gradient(1px 1px at 78% 79%,rgba(255,255,255,.04),transparent),
+    /* le haut du dégradé descend de #14513B à #0D3A29 : au ton d'origine,
+       le rouge d'échec tombait à 2,5:1 sur la partie éclairée du feutre */
+    radial-gradient(120% 80% at 50% 0%,#0D3A29 0%,#0A2E23 45%,#061C15 100%);
+}
 html[data-da="casino"] body{
   background:
     radial-gradient(1px 1px at 14% 22%,rgba(255,255,255,.05),transparent),
@@ -2078,7 +2173,17 @@ html[data-da="bar"]{
   --laiton:#FFB03A; --signal:#FF5C7A; --vert:#7BE08F; --alerte:#C79BFF;
   --s100:#C79BFF; --s50:#7BE08F; --s20:#FFB03A; --vertVif:#7BE08F;
 }
-html[data-da="bar"],
+/* même dégradé sur <html>, mais SANS background-attachment:fixed :
+   posée sur <html> lui-même, cette propriété est notoirement instable
+   sur iOS Safari (rendu qui ne remplit plus l'écran, comportement très
+   différent d'un simple <div>). <html> ne défile jamais de toute façon,
+   donc l'attachement fixe n'y change rien visuellement — seul <body>
+   en a besoin, et le gardait déjà avant ce filet de sécurité. */
+html[data-da="bar"]{
+  background:
+    repeating-linear-gradient(91deg,rgba(255,176,58,.03) 0 2px,transparent 2px 17px),
+    linear-gradient(178deg,#241410 0%,#1A0E0B 60%,#120907 100%);
+}
 html[data-da="bar"] body{
   background:
     repeating-linear-gradient(91deg,rgba(255,176,58,.03) 0 2px,transparent 2px 17px),
@@ -2297,7 +2402,7 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
   <div class="entete" style="flex-direction: row;">
     <div class="marque"><h1>KRONO</h1><span>au centième</span></div>
     <div class="coin-entete">
-      <span class="num-version">v1.1.0</span>
+      <span class="num-version">v1.0.1</span>
       <button class="btn-reglages" id="ouvrir-reglages" aria-label="Réglages"
               aria-haspopup="dialog"><span></span><span></span><span></span></button>
     </div>
@@ -2642,6 +2747,13 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 
     <!-- connecté : la liste -->
     <div id="lgs-dans" style="display:none">
+      <button class="nav-carte" id="lgs-monde" style="margin-top:0">
+        <span class="ic">🌍</span>
+        <span class="txt"><span class="n">Classement mondial</span>
+          <span class="d">Le meilleur score de chaque compte, tous joueurs confondus. Aucune ligue à rejoindre.</span></span>
+        <span class="fl">›</span>
+      </button>
+      <div class="titre-sec" style="margin-top:18px">Mes ligues</div>
       <div class="note" id="lgs-note">—</div>
       <div id="lgs-liste"></div>
       <div class="recap-b" style="margin-top:16px">
@@ -2649,6 +2761,20 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
         <button class="bouton fantome" id="lgs-rejoindre">Rejoindre avec un code</button>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ═══ CLASSEMENT MONDIAL ═══ -->
+<section class="ecran" id="monde">
+  <div class="entete">
+    <div class="marque"><h1>MONDE</h1><span>tous les comptes</span></div>
+    <div class="nav"><button id="mo-retour">Ligues</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="seg" id="seg-mo" style="margin-bottom:8px"></div>
+    <div class="note" id="mo-note">—</div>
+    <div id="mo-classement"></div>
   </div>
 </section>
 
@@ -10919,6 +11045,7 @@ $('pr-ligue').onclick = async () => {
 let INVITATION = null;          // code reçu par lien, à rejoindre après connexion
 let LG_COURANTE = null;          // ligue ouverte dans l'écran de classement
 let LG_MODE = 'solo';            // mode affiché dans son classement
+let MONDE_MODE = 'solo';         // mode affiché dans le classement mondial
 
 function messageCompte(e){
   const m = String(e && e.message || e);
@@ -11151,6 +11278,63 @@ async function ouvrirLigues(){
   montrer('ligues');
   await majLigues();
 }
+
+/* ─── classement mondial ────────────────────────────────────────────
+   Même principe qu'une ligue (meilleur score par compte, un mode à la
+   fois), mais sans notion d'adhésion : tous les comptes y figurent
+   d'office. Contrairement au classement de ligue — qui télécharge les
+   perfs des quelques membres puis réduit côté client — l'agrégation se
+   fait ici côté base (fonction classement_mondial), le nombre de
+   comptes n'étant pas borné. */
+async function ouvrirMonde(){
+  $('seg-mo').innerHTML = modesLigue().map(id => {
+    const m = SOLOS.find(s => s.id === id) || {n:id};
+    return `<button data-v="${id}" aria-pressed="${id === MONDE_MODE}">${esc(m.n)}</button>`;
+  }).join('');
+  $('seg-mo').querySelectorAll('button').forEach(b => b.onclick = () => {
+    MONDE_MODE = b.dataset.v;
+    $('seg-mo').querySelectorAll('button').forEach(x =>
+      x.setAttribute('aria-pressed', x === b));
+    chargerClassementMonde();
+  });
+  montrer('monde');
+  await chargerClassementMonde();
+}
+async function chargerClassementMonde(){
+  const C = $('mo-classement');
+  C.innerHTML = '';
+  $('mo-note').textContent = 'Chargement…';
+  try{
+    const s = await rafraichirSession();
+    const rangs = await apiAuth('rpc/classement_mondial?p_mode=' + MONDE_MODE + '&p_limite=40') || [];
+    const mode = SOLOS.find(x => x.id === MONDE_MODE) || {n:MONDE_MODE};
+    $('mo-note').textContent = !rangs.length
+      ? mode.n + ' · personne n\'a encore publié de score sur ce mode.'
+      : mode.n + ' · meilleure partie de chacun · ' + rangs.length
+        + ' compte' + (rangs.length > 1 ? 's' : '') + (rangs.length >= 40 ? ' (les 40 premiers)' : '');
+    C.innerHTML = rangs.map((r, i) => {
+      const prec = r.tours ? fmt(Math.round(r.somme / r.tours)) : null;
+      const st = r.parties + ' partie' + (r.parties > 1 ? 's' : '')
+        + (prec ? ' · précision ± ' + prec : '');
+      const coul = coulHash(r.pseudo || '?');
+      const av = r.photo ? `<img src="${r.photo}">`
+        : `<span style="color:${coul}">${esc((r.pseudo || '?')[0].toUpperCase())}</span>`;
+      const nomAff = `<span style="color:${coul}">${esc(r.pseudo || 'Sans pseudo')}</span>`
+        + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
+      return `<div class="lg-rang${s && r.joueur === s.id ? ' moi' : ''}">
+        <span class="p">${i + 1}</span>
+        <span class="lg-av" style="border-color:${coul}66">${av}</span>
+        <span class="n">${nomAff}</span>
+        <span class="s">${r.score}</span>
+        <span class="st">${st}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    $('mo-note').textContent = messageCompte(e);
+  }
+}
+$('lgs-monde').onclick = () => ouvrirMonde();
+$('mo-retour').onclick = () => ouvrirLigues();
 
 async function majLigues(){
   const s = EN_LIGNE() ? await rafraichirSession() : null;
