@@ -3354,7 +3354,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 /* ════════ RÉGLAGES ════════ */
 const CFG = { aff:'visible', diff:'simple', gor:'bar',
               evts:'aucun', maxTours:20, horo:true, pariBlind:false,
-              mode:'classique', da:'instrument', lat:'materiel', minutes:false,
+              mode:'classique', da:'casino', lat:'materiel', minutes:false,
   sv:{paliers:true, pari:false, son:true, vibr:true, anim:true,
       evenements:false, musique:true, biomes:true, triche:false, intro:'cine',
       ambiance:true, bloquer:true, fonds:true, flouOcean:false} };
@@ -6815,14 +6815,14 @@ const DA_TXT = {
   bar:"Bois sombre, ambre de whisky, une enseigne au néon en haut d'écran. Le plus confortable dans une pièce mal éclairée."
 };
 function appliquerDA(){
-  document.documentElement.dataset.da = CFG.da || 'instrument';
+  document.documentElement.dataset.da = CFG.da || 'casino';
   const n = $('note-da');
-  if(n) n.textContent = DA_TXT[CFG.da || 'instrument'];
+  if(n) n.textContent = DA_TXT[CFG.da || 'casino'];
   if(typeof majSegDaMenu === 'function') majSegDaMenu();
   /* le sélecteur de l'onglet Test suit aussi : deux entrées, un seul état */
   const sd = $('seg-da');
   if(sd) sd.querySelectorAll('button').forEach(b =>
-    b.setAttribute('aria-pressed', String(b.dataset.v === (CFG.da || 'instrument'))));
+    b.setAttribute('aria-pressed', String(b.dataset.v === (CFG.da || 'casino'))));
   const m = document.querySelector('meta[name="theme-color"]');
   if(m) m.setAttribute('content', CFG.da === 'pop' ? '#FDF5E4'
                                 : CFG.da === 'synth' ? '#0B0410'
@@ -6842,11 +6842,14 @@ segmente('seg-da', v => { CFG.da = v; MEM.cfg = {...CFG}; ecrireMem(); appliquer
    mot de passe : autant dire nulle part pour un joueur. Ce panneau la
    sort au premier niveau, sans toucher au sélecteur existant — les deux
    restent synchronisés puisqu'ils écrivent le même CFG.da. */
+/* Rétro, Synthwave et Pop restent codés et accessibles depuis l'onglet
+   Test, mais disparaissent du panneau rapide le temps qu'on tranche —
+   Casino devient l'habillage par défaut du jeu. */
 const DA_NOMS = [
-  ['instrument','Origine'], ['retro','Rétro'], ['synth','Synthwave'],
-  ['pop','Pop'], ['ultraviolet','Ultraviolet'], ['glacier','Glacier'],
+  ['casino','Casino'], ['instrument','Origine'],
+  ['ultraviolet','Ultraviolet'], ['glacier','Glacier'],
   ['stade','Stade'], ['atelier','Atelier'], ['maree','Marée'],
-  ['casino','Casino'], ['bar','Bar']
+  ['bar','Bar']
 ];
 function construireSegDaMenu(){
   const el = $('seg-da-menu');
@@ -6861,7 +6864,7 @@ function construireSegDaMenu(){
 function majSegDaMenu(){
   const el = $('seg-da-menu');
   if(!el) return;
-  const actuel = CFG.da || 'instrument';
+  const actuel = CFG.da || 'casino';
   el.querySelectorAll('button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.v === actuel)));
   const n = $('note-da-menu');
@@ -6901,7 +6904,7 @@ function appliquerCfg(){
   if(nm) nm.textContent = CFG.minutes
     ? "Au-delà de la minute, le chrono affiche 1:00,00 plutôt que 60,00."
     : "Le chrono affiche toujours des centièmes : 60,00 puis 61,00.";
-  const m = {'seg-da':CFG.da || 'instrument', 'seg-lat':CFG.lat || 'materiel',
+  const m = {'seg-da':CFG.da || 'casino', 'seg-lat':CFG.lat || 'materiel',
              'seg-intro':(CFG.sv && CFG.sv.intro) || 'cine',
              'seg-min':CFG.minutes ? 'oui' : 'non',
              'seg-aff':CFG.aff, 'seg-diff':CFG.diff, 'seg-gor':CFG.gor,
