@@ -351,6 +351,10 @@ html[data-da="glacier"] .marque h1{text-shadow:0 0 14px rgba(125,232,224,.35)}
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+/* iOS Safari peut laisser voir le blanc par défaut du document pendant
+   un rebond de défilement (le fond de <html> n'était jamais posé, seul
+   celui de <body> l'était) — visible en filet sous la barre flottante. */
+html{background:var(--nuit)}
 body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   user-select:none;-webkit-user-select:none;touch-action:manipulation;
   overscroll-behavior:none;overflow:hidden}
@@ -4133,12 +4137,23 @@ const LABOS = [
    if(!Object.keys(compte).length && !symOk)
      lignes.push({lb:'Aucune figure', vl:'—'});
 
+   /* ── Éclipse : le nerf des cumuls ──
+      Sans-faute, Sans filet et Main sûre partageaient tous la même
+      condition de fond (peu ou aucune sortie du seuil), donc une partie
+      parfaite les cumulait systématiquement — c'est ce qui faisait
+      exploser les scores par simple multiplication en cascade. Quand
+      Éclipse est actif, la condition du Sans-faute (déterminée dès la
+      fin de partie, indépendamment des deux autres) empêche Sans filet
+      et Main sûre de s'ajouter : la récompense ultime se suffit à
+      elle-même, plutôt que de s'empiler avec les paliers inférieurs. */
+   const eclipseOk = P.eclipse && L.sansFaute !== false;
+
    /* ── Main sûre : huit tours tenus, même non consécutifs ──
       Tout le reste du barème repose sur la consécutivité : une erreur au
       tour 5 efface la série et la plupart des figures. C'est la seule
       figure qui juge le total sans se soucier de l'ordre. */
    const tenus = (L.ecarts || []).filter(x => x <= P.seuil).length;
-   if(tenus >= P.mainSure){
+   if(!eclipseOk && tenus >= P.mainSure){
      total += P.mainSurePrime;
      L.primes = (L.primes || 0) + P.mainSurePrime;
      lignes.push({lb:'Main sûre · ' + tenus + ' tours dans les ' + P.seuil
@@ -4166,7 +4181,7 @@ const LABOS = [
    /* ── Sans filet : aucun tour sorti de la zone ──
       Critère bien plus large que le Sans-faute : c'est le palier d'entrée
       du même registre, celui qu'un joueur voit dès ses premières parties. */
-   if(E.length && E.every(x => x <= zoneBase())){
+   if(!eclipseOk && E.length && E.every(x => x <= zoneBase())){
      const g = Math.round(total * (P.sansFilet - 1));
      total += g;
      L.primes = (L.primes || 0) + g;
@@ -4193,10 +4208,12 @@ const LABOS = [
    if(L.sansFaute !== false){
      total = Math.round(total * P.sansFaute);
      bonus = ' · sans-faute ×' + P.sansFaute.toFixed(1).replace('.', ',');
-     lignes.push({lb:'Sans-faute · dix tours dans les ' + P.seuil + ' centièmes',
+     lignes.push({lb:(eclipseOk ? 'Éclipse' : 'Sans-faute')
+                    + ' · dix tours dans les ' + P.seuil + ' centièmes'
+                    + (eclipseOk ? ' · remplace Sans filet et Main sûre' : ''),
                   vl:'×' + P.sansFaute.toFixed(1).replace('.', ','), cls:'bonus'});
    } else {
-     lignes.push({lb:'Sans-faute', vl:'manqué'});
+     lignes.push({lb:P.eclipse ? 'Éclipse' : 'Sans-faute', vl:'manqué'});
    }
    S.decompte = {lignes, total,
      note:'meilleure série : ' + (L.meilleureSerie || 0) + ' tours'};
@@ -4245,6 +4262,7 @@ const SCORE_DEF = {
   crescendo:250,    // prime pour quatre écarts qui diminuent
   symetriePrime:160,// prime pour un biais final quasi nul
   symetrie:3,       // tolérance sur ce biais, en centièmes
+  eclipse:1,        // 1 = Éclipse annule et remplace Sans filet + Main sûre
   dernierMot:250,   // prime pour un pile au dernier tour
   coupDouble:150,   // prime quand deux figures tombent le même tour
   mainSure:8,       // nombre de tours tenus exigé, ordre indifférent
@@ -4274,7 +4292,8 @@ const SCORE_LBL = {
   montee:'Montée · facteur exigé',
   monteePrime:'Prime · Montée en régime',
   sansFilet:'Bonus · Sans filet (× total)',
-  sansFaute:'Bonus · Sans-faute (× total)'
+  eclipse:'Éclipse remplace Sans filet + Main sûre (0/1)',
+  sansFaute:'Bonus · Éclipse / Sans-faute (× total)'
 };
 
 /* Paliers de précision globale — le seul élément du barème qui juge la
@@ -4303,8 +4322,9 @@ function construireParamsScore(){
     l.innerHTML = '<span class="lb">' + SCORE_LBL[k] + '</span>';
     const i = document.createElement('input');
     i.type = 'number';
-    i.step = decimal ? '0.1' : (k === 'seuil' ? '1' : '10');
+    i.step = decimal ? '0.1' : (k === 'seuil' || k === 'eclipse' ? '1' : '10');
     i.min = '0';
+    if(k === 'eclipse') i.max = '1';
     i.value = P[k];
     i.oninput = () => {
       const v = parseFloat(i.value);
@@ -8853,7 +8873,12 @@ function majAnneau(){
   // l'anneau reste loin du centre : il encadre, il ne gêne pas la lecture
   C.style.transition = (CFG.sv && CFG.sv.anim)
     ? 'r .45s cubic-bezier(.16,1.1,.3,1), stroke .3s' : 'none';
-  C.setAttribute('r', String(Math.round(48 + (z / ZONE_MAX_SURVIE) * 48)));
+  // le ratio est plafonné à 1 : ZONE_MAX_SURVIE n'est qu'une valeur de
+  // référence, pas un plafond de jeu réel — S.zoneSurvie peut légitimement
+  // la dépasser via certains bonus. Sans ce plafond, le rayon dépassait
+  // les limites du viewBox SVG (200×200) et l'anneau se retrouvait
+  // rogné en haut et en bas, comme s'il manquait des tronçons.
+  C.setAttribute('r', String(Math.round(48 + Math.min(1, z / ZONE_MAX_SURVIE) * 48)));
   C.setAttribute('stroke', z > 22 ? '#3E8E68' : z > 11 ? '#E6C544' : '#DC3B2A');
   const crit = CFG.mode === 'survie' && S.partie && z <= ZONE_CRITIQUE;
   A.classList.toggle('critique', crit && (CFG.sv ? CFG.sv.anim : true));
