@@ -622,6 +622,24 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .ligne .qui{flex:1;font-size:21px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .ligne .moy{font-family:var(--mono);font-size:13px}
 .attente{color:var(--gris);opacity:.7;font-size:11px}
+/* le classement de fin de partie, seul : cartes arrondies plutôt que de
+   simples lignes séparées par un filet — cohérent avec le reste de la
+   DA (nav-carte, tc-flot) plutôt qu'un vestige de l'ancien style */
+#classement .ligne{border:1px solid var(--bordDoux);border-radius:18px;
+  background:var(--surface);padding:14px 15px;margin-top:10px;border-bottom:none}
+#classement .ligne .pos{width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ardoise);border:1px solid var(--bordDoux);color:var(--gris)}
+#classement .ligne.premier{border-color:rgba(201,162,39,.35)}
+#classement .ligne.premier .pos{background:var(--laiton);color:#161006;
+  border-color:var(--laiton)}
+#classement .jauge{border-radius:7px}
+#classement .jauge .disp{border-radius:7px}
+html[data-da="ultraviolet"] #classement .ligne,html[data-da="glacier"] #classement .ligne,
+html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement .qui{
+  border-radius:20px}
+html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement .qui{
+  font-size:17px;letter-spacing:.01em;text-transform:none}
 /* ligne du panthéon du défi : quatre colonnes fixes, rien ne se chevauche */
 .l-defi{display:grid;grid-template-columns:44px 1fr auto 34px;align-items:baseline;
   gap:10px;padding:11px 0;border-bottom:1px solid var(--trait)}
@@ -2122,6 +2140,19 @@ html[data-da="bar"] .rond{font-size:13.5px;letter-spacing:.02em;text-transform:n
 .tc-btn.on{color:var(--nuit);border-color:transparent}
 @media (prefers-reduced-motion:reduce){.tc-flot{animation:none}}
 
+/* vue « Tout voir » : les mêmes titres, empilés en colonne compacte */
+.tc-colonne{position:relative;z-index:2;display:none;flex-direction:column;
+  gap:9px;margin-top:16px}
+.tc-col-item{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;
+  border-radius:16px;border:1px solid;animation:tcEntre .3s ease forwards;opacity:0}
+.tc-col-ic{font-size:22px;line-height:1;flex-shrink:0;width:26px;text-align:center}
+.tc-col-cx{flex:1;min-width:0}
+.tc-col-lb{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+.tc-col-nm{font-size:18px;font-weight:700;letter-spacing:.02em;color:var(--ivoire);
+  margin-top:2px;line-height:1.05}
+.tc-col-ch{font-family:var(--mono);font-size:10px;color:var(--gris);margin-top:3px}
+.tc-col-ph{font-size:12px;font-style:italic;color:#C3BCAE;margin-top:6px;line-height:1.35}
+
 /* ─── décompte animé de fin de partie ───────────────────────────────
    Chaque ligne du calcul apparaît l'une après l'autre, puis le total
    défile jusqu'à sa valeur. L'animation ne tourne QUE sur l'écran de
@@ -2323,6 +2354,7 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
     <div class="tc-pile p1" id="tc-p1"></div>
     <div class="tc-pile p2" id="tc-p2"></div>
     <div class="tc-points" id="tc-points"></div>
+    <div class="tc-colonne" id="tc-colonne"></div>
     <div class="tc-bas">
       <button class="tc-btn" id="tc-tout">Tout voir</button>
       <button class="tc-btn on" id="tc-suivant">Suivant</button>
@@ -6365,15 +6397,18 @@ function zoneDe(nom){
   }
   if(CFG.mode === 'survie') return Math.max(1, S.zoneSurvie);
   
-  // NOUVEAU : Zone du mode Blind (calcul proportionnel)
+  // Zone du mode Blind (calcul proportionnel, gelé au-delà de 6 s)
   if(CFG.mode === 'blind') {
     const dSec = (S.cibleBase - S.total) / 100;
-    // On réduit les marges : 
-    // Hard passe de 30 à 80. Classique passe de 25 à 75.
+    // La zone s'élargissait sans jamais s'arrêter (jusqu'à ±0,75 en
+    // Simple, ±0,80 en Hard à 10 s) : au-delà de 6 s, une cible longue
+    // devenait beaucoup trop confortable. On gèle donc la croissance à
+    // sa valeur de 6 s — rien ne change avant cette durée.
+    const dGel = Math.min(dSec, 6);
     if (CFG.diff === 'hard') {
-      return Math.round(30 + (dSec - 1) * (50 / 9)); 
+      return Math.round(30 + (dGel - 1) * (50 / 9));
     } else {
-      return Math.round(25 + (dSec - 1) * (50 / 9)); 
+      return Math.round(25 + (dGel - 1) * (50 / 9));
     }
   }
 
@@ -8230,8 +8265,13 @@ function resoudre(valeur, delta, ecart){
           nbCulsSecs = dSec < 6 ? 1 : 2; 
           
           // 2. RATÉ (Gorgées bues)
-          if(dSec <= 3) gorgeesBase = 5;
-          else if(dSec <= 6) gorgeesBase = 4;
+          // Les deux tranches courtes (1-6s, les plus dures à viser) sont
+          // unifiées à 3 gorgées : avant, une cible de 2s punissait plus
+          // fort (5) qu'une cible de 8s (3), alors que la première est
+          // nettement plus difficile à honorer. Les tranches longues
+          // (7-10s) restent inchangées côté gorgées — c'est la zone sûre
+          // ci-dessous qui se charge de les rééquilibrer.
+          if(dSec <= 6) gorgeesBase = 3;
           else if(dSec <= 9) gorgeesBase = 3;
           else gorgeesBase = 2;
 
@@ -9743,9 +9783,9 @@ function tcRendreCarte(){
     '<span class="' + (i === TC_ETAT.idx ? 'on' : '') + '"'
     + (i === TC_ETAT.idx ? ' style="background:' + t.coul + '"' : '') + '></span>'
   ).join('');
-  const dernier = TC_ETAT.idx === TC_ETAT.liste.length - 1;
+  // le carrousel boucle : le bouton garde toujours le même libellé
   const suiv = $('tc-suivant');
-  suiv.textContent = dernier ? 'Classement' : 'Suivant';
+  suiv.textContent = 'Suivant';
   suiv.style.background = t.coul;
   // relance l'animation d'entrée à chaque carte
   const F = $('tc-flot');
@@ -9783,15 +9823,71 @@ function afficherTitresCarrousel(titres){
   const bloc = $('titres-c');
   if(!bloc) return;
   if(!titres || !titres.length){ bloc.style.display = 'none'; return; }
-  TC_ETAT = {liste:titres, idx:0};
+  TC_ETAT = {liste:titres, idx:0, vue:'carrousel'};
   bloc.style.display = 'block';
+  tcAfficherCarrousel();
+}
+/* le classement en dessous reste toujours visible, quelle que soit la
+   vue choisie ici : « suivant » ne fait donc jamais qu'avancer une
+   carte, en boucle — jamais fermer ni révéler quoi que ce soit d'autre. */
+function tcAvancer(sens){
+  const n = TC_ETAT.liste.length;
+  TC_ETAT.idx = (TC_ETAT.idx + sens + n) % n;
   tcRendreCarte();
 }
-if($('tc-suivant')) $('tc-suivant').onclick = () => {
-  if(TC_ETAT.idx < TC_ETAT.liste.length - 1){ TC_ETAT.idx++; tcRendreCarte(); }
-  else { $('titres-c').style.display = 'none'; }   // dernier titre lu : on referme
-};
-if($('tc-tout')) $('tc-tout').onclick = () => { $('titres-c').style.display = 'none'; };
+function tcAfficherCarrousel(){
+  TC_ETAT.vue = 'carrousel';
+  $('tc-flot').style.display = '';
+  $('tc-p1').style.display = '';
+  $('tc-p2').style.display = '';
+  $('tc-points').style.display = '';
+  $('tc-colonne').style.display = 'none';
+  $('tc-suivant').style.display = '';
+  $('tc-tout').textContent = 'Tout voir';
+  tcRendreCarte();
+}
+function tcAfficherColonne(){
+  TC_ETAT.vue = 'colonne';
+  $('tc-flot').style.display = 'none';
+  $('tc-p1').style.display = 'none';
+  $('tc-p2').style.display = 'none';
+  $('tc-points').style.display = 'none';
+  $('tc-suivant').style.display = 'none';
+  $('tc-tout').textContent = 'Une carte à la fois';
+  const col = $('tc-colonne');
+  col.style.display = 'flex';
+  col.innerHTML = TC_ETAT.liste.map((t,i) => `
+    <div class="tc-col-item" style="animation-delay:${i*70}ms;
+      border-color:${hexA(t.coul,.35)};background:${hexA(t.coul,.07)}">
+      <span class="tc-col-ic">${t.ic}</span>
+      <div class="tc-col-cx">
+        <div class="tc-col-lb" style="color:${t.coul}">${esc(t.nom)}</div>
+        <div class="tc-col-nm">${esc(t.joueur.n)}</div>
+        <div class="tc-col-ch">${esc(tcChiffres(t))}</div>
+        <div class="tc-col-ph">« ${esc(t.phrase)} »</div>
+      </div>
+    </div>`).join('');
+}
+if($('tc-suivant')) $('tc-suivant').onclick = () => tcAvancer(1);
+if($('tc-tout')) $('tc-tout').onclick = () =>
+  (TC_ETAT.vue === 'colonne') ? tcAfficherCarrousel() : tcAfficherColonne();
+
+/* balayer la carte pour naviguer, en plus du bouton — seulement en vue
+   carrousel, une seule liaison suffit puisque tcRendreCarte() ne fait
+   que réécrire le contenu d'un élément qui reste le même dans le DOM */
+(function(){
+  const el = $('tc-flot');
+  if(!el) return;
+  let x0 = null;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, {passive:true});
+  el.addEventListener('touchend', e => {
+    if(x0 === null || TC_ETAT.vue !== 'carrousel') return;
+    const dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if(Math.abs(dx) < 40) return;   // pas assez ample pour être un vrai geste
+    tcAvancer(dx < 0 ? 1 : -1);
+  }, {passive:true});
+})();
 
 function afficherFin(){
   purgerMinuteries();
@@ -9805,8 +9901,9 @@ function afficherFin(){
     if (!estSolo(CFG.mode)) {
       MEM.historiqueSoirees = MEM.historiqueSoirees || [];
       const statsSoiree = S.joueurs.map(n => ({
-        nom: n, gorgees: S.stats[n].gorgees, culs: S.stats[n].culs, 
-        ecart: S.stats[n].ecart, tours: S.stats[n].tours, piles: S.stats[n].piles
+        nom: n, gorgees: S.stats[n].gorgees, donnees: S.stats[n].donnees || 0,
+        culs: S.stats[n].culs, ecart: S.stats[n].ecart, tours: S.stats[n].tours,
+        piles: S.stats[n].piles
       })).filter(p => p.tours > 0);
       
       if (statsSoiree.length > 0) {
@@ -10033,7 +10130,12 @@ function afficherFin(){
   /* les titres se calculent AVANT le tri du classement classique, mais ne
      s'affichent que s'il y a bien matière à comparer : statsJoueurs() se
      charge lui-même de renvoyer une liste vide en solo. */
-  afficherTitresCarrousel(calculerTitres());
+  const titresSoiree = calculerTitres();
+  afficherTitresCarrousel(titresSoiree);
+  // « Le plus précis » n'a plus de sens dès qu'un palmarès à quatre
+  // entrées existe déjà en dessous — un intitulé neutre laisse le
+  // carrousel porter le message, sans le doublonner ni le contredire
+  if(titresSoiree.length) TI.textContent = 'Fin de partie';
   const rangs = S.joueurs.map(n => ({n, ...S.stats[n]}))
     .filter(p => p.tours > 0)
     .sort((a,b) => a.ecart/a.tours - b.ecart/b.tours);
@@ -10048,10 +10150,11 @@ function afficherFin(){
                 analyse({tours:p.tours, somme:p.ecart, biais:p.biais, carres:p.carres});
     const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
                  p.culs ? culs(p.culs) : null,
-                 p.gorgees ? gorg(p.gorgees) : null ]
+                 p.gorgees ? gorg(p.gorgees) + ' bues' : null,
+                 p.donnees ? gorg(p.donnees) + ' données' : null ]
                .filter(Boolean).join(' · ') || 'rien bu';
     const d = document.createElement('div');
-    d.className = 'ligne';
+    d.className = 'ligne' + (i === 0 ? ' premier' : '');
     d.innerHTML = `<span class="pos">${i+1}</span>
       <span class="qui" style="color:${coulNom(p.n)}">${esc(p.n)}</span>
       <span class="moy ${i===0?'t-laiton':''}">±${fmt(Math.round(p.ecart/p.tours))}</span>
@@ -10117,7 +10220,12 @@ function afficherFin(){
       + fmt(Math.round(cible.a.precision)) + ' à ±' + fmt(Math.round(cible.a.disp)) + '.';
   } else rev.style.display = 'none';
 
-  if(S.gagnes && S.gagnes.length){
+  // Les trophées sont liés au compte du propriétaire du téléphone, pas
+  // aux noms tapés pour les autres joueurs d'une soirée : afficher
+  // « Charles · Baptême or » n'aurait aucun sens, Charles n'ayant pas de
+  // compte. Le calcul de S.gagnes reste inchangé (rien ne dépend de son
+  // affichage), seule cette ligne de résumé est réservée au solo.
+  if(estSolo(CFG.mode) && S.gagnes && S.gagnes.length){
     const t = S.gagnes.slice(0, 4)
       .map(g => g.n + ' · ' + g.nom + ' ' + g.rang).join('  —  ');
     // textContent écraserait la courbe : on complète le HTML
@@ -10583,7 +10691,9 @@ function construireHistoriqueSoirees() {
       const lignesHTML = tri.map((p, i) => {
         const bu = [ p.piles ? p.piles + ' pile' + (p.piles>1?'s':'') : null,
                      p.culs ? culs(p.culs) : null,
-                     p.gorgees ? gorg(p.gorgees) : null ].filter(Boolean).join(' · ') || 'rien bu';
+                     p.gorgees ? gorg(p.gorgees) + ' bues' : null,
+                     p.donnees ? gorg(p.donnees) + ' données' : null
+                   ].filter(Boolean).join(' · ') || 'rien bu';
                      
         return `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--trait); text-align:left;">
           <div style="flex:1; min-width:0; padding-right:12px;">
