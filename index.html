@@ -414,10 +414,14 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
      la hauteur visuelle du viewport en cours de route ; ce calcul
      implicite reste alors périmé un instant, et body s'arrête un peu
      trop tôt — révélant le fond plat de <html> juste en dessous plutôt
-     que le dégradé texturé du thème. 100dvh (hauteur dynamique du
-     viewport) est justement l'unité prévue pour ce cas : elle se
-     recalcule avec la barre d'outils au lieu de rester figée. */
-  height:100%;min-height:100dvh;
+     que le dégradé texturé du thème. 100dvh aurait dû suffire, mais le
+     comportement persistant sur certains contextes (navigateur avec sa
+     propre barre d'outils, WebView) montre que même l'unité dynamique
+     peut rester en retard sur la vraie taille visible. --vh100 prend le
+     relais : mesurée en JS via window.innerHeight (voir plus bas), elle
+     est toujours exacte, quel que soit le moteur de rendu. 100dvh ne
+     sert plus que de valeur de repli avant que ce script s'exécute. */
+  height:100%;min-height:var(--vh100, 100dvh);
   user-select:none;-webkit-user-select:none;touch-action:manipulation;
   overscroll-behavior:none;overflow:hidden}
 #app{height:100%;max-width:480px;margin:0 auto;position:relative;
@@ -793,16 +797,16 @@ html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement
    — pas seulement la liste, sinon le titre resterait en retrait pendant
    que les cartes s'étireraient plus loin, un décalage plus laid que
    l'ancien padding uniforme. */
-#global{padding-left:10px;padding-right:10px}
-#global .lg-rang{border:1px solid var(--bordDoux);border-radius:16px;
+#classement-global{padding-left:10px;padding-right:10px}
+#classement-global .lg-rang{border:1px solid var(--bordDoux);border-radius:16px;
   background:var(--surface);padding:13px 14px;margin-top:8px;border-bottom:none}
-#global .lg-rang .p{width:24px;height:24px;border-radius:50%;flex-shrink:0;
+#classement-global .lg-rang .p{width:24px;height:24px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;text-align:center;
   background:var(--ardoise);border:1px solid var(--bordDoux);opacity:1}
-#global .lg-rang:nth-child(1) .p{background:var(--laiton);color:#161006;
+#classement-global .lg-rang:nth-child(1) .p{background:var(--laiton);color:#161006;
   border-color:var(--laiton);font-weight:600}
-#global .lg-rang:nth-child(1){border-color:rgba(201,162,39,.35)}
-#global .lg-rang.moi{background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.4)}
+#classement-global .lg-rang:nth-child(1){border-color:rgba(201,162,39,.35)}
+#classement-global .lg-rang.moi{background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.4)}
 /* ─── boutique de l'Aventure ─── */
 .bo-tete{display:flex;align-items:baseline;gap:12px;margin-top:6px}
 .bo-xp{font-family:var(--mono);font-size:26px;color:var(--laiton);
@@ -2784,16 +2788,21 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 </section>
 
 <!-- ═══ CLASSEMENT MONDIAL ═══ -->
-<section class="ecran" id="global">
+<section class="ecran" id="classement-global">
   <div class="entete">
     <div class="marque"><h1>GLOBAL</h1><span>tous les comptes</span></div>
-    <div class="nav"><button id="gl-retour">Ligues</button></div>
+    <div class="nav"><button id="clg-retour">Ligues</button></div>
   </div>
   <div class="hairline"></div>
   <div class="defile">
-    <div class="seg" id="seg-gl" style="margin-bottom:8px"></div>
-    <div class="note" id="gl-note">—</div>
-    <div id="gl-classement"></div>
+    <div class="seg" id="seg-clg" style="margin-bottom:8px"></div>
+    <div class="seg" id="seg-clg-diff" style="margin-bottom:8px">
+      <button data-v="tout" aria-pressed="true">Toutes</button>
+      <button data-v="simple" aria-pressed="false">Simple</button>
+      <button data-v="hard" aria-pressed="false">Hard</button>
+    </div>
+    <div class="note" id="clg-note">—</div>
+    <div id="clg-classement"></div>
   </div>
 </section>
 
@@ -2811,6 +2820,11 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
         <div class="sb" id="lg-sous">—</div></div>
     </div>
     <div class="seg" id="seg-lg" style="margin-bottom:8px"></div>
+    <div class="seg" id="seg-lg-diff" style="margin-bottom:8px">
+      <button data-v="tout" aria-pressed="true">Toutes</button>
+      <button data-v="simple" aria-pressed="false">Simple</button>
+      <button data-v="hard" aria-pressed="false">Hard</button>
+    </div>
     <div class="note" id="lg-note">—</div>
     <div id="lg-classement"></div>
     <div class="recap-b" style="margin-top:16px">
@@ -3503,6 +3517,22 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 
 <script>
 'use strict';
+/* Mesure la vraie hauteur visible via JS plutôt que de faire confiance à
+   une unité CSS : window.innerHeight est toujours exact, quel que soit
+   le moteur (Safari, WebView, navigateur avec sa propre barre d'outils).
+   Posée tout en haut du script pour être en place avant le premier
+   rendu — un flash d'une frame sans elle vaudrait mieux qu'un blanc
+   permanent, mais autant l'éviter. Recalculée au redimensionnement et à
+   la rotation, où la barre d'outils mobile change le plus souvent. */
+function majHauteurReelle(){
+  document.documentElement.style.setProperty('--vh100', window.innerHeight + 'px');
+}
+majHauteurReelle();
+window.addEventListener('resize', majHauteurReelle);
+window.addEventListener('orientationchange', () => setTimeout(majHauteurReelle, 120));
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', majHauteurReelle);
+}
 // Fonction sécurisée pour envoyer des événements à GA4
 function trackEvent(eventName, eventParams = {}) {
   if (typeof gtag === 'function') {
@@ -7233,7 +7263,7 @@ $('fichier').onchange = ev => {
 // les réglages sont fermés pendant une partie : on en sort par « Quitter »
 // « Panthéon » ouvre le salon s'il y en a un, le local sinon
 function ouvrirPantheon(){
-  if(S.salon && EN_LIGNE()){ construireGlobal(); montrer('global'); }
+  if(S.salon && EN_LIGNE()){ construireGlobal(); montrer('classement-global'); }
   else { construirePantheon(); montrer('pantheon'); }
 }
 $('go-test').onclick      = () => { verrouTest(); majLatence(); construireUsage();
@@ -11063,8 +11093,10 @@ $('pr-ligue').onclick = async () => {
 
 let INVITATION = null;          // code reçu par lien, à rejoindre après connexion
 let LG_COURANTE = null;          // ligue ouverte dans l'écran de classement
-let LG_MODE = 'solo';            // mode affiché dans son classement
-let GLOBAL_MODE = 'solo';        // mode affiché dans le classement global
+let LG_MODE = 'scoring';         // mode affiché dans son classement
+let LG_DIFF = 'tout';            // difficulté affichée dans son classement
+let GLOBAL_MODE = 'scoring';     // mode affiché dans le classement global
+let GLOBAL_DIFF = 'tout';        // difficulté affichée dans le classement global
 
 function messageCompte(e){
   const m = String(e && e.message || e);
@@ -11306,28 +11338,38 @@ async function ouvrirLigues(){
    fait ici côté base (fonction classement_global), le nombre de
    comptes n'étant pas borné. */
 async function ouvrirGlobal(){
-  $('seg-gl').innerHTML = modesLigue().map(id => {
+  $('seg-clg').innerHTML = modesLigue().map(id => {
     const m = SOLOS.find(s => s.id === id) || {n:id};
     return `<button data-v="${id}" aria-pressed="${id === GLOBAL_MODE}">${esc(m.n)}</button>`;
   }).join('');
-  $('seg-gl').querySelectorAll('button').forEach(b => b.onclick = () => {
+  $('seg-clg').querySelectorAll('button').forEach(b => b.onclick = () => {
     GLOBAL_MODE = b.dataset.v;
-    $('seg-gl').querySelectorAll('button').forEach(x =>
+    $('seg-clg').querySelectorAll('button').forEach(x =>
       x.setAttribute('aria-pressed', x === b));
     chargerClassementGlobal();
   });
-  montrer('global');
+  $('seg-clg-diff').querySelectorAll('button').forEach(b => b.onclick = () => {
+    GLOBAL_DIFF = b.dataset.v;
+    $('seg-clg-diff').querySelectorAll('button').forEach(x =>
+      x.setAttribute('aria-pressed', x === b));
+    chargerClassementGlobal();
+  });
+  montrer('classement-global');
   await chargerClassementGlobal();
 }
 async function chargerClassementGlobal(){
-  const C = $('gl-classement');
+  const C = $('clg-classement');
   C.innerHTML = '';
-  $('gl-note').textContent = 'Chargement…';
+  $('clg-note').textContent = 'Chargement…';
   try{
     const s = await rafraichirSession();
-    const rangs = await apiAuth('rpc/classement_global?p_mode=' + GLOBAL_MODE + '&p_limite=40') || [];
+    // p_diff n'est envoyé que si un filtre est choisi, pour rester
+    // compatible avec un appel sans filtre (paramètre par défaut NULL).
+    const params = 'p_mode=' + GLOBAL_MODE + '&p_limite=40'
+      + (GLOBAL_DIFF !== 'tout' ? '&p_diff=' + GLOBAL_DIFF : '');
+    const rangs = await apiAuth('rpc/classement_global?' + params) || [];
     const mode = SOLOS.find(x => x.id === GLOBAL_MODE) || {n:GLOBAL_MODE};
-    $('gl-note').textContent = !rangs.length
+    $('clg-note').textContent = !rangs.length
       ? mode.n + ' · personne n\'a encore publié de score sur ce mode.'
       : mode.n + ' · meilleure partie de chacun · ' + rangs.length
         + ' compte' + (rangs.length > 1 ? 's' : '') + (rangs.length >= 40 ? ' (les 40 premiers)' : '');
@@ -11349,11 +11391,11 @@ async function chargerClassementGlobal(){
       </div>`;
     }).join('');
   }catch(e){
-    $('gl-note').textContent = messageCompte(e);
+    $('clg-note').textContent = messageCompte(e);
   }
 }
 $('lgs-global').onclick = () => ouvrirGlobal();
-$('gl-retour').onclick = () => ouvrirLigues();
+$('clg-retour').onclick = () => ouvrirLigues();
 
 async function majLigues(){
   const s = EN_LIGNE() ? await rafraichirSession() : null;
@@ -11527,7 +11569,11 @@ async function rejoindreLigue(code, s){
 const modesLigue = () => SOLOS
   .filter(s => (!s.labo || SOLO_MENU.includes(s.id))
             && s.id !== 'aventure' && s.id !== 'defi'
-            && s.id !== 'combat' && !s.desactive)
+            && s.id !== 'combat' && !s.desactive
+            // Solo classique (et les autres modes redescendus en essai)
+            // ne s'affichent plus ici : Scoring l'a remplacé, garder les
+            // deux ferait doublon dans le sélecteur.
+            && !ESSAIS.includes(s.id))
   .map(s => s.id);
 
 async function ouvrirLigue(code, nom, embleme){
@@ -11568,6 +11614,12 @@ async function ouvrirLigue(code, nom, embleme){
       x.setAttribute('aria-pressed', x === b));
     chargerClassement();
   });
+  $('seg-lg-diff').querySelectorAll('button').forEach(b => b.onclick = () => {
+    LG_DIFF = b.dataset.v;
+    $('seg-lg-diff').querySelectorAll('button').forEach(x =>
+      x.setAttribute('aria-pressed', x === b));
+    chargerClassement();
+  });
   montrer('ligue');
   await chargerClassement();
 }
@@ -11585,8 +11637,12 @@ async function chargerClassement(){
       return;
     }
     const ids = membres.map(m => m.joueur);
-    const perfs = await apiAuth('perfs?mode=eq.' + LG_MODE
-      + '&joueur=in.(' + ids.join(',') + ')&select=joueur,score,tours,somme') || [];
+    let perfs = await apiAuth('perfs?mode=eq.' + LG_MODE
+      + '&joueur=in.(' + ids.join(',') + ')&select=joueur,score,tours,somme,config') || [];
+    // filtre Simple/Hard : la difficulté est le 2e segment de config
+    // ("aff·diff·…"), sur le même principe que le Panthéon local
+    if(LG_DIFF !== 'tout')
+      perfs = perfs.filter(p => (p.config || '').split('·')[1] === LG_DIFF);
     // meilleur score par joueur, et non moyenne : une ligue se gagne sur un coup
     const par = {};
     perfs.forEach(p => {
@@ -12323,9 +12379,9 @@ $('salon-rejoindre').onclick = async () => {
 
 /* ════════ PANTHÉON GLOBAL ════════ */
 let glFiltre = 'solo';
-let glMode = 'solo', glAff = 'tout', glDiff = 'tout';
+let glMode = 'scoring', glAff = 'tout', glDiff = 'tout';
 const HORS_PANTHEON = ['defi'];   // le défi a son propre tableau
-$('go-global').onclick = () => { construireGlobal(); montrer('global'); };
+$('go-global').onclick = () => { construireGlobal(); montrer('classement-global'); };
 // le panneau de filtres se replie à chaque ouverture de l'écran
 function replierFiltres(){
   $('gl-panneau').classList.remove('on');
@@ -12421,7 +12477,7 @@ function construireOngletsModes(lignes){
     .forEach(r => cpt[r.mode] = (cpt[r.mode] || 0) + 1);
   const ordre = SOLOS.map(s => s.id).filter(id => !HORS_PANTHEON.includes(id));
   const ids = ordre.filter(id => cpt[id]);
-  if(!ids.length) ids.push('solo');
+  if(!ids.length) ids.push('scoring');
   if(!ids.includes(glMode)) glMode = ids[0];
   const nom = id => (SOLOS.find(s => s.id === id) || {n:id}).n;
   $('gl-modes').innerHTML = ids
