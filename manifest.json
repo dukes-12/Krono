@@ -4,7 +4,7 @@
   "description": "Le jeu du chronomètre, au centième.",
   "start_url": "/", 
   "scope": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0E1116",
   "theme_color": "#0E1116",
