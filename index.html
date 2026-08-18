@@ -12,12 +12,15 @@
 <link rel="apple-touch-icon" href="icone-180.png">
 <title>Krono</title>
 <style>
-html, body {
+html, body, #root { /* Remplacez #root par votre ID si différent */
   margin: 0;
   padding: 0;
-  height: 100dvh; /* ou min-height: 100dvh */
+  height: 100%;
+  min-height: 100dvh;
   width: 100%;
-  background-color: #1a2b23; /* Mettez votre couleur de fond vert foncé ici */
+  background-color: #1a2b23; /* Votre fond vert foncé */
+  display: flex;
+  flex-direction: column;
 }
 /* Polices auto-hébergées en base64 : aucune requête réseau externe,
    aucune dépendance à Google Fonts qui pourrait échouer ou être
