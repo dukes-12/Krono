@@ -402,11 +402,11 @@ html[data-da="glacier"] .marque h1{text-shadow:0 0 14px rgba(125,232,224,.35)}
 
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100%}
+html,body{height:100%}
 /* iOS Safari peut laisser voir le blanc par défaut du document pendant
    un rebond de défilement (le fond de <html> n'était jamais posé, seul
    celui de <body> l'était) — visible en filet sous la barre flottante. */
-html{background:var(--nuit)}
+html{background:var(--nuit);height:100%}
 body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   /* la bande observée en bas vient d'ailleurs : <body> n'avait aucune
      hauteur déclarée et dépendait d'un calcul implicite. Sur iOS, la
@@ -421,22 +421,12 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
      relais : mesurée en JS via window.innerHeight (voir plus bas), elle
      est toujours exacte, quel que soit le moteur de rendu. 100dvh ne
      sert plus que de valeur de repli avant que ce script s'exécute. */
-  min-height:var(--vh100, 100dvh);
+  height:100%;min-height:var(--vh100, 100dvh);
   user-select:none;-webkit-user-select:none;touch-action:manipulation;
-  /* overflow:hidden RETIRÉ : c'était lui, et non un souci de couleur, qui
-     empêchait Safari de jamais rétracter sa barre d'outils. Cette barre
-     ne réagit qu'au défilement du DOCUMENT lui-même — jamais à celui d'un
-     conteneur interne (.defile etc.), aussi correctement scrollable
-     soit-il. Le jeu défilait donc « à l'intérieur », invisible pour
-     Safari, qui gardait sa barre pleine en permanence. Body peut
-     désormais s'étirer au-delà d'un écran quand le contenu l'exige (voir
-     .ecran et .defile plus bas), ce qui restaure le vrai scroll de page.
-     overscroll-behavior:none reste en place : il bloque le REBOND
-     élastique, pas le défilement — les deux sont indépendants. */
-  overscroll-behavior:none}
-#app{min-height:100%;max-width:480px;margin:0 auto;position:relative;
+  overscroll-behavior:none;overflow:hidden}
+#app{height:100%;max-width:480px;margin:0 auto;position:relative;
   padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.ecran{display:none;flex-direction:column;min-height:100%;padding:18px 20px}
+.ecran{display:none;flex-direction:column;height:100%;padding:18px 20px}
 .ecran.actif{display:flex}
 /* les écrans à onglets laissent la place à la barre du bas */
 .ecran.avec-barre{padding-bottom:0}
@@ -445,16 +435,8 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 /* ─── barre de navigation fixe ─── */
 /* barre flottante : détachée des bords, arrondie, posée au-dessus du
    contenu plutôt que collée en pied d'écran */
-/* position:fixed (et non plus absolute) : ancrée à #app qui peut désormais
-   dépasser un écran de hauteur, une barre en absolute défilerait avec le
-   contenu au lieu de rester flottante. fixed s'ancre au viewport réel —
-   donc recentrée manuellement sur la largeur de #app (480px max) plutôt
-   que sur les 12px/12px d'origine, qui auraient collé aux bords de
-   l'écran physique sur un viewport plus large que 480px. */
-.barre-bas{display:none;position:fixed;z-index:40;
-  left:50%;transform:translateX(-50%);
-  width:min(456px, calc(100% - 24px));
-  bottom:calc(10px + env(safe-area-inset-bottom));
+.barre-bas{display:none;position:absolute;z-index:40;
+  left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
   background:rgba(14,17,22,.86);backdrop-filter:blur(18px);
   border:1px solid var(--bordDoux);border-radius:22px;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
@@ -567,12 +549,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #reglages .entete{flex-direction:column;align-items:stretch;gap:12px}
 #reglages .nav{justify-content:stretch;gap:6px}
 #reglages .nav button{flex:1;text-align:center;padding:9px 4px}
-/* .defile ne défile plus lui-même : c'est desormais le DOCUMENT entier
-   qui s'allonge et défile pour ce contenu, condition nécessaire pour que
-   Safari détecte le geste et rétracte sa barre. flex:1 est conservé sans
-   effet réel une fois le parent en min-height plutôt qu'en hauteur fixe —
-   laissé tel quel pour limiter l'écart avec le CSS existant ailleurs. */
-.defile{flex:1;margin-top:2px}
+.defile{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
 .bloc{margin-top:15px}
 .rang{display:flex;align-items:center;gap:10px;padding:8px 0;
   border-bottom:1px solid var(--trait);flex-wrap:wrap}
