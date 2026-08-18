@@ -426,6 +426,8 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   overscroll-behavior:none;overflow:hidden}
 #app{height:100%;max-width:480px;margin:0 auto;position:relative;
   padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#fond-fixe{position:fixed;inset:0;z-index:-1;background:inherit;
+  background-attachment:fixed}
 .ecran{display:none;flex-direction:column;height:100%;padding:18px 20px}
 .ecran.actif{display:flex}
 /* les écrans à onglets laissent la place à la barre du bas */
@@ -2418,6 +2420,12 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 </script>
 </head>
 <body>
+<!-- Couche de secours en position fixe : elle couvre toujours le
+     viewport visuel réel, sans dépendre d'aucune mesure de hauteur de
+     body ou d'un ancêtre — contrairement aux tentatives précédentes
+     (dvh, mesure JS). background:inherit reprend le fond déjà posé sur
+     l'élément body, donc rien à dupliquer par thème. -->
+<div id="fond-fixe"></div>
 <div id="app">
 
 <!-- ═══ RÉGLAGES ═══ -->
