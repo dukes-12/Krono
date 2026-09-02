@@ -2,9 +2,9 @@
    Stratégie : on sert d'abord le cache (démarrage instantané, hors ligne),
    et on rafraîchit en arrière-plan pour la prochaine ouverture.
    Changez VERSION à chaque mise à jour du jeu pour purger l'ancien cache. */
-const VERSION = 'krono-v181';
+const VERSION = 'krono-v184';
 const FICHIERS = [
-  './', './index.html', './manifest.json',
+  './', './index.html', './style.css', './script.js', './manifest.json',
   './icone-180.png', './icone-192.png', './icone-512.png', './icone-512-maskable.png'
 ];
 
