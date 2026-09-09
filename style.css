@@ -2486,8 +2486,17 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
    ensuite les quelques dizaines de pixels au-delà — juste ce qu'il faut
    pour que la page soit défilable et que Safari replie sa barre. */
 .ecran.actif{min-height:calc(100svh - var(--pied-h))}
-/* les deux écrans sans en-tête collant gardent leur marge en propre */
-#fluide,#resultat{padding-top:calc(14px + env(safe-area-inset-top))}
+/* Les deux écrans sans en-tête collant gardent leur marge en propre.
+   L'écran de jeu, lui, ne peut pas absorber l'encoche dans son padding :
+   .solo-actions, .vie-ind et l'ATH d'aventure y sont posés en absolu et
+   ancrés sur #fluide, donc mesurés depuis sa bordure — le padding leur
+   passe dessous et les boutons remontaient sous la barre d'état. La
+   réserve est donc portée par #app, un ancêtre : la boîte de l'écran
+   commence déjà sous l'encoche, et tout ce qu'elle contient suit,
+   positionné en absolu ou non. */
+#resultat{padding-top:calc(14px + env(safe-area-inset-top))}
+#fluide{padding-top:14px}
+body.jeu #app{padding-top:env(safe-area-inset-top)}
 /* la barre du bas ne réserve plus sa place au milieu de l'écran : c'est
    le pied de page qui s'en charge, en fin de document */
 .ecran.avec-barre .defile{padding-bottom:0}
