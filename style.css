@@ -392,7 +392,8 @@ html,body{height:100%}
 /* iOS Safari peut laisser voir le blanc par défaut du document pendant
    un rebond de défilement (le fond de <html> n'était jamais posé, seul
    celui de <body> l'était) — visible en filet sous la barre flottante. */
-html{background:var(--nuit);height:100%}
+html{background:var(--nuit);min-height:100%;-webkit-text-size-adjust:100%;
+  scroll-behavior:smooth}
 body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   /* la bande observée en bas vient d'ailleurs : <body> n'avait aucune
      hauteur déclarée et dépendait d'un calcul implicite. Sur iOS, la
@@ -407,15 +408,29 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
      relais : mesurée en JS via window.innerHeight (voir plus bas), elle
      est toujours exacte, quel que soit le moteur de rendu. 100dvh ne
      sert plus que de valeur de repli avant que ce script s'exécute. */
-  height:100%;min-height:var(--vh100, 100dvh);
-  user-select:none;-webkit-user-select:none;touch-action:manipulation;
-  overscroll-behavior:none;overflow:hidden}
-#app{height:100%;max-width:480px;margin:0 auto;position:relative;
+  /* Le document est de nouveau la surface de defilement : c'est la
+     seule facon d'obtenir la retraction de la barre d'adresse de
+     Safari, qui n'ecoute que le scroller racine et ignore les
+     conteneurs internes. 100svh = hauteur visible barres deployees :
+     le contenu remplit toujours l'ecran au repos, et le pied de page
+     ajoute ce qu'il faut au-dela pour que la page soit reellement
+     defilable. --vh100 ne sert plus qu'aux ecrans verrouilles (jeu,
+     modales), ou la mesure JS reste plus fiable que l'unite CSS. */
+  min-height:100svh;
+  /* clip et non hidden : hidden ferait de <body> un conteneur de
+     défilement, ce qui désactiverait les en-têtes collants qu'il
+     contient. clip se contente de rogner. */
+  overflow-x:clip;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#app{min-height:100svh;max-width:480px;margin:0 auto;position:relative;
   padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #fond-fixe{position:fixed;inset:0;z-index:-1;background:inherit;
   background-attachment:fixed}
-.ecran{display:none;flex-direction:column;height:100%;padding:18px 20px}
-.ecran.actif{display:flex}
+.ecran{display:none;flex-direction:column;padding:18px 20px 0}
+/* min-height, pas height : l'ecran remplit au moins la fenetre puis
+   s'allonge librement avec son contenu, sans jamais creer de scroller
+   interne. */
+.ecran.actif{display:flex;min-height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 /* les écrans à onglets laissent la place à la barre du bas */
 .ecran.avec-barre{padding-bottom:0}
 .ecran.avec-barre .defile{padding-bottom:96px}
@@ -423,8 +438,9 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
 /* ─── barre de navigation fixe ─── */
 /* barre flottante : détachée des bords, arrondie, posée au-dessus du
    contenu plutôt que collée en pied d'écran */
-.barre-bas{display:none;position:absolute;z-index:40;
-  left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
+.barre-bas{display:none;position:fixed;z-index:40;
+  left:max(12px,calc(50% - 228px));right:max(12px,calc(50% - 228px));
+  bottom:calc(10px + env(safe-area-inset-bottom));
   background:rgba(14,17,22,.86);backdrop-filter:blur(18px);
   border:1px solid var(--bordDoux);border-radius:22px;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
@@ -537,7 +553,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #reglages .entete{flex-direction:column;align-items:stretch;gap:12px}
 #reglages .nav{justify-content:stretch;gap:6px}
 #reglages .nav button{flex:1;text-align:center;padding:9px 4px}
-.defile{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin-top:2px;min-height:0}
+.defile{flex:1 0 auto;margin-top:2px;min-height:0}
 .bloc{margin-top:15px}
 .rang{display:flex;align-items:center;gap:10px;padding:8px 0;
   border-bottom:1px solid var(--trait);flex-wrap:wrap}
@@ -637,7 +653,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .ecart{font-family:var(--mono);font-size:15px;letter-spacing:.06em;color:var(--gris);margin-top:2px}
 #resultat{background:linear-gradient(180deg,#101520 0%,var(--nuit) 42%)}
 /* toute la fiche défile, pas seulement l'historique */
-#resultat.actif{display:block;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#resultat.actif{display:block}
 #resultat .film{flex:none;overflow:visible;min-height:0}
 #resultat .verdict{padding-bottom:6px}
 .bande{position:relative;height:52px;border:1px solid var(--bordDoux);border-radius:14px;
@@ -655,7 +671,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 @keyframes flash{0%,100%{background:var(--ardoise)}50%{background:rgba(201,162,39,.55)}}
 .echelle{display:flex;justify-content:space-between;font-family:var(--mono);
   font-size:10px;color:var(--gris);margin-top:4px;letter-spacing:.08em}
-.film{flex:1;overflow-y:auto;overscroll-behavior:contain;margin-top:10px;-webkit-overflow-scrolling:touch;min-height:0}
+.film{flex:none;margin-top:10px;min-height:0}
 .frame{display:flex;align-items:center;gap:9px;padding:3px 0}
 .frame .nom{font-family:var(--mono);font-size:10px;width:52px;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
@@ -682,7 +698,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 
 /* ─── classement, panthéon, test ─── */
-.classement{flex:1;overflow-y:auto;overscroll-behavior:contain;margin-top:9px;min-height:0}
+.classement{flex:1 0 auto;margin-top:9px;min-height:0}
 .ligne{display:flex;flex-wrap:wrap;align-items:baseline;gap:11px;
   padding:11px 0;border-bottom:1px solid var(--trait)}
 .ligne .pos{font-family:var(--mono);font-size:12px;color:var(--laiton);width:18px}
@@ -1774,7 +1790,7 @@ html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement
 .rond[disabled]{opacity:.22}
 
 /* ─── récapitulatif de fin, intégré aux réglages ─── */
-#fin.actif{display:block;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#fin.actif{display:block}
 #fin .classement{flex:none;overflow:visible;min-height:0;max-height:none}
 .recap-titre{font-size:28px;font-weight:700;letter-spacing:.04em;
   text-transform:uppercase;line-height:1.1;margin-top:7px}
@@ -2399,3 +2415,305 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--laiton);outline-offset:3px}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REFONTE — DÉFILEMENT NATIF ET INTERFACE
+   ═══════════════════════════════════════════════════════════════════════
+   Cette couche est posée en fin de feuille : elle reprend, sans les
+   supprimer, les règles historiques qu'elle remplace. Deux chantiers
+   distincts s'y croisent.
+
+   1. Le défilement. L'app vivait dans un viewport figé — body en
+      overflow:hidden, un scroller par écran. Safari sur iPhone ne
+      rétracte sa barre d'adresse que pour le scroller racine : avec ce
+      montage, la barre restait déployée en permanence et volait une
+      quarantaine de pixels de hauteur utile. C'est donc le document qui
+      défile de nouveau, jusqu'à un vrai pied de page.
+
+   2. L'interface. Puisque la page défile, l'en-tête devient collant
+      plutôt que de disparaître, et le reste suit : hiérarchie
+      typographique élargie, surfaces et bordures unifiées derrière
+      quelques variables, cibles tactiles ramenées à 44 px.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────
+   1. JETONS
+   ───────────────────────────────────────────────────────────────── */
+:root{
+  /* rythme vertical : une seule échelle, réutilisée partout, plutôt
+     que la trentaine de valeurs ad hoc semées dans la feuille */
+  --e1:4px;  --e2:8px;  --e3:12px; --e4:16px;
+  --e5:22px; --e6:30px; --e7:40px;
+  /* rayons : le rayon de base --r reste pour ne rien casser, les deux
+     autres cadrent les petits et les grands blocs */
+  --r-s:12px; --r-l:22px; --r-max:999px;
+  /* élévations : douces, pour que les cartes se détachent du fond sans
+     l'ombre marquée qui vieillit vite */
+  --ombre-1:0 1px 2px rgba(0,0,0,.18);
+  --ombre-2:0 8px 24px -8px rgba(0,0,0,.4);
+  --ombre-3:0 18px 44px -14px rgba(0,0,0,.55);
+  /* bordure lisible : --bordDoux est presque invisible sur certains
+     thèmes, celle-ci sert aux éléments interactifs */
+  --bordNet:color-mix(in srgb, var(--ivoire) 18%, transparent);
+  /* voile d'en-tête collant : suit le thème sans le masquer */
+  /* 98 % et non 100 % : assez opaque pour que rien ne se lise au
+     travers, assez transparent pour laisser passer le dégradé du thème
+     et éviter le bandeau plat qui trahirait le collage. */
+  --voile:color-mix(in srgb, var(--nuit) 82%, transparent);
+  /* hauteur du pied visible dans la premiere fenetre */
+  --pied-h:150px;
+  --hauteur-barre:76px;
+  --transition:.22s cubic-bezier(.2,.7,.3,1);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   2. STRUCTURE DÉFILANTE
+   ───────────────────────────────────────────────────────────────── */
+/* Le retrait haut passe de #app à chaque écran : l'en-tête collant doit
+   pouvoir remonter jusqu'au bord réel de la fenêtre, ce que le
+   padding-top de #app lui interdisait — il aurait buté 44 px trop bas,
+   laissant une bande de contenu défiler à découvert au-dessus de lui. */
+#app{padding:0 0 env(safe-area-inset-bottom)}
+/* La marge latérale passe par une variable : l'en-tête collant doit la
+   compenser exactement pour s'étendre bord à bord, et certains écrans la
+   resserrent pour leurs cartes pleine largeur (le classement global).
+   Une valeur codée en dur ici débordait la page de 10 px sur ceux-là. */
+.ecran{--marge-x:20px;padding:0 var(--marge-x)}
+#classement-global{--marge-x:10px}
+/* L'écran ne prend plus toute la fenêtre mais la fenêtre moins le pied :
+   celui-ci vient donc se caler pile en bas de la première vue, au lieu de
+   flotter après une bande vide. Son propre remplissage bas fournit
+   ensuite les quelques dizaines de pixels au-delà — juste ce qu'il faut
+   pour que la page soit défilable et que Safari replie sa barre. */
+.ecran.actif{min-height:calc(100svh - var(--pied-h))}
+/* les deux écrans sans en-tête collant gardent leur marge en propre */
+#fluide,#resultat{padding-top:calc(14px + env(safe-area-inset-top))}
+/* la barre du bas ne réserve plus sa place au milieu de l'écran : c'est
+   le pied de page qui s'en charge, en fin de document */
+.ecran.avec-barre .defile{padding-bottom:0}
+.ecran.avec-barre{padding-bottom:0}
+
+/* Fond gelé : modales et écran de jeu.
+   position:fixed seul renverrait la page en haut ; le décalage est posé
+   en ligne par gelerFond(), qui le restitue au dégel. */
+body.fige{position:fixed;left:0;right:0;width:100%;overflow:hidden;top:var(--gel-y,0px)}
+/* l'écran de jeu, lui, veut une hauteur exacte : sa mise en page répartit
+   le chrono, les badges et les bandeaux sur une hauteur connue */
+/* L'écran de jeu se fige toujours en haut : reprendre le décalage de la
+   page précédente le ferait démarrer déporté vers le haut, chrono coupé. */
+body.jeu.fige{top:0}
+body.jeu{height:var(--vh100, 100dvh)}
+body.jeu #app{height:100%}
+body.jeu .ecran.actif{height:100%;min-height:0;padding-bottom:14px}
+body.jeu .pied{display:none}
+
+/* ─────────────────────────────────────────────────────────────────
+   3. EN-TÊTE COLLANT
+   ───────────────────────────────────────────────────────────────── */
+.ecran > .entete{
+  position:sticky;top:0;z-index:30;
+  margin-inline:calc(var(--marge-x) * -1);
+  padding:calc(var(--e3) + env(safe-area-inset-top)) var(--marge-x) var(--e3);
+  background:var(--nuit);              /* repli si color-mix manque */
+  /* Opaque là où le titre se lit, feutré vers le bas : le contenu qui
+     glisse dessous s'estompe au lieu de se couper net, et le dégradé du
+     thème n'est masqué que sur la hauteur du titre. */
+  background:linear-gradient(to bottom, var(--nuit) 0%, var(--nuit) 62%, var(--voile) 100%);
+  backdrop-filter:saturate(160%) blur(20px);
+  -webkit-backdrop-filter:saturate(160%) blur(20px);
+  border-bottom:1px solid transparent;
+  transition:border-color var(--transition), padding var(--transition);
+}
+/* le filet doré n'est plus un élément qui défile : il devient le socle de
+   l'en-tête, et l'original juste après est masqué */
+.ecran > .entete::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,
+    color-mix(in srgb, var(--laiton) 70%, transparent),
+    color-mix(in srgb, var(--laiton) 22%, transparent) 55%,
+    transparent);
+}
+.ecran > .entete + .hairline{display:none}
+/* condensé dès que la page bouge : le titre cède la place au contenu */
+body.defile .ecran > .entete{
+  border-bottom-color:var(--bordDoux);
+  box-shadow:var(--ombre-2);
+  padding-bottom:var(--e2);
+}
+body.defile .ecran > .entete .marque h1{font-size:26px;letter-spacing:.1em}
+body.defile .ecran > .entete .marque span{opacity:0;height:0;margin-top:0}
+.marque h1{transition:font-size var(--transition), letter-spacing var(--transition)}
+.marque span{transition:opacity var(--transition)}
+/* l'écran d'accueil empile titre et navigation : le condensé y gagne
+   davantage, on le laisse se refermer complètement */
+#reglages .entete{gap:var(--e2)}
+
+/* ─────────────────────────────────────────────────────────────────
+   4. PIED DE PAGE — la fin de la page, littéralement
+   ───────────────────────────────────────────────────────────────── */
+/* Sans lui, un écran court s'arrête pile à la hauteur de la fenêtre :
+   la page n'est pas défilable, et Safari garde sa barre en grand.
+   Sa hauteur minimale garantit ce dépassement quel que soit l'écran. */
+.pied{
+  min-height:calc(var(--pied-h) + 96px);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:var(--e1);
+  padding:var(--e6) 20px calc(96px + env(safe-area-inset-bottom));
+  text-align:center;
+}
+.pied-trait{width:34px;height:2px;border-radius:2px;margin-bottom:var(--e3);
+  background:linear-gradient(90deg,transparent,var(--laiton),transparent);
+  opacity:.7}
+.pied-marque{font-family:var(--cond);font-size:15px;font-weight:700;
+  letter-spacing:.34em;text-indent:.34em;color:var(--gris);opacity:.65}
+.pied-sous{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gris);opacity:.42}
+.pied-v{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--gris);opacity:.3;margin-top:var(--e2)}
+/* Quand la barre d'onglets flotte au-dessus, le pied ne peut pas se
+   contenter d'un remplissage supplémentaire : son texte est calé en haut
+   de la boîte, il passerait donc dessous. C'est la hauteur réservée qui
+   augmente — le pied commence plus tôt, son texte remonte au-dessus de la
+   barre, et le total de la page ne bouge pas d'un pixel. */
+body.avec-barre{
+  --pied-h:calc(150px + var(--hauteur-barre) + var(--e5));
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   5. TRANSITION D'ÉCRAN
+   ───────────────────────────────────────────────────────────────── */
+/* Le passage d'un écran à l'autre était instantané : rien n'indiquait
+   qu'on avançait ou qu'on revenait. Une montée courte suffit. */
+@keyframes ecranEntre{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:none}
+}
+.ecran.actif{animation:ecranEntre .26s cubic-bezier(.2,.7,.3,1) both}
+/* l'animation ne doit pas déplacer un en-tête collant en cours de vol */
+.ecran.actif > .entete{animation:none}
+
+/* ─────────────────────────────────────────────────────────────────
+   6. BARRE D'ONGLETS
+   ───────────────────────────────────────────────────────────────── */
+.barre-bas{
+  padding:var(--e2) var(--e1) calc(var(--e2) + 2px);
+  border-radius:26px;
+  border-color:var(--bordDoux);
+  background:var(--nuit);
+  background:color-mix(in srgb, var(--nuit) 80%, transparent);
+  backdrop-filter:saturate(170%) blur(22px);
+  -webkit-backdrop-filter:saturate(170%) blur(22px);
+  box-shadow:var(--ombre-3);
+}
+.bb{position:relative;border-radius:16px;padding:var(--e2) var(--e1) 7px;
+  min-height:52px;justify-content:center;
+  transition:color var(--transition), transform .12s ease}
+.bb .ic{font-size:18px;transition:transform var(--transition)}
+.bb .lb{font-size:8.5px;letter-spacing:.09em}
+.bb[aria-selected="true"] .ic{transform:translateY(-1px) scale(1.12)}
+/* pastille sous l'onglet actif, plutôt que la seule teinte du texte */
+.bb[aria-selected="true"]::after{
+  content:"";position:absolute;left:50%;bottom:2px;translate:-50% 0;
+  width:16px;height:2px;border-radius:2px;background:var(--laiton)}
+.bb:active{transform:scale(.94)}
+
+/* ─────────────────────────────────────────────────────────────────
+   7. COMPOSANTS
+   ───────────────────────────────────────────────────────────────── */
+
+/* Entrées du menu principal : un liseré coloré à gauche donne le repère
+   que trois cartes identiques ne donnaient pas. */
+.nav-carte{
+  position:relative;overflow:hidden;
+  border-radius:var(--r-l);
+  padding:var(--e5) var(--e4) var(--e5) var(--e5);
+  margin-top:var(--e3);
+  box-shadow:var(--ombre-1);
+  transition:transform .14s ease, box-shadow var(--transition), border-color var(--transition);
+}
+.nav-carte::before{
+  content:"";position:absolute;left:0;top:14%;bottom:14%;width:3px;
+  border-radius:0 3px 3px 0;background:var(--laiton);opacity:.75}
+.nav-carte:active{transform:scale(.985);opacity:1;
+  border-color:var(--bordNet);box-shadow:none}
+.nav-carte .ic{font-size:31px;width:31px;text-align:center}
+.nav-carte .n{font-size:25px;letter-spacing:.05em}
+.nav-carte .d{margin-top:var(--e1);font-size:11px;line-height:1.6}
+.nav-carte .fl{opacity:.32;transition:transform var(--transition)}
+.nav-carte:active .fl{transform:translateX(3px)}
+
+/* Boutons : hauteur de cible tactile garantie, appui perceptible. */
+.bouton{
+  min-height:52px;border-radius:var(--r-s);
+  padding:var(--e4);letter-spacing:.11em;
+  box-shadow:var(--ombre-1);
+  transition:transform .12s ease, opacity var(--transition), box-shadow var(--transition);
+}
+.bouton:active{transform:scale(.978);box-shadow:none}
+.bouton.fantome{min-height:46px;box-shadow:none;
+  border-color:var(--bordNet);color:var(--ivoire);opacity:.82}
+.bouton.fantome:active{opacity:1;background:var(--ardoise)}
+.bouton.danger{opacity:1;color:var(--signal)}
+
+/* Segments : un rail unique plutôt que des boutons qui flottent. */
+.seg{gap:var(--e1);padding:var(--e1);margin-top:var(--e2);
+  border:1px solid var(--bordDoux);border-radius:14px;background:var(--ardoise)}
+.seg button{border:1px solid transparent;border-radius:10px;
+  min-height:38px;padding:var(--e2) var(--e1);
+  transition:background var(--transition), color var(--transition)}
+.seg button[aria-pressed="true"]{box-shadow:var(--ombre-1)}
+
+/* Puces de navigation en en-tête : cibles élargies. */
+.nav button{min-height:34px;padding:var(--e2) var(--e3);
+  border-color:var(--bordDoux);transition:background var(--transition)}
+
+/* Lignes de classement : de simples filets à des rangées lisibles. */
+.classement .ligne{padding:var(--e3) var(--e2);border-radius:10px;
+  transition:background var(--transition)}
+.classement .ligne:nth-child(odd){background:color-mix(in srgb, var(--ivoire) 3%, transparent)}
+.ligne .pos{font-size:11px;letter-spacing:.06em}
+
+/* Cartes génériques : rayon et ombre unifiés. */
+.lg-carte,.garde,.evt,.carte-verdict{border-radius:var(--r-l)}
+.lg-carte{padding:var(--e3) var(--e4);box-shadow:var(--ombre-1)}
+.lg-carte:active{opacity:1;transform:scale(.985)}
+
+/* Titre d'écran : les plus longs (« Apparence », « Historique ») ne
+   tiennent pas sur une ligne à 320 px et débordaient la page vers la
+   droite — invisible à l'œil, mais la page devenait défilable
+   horizontalement. Ils sont désormais coupés proprement. */
+.marque{min-width:0;overflow:hidden}
+.marque h1,.marque span{overflow:hidden;text-overflow:ellipsis}
+
+/* Intitulés de section : un peu d'air au-dessus, moins en dessous. */
+.bloc{margin-top:var(--e6)}
+.bloc > .eyebrow,#reglages .defile > .eyebrow{font-size:19px;letter-spacing:.08em}
+.note{font-size:11px;line-height:1.75;margin-top:var(--e2)}
+.eyebrow{letter-spacing:.2em}
+
+/* Champs de saisie : la ligne de joueur était un simple trait. */
+/* le fond de survol déborde sur les marges de l'écran plutôt que de
+   rogner la largeur utile : ajouter un retrait horizontal ici ferait
+   passer la croix de suppression à la ligne suivante */
+.rang{padding:var(--e2) var(--e2);margin-inline:calc(var(--e2) * -1);
+  border-radius:10px;border-bottom-color:var(--bordDoux)}
+.rang:focus-within{background:var(--ardoise)}
+.ajouter{min-height:44px;padding:var(--e2) 0}
+
+/* Panneau de réglages rapides : sa poignée manquait. */
+.pnr-boite{border-radius:26px 26px 0 0;padding-top:var(--e2);box-shadow:var(--ombre-3)}
+.pnr-boite::before{content:"";display:block;width:38px;height:4px;border-radius:2px;
+  background:var(--bordNet);margin:var(--e2) auto var(--e3)}
+
+/* ─────────────────────────────────────────────────────────────────
+   8. ACCESSIBILITÉ ET REPLIS
+   ───────────────────────────────────────────────────────────────── */
+:focus-visible{outline:2px solid var(--laiton);outline-offset:3px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){
+  .ecran.actif{animation:none}
+  html{scroll-behavior:auto}
+}
+/* Écran large : la colonne reste centrée, le pied s'aligne dessus. */
+@media (min-width:481px){
+  .pied{max-width:480px;margin:0 auto}
+}

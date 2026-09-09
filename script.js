@@ -15,6 +15,81 @@ window.addEventListener('orientationchange', () => setTimeout(majHauteurReelle, 
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize', majHauteurReelle);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   DÉFILEMENT — le document est la surface de défilement
+   ═══════════════════════════════════════════════════════════════
+   L'app tenait auparavant dans un viewport figé (body en
+   overflow:hidden, un scroller interne par écran). Confortable à
+   écrire, mais Safari sur iPhone n'écoute que le scroller racine :
+   sans lui, la barre d'adresse ne se rétracte jamais et mange une
+   quarantaine de pixels en permanence. La page défile donc de nouveau
+   normalement, jusqu'à un vrai pied de page.
+
+   Deux situations veulent malgré tout un fond immobile : l'écran de
+   jeu, dont la mise en page dépend d'une hauteur exacte et où un
+   glissement du doigt ne doit jamais faire bouger le chrono, et les
+   modales, sous lesquelles le contenu ne doit pas filer. D'où ce gel,
+   compté par raison : plusieurs causes peuvent se superposer (une
+   modale ouverte pendant une partie) sans que la première levée ne
+   dégèle trop tôt. La position est mémorisée puis restituée, sinon
+   position:fixed renverrait la page en haut à chaque dégel.          */
+const GELS = new Set();
+let scrollGele = 0;
+
+function gelerFond(raison, actif){
+  const b = document.body, avant = GELS.size;
+  if(actif) GELS.add(raison); else GELS.delete(raison);
+  if(!avant && GELS.size){
+    scrollGele = window.scrollY || window.pageYOffset || 0;
+    b.style.setProperty('--gel-y', (-scrollGele) + 'px');
+    b.classList.add('fige');
+  } else if(avant && !GELS.size){
+    b.classList.remove('fige');
+    b.style.removeProperty('--gel-y');
+    window.scrollTo(0, scrollGele);
+  }
+}
+
+/* Le seul écran qui garde un viewport figé : le jeu. Sa mise en page
+   répartit chrono, badges et bandeaux sur une hauteur connue au pixel
+   près, et un glissement du doigt y serait pris pour un appui. Tous les
+   autres, résultat et fin de partie compris, défilent normalement. */
+const ECRANS_FIGES = new Set(['fluide']);
+
+/* Changer d'écran, c'est arriver en haut du nouvel écran : sans ça on
+   hériterait de la position de défilement du précédent, au milieu de
+   nulle part. 'instant' plutôt que le scroll-behavior:smooth du
+   document, qu'on ne veut que pour les ancres. */
+function hautDePage(){
+  try{ window.scrollTo({ top:0, left:0, behavior:'instant' }); }
+  catch(e){ window.scrollTo(0, 0); }
+}
+
+/* En-tête condensé : dès que la page a bougé de quelques pixels, le
+   titre se resserre et le filet se pose. Passif et sans lecture de mise
+   en page — scrollY seul, comparé à un seuil — pour ne rien coûter au
+   défilement. */
+addEventListener('scroll', () => {
+  const bas = (window.scrollY || window.pageYOffset || 0) > 18;
+  document.body.classList.toggle('defile', bas);
+}, { passive:true });
+
+/* Les surcouches plein écran (confirmation, réglages rapides) sont
+   ouvertes et fermées depuis une douzaine d'endroits. Plutôt que de
+   poser un gel à chacun — et d'en oublier un le jour où un dialogue
+   s'ajoute — on observe la classe qui les affiche. Une seule source de
+   vérité, impossible à désynchroniser. */
+addEventListener('DOMContentLoaded', () => {
+  const couches = ['modale', 'panneau-reg'].map(id => document.getElementById(id))
+                                           .filter(Boolean);
+  if(!couches.length) return;
+  const obs = new MutationObserver(() => {
+    gelerFond('couche', couches.some(c => c.classList.contains('on')));
+  });
+  couches.forEach(c => obs.observe(c, { attributes:true, attributeFilter:['class'] }));
+});
+
 // Fonction sécurisée pour envoyer des événements à GA4
 function trackEvent(eventName, eventParams = {}) {
   if (typeof gtag === 'function') {
@@ -2931,6 +3006,16 @@ function montrer(id, sansPile){
     B.querySelectorAll('.bb').forEach(b =>
       b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
   }
+  /* Le fond se fige sur l'écran de jeu et redevient défilable ailleurs.
+     hautDePage() vient après le dégel : sur un body encore en
+     position:fixed, window.scrollTo ne ferait rien. Dans l'autre sens
+     l'appel est sans effet, mais le gel du jeu se pose toujours en haut
+     (body.jeu.fige neutralise le décalage), donc rien à rattraper. */
+  const fige = ECRANS_FIGES.has(id);
+  document.body.classList.toggle('jeu', fige);
+  gelerFond('ecran', fige);
+  document.body.classList.toggle('avec-barre', porteBarre(id));
+  if(!avant || avant.id !== id) hautDePage();
   majBoutonsRetour();
 }
 
