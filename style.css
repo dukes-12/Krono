@@ -2496,7 +2496,20 @@ html[data-da="glacier"] .pnr-boite{background:#241B45}
 /* Fond gelé : modales et écran de jeu.
    position:fixed seul renverrait la page en haut ; le décalage est posé
    en ligne par gelerFond(), qui le restitue au dégel. */
-body.fige{position:fixed;left:0;right:0;width:100%;overflow:hidden;top:var(--gel-y,0px)}
+/* La hauteur est explicite, et pas seulement la position : un body figé
+   sans hauteur se contente de sa boîte de contenu, et WebKit rogne alors
+   sur cette boîte les descendants en position:fixed — #fond-fixe et le
+   panneau de réglages compris. C'est ce qui laissait apparaître une
+   bande sous le panneau, dans la zone de l'indicateur d'accueil.
+   --vh100 est mesurée en JS, donc toujours la hauteur visible réelle. */
+body.fige{position:fixed;left:0;right:0;width:100%;overflow:hidden;
+  top:var(--gel-y,0px);
+  /* La hauteur reprend le décalage : --gel-y est négatif (le haut de la
+     boîte remonte d'autant que la page était défilée), le soustraire
+     rallonge donc la boîte d'exactement ce qu'il faut pour que son bas
+     retombe sur le bas de la fenêtre. Sans cela le fond s'arrêtait trop
+     tôt et découvrait une bande — celle vue sous le panneau. */
+  height:calc(var(--vh100, 100dvh) - var(--gel-y, 0px))}
 /* l'écran de jeu, lui, veut une hauteur exacte : sa mise en page répartit
    le chrono, les badges et les bandeaux sur une hauteur connue */
 /* L'écran de jeu se fige toujours en haut : reprendre le décalage de la
@@ -2717,3 +2730,27 @@ body.avec-barre{
 @media (min-width:481px){
   .pied{max-width:480px;margin:0 auto}
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   9. FILET DE SÉCURITÉ DU FOND
+   ─────────────────────────────────────────────────────────────────
+   Les dix thèmes posent leur fond avec le raccourci `background:` et
+   n'y mettent que des dégradés — ce qui remet background-color à
+   `transparent`. Un dégradé est dimensionné sur la boîte de son
+   élément : tout pixel en dehors n'a alors aucune couleur à laquelle
+   retomber, et le navigateur y peint son blanc par défaut.
+
+   Cela ne se voyait pas tant que <html> et <body> étaient verrouillés à
+   exactement height:100% — aucun pixel n'échappait à la boîte. Dès que
+   la page défile pour de vrai, ou que le fond se fige, il en existe :
+   zone sûre du bas, élan de fin de course, hauteur visible qui change
+   quand la barre de Safari se replie.
+
+   D'où cette couleur unie sous les dégradés, dans le ton du thème
+   actif. Même spécificité que les blocs de thème (0,1,1 et 0,1,2), mais
+   déclarée après : elle ne remplace que background-color et laisse les
+   dégradés intacts par-dessus. On ne la voit donc jamais — c'est
+   exactement ce qu'on attend d'un filet.
+   ───────────────────────────────────────────────────────────────── */
+html,html[data-da]{background-color:var(--nuit)}
+body,html[data-da] body{background-color:var(--nuit)}
