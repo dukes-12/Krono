@@ -426,6 +426,21 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #fond-fixe{position:fixed;inset:0;z-index:-1;background:inherit;
   background-attachment:fixed}
+/* Garde-fou rotation : masqué en portrait, passe au-dessus de tout en
+   paysage. On bloque plutôt que de retenter un layout portrait forcé par
+   transform — ça casserait les env(safe-area-inset-*) déjà calées pour
+   l'orientation réelle de l'appareil (voir #app, .ecran.actif ci-dessus). */
+#garde-rotation{display:none}
+@media screen and (orientation:landscape){
+  #garde-rotation{display:flex;position:fixed;inset:0;z-index:999;
+    flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    background:var(--nuit);color:var(--ivoire);text-align:center;padding:0 40px}
+  .gr-icone{font-size:44px;color:var(--laiton);line-height:1;
+    animation:gr-tourne 1.6s ease-in-out infinite}
+  .gr-texte{font-family:var(--cond);font-size:17px;letter-spacing:.02em;
+    color:var(--gris)}
+  @keyframes gr-tourne{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-90deg)}}
+}
 .ecran{display:none;flex-direction:column;padding:18px 20px 0}
 /* min-height, pas height : l'ecran remplit au moins la fenetre puis
    s'allonge librement avec son contenu, sans jamais creer de scroller

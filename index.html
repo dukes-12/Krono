@@ -34,6 +34,13 @@
      (dvh, mesure JS). background:inherit reprend le fond déjà posé sur
      l'élément body, donc rien à dupliquer par thème. -->
 <div id="fond-fixe"></div>
+<!-- Garde-fou rotation : Krono se joue verticalement (y compris le Duo, posé
+     à plat — le miroir des deux moitiés ne dépend jamais de l'orientation du
+     téléphone). manifest.json verrouille déjà le portrait en mode installé,
+     mais ça ne s'applique ni à un onglet de navigateur normal ni à iOS : ce
+     panneau, affiché seulement en paysage (voir style.css), bloque le jeu
+     plutôt que de le laisser se réarranger. -->
+<div id="garde-rotation"><div class="gr-icone">↻</div><div class="gr-texte">Tournez votre téléphone<br>Krono se joue à la verticale</div></div>
 <div id="app">
 
 <!-- ═══ RÉGLAGES ═══ -->
@@ -307,11 +314,9 @@
       <button class="bouton fantome" id="pr-ligue">Rejoins ma ligue</button>
     </div>
 
-    <div class="titre-sec">Duel à distance</div>
-    <div class="note">Un compte de chaque côté, une manche à la fois, où que vous soyez.</div>
-    <div class="recap-b">
-      <button class="bouton fantome" id="pr-duel">Défier quelqu'un</button>
-    </div>
+    <!-- Duel à distance : déplacé dans DUO (voir #duo-mode), qui rassemble
+         désormais tous les jeux à deux — locaux et à distance — au même
+         endroit plutôt que de le laisser isolé ici dans Profil. -->
 
     <div class="titre-sec">Compte</div>
     <div class="note" id="pr-compte-note">—</div>
@@ -338,7 +343,7 @@
 <section class="ecran" id="duel">
   <div class="entete">
     <div class="marque"><h1 id="duel-titre">DUEL</h1><span id="duel-score-tete">—</span></div>
-    <div class="nav"><button id="duel-retour">Profil</button></div>
+    <div class="nav"><button id="duel-retour">Duo</button></div>
   </div>
   <div class="hairline"></div>
   <div class="defile">

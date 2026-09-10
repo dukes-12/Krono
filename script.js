@@ -92,6 +92,18 @@ addEventListener('DOMContentLoaded', () => {
   couches.forEach(c => obs.observe(c, { attributes:true, attributeFilter:['class'] }));
 });
 
+// Verrou d'orientation, en complément du garde-fou CSS (#garde-rotation) :
+// ne fonctionne qu'en mode installé/plein écran sur les navigateurs qui
+// exposent l'API (surtout Android) — silencieux partout ailleurs (iOS ne
+// l'expose pas du tout, un onglet normal la refuse). C'est pour ça que le
+// panneau CSS reste la vraie garantie, celle-ci n'est qu'un bonus.
+function verrouillerOrientation(){
+  try{ screen.orientation && screen.orientation.lock
+    && screen.orientation.lock('portrait').catch(() => {}); }catch(e){}
+}
+verrouillerOrientation();
+addEventListener('DOMContentLoaded', verrouillerOrientation);
+
 // Fonction sécurisée pour envoyer des événements à GA4
 function trackEvent(eventName, eventParams = {}) {
   if (typeof gtag === 'function') {
@@ -8494,7 +8506,6 @@ const monPseudo = () => monPro().pseudo || (MEM.joueurs && MEM.joueurs[0]) || 'I
 const nouvelleCibleDuel = () => (Math.floor(Math.random() * 10) + 1) * 100;
 
 function ouvrirDuel(){ montrer('duel'); construireEcranDuel(); }
-$('pr-duel').onclick = () => ouvrirDuel();
 
 async function construireEcranDuel(){
   const s = EN_LIGNE() ? await rafraichirSession() : null;
@@ -8510,7 +8521,7 @@ async function construireEcranDuel(){
   if(DUEL.code) demarrerSondageDuel();
 }
 
-$('duel-retour').onclick = () => { arreterSondageDuel(); montrer('profil'); };
+$('duel-retour').onclick = () => { arreterSondageDuel(); montrer('duo-mode'); };
 $('duel-connexion-creer').onclick    = () => ouvrirAuth('creer', 'duel');
 $('duel-connexion-existant').onclick = () => ouvrirAuth('connexion', 'duel');
 $('duel-defier').onclick = () => parcoursDefierQuelquun();
@@ -8827,10 +8838,12 @@ async function construireHistoriqueDuels(){
    avec le moteur solo/soirée. */
 const DUO_MODES = [
   {id:'classique', n:'Classique · bar',
-   d:"Un seul chrono, affiché pareil des deux côtés. Chacun joue son tour ; une précision fait boire l'adversaire, un raté vous fait boire.",
-   regle:"Une cible commune à chaque manche, un chrono unique affiché à l'identique sur les deux moitiés. Les joueurs jouent chacun leur tour, "
-     + "en alternance d'une manche à l'autre. Pile fait boire l'adversaire cul sec, un frôlé (≤ 3 centièmes) lui fait boire quelques gorgées, "
-     + "un raté vous en fait boire vous-même. Le score cumule les points, comme en Classique."},
+   d:"Le vrai mode soirée : un chrono qui ne s'arrête jamais, la cible tombe toujours sur la seconde pleine. Chacun joue son tour ; pile fait boire l'autre (riposte possible), un raté vous fait boire.",
+   regle:"Un seul chrono continu, jamais remis à zéro : chaque manche vise la prochaine seconde pleine à partir de là où il s'est arrêté la fois d'avant "
+     + "— exactement comme au vrai Classique soirée, ça avance de seconde en seconde. Les joueurs jouent chacun leur tour, en alternance. Pile fait "
+     + "boire l'adversaire (cul sec ou shot) — sauf s'il fait pile à son tour : le défi rebondit et double, c'est la riposte, et ça peut s'enchaîner "
+     + "plusieurs fois de suite. Un frôlé (≤ 3 centièmes) fait boire l'adversaire quelques gorgées, un raté vous en fait boire vous-même. Zone sûre : "
+     + "personne ne boit."},
   {id:'duel', n:"Duel · à l'aveugle",
    d:"Même cible cachée pour les deux : le chrono ne s'affiche pas pendant la manche, seul l'écart révélé à l'arrêt compte.",
    regle:"Une cible tirée au sort, jamais affichée pendant que le chrono tourne — comme le mode Blind. Chacun lance et arrête son propre chrono, "
@@ -8845,30 +8858,47 @@ const DUO = {
   noms:['',''], manchesVisees:5, manche:0, scores:[0, 0],
   gorgees:[0, 0], culs:[0, 0],   // classique uniquement : cumul à boire sur toute la partie
   tourActif:0,   // classique uniquement : qui joue le tour en cours
+  total:0,       // classique uniquement : référence cumulée du chrono continu (centièmes),
+                 // ne repart jamais à zéro sauf reinitialiserMatchDuo() — « de seconde en seconde »
+  contre:0,      // classique uniquement : culs secs en jeu si une riposte est en cours (0 = aucune)
+  dernierVerdict:null,   // classique uniquement : verdict structuré de la dernière manche (voir verifierFinMancheDuo)
   cible:0, compteVal:'3', pret:[false, false], t0:[undefined, undefined],
   ecarts:[null, null], verrou:[0, 0],   // même garde-fou que le jeu principal : 120 ms anti-rebond
   phase:'attente'   // attente → compte → jeu → resultat → (compte…) → fin
 };
 
-// nomCulSecDuo/calcFroleDuo reprennent les formules réelles (nomCulSec,
-// calcFrole) mais paramétrées par le réglage du Duo plutôt que lues sur
-// CFG.gor : changer les gorgées d'une partie de Duo ne doit jamais changer
-// en douce le réglage global du joueur. gorg()/RATE restent réutilisés
-// tels quels : gorg() ne dépend que de son nombre, RATE n'est qu'une table.
+// nomCulSecDuo/calcFroleDuo/culsDuo reprennent les formules réelles
+// (nomCulSec, calcFrole, culs) mais paramétrées par le réglage du Duo
+// plutôt que lues sur CFG.gor : changer les gorgées d'une partie de Duo ne
+// doit jamais changer en douce le réglage global du joueur. gorg()/RATE
+// restent réutilisés tels quels : gorg() ne dépend que de son nombre,
+// RATE n'est qu'une table.
 const nomCulSecDuo = gor => gor === 'bar' ? 'shot' : 'cul sec';
 const calcFroleDuo = (n, gor) => gor === 'appart' ? 3 : (gor === 'gros' ? n * 2 : n);
+const culsDuo = (n, gor) => gor === 'bar' ? n + (n > 1 ? ' shots' : ' shot') : n + (n > 1 ? ' culs secs' : ' cul sec');
 
-// Barème de Classique (pile 100, frôlé ≤3 centièmes 50, zone sûre 20, hors
-// zone 0), lu sur les réglages du Duo — jamais sur S.zoneTour, qui varie
-// tour après tour dans le jeu principal et n'a aucune raison de s'y appliquer.
+// même trajectoire que cibleSuivante()/prochaineCible() du vrai mode
+// Classique soirée : toujours la prochaine seconde pleine, avec au moins
+// une demi-seconde de marge — jamais un tirage aléatoire indépendant.
+function cibleSuivanteDuo(total){
+  let c = (Math.floor(total / 100) + 1) * 100;
+  while(c - total <= 50) c += 100;
+  return c;
+}
+
+// Barème de Classique (pile, frôlé ≤ 3 centièmes, zone sûre, hors zone), lu
+// sur les réglages du Duo — jamais sur S.zoneTour, qui varie tour après
+// tour dans le jeu principal et n'a aucune raison de s'y appliquer. Pas de
+// points : comme au vrai Classique soirée, seul compte qui boit quoi (voir
+// verifierFinMancheDuo, qui gère aussi la riposte sur un pile).
 function evaluerClassiqueDuo(ecart){
   const r = DUO.reglages.classique, a = Math.abs(ecart);
-  if(a === 0) return {code:'pile', libelle:'Pile !', couleur:'t-s100', pts:100};
-  if(a <= PRES) return {code:'frole', libelle:'Frôlé !', couleur:'t-s50', pts:50,
+  if(a === 0) return {code:'pile', libelle:'Pile !', couleur:'t-s100'};
+  if(a <= PRES) return {code:'frole', libelle:'Frôlé !', couleur:'t-s50',
     gorgees:calcFroleDuo(PRES + 1 - a, r.gor)};
   if(a <= (r.diff === 'hard' ? SAUF.visible.hard : SAUF.visible.simple))
-    return {code:'sauf', libelle:'Zone sûre', couleur:'t-s20', pts:20};
-  return {code:'rate', libelle:'Hors zone', couleur:'t-signal', pts:0, gorgees:RATE[r.gor]};
+    return {code:'sauf', libelle:'Zone sûre', couleur:'t-s20'};
+  return {code:'rate', libelle:'Hors zone', couleur:'t-signal', gorgees:RATE[r.gor]};
 }
 // cible : secondes rondes en simple, décimales en hard — comme le mode Blind
 const nouvelleCibleDuo = diffHard => diffHard ? (100 + Math.floor(Math.random() * 901))
@@ -8951,6 +8981,16 @@ function construireDuoModes(){
     d.onclick = () => { DUO.mode = m.id; construireDuoReglages(); montrer('duo-reglages'); };
     L.appendChild(d);
   });
+  // Duel à distance : déplacé ici depuis Profil, sur le même écran de choix
+  // que les jeux locaux — mais mène directement au compte/duel en ligne,
+  // pas à un réglage local, donc pas de "choisi" à cocher (ce n'est pas
+  // une valeur de DUO.mode).
+  const dist = document.createElement('div');
+  dist.className = 'evt choisir';
+  dist.innerHTML = '<div class="n">Duel · à distance</div>'
+    + '<div class="d">Un compte de chaque côté, une manche à la fois, où que vous soyez.</div>';
+  dist.onclick = () => ouvrirDuel();
+  L.appendChild(dist);
 }
 
 $('duor-retour').onclick = () => { construireDuoModes(); montrer('duo-mode'); };
@@ -8989,6 +9029,7 @@ $('duor-commencer').onclick = () => {
 function reinitialiserMatchDuo(){
   DUO.manche = 0; DUO.scores = [0, 0]; DUO.gorgees = [0, 0]; DUO.culs = [0, 0];
   DUO.pret = [false, false]; DUO.phase = 'attente';
+  DUO.total = 0; DUO.contre = 0; DUO.dernierVerdict = null;   // chrono continu et riposte repartent de zéro
 }
 
 [0, 1].forEach(i => $('duo-moitie-' + i).addEventListener('pointerdown', ev => gererTapDuo(i, ev)));
@@ -9018,7 +9059,9 @@ function gererTapDuo(i, ev){
   if(DUO.phase !== 'jeu') return;
   if(DUO.mode === 'classique'){
     if(i !== DUO.tourActif || DUO.ecarts[i] !== null) return;   // pas son tour, ou déjà joué
-    DUO.ecarts[i] = enCentiemes(t - DUO.t0[i]) - DUO.cible;
+    // la valeur atteinte reprend là où le chrono continu en était (DUO.total),
+    // jamais depuis zéro : voir boucleChronoClassique() et lancerMancheDuo()
+    DUO.ecarts[i] = DUO.total + enCentiemes(t - DUO.t0[i]) - DUO.cible;
     vibrer(10); verifierFinMancheDuo();
     return;
   }
@@ -9039,7 +9082,9 @@ function gererTapDuo(i, ev){
 // est joué (ecarts[tourActif] posé) ou que la manche change.
 function boucleChronoClassique(){
   if(DUO.mode !== 'classique' || DUO.phase !== 'jeu' || DUO.ecarts[DUO.tourActif] !== null) return;
-  const val = fmt(enCentiemes(performance.now() - DUO.t0[DUO.tourActif]));
+  // le chiffre affiché repart de DUO.total, jamais de 0,00 — le chrono ne
+  // s'arrête jamais vraiment, il ne fait que s'interrompre entre deux tours
+  const val = fmt(DUO.total + enCentiemes(performance.now() - DUO.t0[DUO.tourActif]));
   const c0 = document.getElementById('duo-chrono-0'), c1 = document.getElementById('duo-chrono-1');
   if(c0) c0.textContent = val;
   if(c1) c1.textContent = val;
@@ -9058,31 +9103,64 @@ function lancerCompteADuo(){
 }
 function lancerMancheDuo(){
   DUO.manche++;
-  DUO.cible = nouvelleCibleDuo(DUO.reglages[DUO.mode].diff === 'hard');
   DUO.ecarts = [null, null];
   if(DUO.mode === 'classique'){
     // à tour de rôle : une manche sur deux pour chacun, chrono unique lancé
-    // tout seul (comme le vrai Classique soirée), l'autre ne fait que voir
+    // tout seul (comme le vrai Classique soirée), l'autre ne fait que voir.
+    // La cible ne se tire jamais au sort ici : elle suit le chrono continu,
+    // toujours la prochaine seconde pleine à partir de DUO.total.
     DUO.tourActif = DUO.manche % 2 === 1 ? 0 : 1;
+    DUO.cible = cibleSuivanteDuo(DUO.total);
     DUO.t0 = [undefined, undefined]; DUO.t0[DUO.tourActif] = performance.now();
     DUO.phase = 'jeu'; construireDuo();
     boucleChronoClassique();
   } else {
-    // duel : personne ne part tout seul, chacun lance son propre chrono
+    // duel : cible tirée au sort à chaque manche, personne ne part tout
+    // seul, chacun lance son propre chrono
+    DUO.cible = nouvelleCibleDuo(DUO.reglages.duel.diff === 'hard');
     DUO.t0 = [undefined, undefined];
     DUO.phase = 'jeu'; construireDuo();
   }
 }
 function verifierFinMancheDuo(){
   if(DUO.mode === 'classique'){
-    // une seule manche = un seul joueur qui joue ; pile/frôlé font boire
-    // l'ADVERSAIRE, un raté fait boire le joueur lui-même
-    const j = DUO.tourActif, autre = 1 - j;
-    const v = evaluerClassiqueDuo(DUO.ecarts[j]);
-    DUO.scores[j] += v.pts;
-    if(v.code === 'pile') DUO.culs[autre]++;
-    else if(v.code === 'frole') DUO.gorgees[autre] += v.gorgees;
-    else if(v.code === 'rate') DUO.gorgees[j] += v.gorgees;
+    const j = DUO.tourActif, autre = 1 - j, gor = DUO.reglages.classique.gor;
+    // le cumul avance TOUJOURS sur la valeur réellement atteinte, riposte ou
+    // pas — comme S.total dans le jeu principal, jamais remis à zéro ici
+    DUO.total = DUO.ecarts[j] + DUO.cible;
+    if(DUO.contre > 0){
+      // ce joueur ripostait : un nouveau pile fait rebondir (et grossir) le
+      // défi vers l'autre, tout le reste le lui fait perdre — il boit le
+      // cumul de culs secs et la riposte retombe à zéro
+      if(DUO.ecarts[j] === 0){
+        DUO.contre++;
+        DUO.dernierVerdict = {code:'contre', libelle:'Contré !', couleur:'t-s100',
+          cible:autre, montant:DUO.contre, unite:'culs', pendant:true};
+      } else {
+        DUO.culs[j] += DUO.contre;
+        DUO.dernierVerdict = {code:'rate-riposte', libelle:'Riposte manquée', couleur:'t-signal',
+          cible:j, montant:DUO.contre, unite:'culs', pendant:false};
+        DUO.contre = 0;
+      }
+    } else {
+      const v = evaluerClassiqueDuo(DUO.ecarts[j]);
+      if(v.code === 'pile'){
+        DUO.contre = 1;
+        DUO.dernierVerdict = {code:'pile', libelle:v.libelle, couleur:v.couleur,
+          cible:autre, montant:1, unite:'culs', pendant:true};
+      } else if(v.code === 'frole'){
+        DUO.gorgees[autre] += v.gorgees;
+        DUO.dernierVerdict = {code:'frole', libelle:v.libelle, couleur:v.couleur,
+          cible:autre, montant:v.gorgees, unite:'gorgees', pendant:false};
+      } else if(v.code === 'sauf'){
+        DUO.dernierVerdict = {code:'sauf', libelle:v.libelle, couleur:v.couleur,
+          cible:null, montant:0, unite:'gorgees', pendant:false};
+      } else {
+        DUO.gorgees[j] += v.gorgees;
+        DUO.dernierVerdict = {code:'rate', libelle:v.libelle, couleur:v.couleur,
+          cible:j, montant:v.gorgees, unite:'gorgees', pendant:false};
+      }
+    }
   } else {   // duel : la manche va au plus proche des deux ; égalité = personne ne marque
     const egalite = Math.abs(DUO.ecarts[0]) === Math.abs(DUO.ecarts[1]);
     if(!egalite) DUO.scores[Math.abs(DUO.ecarts[0]) < Math.abs(DUO.ecarts[1]) ? 0 : 1]++;
@@ -9108,11 +9186,17 @@ function resumeGorgeesDuo(i){
 // des deux côtés (voir boucleChronoClassique) — seul l'état diffère : le
 // joueur actif doit toucher pour arrêter, l'autre ne fait que regarder.
 function corpsJeuClassiqueDuo(i){
-  const actif = i === DUO.tourActif;
+  const actif = i === DUO.tourActif, gor = DUO.reglages.classique.gor;
+  // le chiffre part de DUO.total, pas de 0,00 (voir boucleChronoClassique) ;
+  // une riposte en cours s'affiche en plus, des deux côtés, pour que
+  // l'enjeu du tour soit clair avant même que le résultat tombe
+  const defi = DUO.contre > 0
+    ? '<div class="duo-boit">Riposte · ' + culsDuo(DUO.contre, gor) + ' en jeu</div>' : '';
   return '<div class="duo-cible">' + fmt(DUO.cible) + '</div>'
-    + '<div class="f-chrono duo-chrono" id="duo-chrono-' + i + '">0,00</div>'
+    + '<div class="f-chrono duo-chrono" id="duo-chrono-' + i + '">' + fmt(DUO.total) + '</div>'
     + '<div class="duo-etat">' + (actif ? 'Touchez pour arrêter'
-        : (esc(DUO.noms[DUO.tourActif] || 'L\'autre') + ' joue…')) + '</div>';
+        : (esc(DUO.noms[DUO.tourActif] || 'L\'autre') + ' joue…')) + '</div>'
+    + defi;
 }
 // corps de la phase 'jeu' en Duel : chaque moitié suit son propre état —
 // pas encore lancé (à l'aveugle mais chiffre pas encore parti), lancé
@@ -9125,31 +9209,36 @@ function corpsJeuDuelDuo(i){
     + '<div class="duo-etat">' + (fini ? 'Joué · en attente…' : (lance ? 'Touchez pour arrêter' : 'Touchez pour lancer votre chrono')) + '</div>';
 }
 // corps de la phase 'resultat' en Classique : un seul joueur a joué cette
-// manche (DUO.tourActif) — l'autre voit ce que son adversaire lui a fait boire
+// manche (DUO.tourActif) — le verdict structuré posé par verifierFinMancheDuo
+// (DUO.dernierVerdict) dit qui doit boire quoi, riposte en cours comprise ;
+// seule la formulation (« vous » ou le prénom de l'autre) change selon la
+// moitié qui l'affiche.
 function corpsResultatClassiqueDuo(i){
-  const j = DUO.tourActif, aJoue = i === j;
-  const v = evaluerClassiqueDuo(DUO.ecarts[j]);
-  const boit = [];
-  if(aJoue){
-    if(v.code === 'rate') boit.push('vous buvez ' + gorg(v.gorgees));
-  } else {
-    if(v.code === 'pile') boit.push(nomCulSecDuo(DUO.reglages.classique.gor) + ' !');
-    else if(v.code === 'frole') boit.push('vous buvez ' + gorg(v.gorgees));
-  }
-  return '<div class="duo-verdict ' + v.couleur + '">' + v.libelle + '</div>'
+  const j = DUO.tourActif, v = DUO.dernierVerdict, gor = DUO.reglages.classique.gor;
+  const montant = v.unite === 'culs' ? culsDuo(v.montant, gor) : gorg(v.montant);
+  let texte;
+  if(v.cible === null) texte = 'Personne ne boit';
+  else if(v.cible === i) texte = v.pendant ? 'Vous devez ' + montant + ' — ou riposte' : 'Vous buvez ' + montant;
+  else texte = esc(DUO.noms[v.cible] || 'L\'autre')
+    + (v.pendant ? ' doit ' + montant + ' — ou riposte' : ' boit ' + montant);
+  return '<div class="duo-verdict ' + v.couleur + '">' + esc(v.libelle) + '</div>'
     + '<div class="duo-ecart">' + signe(DUO.ecarts[j]) + fmt(Math.abs(DUO.ecarts[j])) + '</div>'
-    + '<div class="duo-etat">' + (aJoue ? '+' + v.pts + ' points' : esc((DUO.noms[j] || 'L\'autre')) + ' a joué') + '</div>'
-    + (boit.length ? '<div class="duo-boit">' + esc(boit.join(' + ')) + '</div>' : '');
+    + '<div class="duo-etat">' + (i === j ? 'vous avez joué' : esc(DUO.noms[j] || 'l\'autre') + ' a joué') + '</div>'
+    + '<div class="duo-boit">' + texte + '</div>';
 }
 
 function construireDuo(){ renduMoitieDuo(0); renduMoitieDuo(1); }
 function renduMoitieDuo(i){
   const nom = DUO.noms[i] || ('Joueur ' + (i + 1)), autre = 1 - i;
+  // Classique n'a pas de points (comme le vrai mode soirée : on ne compte
+  // que qui boit quoi) — l'en-tête n'affiche donc que la manche en cours.
+  // Duel reste un score classique, le plus proche l'emporte.
+  const manche = Math.min(DUO.manche + (DUO.phase === 'attente' ? 1 : 0), DUO.manchesVisees)
+    + '/' + DUO.manchesVisees;
   const enteteMini = '<div class="duo-nom" style="color:' + coulHash(nom) + '">' + esc(nom) + '</div>'
-    + '<div class="duo-score-mini">' + DUO.scores[0] + ' – ' + DUO.scores[1]
-    + (DUO.mode === 'classique' ? ' pts' : '')
-    + ' · manche ' + Math.min(DUO.manche + (DUO.phase === 'attente' ? 1 : 0), DUO.manchesVisees)
-    + '/' + DUO.manchesVisees + '</div>';
+    + '<div class="duo-score-mini">' + (DUO.mode === 'classique'
+        ? 'Manche ' + manche
+        : DUO.scores[0] + ' – ' + DUO.scores[1] + ' · manche ' + manche) + '</div>';
   let corps;
   if(DUO.phase === 'attente'){
     corps = '<div class="duo-etat">' + (DUO.pret[i] ? 'Prêt ! En attente de l\'autre…' : 'Touchez pour dire prêt') + '</div>';
@@ -9168,12 +9257,18 @@ function renduMoitieDuo(i){
         + '<div class="duo-ecart">' + signe(DUO.ecarts[i]) + fmt(Math.abs(DUO.ecarts[i])) + '</div>'
         + '<div class="duo-etat">cible ' + fmt(DUO.cible) + '</div>';
     }
-  } else {   // fin
+  } else if(DUO.mode === 'classique'){
+    // pas de vainqueur en Classique — comme au vrai mode soirée, la partie
+    // se solde par ce que chacun a bu, pas par un score à comparer
+    corps = '<div class="duo-verdict">Fin de la partie</div>'
+      + '<div class="duo-etat">' + esc(resumeGorgeesDuo(i)) + '</div>'
+      + '<div class="recap-b"><button class="bouton duo-revanche">Revanche</button>'
+      + '<button class="bouton fantome duo-menu">Menu</button></div>';
+  } else {   // fin, duel : le plus proche de la cible l'emporte, score classique
     const nul = DUO.scores[i] === DUO.scores[autre], gagne = !nul && DUO.scores[i] > DUO.scores[autre];
     corps = '<div class="duo-verdict ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
       + (nul ? 'Match nul' : (gagne ? 'Victoire' : 'Défaite')) + '</div>'
       + '<div class="duo-score">' + DUO.scores[i] + ' – ' + DUO.scores[autre] + '</div>'
-      + (DUO.mode === 'classique' ? '<div class="duo-etat">' + esc(resumeGorgeesDuo(i)) + '</div>' : '')
       + '<div class="recap-b"><button class="bouton duo-revanche">Revanche</button>'
       + '<button class="bouton fantome duo-menu">Menu</button></div>';
   }
