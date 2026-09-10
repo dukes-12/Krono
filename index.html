@@ -123,9 +123,13 @@
 
 <!-- ═══ DUO · ÉCRAN MIROIR ═══ -->
 <section class="ecran" id="duo">
-  <div class="duo-moitie" id="duo-moitie-0"></div>
+  <!-- duo-moitie-0 est retournée (.duo-haut) : elle occupe le haut de
+       l'écran, mais doit se lire à l'endroit pour qui est assis à
+       l'opposé, au-delà de ce bord-là. duo-moitie-1, en bas, reste en
+       lecture normale — c'est elle qu'on voit droite sans se retourner. -->
+  <div class="duo-moitie duo-haut" id="duo-moitie-0"></div>
   <button class="duo-quitter" id="duo-quitter" aria-label="Quitter le Duo">×</button>
-  <div class="duo-moitie duo-bas" id="duo-moitie-1"></div>
+  <div class="duo-moitie" id="duo-moitie-1"></div>
 </section>
 
 <!-- ═══ FIN DE PARTIE ═══ -->

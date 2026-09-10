@@ -2791,16 +2791,26 @@ body,html[data-da] body{background-color:var(--nuit)}
 
 /* ─────────────────────────────────────────────────────────────────
    DUO LOCAL — écran miroir
-   Le bas est retourné à 180° : même geste, même cible, mais chacun lit
-   son propre chrono à l'endroit depuis son côté de la table. #app réserve
-   déjà les zones sûres en haut et en bas (body.jeu), donc rien d'autre à
-   calculer ici que le partage en deux moitiés égales.
-   ───────────────────────────────────────────────────────────────── */
-#duo{position:relative;display:flex;flex-direction:column;padding:0}
+   #app réserve déjà les zones sûres en haut et en bas (body.jeu) : rien
+   d'autre à calculer ici que le partage en deux moitiés égales.
+
+   .duo-haut se retourne à 180°, .duo-bas non : c'est la moitié du BAS,
+   en position de lecture normale, que voit sans se retourner qui regarde
+   le téléphone posé sur la table sans être assis en face. La moitié du
+   HAUT n'est droite que pour la personne assise au-delà du bord haut de
+   l'appareil, tournée vers celui du bas — d'où la rotation.
+   (Piège vécu : l'ID l'emporte sur la classe en spécificité CSS. Un
+   premier jet avait mis `display:flex` directement sur #duo, qui
+   l'emportait alors sur `.ecran{display:none}` — l'écran restait affiché
+   even hors service, empilé avec l'écran réellement actif. Le display
+   reste donc governé par .ecran/.ecran.actif seuls ; #duo ne pose plus
+   que des propriétés qui ne concurrencent aucune règle de visibilité.) */
+#duo{position:relative;padding:0}
+#duo.actif{flex-direction:column}
 .duo-moitie{flex:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:var(--e2);padding:var(--e4);text-align:center;
   min-height:0;touch-action:manipulation}
-.duo-bas{transform:rotate(180deg);border-top:1px solid var(--bordDoux)}
+.duo-haut{transform:rotate(180deg);border-bottom:1px solid var(--bordDoux)}
 .duo-nom{font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
 .duo-score-mini{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
   color:var(--gris);text-transform:uppercase}
@@ -2809,11 +2819,18 @@ body,html[data-da] body{background-color:var(--nuit)}
 .duo-etat{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
   color:var(--gris);text-transform:uppercase}
 .duo-cible{font-family:var(--mono);font-weight:500;
-  font-size:clamp(40px,15vw,64px);letter-spacing:-.03em;color:var(--laiton)}
-.duo-compte{font-family:var(--mono);font-weight:600;font-size:clamp(56px,20vw,90px);
+  font-size:clamp(28px,9vw,40px);letter-spacing:-.02em;color:var(--gris)}
+/* chrono qui défile en direct pendant la manche : même famille, même
+   couleur que le jeu principal (.f-chrono), mais une échelle réduite —
+   chaque moitié d'écran ne dispose qu'environ la moitié de la hauteur. */
+.duo-chrono{position:static;font-family:var(--mono);font-weight:500;
+  font-size:clamp(38px,13vw,58px);letter-spacing:-.03em;color:var(--laiton);
+  line-height:1;transform:none;top:auto;left:auto}
+.duo-chrono.repos{color:var(--gris)}
+.duo-compte{font-family:var(--mono);font-weight:600;font-size:clamp(48px,16vw,72px);
   color:var(--laiton)}
-.duo-verdict{font-size:22px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.duo-ecart{font-family:var(--mono);font-size:26px;font-weight:600}
+.duo-verdict{font-size:20px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.duo-ecart{font-family:var(--mono);font-size:22px;font-weight:600}
 .duo-score{font-family:var(--mono);font-size:clamp(32px,12vw,48px);
   font-weight:500;letter-spacing:-.02em}
 /* un « × » est le seul symbole qui se lit pareil après une rotation de

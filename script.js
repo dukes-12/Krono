@@ -8786,15 +8786,25 @@ async function construireHistoriqueDuels(){
 }
 
 /* ════════ DUO LOCAL · ÉCRAN MIROIR ════════
-   Deux joueurs, un seul téléphone posé à plat sur la table : la moitié du
-   bas est retournée à 180° pour se lire à l'endroit depuis l'autre côté,
-   comme un plateau de jeu de société. Aucun réseau ne s'interpose entre
-   les deux appuis — chacun vise la même cible, mesurée par l'horloge de
-   CE téléphone, donc plus juste qu'un duel à distance. Pensé pour
-   enchaîner les manches au bar : un seul geste « prêt » de chaque côté
-   avant la première, puis un décompte partagé relance chaque manche
-   suivante sans rien retaper. nouvelleCibleDuel() est celle déjà écrite
-   pour le duel à distance — même tirage, un seul endroit à changer. */
+   Deux joueurs, un seul téléphone posé à plat sur la table : la moitié
+   du HAUT est retournée à 180°, pour que le joueur assis de l'autre côté
+   — au-delà du bord haut de l'appareil, tourné vers celui du bas — la
+   lise à l'endroit depuis son propre siège. Celui du bas, en position de
+   lecture normale, n'a besoin d'aucune rotation : c'est cette moitié-là
+   qui doit rester lisible tête droite pour qui regarde le téléphone sans
+   le retourner. (D'où le nom des classes, .duo-haut / .duo-bas : elles
+   décrivent la position physique à l'écran, pas l'orientation du texte.)
+
+   Le jeu lui-même reprend Classique tel quel — même cible, même chrono
+   qui défile en direct (boucleChronoDuo, calqué sur boucleChiffres), même
+   barème de points (evaluerDuo, calqué sur evaluer) — simplement rejoué
+   deux fois en parallèle, une fois par moitié d'écran, chacune sur son
+   propre appui. Aucun réseau ne s'interpose : chaque chrono est mesuré
+   par l'horloge de CE téléphone, donc plus juste qu'un duel à distance.
+   Un seul geste « prêt » de chaque côté avant la première manche, puis un
+   décompte partagé relance chaque manche suivante sans rien retaper —
+   pour enchaîner vite, au bar. nouvelleCibleDuel() est celle déjà écrite
+   pour le duel à distance : même tirage, un seul endroit à changer. */
 const MANCHES_DUO = [3, 5, 7];
 const DUO = {
   noms:['',''], manchesVisees:5, manche:0, scores:[0, 0],
@@ -8802,6 +8812,20 @@ const DUO = {
   ecarts:[null, null], verrou:[0, 0],   // même garde-fou que le jeu principal : 120 ms anti-rebond
   phase:'attente'   // attente → compte → jeu → resultat → (compte…) → fin
 };
+
+// Barème de Classique (pile 100, frôlé ≤3 centièmes 50, zone sûre 20, hors
+// zone 0), mais indépendant de CFG/S : la zone du jeu principal peut varier
+// avec le mode ou le tour en cours (S.zoneTour), or le Duo n'est ni l'un ni
+// l'autre. La zone de base « visible · simple » (SAUF.visible.simple) est
+// une constante, pas un réglage — aucun risque qu'une partie précédente
+// laisse une valeur périmée derrière elle.
+function evaluerDuo(ecart){
+  const a = Math.abs(ecart);
+  if(a === 0) return {code:'pile', libelle:'Pile !', couleur:'t-s100', pts:100};
+  if(a <= PRES) return {code:'frole', libelle:'Frôlé !', couleur:'t-s50', pts:50};
+  if(a <= SAUF.visible.simple) return {code:'sauf', libelle:'Zone sûre', couleur:'t-s20', pts:20};
+  return {code:'rate', libelle:'Hors zone', couleur:'t-signal', pts:0};
+}
 
 function ouvrirDuo(){
   const recents = (MEM.joueurs || []).filter(Boolean);
@@ -8819,7 +8843,7 @@ $('duoj-commencer').onclick = () => {
 
 async function demarrerDuo(){
   const n = await choisir('Combien de manches ?',
-    'La partie se joue en manches fixes — la plus proche de la cible en gagne une.',
+    'Même cible, même chrono, chacun sur sa moitié d\'écran — comme en Classique, à deux en même temps.',
     MANCHES_DUO.map(m => ({label:m + ' manches', val:m})));
   if(!n) return;
   DUO.manchesVisees = n; DUO.manche = 0; DUO.scores = [0, 0];
@@ -8848,11 +8872,25 @@ function gererTapDuo(i, ev){
   if(DUO.phase !== 'jeu' || DUO.ecarts[i] !== null) return;   // rien à faire hors round, ou déjà joué
   if(DUO.t0[i] === undefined){
     DUO.t0[i] = t; vibrer(10); renduMoitieDuo(i);
+    requestAnimationFrame(() => boucleChronoDuo(i));
   } else {
     DUO.ecarts[i] = enCentiemes(t - DUO.t0[i]) - DUO.cible;
     vibrer(10); renduMoitieDuo(i);
     if(DUO.ecarts[0] !== null && DUO.ecarts[1] !== null) verifierFinMancheDuo();
   }
+}
+
+// défilement en direct du chrono d'une moitié, tant que son propre appui
+// tourne — calqué sur boucleChiffres(), mais lu sur DUO.t0[i] plutôt que
+// sur S.t0 : les deux appuis avancent en parallèle, chacun sa boucle.
+// Aucun nettoyage explicite à prévoir : elle s'arrête d'elle-même dès que
+// l'appui est joué (ecarts[i] posé) ou que la manche change (t0 remis à
+// undefined dans lancerMancheDuo), exactement comme boucleChiffres().
+function boucleChronoDuo(i){
+  if(DUO.phase !== 'jeu' || DUO.t0[i] === undefined || DUO.ecarts[i] !== null) return;
+  const C = document.getElementById('duo-chrono-' + i);
+  if(C) C.textContent = fmt(enCentiemes(performance.now() - DUO.t0[i]));
+  requestAnimationFrame(() => boucleChronoDuo(i));
 }
 
 function lancerCompteADuo(){
@@ -8871,8 +8909,11 @@ function lancerMancheDuo(){
   DUO.phase = 'jeu'; construireDuo();
 }
 function verifierFinMancheDuo(){
-  const egalite = Math.abs(DUO.ecarts[0]) === Math.abs(DUO.ecarts[1]);
-  if(!egalite) DUO.scores[Math.abs(DUO.ecarts[0]) < Math.abs(DUO.ecarts[1]) ? 0 : 1]++;
+  // chacun marque ses propres points, comme deux Classique joués côte à
+  // côte sur la même cible : pas de manche « gagnée », un score qui
+  // s'additionne des deux côtés à chaque tour.
+  DUO.scores[0] += evaluerDuo(DUO.ecarts[0]).pts;
+  DUO.scores[1] += evaluerDuo(DUO.ecarts[1]).pts;
   DUO.phase = 'resultat'; construireDuo();
   setTimeout(() => {
     if(DUO.manche >= DUO.manchesVisees){ DUO.phase = 'fin'; construireDuo(); }
@@ -8893,15 +8934,17 @@ function renduMoitieDuo(i){
   } else if(DUO.phase === 'compte'){
     corps = '<div class="duo-compte">' + esc(DUO.compteVal) + '</div>';
   } else if(DUO.phase === 'jeu'){
+    const enCours = DUO.t0[i] !== undefined && DUO.ecarts[i] === null;
     corps = '<div class="duo-cible">' + fmt(DUO.cible) + '</div>'
+      + '<div class="f-chrono duo-chrono' + (enCours ? '' : ' repos') + '" id="duo-chrono-' + i + '">'
+      + (enCours ? fmt(0) : '0,00') + '</div>'
       + '<div class="duo-etat">' + (DUO.ecarts[i] !== null ? 'Joué · en attente…'
-        : DUO.t0[i] !== undefined ? 'Touchez pour arrêter' : 'Touchez pour démarrer') + '</div>';
+        : enCours ? 'Touchez pour arrêter' : 'Touchez pour démarrer') + '</div>';
   } else if(DUO.phase === 'resultat'){
-    const egalite = Math.abs(DUO.ecarts[i]) === Math.abs(DUO.ecarts[autre]);
-    const gagne = !egalite && Math.abs(DUO.ecarts[i]) < Math.abs(DUO.ecarts[autre]);
-    corps = '<div class="duo-verdict ' + (egalite ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
-      + (egalite ? 'Égalité' : (gagne ? 'Manche gagnée' : 'Manche perdue')) + '</div>'
-      + '<div class="duo-ecart">' + signe(DUO.ecarts[i]) + fmt(Math.abs(DUO.ecarts[i])) + '</div>';
+    const v = evaluerDuo(DUO.ecarts[i]);
+    corps = '<div class="duo-verdict ' + v.couleur + '">' + v.libelle + '</div>'
+      + '<div class="duo-ecart">' + signe(DUO.ecarts[i]) + fmt(Math.abs(DUO.ecarts[i])) + '</div>'
+      + '<div class="duo-etat">+' + v.pts + ' points</div>';
   } else {   // fin
     const nul = DUO.scores[i] === DUO.scores[autre], gagne = !nul && DUO.scores[i] > DUO.scores[autre];
     corps = '<div class="duo-verdict ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
