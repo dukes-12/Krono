@@ -121,6 +121,56 @@
   </div>
 </section>
 
+<!-- ═══ DUO · CHOIX DU JEU ═══ -->
+<section class="ecran" id="duo-mode">
+  <div class="entete">
+    <div class="marque"><h1>DUO</h1><span>quel jeu ?</span></div>
+    <div class="nav"><button id="duom-retour">Joueurs</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile" id="duom-liste"></div>
+</section>
+
+<!-- ═══ DUO · RÉGLAGES DU MODE CHOISI ═══ -->
+<section class="ecran" id="duo-reglages">
+  <div class="entete">
+    <div class="marque"><h1 id="duor-titre">MODE</h1><span id="duor-sous">—</span></div>
+    <div class="nav"><button id="duor-retour">Modes</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="note" id="duor-regle">—</div>
+    <div class="bloc">
+      <div class="eyebrow">Manches</div>
+      <div class="seg" id="duor-manches">
+        <button data-v="3" aria-pressed="false">3 manches</button>
+        <button data-v="5" aria-pressed="true">5 manches</button>
+        <button data-v="7" aria-pressed="false">7 manches</button>
+      </div>
+    </div>
+    <div class="bloc">
+      <div class="eyebrow">Difficulté</div>
+      <div class="seg" id="duor-diff">
+        <button data-v="simple" aria-pressed="true">Simple</button>
+        <button data-v="hard" aria-pressed="false">Hard</button>
+      </div>
+      <div class="note" id="duor-note-diff">—</div>
+    </div>
+    <div class="bloc" id="duor-bloc-gor">
+      <div class="eyebrow">Gorgées</div>
+      <div class="seg" id="duor-gor">
+        <button data-v="bar" aria-pressed="true">Bar</button>
+        <button data-v="appart" aria-pressed="false">Appart</button>
+        <button data-v="gros" aria-pressed="false">Gros buveur</button>
+      </div>
+      <div class="note">Une précision fait boire l'adversaire, un raté vous fait boire — comme en soirée.</div>
+    </div>
+    <div class="recap-b" style="margin-top:16px">
+      <button class="bouton" id="duor-commencer">Commencer</button>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ DUO · ÉCRAN MIROIR ═══ -->
 <section class="ecran" id="duo">
   <!-- duo-moitie-0 est retournée (.duo-haut) : elle occupe le haut de

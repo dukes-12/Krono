@@ -2818,6 +2818,9 @@ body,html[data-da] body{background-color:var(--nuit)}
   margin-top:var(--e3)}
 .duo-etat{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
   color:var(--gris);text-transform:uppercase}
+/* mode Classique · bar uniquement : qui boit quoi à l'issue de la manche */
+.duo-boit{font-family:var(--mono);font-size:12.5px;letter-spacing:.05em;
+  color:var(--signal);text-transform:uppercase}
 .duo-cible{font-family:var(--mono);font-weight:500;
   font-size:clamp(28px,9vw,40px);letter-spacing:-.02em;color:var(--gris)}
 /* chrono qui défile en direct pendant la manche : même famille, même
