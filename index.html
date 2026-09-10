@@ -305,6 +305,18 @@
       <button class="bouton fantome" id="pr-effacer-photo">Retirer la photo</button>
     </div>
 
+    <!-- Nudge d'installation : masqué par défaut, affiché par majEncartInstall()
+         seulement si l'app est installable et pas déjà installée/refusée
+         récemment (voir la section INSTALLATION PWA de script.js). -->
+    <div id="pr-install" style="display:none">
+      <div class="titre-sec">Installer l'app</div>
+      <div class="note" id="pr-install-texte">—</div>
+      <div class="recap-b">
+        <button class="bouton" id="pr-install-action" style="display:none">Installer</button>
+        <button class="bouton fantome" id="pr-install-fermer">Non merci</button>
+      </div>
+    </div>
+
     <div class="titre-sec">Historique des soirées</div>
     <div class="note">Retrouvez les classements de vos 10 dernières parties.</div>
     <div style="margin-top: 10px;">
@@ -642,6 +654,15 @@
         <button class="bouton" id="am-ajouter">+ ajouter un ami</button>
       </div>
 
+      <!-- classement centré sur ses amis, à côté du ligue-par-code déjà
+           existant : voir chargerClassementAmis() -->
+      <button class="nav-carte" id="am-classement-btn" style="margin-top:14px">
+        <span class="ic">📊</span>
+        <span class="txt"><span class="n">Classement entre amis</span>
+          <span class="d">Votre meilleur score face à ceux de vos amis, mode par mode.</span></span>
+        <span class="fl">›</span>
+      </button>
+
       <div id="am-recherche" style="display:none">
         <div class="eyebrow" style="margin-top:18px">Rechercher un pseudo</div>
         <div class="ligne-recherche">
@@ -660,6 +681,28 @@
       <div class="note" id="am-note">—</div>
       <div id="am-liste"></div>
     </div>
+  </div>
+</section>
+
+<!-- ═══ CLASSEMENT ENTRE AMIS ═══
+     Même principe qu'une ligue (meilleur score par compte, un mode à la
+     fois) mais sans code ni adhésion à gérer : la liste d'amis en tient
+     lieu. Voir chargerClassementAmis(). -->
+<section class="ecran" id="amis-classement">
+  <div class="entete">
+    <div class="marque"><h1>AMIS</h1><span>classement</span></div>
+    <div class="nav"><button id="amc-retour">Amis</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="seg" id="seg-amc" style="margin-bottom:8px"></div>
+    <div class="seg" id="seg-amc-diff" style="margin-bottom:8px">
+      <button data-v="tout" aria-pressed="true">Toutes</button>
+      <button data-v="simple" aria-pressed="false">Simple</button>
+      <button data-v="hard" aria-pressed="false">Hard</button>
+    </div>
+    <div class="note" id="amc-note">—</div>
+    <div id="amc-classement"></div>
   </div>
 </section>
 

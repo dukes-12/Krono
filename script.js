@@ -112,6 +112,7 @@ function trackEvent(eventName, eventParams = {}) {
     console.warn(`GA bloqué, événement ignoré : ${eventName}`, eventParams);
   }
 }
+
 /* ═══════════════════════════════════════════════════════════════
    MODE EN LIGNE — clés du projet Supabase.
    La clé ci-dessous est la clé « anon public » : elle est destinée à
@@ -3033,7 +3034,8 @@ function montrer(id, sansPile){
     // les écrans sans onglet propre (fiche, boutique, test…) n'allument aucun
     // onglet, mais la barre reste là pour repartir vers une grande section
     const onglet = id === 'ligue' ? 'ligues'
-      : id === 'profil-vs' ? (PROFIL_VS_RETOUR === 'amis' ? 'amis' : 'ligues')
+      : id === 'amis-classement' ? 'amis'
+      : id === 'profil-vs' ? (PROFIL_VS_RETOUR === 'ligue' ? 'ligues' : 'amis')
       : Object.keys(ONGLETS).find(k => ONGLETS[k] === id);
     B.querySelectorAll('.bb').forEach(b =>
       b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
@@ -7537,11 +7539,83 @@ function construireHistoriqueSoirees() {
     };
   });
 }
+
+/* ════════ INSTALLATION PWA ════════
+   beforeinstallprompt ne se déclenche que sur les navigateurs Chromium
+   (Chrome/Edge/Samsung Internet — desktop et Android) : Safari et Firefox
+   ne l'exposent jamais, et Chrome ne le redéclenche qu'après un moment
+   d'usage réel, jamais au tout premier chargement. iOS n'a d'ailleurs
+   AUCUN moyen programmatique d'installer : seul « Partager → Sur l'écran
+   d'accueil » existe, d'où l'encart d'instructions dédié ci-dessous plutôt
+   qu'un simple bouton. Tout le reste de l'app est pensé pour un usage
+   installé (verrouillage de portrait, plein écran, safe-area) : ce nudge
+   est la seule chose qui manquait pour vraiment y amener les joueurs. */
+let INSTALL_PROMPT = null;
+let installCardShown = false;   // pour ne tracker « affiché » qu'une fois par session
+const CLE_INSTALL = 'krono.install';
+const estIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+// navigator.standalone n'existe que sur iOS Safari ; display-mode:standalone
+// couvre Android/desktop une fois l'app effectivement lancée en autonome
+const dejaInstalle = () => navigator.standalone === true
+  || matchMedia('(display-mode: standalone)').matches;
+
+function lireInstallMem(){
+  try{ return JSON.parse(localStorage.getItem(CLE_INSTALL) || '{}'); }catch(e){ return {}; }
+}
+function ecrireInstallMem(m){ try{ localStorage.setItem(CLE_INSTALL, JSON.stringify(m)); }catch(e){} }
+
+addEventListener('beforeinstallprompt', ev => {
+  ev.preventDefault();   // on choisit nous-mêmes quand le proposer, pas le navigateur
+  INSTALL_PROMPT = ev;
+  majEncartInstall();
+});
+addEventListener('appinstalled', () => {
+  INSTALL_PROMPT = null;
+  ecrireInstallMem({...lireInstallMem(), installe:true});
+  majEncartInstall();
+});
+
+// appelée à l'ouverture de Profil (où vit l'encart) et une fois au
+// lancement pour couvrir le cas iOS, qui n'a pas d'événement à écouter
+function majEncartInstall(){
+  const bloc = $('pr-install');
+  if(!bloc) return;
+  const m = lireInstallMem();
+  const refuseRecemment = m.refuseLe && (Date.now() - m.refuseLe) < 30 * 86400000;
+  const visible = !dejaInstalle() && !m.installe && !refuseRecemment && (INSTALL_PROMPT || estIOS());
+  bloc.style.display = visible ? 'block' : 'none';
+  if(!visible) return;
+  if(!installCardShown){
+    installCardShown = true;
+    trackEvent('pwa_install_prompt_shown', {platform: estIOS() ? 'ios' : 'android'});
+  }
+  $('pr-install-texte').textContent = (estIOS() && !INSTALL_PROMPT)
+    ? 'Ouvrez le menu Partager (⬆️) puis « Sur l\'écran d\'accueil ».'
+    : 'Lancement plus rapide, plein écran, icône sur votre accueil.';
+  $('pr-install-action').style.display = INSTALL_PROMPT ? 'block' : 'none';
+}
+$('pr-install-action').onclick = async () => {
+  if(!INSTALL_PROMPT) return;
+  const prompt = INSTALL_PROMPT;
+  INSTALL_PROMPT = null;   // un seul essai par invite : Chrome ne la redonne pas tout de suite
+  prompt.prompt();
+  const choix = await prompt.userChoice;
+  trackEvent('pwa_install_prompt_result', {outcome:choix.outcome, platform:'android'});
+  if(choix.outcome === 'accepted') ecrireInstallMem({...lireInstallMem(), installe:true});
+  majEncartInstall();
+};
+$('pr-install-fermer').onclick = () => {
+  ecrireInstallMem({...lireInstallMem(), refuseLe:Date.now()});
+  trackEvent('pwa_install_prompt_result', {outcome:'dismissed', platform: estIOS() ? 'ios' : 'android'});
+  majEncartInstall();
+};
+
 async function construireProfil(){
+  majEncartInstall();
   const p = monPro();
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   let distant = null;
-  if(s){ 
+  if(s){
     try{ 
       distant = await monProfil(); 
       if(distant && distant.photo && !p.photo) p.photo = distant.photo;
@@ -8587,8 +8661,11 @@ async function chargerDefisDuel(moi){
       + '<span class="fl">›</span></button>';
   }).join('');
   [...L.children].forEach((el, i) => {
-    const d = lignes[i];
-    el.onclick = () => demarrerDuel(d.code, d.hote === moi, moi);
+    const d = lignes[i], jeSuisHote = d.hote === moi;
+    el.onclick = () => {
+      if(!jeSuisHote) trackEvent('duel_joined', {source:'direct'});
+      demarrerDuel(d.code, jeSuisHote, moi);
+    };
   });
 }
 
@@ -8605,6 +8682,7 @@ async function creerDuelSalle(manches, cible){
       const corps = {code, hote:s.id, hote_pseudo:pseudo, manches_visees:manches};
       if(cible){ corps.adversaire = cible.id; corps.adversaire_pseudo = cible.pseudo; }
       await apiAuth('duels', {method:'POST', body:JSON.stringify(corps)});
+      trackEvent('duel_challenge_created', {source:cible ? 'direct' : 'code', manches});
       demarrerDuel(code, true, s.id);
       return code;
     }catch(e){
@@ -8648,6 +8726,7 @@ async function rejoindreDuelSalle(code, s){
                                  : 'Aucun duel ne porte ce code. Vérifiez la saisie.',
         [{label:'Fermer', val:true}]);
     }
+    trackEvent('duel_joined', {source:'code'});
     demarrerDuel(code, false, s.id);   // gère déjà la navigation et le sondage
   }catch(e){
     choisir('Impossible de rejoindre', messageCompte(e), [{label:'Fermer', val:true}]);
@@ -8814,6 +8893,9 @@ function renduResultatManche(lignes){
 function renduFinDuel(d){
   const mesManches = DUEL.hote ? d.manches_j1 : d.manches_j2, sesManches = DUEL.hote ? d.manches_j2 : d.manches_j1;
   const nul = mesManches === sesManches, gagne = !nul && mesManches > sesManches;
+  // afficherVueDuel() ne rappelle cette fonction qu'une fois par duel (dédoublonné
+  // sur DUEL.vue), pas à chaque tick de sondage — un trackEvent ici ne se répète pas
+  trackEvent('duel_finished', {result: nul ? 'draw' : (gagne ? 'win' : 'lose')});
   $('duel-jeu').innerHTML =
     '<div class="duel-verdict ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
     + (nul ? 'Match nul' : (gagne ? 'Duel gagné' : 'Duel perdu')) + '</div>'
@@ -8972,6 +9054,7 @@ async function envoyerDemandeAmi(p, moi, bouton){
   try{
     await apiAuth('amis', {method:'POST', body:JSON.stringify({demandeur:moi, destinataire:p.id})});
     vibrer(10);
+    trackEvent('friend_request_sent');
     if(bouton){ bouton.disabled = true; bouton.textContent = 'Envoyée'; }
     if(PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.id === p.id) majBoutonAmi(p.id, moi);
   }catch(e){ choisir('Impossible d\'ajouter', messageCompte(e), [{label:'Fermer', val:true}]); }
@@ -8981,6 +9064,7 @@ async function accepterAmi(demandeurId, moi){
     await apiAuth('amis?demandeur=eq.' + demandeurId + '&destinataire=eq.' + moi,
       {method:'PATCH', body:JSON.stringify({statut:'accepte'})});
     vibrer(10);
+    trackEvent('friend_request_accepted');
     if($('amis').classList.contains('actif')) chargerAmis();
     if(PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.id === demandeurId) majBoutonAmi(demandeurId, moi);
   }catch(e){ choisir('Impossible d\'accepter', messageCompte(e), [{label:'Fermer', val:true}]); }
@@ -8994,19 +9078,122 @@ async function refuserAmi(demandeurId, moi){
 async function supprimerAmi(demandeurId, destinataireId){
   try{
     await apiAuth('amis?demandeur=eq.' + demandeurId + '&destinataire=eq.' + destinataireId, {method:'DELETE'});
+    trackEvent('friend_removed');
     chargerAmis();
   }catch(e){ choisir('Impossible de retirer', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+
+/* ════════ CLASSEMENT ENTRE AMIS ════════
+   Même principe que le classement d'une ligue (chargerClassement) — meilleur
+   score par compte, un mode à la fois — mais la liste d'amis tient lieu
+   d'effectif : pas de code, pas d'adhésion à gérer. Chaque ligne (hors la
+   sienne) ouvre la même fiche comparée que Ligue et Amis. */
+let AMC_MODE = 'scoring', AMC_DIFF = 'tout';
+$('am-classement-btn').onclick = () => ouvrirClassementAmis();
+$('amc-retour').onclick = () => montrer('amis');
+async function ouvrirClassementAmis(){
+  $('seg-amc').innerHTML = modesLigue().map(id => {
+    const m = SOLOS.find(s => s.id === id) || {n:id};
+    return `<button data-v="${id}" aria-pressed="${id === AMC_MODE}">${esc(m.n)}</button>`;
+  }).join('');
+  $('seg-amc').querySelectorAll('button').forEach(b => b.onclick = () => {
+    AMC_MODE = b.dataset.v;
+    $('seg-amc').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    chargerClassementAmis();
+  });
+  $('seg-amc-diff').querySelectorAll('button').forEach(b => b.onclick = () => {
+    AMC_DIFF = b.dataset.v;
+    $('seg-amc-diff').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    chargerClassementAmis();
+  });
+  montrer('amis-classement');
+  trackEvent('friends_leaderboard_view');
+  await chargerClassementAmis();
+}
+async function chargerClassementAmis(){
+  const C = $('amc-classement');
+  C.innerHTML = '';
+  $('amc-note').textContent = 'Chargement…';
+  try{
+    const s = await rafraichirSession();
+    if(!s) throw new Error('Aucune session.');
+    const rows = await apiAuth('amis?statut=eq.accepte&or=(demandeur.eq.' + s.id + ',destinataire.eq.' + s.id + ')'
+      + '&select=demandeur,destinataire,'
+      + 'profils_demandeur:profils!fk_amis_demandeur_profils(id,pseudo,tag,photo),'
+      + 'profils_destinataire:profils!fk_amis_destinataire_profils(id,pseudo,tag,photo)') || [];
+    const amis = rows.map(r => r.demandeur === s.id ? r.profils_destinataire : r.profils_demandeur);
+    const moi = {id:s.id, pseudo:monPseudo(), tag:null, photo:monPro().photo || null};
+    const membres = [moi, ...amis];
+    if(!amis.length){
+      $('amc-note').textContent = 'Aucun ami pour l\'instant.';
+      C.innerHTML = carteVide('👥', 'Ajoutez des amis pour lancer ce classement.');
+      return;
+    }
+    const ids = membres.map(m => m.id);
+    let perfs = await apiAuth('perfs?mode=eq.' + AMC_MODE
+      + '&joueur=in.(' + ids.join(',') + ')&select=joueur,score,tours,somme,config') || [];
+    if(AMC_DIFF !== 'tout')
+      perfs = perfs.filter(p => (p.config || '').split('·')[1] === AMC_DIFF);
+    const par = {};
+    perfs.forEach(p => {
+      const e = par[p.joueur] = par[p.joueur] || {score:0, parties:0, somme:0, tours:0};
+      e.score = Math.max(e.score, p.score || 0);
+      e.parties++; e.somme += (p.somme || 0); e.tours += (p.tours || 0);
+    });
+    const rangs = membres.map(m => ({
+      id:m.id, nom:m.pseudo || 'Sans pseudo', tag:m.tag, photo:m.photo,
+      ...(par[m.id] || {score:0, parties:0, somme:0, tours:0})
+    })).sort((a, b) => b.score - a.score);
+    const mode = SOLOS.find(x => x.id === AMC_MODE) || {n:AMC_MODE};
+    // « joues » compte tout le monde affiché, vous compris — donc le
+    // dénominateur doit être membres.length (vous + amis), pas amis.length
+    // seul, sinon le compte ne correspond plus (ex. "2 sur 1")
+    const joues = rangs.filter(r => r.parties).length;
+    $('amc-note').textContent = mode.n + ' · meilleure partie de chacun · '
+      + joues + ' membre' + (joues > 1 ? 's' : '') + ' sur ' + membres.length
+      + ' ' + (joues > 1 ? 'ont' : 'a') + ' joué ce mode.';
+    C.innerHTML = rangs.map((r, i) => {
+      const prec = r.tours ? fmt(Math.round(r.somme / r.tours)) : null;
+      const st = r.parties
+        ? r.parties + ' partie' + (r.parties > 1 ? 's' : '') + (prec ? ' · précision ± ' + prec : '')
+        : "n'a pas encore joué ce mode";
+      const coul = coulHash(r.nom || '?');
+      const av = r.photo ? `<img src="${r.photo}">`
+        : `<span style="color:${coul}">${esc((r.nom || '?')[0].toUpperCase())}</span>`;
+      const nomAff = `<span style="color:${coul}">${esc(r.nom)}</span>`
+        + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
+      const moiCette = r.id === s.id;
+      return `<div class="lg-rang${moiCette ? ' moi' : ' cliquable'}">
+        <span class="p">${r.parties ? i + 1 : '—'}</span>
+        <span class="lg-av" style="border-color:${coul}66">${av}</span>
+        <span class="n">${nomAff}</span>
+        <span class="s">${r.parties ? r.score : '·'}</span>
+        <span class="st">${st}</span>
+      </div>`;
+    }).join('');
+    [...C.children].forEach((el, i) => {
+      const r = rangs[i];
+      if(r.id === s.id) return;
+      el.onclick = () => ouvrirProfilVs({id:r.id, pseudo:r.nom, tag:r.tag, photo:r.photo}, 'amis-classement');
+    });
+  }catch(e){
+    $('amc-note').textContent = messageCompte(e);
+    C.innerHTML = carteVide('⚠️', messageCompte(e), true);
+    const r = $('cl-vide-retry');
+    if(r) r.onclick = () => chargerClassementAmis();
+  }
 }
 
 /* ════════ PROFIL COMPARÉ ════════
    Un seul écran (#profil-vs) pour deux points d'entrée — une ligne de
    classement de ligue, ou un ami dans l'onglet Amis — chacun renvoyant vers
    son écran d'origine (PROFIL_VS_RETOUR) plutôt qu'un retour générique. */
-let PROFIL_VS_RETOUR = 'ligue';   // où revenir : 'ligue' ou 'amis'
+let PROFIL_VS_RETOUR = 'ligue';   // où revenir : 'ligue', 'amis' ou 'amis-classement'
 let PROFIL_VS_CIBLE = null;       // {id, pseudo, tag, photo} actuellement affiché
 
 async function ouvrirProfilVs(p, retour){
   PROFIL_VS_RETOUR = retour; PROFIL_VS_CIBLE = p;
+  trackEvent('player_profile_view', {source:retour});
   const coul = coulHash(p.pseudo || '?');
   $('pv-titre').textContent = (p.pseudo || 'JOUEUR').toUpperCase();
   $('pv-tag').textContent = p.tag ? '#' + p.tag : '—';
@@ -9025,7 +9212,9 @@ async function ouvrirProfilVs(p, retour){
 }
 $('pv-retour').onclick = () => {
   if(PROFIL_VS_RETOUR === 'amis') ouvrirAmis();
-  else montrer('ligue');   // LG_COURANTE et le classement déjà construit restent affichés tels quels
+  // amis-classement et ligue gardent tous deux leur liste déjà construite :
+  // un simple montrer() suffit, pas besoin de tout recharger
+  else montrer(PROFIL_VS_RETOUR === 'amis-classement' ? 'amis-classement' : 'ligue');
 };
 $('pv-defier').onclick = () => {
   if(PROFIL_VS_CIBLE) parcoursDefierAmi({id:PROFIL_VS_CIBLE.id, pseudo:PROFIL_VS_CIBLE.pseudo});
@@ -9265,7 +9454,10 @@ function construireDuoModes(){
     d.className = 'evt choisir' + (DUO.mode === m.id ? ' actif' : '');
     d.innerHTML = '<span class="coche">choisi</span><div class="n">' + esc(m.n) + '</div>'
       + '<div class="d">' + esc(m.d) + '</div>';
-    d.onclick = () => { DUO.mode = m.id; construireDuoReglages(); montrer('duo-reglages'); };
+    d.onclick = () => {
+      DUO.mode = m.id; construireDuoReglages(); montrer('duo-reglages');
+      trackEvent('duo_mode_selected', {mode:m.id});
+    };
     L.appendChild(d);
   });
   // Duel à distance : déplacé ici depuis Profil, sur le même écran de choix
@@ -9319,6 +9511,7 @@ $('duor-commencer').onclick = () => {
   reinitialiserMatchDuo();
   montrer('duo');
   construireDuo();
+  trackEvent('duo_match_start', {mode:DUO.mode, manches:DUO.manchesVisees});
 };
 // remise à zéro d'un match : au premier lancement comme à chaque revanche —
 // les réglages en cours (mode compris) restent tels quels, eux
@@ -9462,7 +9655,10 @@ function verifierFinMancheDuo(){
   setTimeout(() => {
     // manchesVisees=0 = ∞ (comme CFG.maxTours=0 en solo) : jamais de fin
     // automatique, seul « Quitter » y met un terme
-    if(DUO.manchesVisees && DUO.manche >= DUO.manchesVisees){ DUO.phase = 'fin'; construireDuo(); }
+    if(DUO.manchesVisees && DUO.manche >= DUO.manchesVisees){
+      DUO.phase = 'fin'; construireDuo();
+      trackEvent('duo_match_end', {mode:DUO.mode, manches:DUO.manche});
+    }
     else lancerMancheDuo();
   }, 1800);
 }
