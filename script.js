@@ -9514,6 +9514,7 @@ function corpsJeuDuelDuo(i){
 function corpsResultatClassiqueDuo(i){
   const j = DUO.tourActif, v = DUO.dernierVerdict, gor = DUO.reglages.classique.gor;
   const montant = v.unite === 'culs' ? culsDuo(v.montant, gor) : gorg(v.montant);
+  const valeurAtteinte = DUO.ecarts[j] + DUO.cible;   // le chiffre réellement affiché, pas seulement l'écart
   let texte;
   if(v.cible === null) texte = 'Personne ne boit';
   else if(v.cible === i) texte = v.pendant ? 'Vous devez ' + montant + ' — ou riposte' : 'Vous buvez ' + montant;
@@ -9521,6 +9522,7 @@ function corpsResultatClassiqueDuo(i){
     + (v.pendant ? ' doit ' + montant + ' — ou riposte' : ' boit ' + montant);
   return '<div class="duo-verdict ' + v.couleur + '">' + esc(v.libelle) + '</div>'
     + '<div class="duo-ecart">' + signe(DUO.ecarts[j]) + fmt(Math.abs(DUO.ecarts[j])) + '</div>'
+    + '<div class="duo-duree">à tenir <b>' + fmt(DUO.cible) + '</b> · tenu <b>' + fmt(valeurAtteinte) + '</b></div>'
     + '<div class="duo-etat">' + (i === j ? 'vous avez joué' : esc(DUO.noms[j] || 'l\'autre') + ' a joué') + '</div>'
     + '<div class="duo-boit">' + texte + '</div>';
 }
@@ -9550,10 +9552,14 @@ function renduMoitieDuo(i){
     } else {
       const egalite = Math.abs(DUO.ecarts[i]) === Math.abs(DUO.ecarts[autre]);
       const gagne = !egalite && Math.abs(DUO.ecarts[i]) < Math.abs(DUO.ecarts[autre]);
+      // le chrono restait caché pendant la manche (à l'aveugle) : la révélation
+      // montre maintenant ce que chacun a réellement arrêté, pas seulement l'écart
+      const mienne = DUO.ecarts[i] + DUO.cible, sienne = DUO.ecarts[autre] + DUO.cible;
       corps = '<div class="duo-verdict ' + (egalite ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
         + (egalite ? 'Égalité' : (gagne ? 'Manche gagnée' : 'Manche perdue')) + '</div>'
         + '<div class="duo-ecart">' + signe(DUO.ecarts[i]) + fmt(Math.abs(DUO.ecarts[i])) + '</div>'
-        + '<div class="duo-etat">cible ' + fmt(DUO.cible) + '</div>';
+        + '<div class="duo-duree">cible <b>' + fmt(DUO.cible) + '</b> · vous <b>' + fmt(mienne)
+        + '</b> · ' + esc(DUO.noms[autre] || 'l\'autre') + ' <b>' + fmt(sienne) + '</b></div>';
     }
   } else if(DUO.mode === 'classique'){
     // pas de vainqueur en Classique — comme au vrai mode soirée, la partie

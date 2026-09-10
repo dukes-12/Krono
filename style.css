@@ -2879,6 +2879,11 @@ body,html[data-da] body{background-color:var(--nuit)}
 .duo-chrono.repos{color:var(--gris)}
 .duo-verdict{font-size:20px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .duo-ecart{font-family:var(--mono);font-size:22px;font-weight:600}
+/* la cible et la valeur réellement atteinte, en clair — l'écart seul ne
+   dit pas où le chrono s'est arrêté (voir corpsResultatClassiqueDuo et le
+   résultat de Duel) */
+.duo-duree{font-family:var(--mono);font-size:13px;letter-spacing:.03em;color:var(--gris)}
+.duo-duree b{color:var(--ivoire);font-weight:600}
 .duo-score{font-family:var(--mono);font-size:clamp(32px,12vw,48px);
   font-weight:500;letter-spacing:-.02em}
 /* un « × » est le seul symbole qui se lit pareil après une rotation de
