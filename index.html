@@ -113,7 +113,17 @@
   <div class="defile">
     <div class="note">Le téléphone se pose à plat sur la table : chacun voit son
       chrono à l'endroit, de son côté.</div>
-    <div class="eyebrow">Joueurs · le premier est en haut, le second en bas</div>
+    <!-- accès direct au duel en ligne : ne dépend d'aucun prénom local, donc
+         avant la liste des joueurs, pas après — sinon quelqu'un qui reçoit
+         juste un code à cinq lettres n'a nulle part où le taper avant
+         d'avoir rempli un formulaire qui ne le concerne pas -->
+    <button class="nav-carte" id="duoj-distance" style="margin-top:14px">
+      <span class="ic">🌐</span>
+      <span class="txt"><span class="n">Duel à distance</span>
+        <span class="d">Vous avez un code, ou vous voulez défier quelqu'un qui n'est pas avec vous ? C'est ici.</span></span>
+      <span class="fl">›</span>
+    </button>
+    <div class="eyebrow" style="margin-top:20px">Joueurs · le premier est en haut, le second en bas</div>
     <div id="duoj-liste"></div>
     <button class="ajouter" id="duoj-ajouter">+ ajouter un joueur</button>
     <div class="recap-b" style="margin-top:26px">

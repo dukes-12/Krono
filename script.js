@@ -8533,7 +8533,10 @@ async function construireEcranDuel(){
   else await chargerDefisDuel(s.id);
 }
 
-$('duel-retour').onclick = () => { arreterSondageDuel(); montrer('duo-mode'); };
+// vers duo-joueurs, pas duo-mode : le Duel peut désormais s'ouvrir directement
+// depuis là (voir #duoj-distance) sans être passé par le choix du jeu local,
+// donc c'est le seul retour valable dans tous les cas
+$('duel-retour').onclick = () => { arreterSondageDuel(); montrer('duo-joueurs'); };
 $('duel-connexion-creer').onclick    = () => ouvrirAuth('creer', 'duel');
 $('duel-connexion-existant').onclick = () => ouvrirAuth('connexion', 'duel');
 $('duel-defier').onclick = () => parcoursDefierQuelquun();
@@ -9239,6 +9242,7 @@ function ouvrirDuo(){
   montrer('duo-joueurs');
 }
 $('duoj-retour').onclick = () => montrer('reglages');
+$('duoj-distance').onclick = () => ouvrirDuel();
 $('duoj-commencer').onclick = () => {
   const noms = [...$('duoj-liste').querySelectorAll('input')].map(i => (i.value || '').trim()).filter(Boolean);
   if(noms.length < 2){
