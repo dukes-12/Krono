@@ -91,7 +91,12 @@
   </div>
 </section>
 
-<!-- ═══ DUO · SAISIE DES DEUX NOMS ═══ -->
+<!-- ═══ DUO · SAISIE DES DEUX NOMS ═══
+     Même liste que le menu Soirée (ordre, réassignation des couleurs,
+     « ▾ » pour reprendre un prénom déjà utilisé) : seule sa cible change,
+     duoj-liste plutôt que la liste partagée du mode soirée, et plafonnée
+     à deux joueurs. L'ordre fixe la position à l'écran : premier en haut,
+     second en bas. -->
 <section class="ecran" id="duo-joueurs">
   <div class="entete">
     <div class="marque"><h1>DUO</h1><span>face à face, un téléphone</span></div>
@@ -101,20 +106,9 @@
   <div class="defile">
     <div class="note">Le téléphone se pose à plat sur la table : chacun voit son
       chrono à l'endroit, de son côté.</div>
-    <div class="bloc">
-      <div class="eyebrow">En haut</div>
-      <div class="rang" style="border-bottom:none">
-        <input id="duoj-1" maxlength="14" placeholder="Prénom" autocomplete="off"
-               autocapitalize="words" list="prenoms">
-      </div>
-    </div>
-    <div class="bloc">
-      <div class="eyebrow">En bas</div>
-      <div class="rang" style="border-bottom:none">
-        <input id="duoj-2" maxlength="14" placeholder="Prénom" autocomplete="off"
-               autocapitalize="words" list="prenoms">
-      </div>
-    </div>
+    <div class="eyebrow">Joueurs · le premier est en haut, le second en bas</div>
+    <div id="duoj-liste"></div>
+    <button class="ajouter" id="duoj-ajouter">+ ajouter un joueur</button>
     <div class="recap-b" style="margin-top:26px">
       <button class="bouton" id="duoj-commencer">Commencer</button>
     </div>
