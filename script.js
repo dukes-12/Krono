@@ -9147,9 +9147,10 @@ const DUO = {
                  // ne repart jamais à zéro sauf reinitialiserMatchDuo() — « de seconde en seconde »
   contre:0,      // classique uniquement : culs secs en jeu si une riposte est en cours (0 = aucune)
   dernierVerdict:null,   // classique uniquement : verdict structuré de la dernière manche (voir verifierFinMancheDuo)
-  cible:0, compteVal:'3', pret:[false, false], t0:[undefined, undefined],
+  cible:0, pret:[false, false], t0:[undefined, undefined],
   ecarts:[null, null], verrou:[0, 0],   // même garde-fou que le jeu principal : 120 ms anti-rebond
-  phase:'attente'   // attente → compte → jeu → resultat → (compte…) → fin
+  phase:'attente'   // attente → jeu → resultat → (jeu…) → fin — pas de compte à rebours,
+                     // le chrono part au tap du joueur actif (voir gererTapDuo)
 };
 
 // nomCulSecDuo/calcFroleDuo/culsDuo reprennent les formules réelles
@@ -9329,7 +9330,7 @@ function reinitialiserMatchDuo(){
 
 [0, 1].forEach(i => $('duo-moitie-' + i).addEventListener('pointerdown', ev => gererTapDuo(i, ev)));
 $('duo-quitter').onclick = async () => {
-  if(DUO.phase === 'compte' || DUO.phase === 'jeu') return;   // jamais en pleine manche
+  if(DUO.phase === 'jeu') return;   // jamais en pleine manche
   if(await demander('Quitter le Duo ?', 'La partie en cours sera perdue.', 'Quitter'))
     montrer('reglages');
 };
@@ -9348,7 +9349,7 @@ function gererTapDuo(i, ev){
   if(DUO.phase === 'attente'){
     if(DUO.pret[i]) return;
     DUO.pret[i] = true; vibrer(10); renduMoitieDuo(i);
-    if(DUO.pret[0] && DUO.pret[1]) lancerCompteADuo();
+    if(DUO.pret[0] && DUO.pret[1]) lancerMancheDuo();
     return;
   }
   if(DUO.phase !== 'jeu') return;
@@ -9391,16 +9392,9 @@ function boucleChronoClassique(){
   requestAnimationFrame(boucleChronoClassique);
 }
 
-function lancerCompteADuo(){
-  DUO.phase = 'compte'; DUO.compteVal = '3'; construireDuo();
-  let n = 3;
-  const tic = () => {
-    n--; vibrer(10);
-    if(n > 0){ DUO.compteVal = String(n); construireDuo(); setTimeout(tic, 700); }
-    else lancerMancheDuo();
-  };
-  setTimeout(tic, 700);
-}
+// Pas de 3-2-1 avant chaque manche : le chrono ne part plus tout seul
+// (voir gererTapDuo), c'est déjà le tap du joueur actif qui donne le
+// départ — un compte à rebours devant ça ne ferait que doubler l'attente.
 function lancerMancheDuo(){
   DUO.manche++;
   DUO.ecarts = [null, null];
@@ -9469,7 +9463,7 @@ function verifierFinMancheDuo(){
     // manchesVisees=0 = ∞ (comme CFG.maxTours=0 en solo) : jamais de fin
     // automatique, seul « Quitter » y met un terme
     if(DUO.manchesVisees && DUO.manche >= DUO.manchesVisees){ DUO.phase = 'fin'; construireDuo(); }
-    else lancerCompteADuo();
+    else lancerMancheDuo();
   }, 1800);
 }
 
@@ -9548,8 +9542,6 @@ function renduMoitieDuo(i){
   let corps;
   if(DUO.phase === 'attente'){
     corps = '<div class="duo-etat">' + (DUO.pret[i] ? 'Prêt ! En attente de l\'autre…' : 'Touchez pour dire prêt') + '</div>';
-  } else if(DUO.phase === 'compte'){
-    corps = '<div class="duo-compte">' + esc(DUO.compteVal) + '</div>';
   } else if(DUO.phase === 'jeu'){
     corps = DUO.mode === 'classique' ? corpsJeuClassiqueDuo(i) : corpsJeuDuelDuo(i);
   } else if(DUO.phase === 'resultat'){
@@ -10414,11 +10406,11 @@ function construireMenuPrincipal(){
   M.appendChild(carteNav('🎯', 'Solo',
     'Un joueur, un score, une progression.',
     () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-solo'); }));
+  M.appendChild(carteNav('↕️', 'Duo',
+    "Face à face, un seul téléphone posé sur la table.", () => ouvrirDuo()));
   M.appendChild(carteNav('🍻', 'Soirée',
     "Plusieurs joueurs autour d'un seul téléphone.",
     () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-soiree'); }));
-  M.appendChild(carteNav('↕️', 'Duo',
-    "Face à face, un seul téléphone posé sur la table.", () => ouvrirDuo()));
 }
 if($('ms-retour'))  $('ms-retour').onclick  = () => montrer('reglages');
 if($('mso-retour')) $('mso-retour').onclick = () => montrer('reglages');

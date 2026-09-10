@@ -2877,8 +2877,6 @@ body,html[data-da] body{background-color:var(--nuit)}
   font-size:clamp(38px,13vw,58px);letter-spacing:-.03em;color:var(--laiton);
   line-height:1;transform:none;top:auto;left:auto}
 .duo-chrono.repos{color:var(--gris)}
-.duo-compte{font-family:var(--mono);font-weight:600;font-size:clamp(48px,16vw,72px);
-  color:var(--laiton)}
 .duo-verdict{font-size:20px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .duo-ecart{font-family:var(--mono);font-size:22px;font-weight:600}
 .duo-score{font-family:var(--mono);font-size:clamp(32px,12vw,48px);
