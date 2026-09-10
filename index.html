@@ -90,6 +90,43 @@
   </div>
 </section>
 
+<!-- ═══ DUO · SAISIE DES DEUX NOMS ═══ -->
+<section class="ecran" id="duo-joueurs">
+  <div class="entete">
+    <div class="marque"><h1>DUO</h1><span>face à face, un téléphone</span></div>
+    <div class="nav"><button id="duoj-retour">Menu</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="note">Le téléphone se pose à plat sur la table : chacun voit son
+      chrono à l'endroit, de son côté.</div>
+    <div class="bloc">
+      <div class="eyebrow">En haut</div>
+      <div class="rang" style="border-bottom:none">
+        <input id="duoj-1" maxlength="14" placeholder="Prénom" autocomplete="off"
+               autocapitalize="words" list="prenoms">
+      </div>
+    </div>
+    <div class="bloc">
+      <div class="eyebrow">En bas</div>
+      <div class="rang" style="border-bottom:none">
+        <input id="duoj-2" maxlength="14" placeholder="Prénom" autocomplete="off"
+               autocapitalize="words" list="prenoms">
+      </div>
+    </div>
+    <div class="recap-b" style="margin-top:26px">
+      <button class="bouton" id="duoj-commencer">Commencer</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DUO · ÉCRAN MIROIR ═══ -->
+<section class="ecran" id="duo">
+  <div class="duo-moitie" id="duo-moitie-0"></div>
+  <button class="duo-quitter" id="duo-quitter" aria-label="Quitter le Duo">×</button>
+  <div class="duo-moitie duo-bas" id="duo-moitie-1"></div>
+</section>
+
 <!-- ═══ FIN DE PARTIE ═══ -->
 <section class="ecran" id="fin">
   <div class="entete">
@@ -130,6 +167,10 @@
   <div class="classement" id="classement"></div>
   <div class="recap-b">
     <button class="bouton" id="rejouer">Rejouer</button>
+  </div>
+  <!-- essai en test (point 3) : réservé aux comptes de test, voir compteTestAutorise() -->
+  <div class="recap-b">
+    <button class="bouton fantome" id="fin-partager-img" style="display:none">Partager le résultat</button>
   </div>
   <div class="recap-b" id="fin-cn" style="display:none">
     <button class="bouton fantome" id="fin-compte">Comparer avec des amis</button>
@@ -217,6 +258,12 @@
       <button class="bouton fantome" id="pr-ligue">Rejoins ma ligue</button>
     </div>
 
+    <div class="titre-sec">Duel à distance</div>
+    <div class="note">Un compte de chaque côté, une manche à la fois, où que vous soyez.</div>
+    <div class="recap-b">
+      <button class="bouton fantome" id="pr-duel">Défier quelqu'un</button>
+    </div>
+
     <div class="titre-sec">Compte</div>
     <div class="note" id="pr-compte-note">—</div>
     <div class="recap-b">
@@ -237,6 +284,53 @@
   <div class="defile" id="hs-liste">
     </div>
 </section>
+
+<!-- ═══ DUEL À DISTANCE ═══ -->
+<section class="ecran" id="duel">
+  <div class="entete">
+    <div class="marque"><h1 id="duel-titre">DUEL</h1><span id="duel-score-tete">—</span></div>
+    <div class="nav"><button id="duel-retour">Profil</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div id="duel-connexion" style="display:none">
+      <div class="note">Un duel compare vos manches avec celles d'un adversaire précis :
+        il faut un compte pour vous reconnaître tous les deux.</div>
+      <div class="recap-b">
+        <button class="bouton" id="duel-connexion-creer">Créer un compte</button>
+        <button class="bouton fantome" id="duel-connexion-existant">J'ai déjà un compte</button>
+      </div>
+    </div>
+    <div id="duel-accueil" style="display:none">
+      <div class="note">Défiez quelqu'un à distance : même cible, chacun chez soi,
+        joué en local sur son propre téléphone.</div>
+      <div class="recap-b">
+        <button class="bouton" id="duel-defier">Défier quelqu'un</button>
+        <button class="bouton fantome" id="duel-rejoindre-btn">Rejoindre un duel</button>
+      </div>
+      <div class="recap-b">
+        <button class="bouton fantome" id="duel-historique-btn">Historique des duels</button>
+      </div>
+    </div>
+    <div id="duel-salle" style="display:none">
+      <div class="duel-zone" id="duel-jeu"></div>
+      <div class="recap-b">
+        <button class="bouton fantome" id="duel-abandonner">Abandonner</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HISTORIQUE DES DUELS ═══ -->
+<section class="ecran" id="duel-historique">
+  <div class="entete">
+    <div class="marque"><h1>DUELS</h1><span>vos confrontations</span></div>
+    <div class="nav"><button id="duelh-retour">Duel</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="classement" id="duelh-liste"></div>
+</section>
+
 <!-- ═══ COMPTES ET LIGUES · BANC D'ESSAI ═══ -->
 <section class="ecran" id="comptes">
   <div class="entete">

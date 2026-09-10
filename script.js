@@ -51,11 +51,13 @@ function gelerFond(raison, actif){
   }
 }
 
-/* Le seul écran qui garde un viewport figé : le jeu. Sa mise en page
-   répartit chrono, badges et bandeaux sur une hauteur connue au pixel
-   près, et un glissement du doigt y serait pris pour un appui. Tous les
-   autres, résultat et fin de partie compris, défilent normalement. */
-const ECRANS_FIGES = new Set(['fluide']);
+/* Les écrans qui gardent un viewport figé : le jeu solo/soirée, dont la
+   mise en page répartit chrono, badges et bandeaux sur une hauteur connue
+   au pixel près, et le Duo local, où deux moitiés d'écran se partagent
+   cette même hauteur. Dans les deux cas, un glissement du doigt serait
+   pris pour un appui. Tous les autres écrans, résultat et fin de partie
+   compris, défilent normalement. */
+const ECRANS_FIGES = new Set(['fluide', 'duo']);
 
 /* Changer d'écran, c'est arriver en haut du nouvel écran : sans ça on
    hériterait de la position de défilement du précédent, au milieu de
@@ -1998,11 +2000,25 @@ function consommerEssai(){
   MEM.defi = (MEM.defi && MEM.defi.jour === j)
     ? {jour:j, n:(MEM.defi.n || 0) + 1, best:MEM.defi.best}
     : {jour:j, n:1, best:null};
+  majStreakDefi();
   ecrireMem();
 }
 
 const jourCourant = () => { const d = new Date();
   return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); };
+// jour absolu (comparable par simple soustraction, contrairement à
+// jourCourant qui encode année/mois/jour et casserait aux changements de
+// mois) : sert uniquement à savoir si la série quotidienne se poursuit.
+const jourEpoque = () => Math.floor(Date.now() / 86400000);
+
+/* ESSAI EN TEST — série quotidienne du défi du jour (point 3, non déployé
+   à tout le monde : voir carteMode). Un jour ne compte qu'une fois, même
+   avec plusieurs tentatives ; un jour sauté remet la série à 1. */
+function majStreakDefi(){
+  const j = jourEpoque(), s = MEM.defiStreak || {jour:null, n:0};
+  if(s.jour === j) return;                 // déjà compté aujourd'hui
+  MEM.defiStreak = {jour:j, n:s.jour === j - 1 ? s.n + 1 : 1};
+}
 
 /* ════════ BIOMES ════════ */
 // Survie change de décor tous les trente tours. Le biome ne touche jamais
@@ -2948,7 +2964,7 @@ const ecranJeu = () => 'fluide';
 // de transition (résultat, fin) : la liste des exclus est plus courte et plus
 // stable que celle des inclus, qui grandit à chaque nouvel écran.
 const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', trophees:'trophees', profil:'profil'};
-const ECRANS_SANS_BARRE = ['fluide', 'resultat', 'fin'];
+const ECRANS_SANS_BARRE = ['fluide', 'resultat', 'fin', 'duo', 'duo-joueurs'];
 const porteBarre = id => !ECRANS_SANS_BARRE.includes(id);
 
 /* ─── historique de navigation ─────────────────────────────────────────
@@ -2986,6 +3002,9 @@ function montrer(id, sansPile){
   const ecrans = document.querySelectorAll('.ecran');
   if(![...ecrans].some(e => e.id === id)) id = S.partie ? ecranJeu() : 'reglages';
   const avant = document.querySelector('.ecran.actif');
+  // le sondage du duel ne tourne que pendant que son écran est ouvert :
+  // construireEcranDuel() le relance en y revenant.
+  if(avant && avant.id === 'duel' && id !== 'duel') arreterSondageDuel();
   /* on n'empile ni les retours eux-mêmes, ni un écran vers lui-même */
   if(!sansPile && avant && avant.id !== id){
     PILE_ECRANS.push(avant.id);
@@ -6804,6 +6823,9 @@ function afficherFin(){
 
   // un essai de biome ramène là d'où il vient
   $('fin-test').style.display = S.essaiBiome ? 'block' : 'none';
+  // essai en test (point 3) : partage du résultat en image
+  if($('fin-partager-img'))
+    $('fin-partager-img').style.display = compteTestAutorise() ? 'block' : 'none';
   $('fin-bo').style.display = AVT() ? 'flex' : 'none';
   $('fin-menu-avt-bloc').style.display = AVT() ? 'flex' : 'none';
   $('recap-fermer').textContent = AVT() ? 'Retour au menu principal' : 'Retour au menu';
@@ -7636,6 +7658,57 @@ async function partager(titre, texte, url){
   try{ await navigator.clipboard.writeText(texte + ' ' + url); return 'copié'; }
   catch(e){ return url; }
 }
+
+/* ESSAI EN TEST — partage du résultat en image (point 3, non déployé à
+   tout le monde : voir la visibilité de #fin-partager-img). Une image se
+   partage mieux qu'un lien sur les réseaux ; elle reprend simplement ce
+   que #fin affiche déjà, pas de recalcul par mode. Police système plutôt
+   que celles, encodées en base64, de la feuille de style : les rendre
+   disponibles à un <canvas> demanderait de les charger une seconde fois
+   via la Font Loading API, superflu pour un essai. */
+function enroulerTexte(ctx, texte, x, y, maxLargeur, interligne){
+  const mots = String(texte || '').split(' ');
+  let ligne = '', yy = y;
+  for(const mot of mots){
+    const essai = ligne ? ligne + ' ' + mot : mot;
+    if(ligne && ctx.measureText(essai).width > maxLargeur){
+      ctx.fillText(ligne, x, yy); ligne = mot; yy += interligne;
+    } else ligne = essai;
+  }
+  if(ligne) ctx.fillText(ligne, x, yy);
+  return yy;
+}
+async function partagerResultatImage(){
+  try{
+    const cv = document.createElement('canvas');
+    cv.width = 720; cv.height = 1280;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#0E1116'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#C9A227'; ctx.font = '700 44px sans-serif';
+    ctx.fillText('KRONO', cv.width / 2, 150);
+    ctx.fillStyle = '#7C8797'; ctx.font = '400 22px sans-serif';
+    ctx.fillText('AU CENTIÈME', cv.width / 2, 190);
+    ctx.fillStyle = '#EDE6D6'; ctx.font = '700 52px sans-serif';
+    const yTitre = enroulerTexte(ctx, $('fin-titre').textContent, cv.width / 2, 600, 640, 62);
+    ctx.fillStyle = '#7C8797'; ctx.font = '400 28px sans-serif';
+    enroulerTexte(ctx, $('fin-resume').textContent, cv.width / 2, yTitre + 70, 640, 38);
+    ctx.fillStyle = '#3D4756'; ctx.font = '400 20px sans-serif';
+    ctx.fillText(new Date().toLocaleDateString('fr-FR'), cv.width / 2, 1220);
+
+    const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+    if(!blob) return;
+    const fichier = new File([blob], 'krono.png', {type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[fichier]})){
+      await navigator.share({files:[fichier], title:'Krono', text:'Mon résultat sur Krono'});
+      return;
+    }
+    // repli : partage de fichier indisponible ici (ordinateur, navigateur
+    // ancien) — l'image reste consultable et enregistrable dans un onglet
+    window.open(URL.createObjectURL(blob), '_blank');
+  }catch(e){ if(!e || e.name !== 'AbortError') console.warn('partage image', e); }
+}
+if($('fin-partager-img')) $('fin-partager-img').onclick = () => partagerResultatImage();
 $('pr-inviter').onclick = async () => {
   const nom = $('pr-pseudo').textContent;
   const r = await partager('Krono',
@@ -7733,11 +7806,18 @@ async function majCompte(){
       }
     }
   }
+  if(INVITATION_DUEL){
+    const code = INVITATION_DUEL; INVITATION_DUEL = null;
+    if(await demander('Un duel vous attend',
+        'Le lien que vous avez ouvert mène à un duel Krono. Voulez-vous le rejoindre ?', 'Rejoindre'))
+      await rejoindreDuelSalle(code, s);
+  }
 }
 
 /* ─── connexion ─── */
 $('cn-retour').onclick = () => {
   if(AUTH_RETOUR === 'ligues') return ouvrirLigues();
+  if(AUTH_RETOUR === 'duel'){ montrer('duel'); return construireEcranDuel(); }
   construireProfil(); montrer('profil');
 };
 async function apresConnexion(){
@@ -7750,6 +7830,11 @@ async function apresConnexion(){
     await ouvrirLigues();
   } else if(AUTH_RETOUR === 'ligues') await ouvrirLigues();
   else if(AUTH_RETOUR === 'trophees'){ await construireTrophees(); montrer('trophees'); }
+  else if(INVITATION_DUEL && AUTH_RETOUR === 'duel'){
+    const code = INVITATION_DUEL; INVITATION_DUEL = null;
+    const s2 = await rafraichirSession();
+    if(s2) await rejoindreDuelSalle(code, s2);
+  } else if(AUTH_RETOUR === 'duel'){ montrer('duel'); await construireEcranDuel(); }
   if(n) choisir('Scores retrouvés',
     n + ' partie' + (n > 1 ? 's' : '') + ' locale'
     + (n > 1 ? 's' : '') + ' rattachée' + (n > 1 ? 's' : '')
@@ -8366,16 +8451,473 @@ async function remonterScoresLocaux(){
   return n;
 }
 
-// un lien d'invitation pré-remplit le salon
+// un lien d'invitation pré-remplit le salon (et, séparément, un duel)
 function lireInvitation(){
   const q = new URLSearchParams(location.search);
   const l = (q.get('ligue') || '').toUpperCase();
   if(/^[A-Z]{5}$/.test(l)) INVITATION = l;
+  const d = (q.get('duel') || '').toUpperCase();
+  if(/^[A-Z]{5}$/.test(d)) INVITATION_DUEL = d;
   if(/^[A-Z]{5}$/.test(l) && !S.salon){
     S.salon = l; MEM.salon = l; ecrireMem(); majEtatSalon();
     return l;
   }
   return null;
+}
+
+/* ════════ DUEL À DISTANCE ════════
+   Deux comptes, un code de salle à cinq lettres — même alphabet, même geste
+   de partage que les ligues (lienJeu/partager). La précision ne doit jamais
+   dépendre du réseau : chaque manche se joue en LOCAL sur chaque téléphone,
+   exactement comme en solo (tempsEvt gère déjà la compensation de latence),
+   et seul l'écart obtenu transite. Le réseau ne sert qu'à mettre les deux
+   joueurs d'accord sur la cible et à comparer les écarts une fois les deux
+   tours joués — un sondage toutes les 1,2 s pendant que l'écran est ouvert,
+   à l'image de ce que fait déjà majEtatSalon, rien de plus.
+
+   « duels » porte l'état vivant de la salle pendant la partie, et devient
+   l'historique dès que statut passe à 'termine' : pas besoin d'une table
+   séparée pour « qui a gagné les derniers duels contre X », une lecture
+   filtrée sur cette même table suffit. duel_manches n'est qu'une boîte aux
+   lettres, une ligne par joueur et par manche, jamais modifiée après coup. */
+let INVITATION_DUEL = null;      // code de duel reçu par lien, avant connexion
+const MANCHES_DUEL = [3, 5, 7];
+const DUEL = {
+  code:null, moi:null, hote:false, poll:null,
+  vue:null,            // dernière vue affichée, pour ne pas interrompre un tour en cours
+  manche:0,            // dernière manche dont j'ai déjà envoyé mon écart
+  traitee:0,           // dernière manche dont l'hôte a déjà compté le résultat
+  demarrage:false,     // garde-fou : la manche 1 n'est lancée qu'une fois par l'hôte
+  enJeu:false, t0:undefined
+};
+const monPseudo = () => monPro().pseudo || (MEM.joueurs && MEM.joueurs[0]) || 'Invité';
+const nouvelleCibleDuel = () => (Math.floor(Math.random() * 10) + 1) * 100;
+
+function ouvrirDuel(){ montrer('duel'); construireEcranDuel(); }
+$('pr-duel').onclick = () => ouvrirDuel();
+
+async function construireEcranDuel(){
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  $('duel-connexion').style.display = s ? 'none' : 'block';
+  if(!s){ $('duel-accueil').style.display = 'none'; $('duel-salle').style.display = 'none'; return; }
+  // reprise silencieuse : un duel laissé en cours (navigation, actualisation)
+  if(!DUEL.code && MEM.duel && MEM.duel.code){
+    DUEL.code = MEM.duel.code; DUEL.hote = MEM.duel.hote; DUEL.moi = s.id;
+    DUEL.manche = 0; DUEL.traitee = 0; DUEL.demarrage = true; DUEL.vue = null;
+  }
+  $('duel-accueil').style.display = DUEL.code ? 'none' : 'block';
+  $('duel-salle').style.display = DUEL.code ? 'block' : 'none';
+  if(DUEL.code) demarrerSondageDuel();
+}
+
+$('duel-retour').onclick = () => { arreterSondageDuel(); montrer('profil'); };
+$('duel-connexion-creer').onclick    = () => ouvrirAuth('creer', 'duel');
+$('duel-connexion-existant').onclick = () => ouvrirAuth('connexion', 'duel');
+$('duel-defier').onclick = () => parcoursDefierQuelquun();
+$('duel-rejoindre-btn').onclick = () => parcoursRejoindreDuel();
+$('duel-historique-btn').onclick = () => { construireHistoriqueDuels(); montrer('duel-historique'); };
+$('duelh-retour').onclick = () => montrer('duel');
+$('duel-abandonner').onclick = async () => {
+  if(await demander('Abandonner ce duel ?', 'La partie s\'arrête pour les deux joueurs.', 'Abandonner'))
+    abandonnerDuel();
+};
+
+async function parcoursDefierQuelquun(){
+  const r = await choisir('Combien de manches ?',
+    'La partie se joue en manches fixes — la plus proche de la cible en gagne une.',
+    MANCHES_DUEL.map(n => ({label:n + ' manches', val:n})));
+  if(!r) return;
+  try{ await creerDuelSalle(r); }
+  catch(e){ choisir('Création impossible', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+
+async function creerDuelSalle(manches){
+  const s = await rafraichirSession();
+  if(!s) throw new Error('Aucune session.');
+  const pseudo = monPseudo();
+  for(let essai = 0; essai < 5; essai++){
+    const code = nouveauCode();
+    try{
+      await apiAuth('duels', {method:'POST', body:JSON.stringify({
+        code, hote:s.id, hote_pseudo:pseudo, manches_visees:manches})});
+      demarrerDuel(code, true, s.id);
+      return code;
+    }catch(e){
+      if(!/409|duplicate/i.test(String(e.message))) throw e;   // sinon on retire un autre code
+    }
+  }
+  throw new Error('impossible de générer un code');
+}
+
+async function parcoursRejoindreDuel(codeDepart){
+  const code = (codeDepart || await demanderNom('Rejoindre un duel',
+    'Saisissez le code à cinq lettres qu\'on vous a donné.', [], true) || '')
+    .toUpperCase().trim();
+  if(!code) return;
+  if(!/^[A-Z]{5}$/.test(code))
+    return choisir('Code invalide', 'Un code de duel fait cinq lettres.', [{label:'Fermer', val:true}]);
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  if(!s){
+    INVITATION_DUEL = code;
+    const r = await choisir('Un compte est nécessaire',
+      'Un duel compare vos manches avec celles d\'un adversaire précis : il faut '
+      + 'un compte pour vous reconnaître tous les deux. Le code ' + code + ' est '
+      + 'gardé, vous rejoindrez le duel juste après.',
+      [{label:'Créer un compte', val:'creer'},
+       {label:"J'ai déjà un compte", val:'connexion'},
+       {label:'Plus tard', val:null}]);
+    if(r) ouvrirAuth(r, 'duel');
+    return;
+  }
+  await rejoindreDuelSalle(code, s);
+}
+
+async function rejoindreDuelSalle(code, s){
+  try{
+    const r = await apiAuth('duels?code=eq.' + code + '&adversaire=is.null&statut=eq.attente',
+      {method:'PATCH', body:JSON.stringify({adversaire:s.id, adversaire_pseudo:monPseudo()})});
+    if(!r || !r.length){
+      const existe = await apiAuth('duels?code=eq.' + code + '&select=code').catch(() => []);
+      return choisir(existe && existe.length ? 'Duel déjà complet' : 'Duel introuvable',
+        existe && existe.length ? 'Quelqu\'un a déjà rejoint cette salle.'
+                                 : 'Aucun duel ne porte ce code. Vérifiez la saisie.',
+        [{label:'Fermer', val:true}]);
+    }
+    demarrerDuel(code, false, s.id);   // gère déjà la navigation et le sondage
+  }catch(e){
+    choisir('Impossible de rejoindre', messageCompte(e), [{label:'Fermer', val:true}]);
+  }
+}
+
+function demarrerDuel(code, hote, moi){
+  DUEL.code = code; DUEL.hote = hote; DUEL.moi = moi;
+  DUEL.manche = 0; DUEL.traitee = 0; DUEL.demarrage = false; DUEL.vue = null;
+  MEM.duel = {code, hote}; ecrireMem();
+  montrer('duel'); $('duel-accueil').style.display = 'none'; $('duel-salle').style.display = 'block';
+  demarrerSondageDuel();
+}
+function oublierDuel(){
+  DUEL.code = null; MEM.duel = null; ecrireMem();
+  $('duel-accueil').style.display = 'block'; $('duel-salle').style.display = 'none';
+}
+
+function arreterSondageDuel(){ if(DUEL.poll){ clearInterval(DUEL.poll); DUEL.poll = null; } }
+function demarrerSondageDuel(){ arreterSondageDuel(); sondageDuel(); DUEL.poll = setInterval(sondageDuel, 1200); }
+
+async function sondageDuel(){
+  if(!DUEL.code) return;
+  let d;
+  try{ d = (await apiAuth('duels?code=eq.' + DUEL.code + '&select=*'))[0]; }
+  catch(e){ return; }   // panne réseau passagère : on retentera au prochain sondage
+  if(!d){ arreterSondageDuel(); return; }
+  await traiterEtatDuel(d);
+}
+
+function afficherVueDuel(cle, fn){ if(DUEL.vue === cle) return; DUEL.vue = cle; fn(); }
+
+async function traiterEtatDuel(d){
+  const adversairePseudo = DUEL.hote ? d.adversaire_pseudo : d.hote_pseudo;
+  majEnteteDuel(d, adversairePseudo);
+  // le bouton d'abandon n'a plus de sens une fois le duel clos : seuls les
+  // deux branches ci-dessous le masquent, il reste visible partout ailleurs
+  $('duel-abandonner').style.display = 'block';
+
+  if(d.statut === 'abandonne'){
+    arreterSondageDuel(); MEM.duel = null; ecrireMem();
+    $('duel-abandonner').style.display = 'none';
+    return afficherVueDuel('abandonne', renduAbandonDuel);
+  }
+  if(d.statut === 'termine'){
+    arreterSondageDuel(); MEM.duel = null; ecrireMem();
+    $('duel-abandonner').style.display = 'none';
+    return afficherVueDuel('termine', () => renduFinDuel(d));
+  }
+  if(d.statut === 'attente'){
+    if(!d.adversaire) return afficherVueDuel('attente-adversaire', () => renduAttenteAdversaire(d));
+    if(DUEL.hote && !DUEL.demarrage){ DUEL.demarrage = true; lancerManche(d, 1); }
+    return afficherVueDuel('preparation', renduPreparation);
+  }
+  // statut === 'en_cours'
+  if(DUEL.manche < d.manche_actuelle)
+    return afficherVueDuel('jeu:' + d.manche_actuelle, () => renduZoneJeu(d));
+
+  const lignes = await apiAuth('duel_manches?duel=eq.' + DUEL.code
+    + '&manche=eq.' + d.manche_actuelle + '&select=joueur,ecart').catch(() => []);
+  if(!lignes || lignes.length < 2)
+    return afficherVueDuel('attente-manche:' + d.manche_actuelle, renduAttenteManche);
+
+  afficherVueDuel('resultat:' + d.manche_actuelle, () => renduResultatManche(lignes));
+  if(DUEL.hote && DUEL.traitee < d.manche_actuelle){
+    DUEL.traitee = d.manche_actuelle;   // marqué tout de suite : un seul avancement programmé
+    setTimeout(() => avancerDuel(d, lignes), 1800);
+  }
+}
+
+async function lancerManche(d, n){
+  try{
+    await apiAuth('duels?code=eq.' + d.code, {method:'PATCH', body:JSON.stringify({
+      statut:'en_cours', manche_actuelle:n, cible:nouvelleCibleDuel()})});
+  }catch(e){ DUEL.demarrage = false; }   // on retentera au sondage suivant
+}
+
+async function avancerDuel(d, lignes){
+  const lHote = lignes.find(l => l.joueur === d.hote), lAdv = lignes.find(l => l.joueur === d.adversaire);
+  if(!lHote || !lAdv) return;
+  const egalite = Math.abs(lHote.ecart) === Math.abs(lAdv.ecart);
+  const hoteGagne = !egalite && Math.abs(lHote.ecart) < Math.abs(lAdv.ecart);
+  const manches_j1 = d.manches_j1 + (hoteGagne ? 1 : 0);
+  const manches_j2 = d.manches_j2 + (!egalite && !hoteGagne ? 1 : 0);
+  const fini = d.manche_actuelle >= d.manches_visees;
+  const patch = fini ? {manches_j1, manches_j2, statut:'termine'}
+    : {manches_j1, manches_j2, manche_actuelle:d.manche_actuelle + 1, cible:nouvelleCibleDuel()};
+  try{ await apiAuth('duels?code=eq.' + d.code, {method:'PATCH', body:JSON.stringify(patch)}); }
+  catch(e){ DUEL.traitee = d.manche_actuelle - 1; }   // on retentera au prochain sondage
+}
+
+async function abandonnerDuel(){
+  if(!DUEL.code) return;
+  try{ await apiAuth('duels?code=eq.' + DUEL.code, {method:'PATCH', body:JSON.stringify({statut:'abandonne'})}); }
+  catch(e){}
+  arreterSondageDuel(); oublierDuel(); afficherVueDuel(null, () => {});
+  construireEcranDuel();
+}
+
+function majEnteteDuel(d, adversairePseudo){
+  const T = $('duel-titre'); if(T) T.textContent = 'Duel · ' + d.code;
+  const E = $('duel-score-tete');
+  if(E) E.textContent = d.adversaire
+    ? (DUEL.hote ? d.manches_j1 : d.manches_j2) + ' – ' + (DUEL.hote ? d.manches_j2 : d.manches_j1)
+      + '  ·  ' + (adversairePseudo || '—')
+    : 'en attente d\'un adversaire…';
+}
+function renduAttenteAdversaire(d){
+  $('duel-jeu').innerHTML =
+    '<div class="duel-code">' + esc(d.code) + '</div>'
+    + '<div class="note">Partagez ce code — la partie démarre dès que quelqu\'un rejoint.</div>'
+    + '<div class="recap-b">'
+    + '<button class="bouton fantome" id="duel-partager">Partager le lien</button></div>';
+  $('duel-partager').onclick = () => partager('Krono · duel',
+    monPseudo() + ' vous défie à Krono. Code : ' + d.code + '.', lienJeu({duel:d.code}));
+}
+function renduPreparation(){
+  $('duel-jeu').innerHTML = '<div class="duel-attente">L\'adversaire est là. Ça commence…</div>';
+}
+function renduZoneJeu(d){
+  DUEL.enJeu = false; DUEL.t0 = undefined;
+  $('duel-jeu').innerHTML =
+    '<div class="duel-cible">' + fmt(d.cible) + '</div>'
+    + '<button class="rond vert" id="duel-tap"><span>Démarrer</span></button>';
+  const b = $('duel-tap');
+  let verrou = 0;   // même garde-fou que le jeu principal : 120 ms anti-rebond
+  b.onpointerdown = ev => {
+    ev.preventDefault();
+    const t = tempsEvt(ev);
+    if(t - verrou < 120) return;
+    verrou = t;
+    if(!DUEL.enJeu){
+      DUEL.enJeu = true; DUEL.t0 = t; vibrer(10);
+      b.querySelector('span').textContent = 'Stop'; b.classList.replace('vert', 'rouge');
+    } else {
+      const ecart = enCentiemes(t - DUEL.t0) - d.cible;
+      vibrer(10); envoyerManche(d, ecart);
+    }
+  };
+}
+async function envoyerManche(d, ecart){
+  DUEL.manche = d.manche_actuelle;
+  try{
+    await apiAuth('duel_manches', {method:'POST', body:JSON.stringify({
+      duel:d.code, manche:d.manche_actuelle, joueur:DUEL.moi, ecart})});
+  }catch(e){ DUEL.manche = d.manche_actuelle - 1; }   // on retentera au prochain sondage
+  DUEL.vue = null; sondageDuel();
+}
+function renduAttenteManche(){
+  $('duel-jeu').innerHTML = '<div class="duel-attente">Manche jouée · en attente de l\'adversaire…</div>';
+}
+function renduResultatManche(lignes){
+  const mien = lignes.find(l => l.joueur === DUEL.moi), sien = lignes.find(l => l.joueur !== DUEL.moi);
+  const egalite = Math.abs(mien.ecart) === Math.abs(sien.ecart);
+  const jGagne = !egalite && Math.abs(mien.ecart) < Math.abs(sien.ecart);
+  $('duel-jeu').innerHTML =
+    '<div class="duel-verdict ' + (egalite ? '' : (jGagne ? 't-vert' : 't-signal')) + '">'
+    + (egalite ? 'Égalité' : (jGagne ? 'Manche gagnée' : 'Manche perdue')) + '</div>'
+    + '<div class="duel-compare">'
+    + '<div><b>Vous</b><span>' + signe(mien.ecart) + fmt(Math.abs(mien.ecart)) + '</span></div>'
+    + '<div><b>Adversaire</b><span>' + signe(sien.ecart) + fmt(Math.abs(sien.ecart)) + '</span></div>'
+    + '</div><div class="note">La manche suivante démarre dans un instant…</div>';
+}
+function renduFinDuel(d){
+  const mesManches = DUEL.hote ? d.manches_j1 : d.manches_j2, sesManches = DUEL.hote ? d.manches_j2 : d.manches_j1;
+  const nul = mesManches === sesManches, gagne = !nul && mesManches > sesManches;
+  $('duel-jeu').innerHTML =
+    '<div class="duel-verdict ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
+    + (nul ? 'Match nul' : (gagne ? 'Duel gagné' : 'Duel perdu')) + '</div>'
+    + '<div class="duel-score">' + mesManches + ' — ' + sesManches + '</div>'
+    + '<div class="recap-b"><button class="bouton" id="duel-revanche">Revanche</button>'
+    + '<button class="bouton fantome" id="duel-fin-menu">Terminer</button></div>';
+  $('duel-revanche').onclick = () => { oublierDuel(); parcoursDefierQuelquun(); };
+  $('duel-fin-menu').onclick = () => oublierDuel();
+}
+function renduAbandonDuel(){
+  $('duel-jeu').innerHTML = '<div class="note">Le duel a été abandonné.</div>'
+    + '<div class="recap-b"><button class="bouton fantome" id="duel-fin-menu2">Retour</button></div>';
+  $('duel-fin-menu2').onclick = () => oublierDuel();
+}
+
+async function construireHistoriqueDuels(){
+  const s = await rafraichirSession();
+  const L = $('duelh-liste');
+  if(!s){ L.innerHTML = '<div class="note">Aucun compte connecté.</div>'; return; }
+  let lignes = [];
+  try{
+    lignes = await apiAuth('duels?statut=eq.termine&or=(hote.eq.' + s.id + ',adversaire.eq.' + s.id
+      + ')&order=maj_le.desc&limit=30&select=*');
+  }catch(e){ L.innerHTML = '<div class="note">' + esc(messageCompte(e)) + '</div>'; return; }
+  if(!lignes.length){ L.innerHTML = '<div class="note">Aucun duel terminé pour l\'instant.</div>'; return; }
+  L.innerHTML = lignes.map(d => {
+    const jeSuisHote = d.hote === s.id;
+    const adv = jeSuisHote ? d.adversaire_pseudo : d.hote_pseudo;
+    const mes = jeSuisHote ? d.manches_j1 : d.manches_j2, ses = jeSuisHote ? d.manches_j2 : d.manches_j1;
+    const nul = mes === ses, gagne = !nul && mes > ses;
+    return '<div class="ligne"><span class="qui">' + esc(adv || '—') + '</span>'
+      + '<span class="moy ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
+      + mes + ' – ' + ses + '</span></div>';
+  }).join('');
+}
+
+/* ════════ DUO LOCAL · ÉCRAN MIROIR ════════
+   Deux joueurs, un seul téléphone posé à plat sur la table : la moitié du
+   bas est retournée à 180° pour se lire à l'endroit depuis l'autre côté,
+   comme un plateau de jeu de société. Aucun réseau ne s'interpose entre
+   les deux appuis — chacun vise la même cible, mesurée par l'horloge de
+   CE téléphone, donc plus juste qu'un duel à distance. Pensé pour
+   enchaîner les manches au bar : un seul geste « prêt » de chaque côté
+   avant la première, puis un décompte partagé relance chaque manche
+   suivante sans rien retaper. nouvelleCibleDuel() est celle déjà écrite
+   pour le duel à distance — même tirage, un seul endroit à changer. */
+const MANCHES_DUO = [3, 5, 7];
+const DUO = {
+  noms:['',''], manchesVisees:5, manche:0, scores:[0, 0],
+  cible:0, compteVal:'3', pret:[false, false], t0:[undefined, undefined],
+  ecarts:[null, null], verrou:[0, 0],   // même garde-fou que le jeu principal : 120 ms anti-rebond
+  phase:'attente'   // attente → compte → jeu → resultat → (compte…) → fin
+};
+
+function ouvrirDuo(){
+  const recents = (MEM.joueurs || []).filter(Boolean);
+  $('duoj-1').value = recents[0] || '';
+  $('duoj-2').value = recents[1] || '';
+  montrer('duo-joueurs');
+}
+$('duoj-retour').onclick = () => montrer('reglages');
+$('duoj-commencer').onclick = () => {
+  const a = ($('duoj-1').value || '').trim().slice(0, 14) || 'Joueur 1';
+  const b = ($('duoj-2').value || '').trim().slice(0, 14) || 'Joueur 2';
+  DUO.noms = [a, b];
+  demarrerDuo();
+};
+
+async function demarrerDuo(){
+  const n = await choisir('Combien de manches ?',
+    'La partie se joue en manches fixes — la plus proche de la cible en gagne une.',
+    MANCHES_DUO.map(m => ({label:m + ' manches', val:m})));
+  if(!n) return;
+  DUO.manchesVisees = n; DUO.manche = 0; DUO.scores = [0, 0];
+  DUO.pret = [false, false]; DUO.phase = 'attente';
+  montrer('duo');
+  construireDuo();
+}
+
+[0, 1].forEach(i => $('duo-moitie-' + i).addEventListener('pointerdown', ev => gererTapDuo(i, ev)));
+$('duo-quitter').onclick = async () => {
+  if(DUO.phase === 'compte' || DUO.phase === 'jeu') return;   // jamais en pleine manche
+  if(await demander('Quitter le Duo ?', 'La partie en cours sera perdue.', 'Quitter'))
+    montrer('reglages');
+};
+
+function gererTapDuo(i, ev){
+  const t = tempsEvt(ev);
+  if(t - DUO.verrou[i] < 120) return;
+  DUO.verrou[i] = t;
+  if(DUO.phase === 'attente'){
+    if(DUO.pret[i]) return;
+    DUO.pret[i] = true; vibrer(10); renduMoitieDuo(i);
+    if(DUO.pret[0] && DUO.pret[1]) lancerCompteADuo();
+    return;
+  }
+  if(DUO.phase !== 'jeu' || DUO.ecarts[i] !== null) return;   // rien à faire hors round, ou déjà joué
+  if(DUO.t0[i] === undefined){
+    DUO.t0[i] = t; vibrer(10); renduMoitieDuo(i);
+  } else {
+    DUO.ecarts[i] = enCentiemes(t - DUO.t0[i]) - DUO.cible;
+    vibrer(10); renduMoitieDuo(i);
+    if(DUO.ecarts[0] !== null && DUO.ecarts[1] !== null) verifierFinMancheDuo();
+  }
+}
+
+function lancerCompteADuo(){
+  DUO.phase = 'compte'; DUO.compteVal = '3'; construireDuo();
+  let n = 3;
+  const tic = () => {
+    n--; vibrer(10);
+    if(n > 0){ DUO.compteVal = String(n); construireDuo(); setTimeout(tic, 700); }
+    else lancerMancheDuo();
+  };
+  setTimeout(tic, 700);
+}
+function lancerMancheDuo(){
+  DUO.manche++; DUO.cible = nouvelleCibleDuel();
+  DUO.t0 = [undefined, undefined]; DUO.ecarts = [null, null];
+  DUO.phase = 'jeu'; construireDuo();
+}
+function verifierFinMancheDuo(){
+  const egalite = Math.abs(DUO.ecarts[0]) === Math.abs(DUO.ecarts[1]);
+  if(!egalite) DUO.scores[Math.abs(DUO.ecarts[0]) < Math.abs(DUO.ecarts[1]) ? 0 : 1]++;
+  DUO.phase = 'resultat'; construireDuo();
+  setTimeout(() => {
+    if(DUO.manche >= DUO.manchesVisees){ DUO.phase = 'fin'; construireDuo(); }
+    else lancerCompteADuo();
+  }, 1800);
+}
+
+function construireDuo(){ renduMoitieDuo(0); renduMoitieDuo(1); }
+function renduMoitieDuo(i){
+  const nom = DUO.noms[i] || ('Joueur ' + (i + 1)), autre = 1 - i;
+  const enteteMini = '<div class="duo-nom" style="color:' + coulHash(nom) + '">' + esc(nom) + '</div>'
+    + '<div class="duo-score-mini">' + DUO.scores[0] + ' – ' + DUO.scores[1]
+    + ' · manche ' + Math.min(DUO.manche + (DUO.phase === 'attente' ? 1 : 0), DUO.manchesVisees)
+    + '/' + DUO.manchesVisees + '</div>';
+  let corps;
+  if(DUO.phase === 'attente'){
+    corps = '<div class="duo-etat">' + (DUO.pret[i] ? 'Prêt ! En attente de l\'autre…' : 'Touchez pour dire prêt') + '</div>';
+  } else if(DUO.phase === 'compte'){
+    corps = '<div class="duo-compte">' + esc(DUO.compteVal) + '</div>';
+  } else if(DUO.phase === 'jeu'){
+    corps = '<div class="duo-cible">' + fmt(DUO.cible) + '</div>'
+      + '<div class="duo-etat">' + (DUO.ecarts[i] !== null ? 'Joué · en attente…'
+        : DUO.t0[i] !== undefined ? 'Touchez pour arrêter' : 'Touchez pour démarrer') + '</div>';
+  } else if(DUO.phase === 'resultat'){
+    const egalite = Math.abs(DUO.ecarts[i]) === Math.abs(DUO.ecarts[autre]);
+    const gagne = !egalite && Math.abs(DUO.ecarts[i]) < Math.abs(DUO.ecarts[autre]);
+    corps = '<div class="duo-verdict ' + (egalite ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
+      + (egalite ? 'Égalité' : (gagne ? 'Manche gagnée' : 'Manche perdue')) + '</div>'
+      + '<div class="duo-ecart">' + signe(DUO.ecarts[i]) + fmt(Math.abs(DUO.ecarts[i])) + '</div>';
+  } else {   // fin
+    const nul = DUO.scores[i] === DUO.scores[autre], gagne = !nul && DUO.scores[i] > DUO.scores[autre];
+    corps = '<div class="duo-verdict ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
+      + (nul ? 'Match nul' : (gagne ? 'Victoire' : 'Défaite')) + '</div>'
+      + '<div class="duo-score">' + DUO.scores[i] + ' – ' + DUO.scores[autre] + '</div>'
+      + '<div class="recap-b"><button class="bouton duo-revanche">Revanche</button>'
+      + '<button class="bouton fantome duo-menu">Menu</button></div>';
+  }
+  const el = $('duo-moitie-' + i);
+  el.innerHTML = enteteMini + '<div class="duo-corps">' + corps + '</div>';
+  if(DUO.phase === 'fin'){
+    // le tap sur la moitié ne fait rien en phase 'fin' (gererTapDuo ne gère
+    // que 'attente' et 'jeu') : ces deux boutons n'ont donc rien à bloquer
+    el.querySelector('.duo-revanche').onclick = () => demarrerDuo();
+    el.querySelector('.duo-menu').onclick = () => montrer('reglages');
+  }
 }
 
 /* ════════ BANC D'ESSAI COMPTES ET LIGUES ════════ */
@@ -9173,6 +9715,12 @@ function carteMode(m){
                 + rest + ' restante' + (rest > 1 ? 's' : '')
               : 'épuisé · revenez demain') + '</span></div>';
     if(!rest) d.classList.add('epuise');
+    // essai en test (point 3, non déployé à tout le monde) : la série ne
+    // s'affiche que si la dernière tentative remonte à hier au plus tard,
+    // sinon le nombre stocké serait déjà périmé
+    const streak = MEM.defiStreak;
+    if(compteTestAutorise() && streak && streak.n > 1 && streak.jour >= jourEpoque() - 1)
+      d.innerHTML += '<div class="b"><span class="tag">🔥 ' + streak.n + ' jours de suite</span></div>';
   }
   d.onclick = () => { MEM.joueurs = lireListe(); ouvrirFiche(m.id); };
   return d;
@@ -9201,6 +9749,8 @@ function construireMenuPrincipal(){
   M.appendChild(carteNav('🍻', 'Soirée',
     "Plusieurs joueurs autour d'un seul téléphone.",
     () => { MEM.joueurs = lireListe(); construireModes(); montrer('menu-soiree'); }));
+  M.appendChild(carteNav('↕️', 'Duo',
+    "Face à face, un seul téléphone posé sur la table.", () => ouvrirDuo()));
 }
 if($('ms-retour'))  $('ms-retour').onclick  = () => montrer('reglages');
 if($('mso-retour')) $('mso-retour').onclick = () => montrer('reglages');
@@ -9622,4 +10172,12 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http'))
   // apparaissait ailleurs faute de ce padding.
   injecterRetours();
   montrer(S.partie ? ecranJeu() : 'reglages', true);
+  // un lien de duel ouvert directement propose de rejoindre tout de suite ;
+  // sans compte, parcoursRejoindreDuel garde le code de côté pour après
+  if(INVITATION_DUEL){
+    const code = INVITATION_DUEL;
+    choisir('Duel reçu', 'On vous invite à un duel Krono. Code : ' + code + '.',
+      [{label:'Rejoindre', val:true}, {label:'Plus tard', val:false}])
+      .then(ok => { if(ok){ ouvrirDuel(); parcoursRejoindreDuel(code); } });
+  }
 })();

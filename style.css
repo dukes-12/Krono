@@ -2763,3 +2763,63 @@ body.avec-barre{
    ───────────────────────────────────────────────────────────────── */
 html,html[data-da]{background-color:var(--nuit)}
 body,html[data-da] body{background-color:var(--nuit)}
+
+/* ─────────────────────────────────────────────────────────────────
+   DUEL À DISTANCE
+   Réutilise les jetons et composants déjà en place (.rond, .recap-b,
+   .verdict, .note) : seule la mise en page propre au duel est ajoutée
+   ici — pas de nouvelle palette, pas de nouveau rayon.
+   ───────────────────────────────────────────────────────────────── */
+.duel-zone{display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:var(--e3);padding-top:var(--e6)}
+.duel-code{font-family:var(--mono);font-size:44px;font-weight:600;
+  letter-spacing:.18em;color:var(--laiton)}
+.duel-attente{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+  color:var(--gris);padding:var(--e6) 0}
+.duel-cible{font-family:var(--mono);font-weight:500;
+  font-size:clamp(48px,16vw,72px);letter-spacing:-.03em;color:var(--laiton)}
+.duel-verdict{font-size:24px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase}
+.duel-compare{display:flex;gap:var(--e5);margin-top:var(--e2)}
+.duel-compare div{display:flex;flex-direction:column;gap:var(--e1)}
+.duel-compare b{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gris)}
+.duel-compare span{font-family:var(--mono);font-size:20px;font-weight:600}
+.duel-score{font-family:var(--mono);font-size:clamp(40px,14vw,60px);
+  font-weight:500;letter-spacing:-.03em}
+#duel-tap{width:min(70vw,220px);height:min(70vw,220px);margin-top:var(--e4)}
+
+/* ─────────────────────────────────────────────────────────────────
+   DUO LOCAL — écran miroir
+   Le bas est retourné à 180° : même geste, même cible, mais chacun lit
+   son propre chrono à l'endroit depuis son côté de la table. #app réserve
+   déjà les zones sûres en haut et en bas (body.jeu), donc rien d'autre à
+   calculer ici que le partage en deux moitiés égales.
+   ───────────────────────────────────────────────────────────────── */
+#duo{position:relative;display:flex;flex-direction:column;padding:0}
+.duo-moitie{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:var(--e2);padding:var(--e4);text-align:center;
+  min-height:0;touch-action:manipulation}
+.duo-bas{transform:rotate(180deg);border-top:1px solid var(--bordDoux)}
+.duo-nom{font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.duo-score-mini{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  color:var(--gris);text-transform:uppercase}
+.duo-corps{display:flex;flex-direction:column;align-items:center;gap:var(--e2);
+  margin-top:var(--e3)}
+.duo-etat{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+  color:var(--gris);text-transform:uppercase}
+.duo-cible{font-family:var(--mono);font-weight:500;
+  font-size:clamp(40px,15vw,64px);letter-spacing:-.03em;color:var(--laiton)}
+.duo-compte{font-family:var(--mono);font-weight:600;font-size:clamp(56px,20vw,90px);
+  color:var(--laiton)}
+.duo-verdict{font-size:22px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.duo-ecart{font-family:var(--mono);font-size:26px;font-weight:600}
+.duo-score{font-family:var(--mono);font-size:clamp(32px,12vw,48px);
+  font-weight:500;letter-spacing:-.02em}
+/* un « × » est le seul symbole qui se lit pareil après une rotation de
+   180° : posé pile sur la couture entre les deux moitiés, il reste donc
+   lisible pour les deux joueurs sans avoir à le dupliquer ni le retourner */
+.duo-quitter{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:6;
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--bordDoux);
+  background:var(--nuit);color:var(--gris);font-size:16px;line-height:1}
+.duo-quitter:active{opacity:.6}
