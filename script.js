@@ -2975,7 +2975,7 @@ const ecranJeu = () => 'fluide';
 // La barre du bas s'affiche partout SAUF pendant une partie et sur les écrans
 // de transition (résultat, fin) : la liste des exclus est plus courte et plus
 // stable que celle des inclus, qui grandit à chaque nouvel écran.
-const ONGLETS = {jouer:'reglages', ligues:'ligues', panth:'pantheon', trophees:'trophees', profil:'profil'};
+const ONGLETS = {jouer:'reglages', ligues:'ligues', amis:'amis', panth:'pantheon', trophees:'trophees', profil:'profil'};
 const ECRANS_SANS_BARRE = ['fluide', 'resultat', 'fin', 'duo', 'duo-joueurs', 'duo-mode', 'duo-reglages'];
 const porteBarre = id => !ECRANS_SANS_BARRE.includes(id);
 
@@ -3033,6 +3033,7 @@ function montrer(id, sansPile){
     // les écrans sans onglet propre (fiche, boutique, test…) n'allument aucun
     // onglet, mais la barre reste là pour repartir vers une grande section
     const onglet = id === 'ligue' ? 'ligues'
+      : id === 'profil-vs' ? (PROFIL_VS_RETOUR === 'amis' ? 'amis' : 'ligues')
       : Object.keys(ONGLETS).find(k => ONGLETS[k] === id);
     B.querySelectorAll('.bb').forEach(b =>
       b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
@@ -7829,6 +7830,7 @@ async function majCompte(){
 /* ─── connexion ─── */
 $('cn-retour').onclick = () => {
   if(AUTH_RETOUR === 'ligues') return ouvrirLigues();
+  if(AUTH_RETOUR === 'amis') return ouvrirAmis();
   if(AUTH_RETOUR === 'duel'){ montrer('duel'); return construireEcranDuel(); }
   construireProfil(); montrer('profil');
 };
@@ -7841,6 +7843,7 @@ async function apresConnexion(){
     if(s2) await rejoindreLigue(code, s2);
     await ouvrirLigues();
   } else if(AUTH_RETOUR === 'ligues') await ouvrirLigues();
+  else if(AUTH_RETOUR === 'amis') await ouvrirAmis();
   else if(AUTH_RETOUR === 'trophees'){ await construireTrophees(); montrer('trophees'); }
   else if(INVITATION_DUEL && AUTH_RETOUR === 'duel'){
     const code = INVITATION_DUEL; INVITATION_DUEL = null;
@@ -8356,7 +8359,8 @@ async function chargerClassement(){
         : `<span style="color:${coul}">${esc((r.nom || '?')[0].toUpperCase())}</span>`;
       const nomAff = `<span style="color:${coul}">${esc(r.nom)}</span>`
         + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
-      return `<div class="lg-rang${s && r.id === s.id ? ' moi' : ''}">
+      const moi = s && r.id === s.id;
+      return `<div class="lg-rang${moi ? ' moi' : ' cliquable'}">
         <span class="p">${r.parties ? i + 1 : '—'}</span>
         <span class="lg-av" style="border-color:${coul}66">${av}</span>
         <span class="n">${nomAff}</span>
@@ -8364,6 +8368,13 @@ async function chargerClassement(){
         <span class="st">${st}</span>
       </div>`;
     }).join('');
+    // fiche comparée : jamais sur sa propre ligne, inutile de se comparer à
+    // soi-même (voir #profil-vs, partagé avec l'onglet Amis)
+    [...C.children].forEach((el, i) => {
+      const r = rangs[i];
+      if(s && r.id === s.id) return;
+      el.onclick = () => ouvrirProfilVs({id:r.id, pseudo:r.nom, tag:r.tag, photo:r.photo}, 'ligue');
+    });
   }catch(e){
     $('lg-note').textContent = messageCompte(e);
     C.innerHTML = carteVide('⚠️', messageCompte(e), true);
@@ -8519,6 +8530,7 @@ async function construireEcranDuel(){
   $('duel-accueil').style.display = DUEL.code ? 'none' : 'block';
   $('duel-salle').style.display = DUEL.code ? 'block' : 'none';
   if(DUEL.code) demarrerSondageDuel();
+  else await chargerDefisDuel(s.id);
 }
 
 $('duel-retour').onclick = () => { arreterSondageDuel(); montrer('duo-mode'); };
@@ -8541,16 +8553,55 @@ async function parcoursDefierQuelquun(){
   try{ await creerDuelSalle(r); }
   catch(e){ choisir('Création impossible', messageCompte(e), [{label:'Fermer', val:true}]); }
 }
+// même parcours, mais l'adversaire est déjà connu (fiche d'un ami ou d'un
+// membre de ligue) : voir #profil-vs et le paramètre `cible` de creerDuelSalle
+async function parcoursDefierAmi(cible){
+  const r = await choisir('Combien de manches ?',
+    'La partie se joue en manches fixes — la plus proche de la cible en gagne une.',
+    MANCHES_DUEL.map(n => ({label:n + ' manches', val:n})));
+  if(!r) return;
+  try{ await creerDuelSalle(r, cible); montrer('duel'); }
+  catch(e){ choisir('Défi impossible', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+// « Vos défis » sur l'accueil du Duel : les duels où l'adversaire est déjà
+// connu (défi direct, pas un code à partager) et pas encore commencés —
+// ceux qu'on a lancés soi-même (en attente que l'adversaire les découvre)
+// et ceux qu'on nous a lancés (à découvrir, justement, faute de notification).
+async function chargerDefisDuel(moi){
+  const B = $('duel-defis'), L = $('duel-defis-liste');
+  let lignes = [];
+  try{
+    lignes = await apiAuth('duels?statut=eq.attente&adversaire=not.is.null'
+      + '&or=(hote.eq.' + moi + ',adversaire.eq.' + moi + ')&order=cree_le.desc&select=*') || [];
+  }catch(e){ B.style.display = 'none'; return; }
+  if(!lignes.length){ B.style.display = 'none'; L.innerHTML = ''; return; }
+  B.style.display = 'block';
+  L.innerHTML = lignes.map(d => {
+    const jeSuisHote = d.hote === moi, autre = jeSuisHote ? d.adversaire_pseudo : d.hote_pseudo;
+    return '<button class="nav-carte" style="margin-top:8px"><span class="ic">⚔️</span>'
+      + '<span class="txt"><span class="n">' + esc(autre || '—') + '</span>'
+      + '<span class="d">' + (jeSuisHote ? 'Défi envoyé · reprendre' : 'Vous a défié · jouer') + '</span></span>'
+      + '<span class="fl">›</span></button>';
+  }).join('');
+  [...L.children].forEach((el, i) => {
+    const d = lignes[i];
+    el.onclick = () => demarrerDuel(d.code, d.hote === moi, moi);
+  });
+}
 
-async function creerDuelSalle(manches){
+// cible optionnelle {id, pseudo} : défi direct depuis la fiche d'un ami ou
+// d'un membre de ligue (voir parcoursDefierAmi()) — l'adversaire est déjà
+// connu à la création, la ligne n'attend donc plus qu'un partage de code.
+async function creerDuelSalle(manches, cible){
   const s = await rafraichirSession();
   if(!s) throw new Error('Aucune session.');
   const pseudo = monPseudo();
   for(let essai = 0; essai < 5; essai++){
     const code = nouveauCode();
     try{
-      await apiAuth('duels', {method:'POST', body:JSON.stringify({
-        code, hote:s.id, hote_pseudo:pseudo, manches_visees:manches})});
+      const corps = {code, hote:s.id, hote_pseudo:pseudo, manches_visees:manches};
+      if(cible){ corps.adversaire = cible.id; corps.adversaire_pseudo = cible.pseudo; }
+      await apiAuth('duels', {method:'POST', body:JSON.stringify(corps)});
       demarrerDuel(code, true, s.id);
       return code;
     }catch(e){
@@ -8794,6 +8845,237 @@ async function construireHistoriqueDuels(){
       + '<span class="moy ' + (nul ? '' : (gagne ? 't-vert' : 't-signal')) + '">'
       + mes + ' – ' + ses + '</span></div>';
   }).join('');
+}
+
+/* ════════ AMIS ════════
+   Table `amis` : demandeur, destinataire, statut 'attente'|'accepte'. Pas de
+   statut 'refuse' — refuser une demande ou se désamiser supprime simplement
+   la ligne, la RLS l'autorise aux deux parties. profils_demandeur/
+   profils_destinataire viennent de deux FK distinctes vers profils
+   (fk_amis_demandeur_profils / fk_amis_destinataire_profils), d'où le hint
+   après « ! » dans le select : sans lui PostgREST ne saurait pas laquelle
+   des deux utiliser. Sert aussi de socle à « défier ce joueur » depuis la
+   fiche d'un membre de ligue : voir #profil-vs, partagé entre Amis et Ligue.
+*/
+$('bb-amis').onclick = () => ouvrirAmis();
+async function ouvrirAmis(){ montrer('amis'); await majAmis(); }
+async function majAmis(){
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  $('am-etat').textContent = !EN_LIGNE() ? 'indisponible' : s ? 'connecté' : 'sans compte';
+  $('am-hors').style.display = s ? 'none' : 'block';
+  $('am-dans').style.display = s ? 'block' : 'none';
+  $('am-recherche').style.display = 'none';
+  if(!s) return;
+  await chargerAmis();
+}
+$('am-creer-compte').onclick = () => ouvrirAuth('creer', 'amis');
+$('am-connexion').onclick    = () => ouvrirAuth('connexion', 'amis');
+
+$('am-ajouter').onclick = () => {
+  const R = $('am-recherche'), ouvert = R.style.display !== 'none';
+  R.style.display = ouvert ? 'none' : 'block';
+  if(!ouvert){
+    $('am-recherche-champ').value = ''; $('am-recherche-resultats').innerHTML = '';
+    $('am-recherche-champ').focus();
+  }
+};
+$('am-recherche-go').onclick = () => rechercherAmis();
+$('am-recherche-champ').addEventListener('keydown', ev => { if(ev.key === 'Enter') rechercherAmis(); });
+
+// une ligne « joueur » générique — résultat de recherche, demande reçue ou
+// ami déjà accepté, seule la zone d'actions change d'un appel à l'autre
+function ligneJoueur(p, actionsHtml, cliquable){
+  const coul = coulHash(p.pseudo || '?');
+  const av = p.photo ? '<img src="' + esc(p.photo) + '">'
+    : '<span style="color:' + coul + '">' + esc((p.pseudo || '?')[0].toUpperCase()) + '</span>';
+  const nomAff = '<span style="color:' + coul + '">' + esc(p.pseudo || 'Sans pseudo') + '</span>'
+    + (p.tag ? '<span class="st" style="display:inline">#' + esc(p.tag) + '</span>' : '');
+  return '<div class="lg-rang' + (cliquable ? ' cliquable' : '') + '">'
+    + '<span class="lg-av" style="border-color:' + coul + '66">' + av + '</span>'
+    + '<span class="n">' + nomAff + '</span>'
+    + '<span class="lr-actions">' + actionsHtml + '</span></div>';
+}
+
+async function rechercherAmis(){
+  const q = ($('am-recherche-champ').value || '').trim();
+  const R = $('am-recherche-resultats');
+  if(q.length < 2){ R.innerHTML = '<div class="note">Trois lettres minimum.</div>'; return; }
+  R.innerHTML = '<div class="note">Recherche…</div>';
+  try{
+    const s = await rafraichirSession();
+    if(!s) throw new Error('Aucune session.');
+    const r = await apiAuth('profils?pseudo=ilike.*' + encodeURIComponent(q) + '*'
+      + '&id=neq.' + s.id + '&select=id,pseudo,tag,photo&limit=8') || [];
+    if(!r.length){ R.innerHTML = '<div class="note">Aucun pseudo ne correspond.</div>'; return; }
+    R.innerHTML = r.map(p => ligneJoueur(p, '<button class="principal">Ajouter</button>', true)).join('');
+    [...R.children].forEach((el, i) => {
+      const p = r[i], bouton = el.querySelector('button');
+      el.onclick = () => ouvrirProfilVs(p, 'amis');
+      bouton.onclick = ev => { ev.stopPropagation(); envoyerDemandeAmi(p, s.id, bouton); };
+    });
+  }catch(e){ R.innerHTML = '<div class="note">' + esc(messageCompte(e)) + '</div>'; }
+}
+
+async function chargerAmis(){
+  const s = await rafraichirSession();
+  if(!s) return;
+  const DB = $('am-demandes-bloc'), D = $('am-demandes'), L = $('am-liste');
+  L.innerHTML = '<div class="note">Chargement…</div>';
+  let rows = [];
+  try{
+    rows = await apiAuth('amis?or=(demandeur.eq.' + s.id + ',destinataire.eq.' + s.id + ')'
+      + '&select=demandeur,destinataire,statut,'
+      + 'profils_demandeur:profils!fk_amis_demandeur_profils(id,pseudo,tag,photo),'
+      + 'profils_destinataire:profils!fk_amis_destinataire_profils(id,pseudo,tag,photo)') || [];
+  }catch(e){
+    DB.style.display = 'none';
+    L.innerHTML = '<div class="note">' + esc(messageCompte(e)) + '</div>';
+    return;
+  }
+  const recues = rows.filter(r => r.statut === 'attente' && r.destinataire === s.id);
+  const acceptes = rows.filter(r => r.statut === 'accepte');
+
+  DB.style.display = recues.length ? 'block' : 'none';
+  D.innerHTML = recues.map(r => ligneJoueur(r.profils_demandeur,
+    '<button class="principal">Accepter</button><button>Refuser</button>')).join('');
+  [...D.children].forEach((el, i) => {
+    const r = recues[i], boutons = el.querySelectorAll('button');
+    boutons[0].onclick = () => accepterAmi(r.demandeur, s.id);
+    boutons[1].onclick = () => refuserAmi(r.demandeur, s.id);
+  });
+
+  if(!acceptes.length){
+    $('am-note').textContent = 'Aucun ami pour l\'instant.';
+    L.innerHTML = '<div class="lg-vide">Ajoutez un ami par son pseudo pour comparer vos scores et le défier.</div>';
+    return;
+  }
+  $('am-note').textContent = acceptes.length + ' ami' + (acceptes.length > 1 ? 's' : '');
+  L.innerHTML = acceptes.map(r => {
+    const p = r.demandeur === s.id ? r.profils_destinataire : r.profils_demandeur;
+    return ligneJoueur(p, '<button>Retirer</button>', true);
+  }).join('');
+  [...L.children].forEach((el, i) => {
+    const r = acceptes[i], p = r.demandeur === s.id ? r.profils_destinataire : r.profils_demandeur;
+    el.onclick = () => ouvrirProfilVs(p, 'amis');
+    el.querySelector('button').onclick = async ev => {
+      ev.stopPropagation();
+      if(await demander('Retirer ' + (p.pseudo || 'cet ami') + ' ?', 'Vous pourrez le rajouter plus tard.', 'Retirer'))
+        supprimerAmi(r.demandeur, r.destinataire);
+    };
+  });
+}
+
+async function envoyerDemandeAmi(p, moi, bouton){
+  try{
+    await apiAuth('amis', {method:'POST', body:JSON.stringify({demandeur:moi, destinataire:p.id})});
+    vibrer(10);
+    if(bouton){ bouton.disabled = true; bouton.textContent = 'Envoyée'; }
+    if(PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.id === p.id) majBoutonAmi(p.id, moi);
+  }catch(e){ choisir('Impossible d\'ajouter', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+async function accepterAmi(demandeurId, moi){
+  try{
+    await apiAuth('amis?demandeur=eq.' + demandeurId + '&destinataire=eq.' + moi,
+      {method:'PATCH', body:JSON.stringify({statut:'accepte'})});
+    vibrer(10);
+    if($('amis').classList.contains('actif')) chargerAmis();
+    if(PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.id === demandeurId) majBoutonAmi(demandeurId, moi);
+  }catch(e){ choisir('Impossible d\'accepter', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+async function refuserAmi(demandeurId, moi){
+  try{
+    await apiAuth('amis?demandeur=eq.' + demandeurId + '&destinataire=eq.' + moi, {method:'DELETE'});
+    chargerAmis();
+  }catch(e){ choisir('Impossible de refuser', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+async function supprimerAmi(demandeurId, destinataireId){
+  try{
+    await apiAuth('amis?demandeur=eq.' + demandeurId + '&destinataire=eq.' + destinataireId, {method:'DELETE'});
+    chargerAmis();
+  }catch(e){ choisir('Impossible de retirer', messageCompte(e), [{label:'Fermer', val:true}]); }
+}
+
+/* ════════ PROFIL COMPARÉ ════════
+   Un seul écran (#profil-vs) pour deux points d'entrée — une ligne de
+   classement de ligue, ou un ami dans l'onglet Amis — chacun renvoyant vers
+   son écran d'origine (PROFIL_VS_RETOUR) plutôt qu'un retour générique. */
+let PROFIL_VS_RETOUR = 'ligue';   // où revenir : 'ligue' ou 'amis'
+let PROFIL_VS_CIBLE = null;       // {id, pseudo, tag, photo} actuellement affiché
+
+async function ouvrirProfilVs(p, retour){
+  PROFIL_VS_RETOUR = retour; PROFIL_VS_CIBLE = p;
+  const coul = coulHash(p.pseudo || '?');
+  $('pv-titre').textContent = (p.pseudo || 'JOUEUR').toUpperCase();
+  $('pv-tag').textContent = p.tag ? '#' + p.tag : '—';
+  $('pv-avatar').innerHTML = p.photo
+    ? '<img src="' + esc(p.photo) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'
+    : '<span style="color:' + coul + '">' + esc((p.pseudo || '?')[0].toUpperCase()) + '</span>';
+  $('pv-nom').textContent = p.pseudo || 'Sans pseudo';
+  $('pv-nom').style.color = coul;
+  $('pv-sous').textContent = 'Comparaison des scores';
+  $('pv-comparaison').innerHTML = '<div class="note">Chargement…</div>';
+  $('pv-ami').style.display = 'none';
+  montrer('profil-vs');
+  const s = await rafraichirSession();
+  if(!s) return;
+  await Promise.all([majBoutonAmi(p.id, s.id), chargerComparaison(p, s.id)]);
+}
+$('pv-retour').onclick = () => {
+  if(PROFIL_VS_RETOUR === 'amis') ouvrirAmis();
+  else montrer('ligue');   // LG_COURANTE et le classement déjà construit restent affichés tels quels
+};
+$('pv-defier').onclick = () => {
+  if(PROFIL_VS_CIBLE) parcoursDefierAmi({id:PROFIL_VS_CIBLE.id, pseudo:PROFIL_VS_CIBLE.pseudo});
+};
+
+async function majBoutonAmi(autreId, moi){
+  const B = $('pv-ami');
+  B.style.display = 'block'; B.disabled = false; B.textContent = '+ ajouter en ami';
+  B.onclick = () => envoyerDemandeAmi({id:autreId, pseudo:PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.pseudo}, moi, B);
+  try{
+    const rows = await apiAuth('amis?or=(and(demandeur.eq.' + moi + ',destinataire.eq.' + autreId
+      + '),and(demandeur.eq.' + autreId + ',destinataire.eq.' + moi
+      + '))&select=demandeur,destinataire,statut') || [];
+    if(!rows.length) return;
+    const r = rows[0], envoyeParMoi = r.demandeur === moi;
+    if(r.statut === 'accepte'){ B.textContent = 'Ami'; B.disabled = true; B.onclick = null; }
+    else if(envoyeParMoi){ B.textContent = 'Demande envoyée'; B.disabled = true; B.onclick = null; }
+    else{ B.textContent = 'Accepter sa demande'; B.onclick = () => accepterAmi(autreId, moi); }
+  }catch(e){ /* silencieux : le bouton « ajouter » par défaut reste utilisable */ }
+}
+
+async function chargerComparaison(p, moi){
+  const C = $('pv-comparaison');
+  try{
+    const modes = modesLigue();
+    const perfs = await apiAuth('perfs?joueur=in.(' + moi + ',' + p.id + ')&select=joueur,mode,score') || [];
+    const meilleur = {};   // meilleur[joueur][mode] = meilleur score
+    perfs.forEach(x => {
+      meilleur[x.joueur] = meilleur[x.joueur] || {};
+      meilleur[x.joueur][x.mode] = Math.max(meilleur[x.joueur][x.mode] || 0, x.score || 0);
+    });
+    const mien = meilleur[moi] || {}, sien = meilleur[p.id] || {};
+    $('pv-note').textContent = 'Meilleure partie de chacun, mode par mode.';
+    C.innerHTML = modes.map(id => {
+      const m = SOLOS.find(x => x.id === id) || {n:id};
+      const aJoue = mien[id] !== undefined, bJoue = sien[id] !== undefined;
+      const a = mien[id] || 0, b = sien[id] || 0;
+      const aGagne = aJoue && (!bJoue || a > b), bGagne = bJoue && (!aJoue || b > a);
+      return '<div class="pv-ligne"><div class="pv-mode">' + esc(m.n) + '</div>'
+        + '<div class="pv-scores">'
+        + '<div class="pv-col' + (aGagne ? ' gagne' : '') + '">'
+        + '<span class="pv-val">' + (aJoue ? a : '—') + '</span><span class="pv-qui">vous</span></div>'
+        + '<div class="pv-col' + (bGagne ? ' gagne' : '') + '">'
+        + '<span class="pv-val">' + (bJoue ? b : '—') + '</span>'
+        + '<span class="pv-qui">' + esc(p.pseudo || 'lui') + '</span></div>'
+        + '</div></div>';
+    }).join('');
+  }catch(e){
+    $('pv-note').textContent = messageCompte(e);
+    C.innerHTML = carteVide('⚠️', messageCompte(e), true);
+    const r = $('cl-vide-retry');
+    if(r) r.onclick = () => chargerComparaison(p, moi);
+  }
 }
 
 /* ════════ DUO LOCAL · ÉCRAN MIROIR ════════

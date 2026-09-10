@@ -460,12 +460,15 @@ body{background:var(--nuit);color:var(--ivoire);font-family:var(--cond);
   border:1px solid var(--bordDoux);border-radius:22px;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
   padding:8px 4px;
-  grid-template-columns:repeat(5,1fr);gap:2px}
+  grid-template-columns:repeat(6,1fr);gap:2px}
 .barre-bas.on{display:grid}
 .bb{display:flex;flex-direction:column;align-items:center;gap:4px;
-  background:none;border:none;padding:6px 2px;cursor:pointer;color:var(--gris)}
-.bb .ic{font-size:19px;line-height:1}
-.bb .lb{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  background:none;border:none;padding:6px 1px;cursor:pointer;color:var(--gris)}
+.bb .ic{font-size:17px;line-height:1}
+/* letter-spacing resserré (.1em -> .03em) et taille -0.5px depuis le passage
+   à 6 onglets (Amis en plus) : à 5 colonnes ça tenait large, à 6 « Panthéon »
+   et « Trophées » (8 caractères) touchaient leurs voisins sans ça */
+.bb .lb{font-family:var(--mono);font-size:8.5px;letter-spacing:.03em;
   text-transform:uppercase}
 .bb[aria-selected="true"]{color:var(--laiton)}
 .bb:active{opacity:.6}
@@ -835,6 +838,32 @@ html[data-da="ultraviolet"] #classement .qui,html[data-da="glacier"] #classement
   border-color:var(--laiton);font-weight:600}
 #classement-global .lg-rang:nth-child(1){border-color:rgba(201,162,39,.35)}
 #classement-global .lg-rang.moi{background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.4)}
+/* ─── ligne de ligue cliquable (ouvre la fiche comparée d'un joueur) : même
+   liste que .lg-rang, seule une ligne sur deux le devient (jamais la sienne
+   propre) — voir chargerClassement() et chargerAmis() ─── */
+.lg-rang.cliquable{cursor:pointer}
+.lg-rang.cliquable:active{background:rgba(255,255,255,.04)}
+/* ─── Amis : recherche par pseudo, demandes, boutons inline sur une ligne ─── */
+.ligne-recherche{display:flex;gap:8px;margin-top:8px}
+.ligne-recherche input{flex:1;min-width:0}
+.lg-rang .lr-actions{display:flex;gap:8px;margin-left:auto}
+.lg-rang .lr-actions button{font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:7px 12px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--bordDoux);background:none;color:var(--ivoire)}
+.lg-rang .lr-actions button.principal{border-color:var(--laiton);color:var(--laiton)}
+.lg-rang .lr-actions button:disabled{opacity:.45;cursor:default}
+/* ─── Profil comparé : une ligne par mode, deux colonnes (vous / l'autre),
+   celle qui mène ressort en laiton plutôt qu'en gris neutre ─── */
+.pv-ligne{padding:12px 4px;border-bottom:1px solid var(--bordDoux)}
+.pv-mode{font-size:14px;margin-bottom:6px}
+.pv-scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pv-col{text-align:center;padding:8px 4px;border-radius:10px;background:var(--surface);
+  border:1px solid var(--bordDoux)}
+.pv-col.gagne{border-color:rgba(201,162,39,.4);background:rgba(201,162,39,.08)}
+.pv-val{display:block;font-family:var(--mono);font-size:17px;color:var(--gris)}
+.pv-col.gagne .pv-val{color:var(--laiton)}
+.pv-qui{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gris);opacity:.7;margin-top:2px}
 /* ─── boutique de l'Aventure ─── */
 .bo-tete{display:flex;align-items:baseline;gap:12px;margin-top:6px}
 .bo-xp{font-family:var(--mono);font-size:26px;color:var(--laiton);
@@ -2642,11 +2671,14 @@ body.avec-barre{
   -webkit-backdrop-filter:saturate(170%) blur(22px);
   box-shadow:var(--ombre-3);
 }
-.bb{position:relative;border-radius:16px;padding:var(--e2) var(--e1) 7px;
+.bb{position:relative;border-radius:16px;padding:var(--e2) 1px 7px;
   min-height:52px;justify-content:center;
   transition:color var(--transition), transform .12s ease}
-.bb .ic{font-size:18px;transition:transform var(--transition)}
-.bb .lb{font-size:8.5px;letter-spacing:.09em}
+.bb .ic{font-size:17px;transition:transform var(--transition)}
+/* letter-spacing resserré (.09em -> .03em) depuis le passage à 6 onglets
+   (Amis en plus) : à 5 colonnes ça tenait large, à 6 « Panthéon » et
+   « Trophées » (8 caractères) touchaient leurs voisins sans ça */
+.bb .lb{font-size:8.5px;letter-spacing:.03em}
 .bb[aria-selected="true"] .ic{transform:translateY(-1px) scale(1.12)}
 /* pastille sous l'onglet actif, plutôt que la seule teinte du texte */
 .bb[aria-selected="true"]::after{

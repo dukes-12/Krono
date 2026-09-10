@@ -358,6 +358,13 @@
     <div id="duel-accueil" style="display:none">
       <div class="note">Défiez quelqu'un à distance : même cible, chacun chez soi,
         joué en local sur son propre téléphone.</div>
+      <!-- défis directs, lancés depuis la fiche d'un ami ou d'un membre de
+           ligue (adversaire déjà connu à la création, voir creerDuelSalle) :
+           masqué s'il n'y en a aucun, jamais un tableau vide affiché pour rien -->
+      <div id="duel-defis" style="display:none">
+        <div class="titre-sec">Vos défis</div>
+        <div id="duel-defis-liste"></div>
+      </div>
       <div class="recap-b">
         <button class="bouton" id="duel-defier">Défier quelqu'un</button>
         <button class="bouton fantome" id="duel-rejoindre-btn">Rejoindre un duel</button>
@@ -596,6 +603,78 @@
       <button class="bouton fantome" id="lg-quitter">Quitter la ligue</button>
       <button class="bouton fantome danger" id="lg-supprimer" style="display:none">Supprimer la ligue</button>
     </div>
+  </div>
+</section>
+
+<!-- ═══ AMIS ═══ -->
+<section class="ecran" id="amis">
+  <div class="entete">
+    <div class="marque"><h1>AMIS</h1><span id="am-etat">hors ligne</span></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+
+    <!-- non connecté -->
+    <div id="am-hors" style="display:none">
+      <div class="garde">
+        <div class="em">👥</div>
+        <div class="t">Retrouvez vos amis</div>
+        <div class="d">Ajoutez des amis par pseudo, comparez vos meilleurs scores
+          par mode et défiez-les en duel à distance. Il faut un compte.</div>
+        <div class="b">
+          <button class="bouton" id="am-creer-compte">Créer un compte</button>
+          <button class="bouton fantome" id="am-connexion">J'ai déjà un compte</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- connecté -->
+    <div id="am-dans" style="display:none">
+      <div class="recap-b" style="margin-top:0">
+        <button class="bouton" id="am-ajouter">+ ajouter un ami</button>
+      </div>
+
+      <div id="am-recherche" style="display:none">
+        <div class="eyebrow" style="margin-top:18px">Rechercher un pseudo</div>
+        <div class="ligne-recherche">
+          <input id="am-recherche-champ" maxlength="24" placeholder="Pseudo" autocomplete="off" autocapitalize="none">
+          <button class="bouton" id="am-recherche-go">Chercher</button>
+        </div>
+        <div id="am-recherche-resultats"></div>
+      </div>
+
+      <div id="am-demandes-bloc" style="display:none">
+        <div class="titre-sec">Demandes reçues</div>
+        <div id="am-demandes"></div>
+      </div>
+
+      <div class="titre-sec" style="margin-top:18px">Mes amis</div>
+      <div class="note" id="am-note">—</div>
+      <div id="am-liste"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROFIL COMPARÉ (depuis Ligue ou Amis) ═══ -->
+<section class="ecran" id="profil-vs">
+  <div class="entete">
+    <div class="marque"><h1 id="pv-titre">JOUEUR</h1><span id="pv-tag">—</span></div>
+    <div class="nav"><button id="pv-retour">Retour</button></div>
+  </div>
+  <div class="hairline"></div>
+  <div class="defile">
+    <div class="lg-tete">
+      <span class="blason" id="pv-avatar">👤</span>
+      <div><div class="nm" id="pv-nom">—</div>
+        <div class="sb" id="pv-sous">—</div></div>
+    </div>
+    <div class="recap-b" style="margin-top:14px">
+      <button class="bouton fantome" id="pv-ami">+ ajouter en ami</button>
+      <button class="bouton" id="pv-defier">Défier en duel à distance</button>
+    </div>
+    <div class="titre-sec" style="margin-top:20px">Meilleurs scores par mode</div>
+    <div class="note" id="pv-note">—</div>
+    <div id="pv-comparaison"></div>
   </div>
 </section>
 
@@ -1221,6 +1300,7 @@
 <nav class="barre-bas" id="barre-bas" role="tablist">
   <button class="bb" id="bb-jouer"    role="tab" aria-selected="true"><span class="ic">▶</span><span class="lb">Jouer</span></button>
   <button class="bb" id="bb-ligues"   role="tab" aria-selected="false"><span class="ic">🏆</span><span class="lb">Ligues</span></button>
+  <button class="bb" id="bb-amis"     role="tab" aria-selected="false"><span class="ic">👥</span><span class="lb">Amis</span></button>
   <button class="bb" id="bb-panth"    role="tab" aria-selected="false"><span class="ic">📊</span><span class="lb">Panthéon</span></button>
   <button class="bb" id="bb-trophees" role="tab" aria-selected="false"><span class="ic">🥇</span><span class="lb">Trophées</span></button>
   <button class="bb" id="bb-profil"   role="tab" aria-selected="false"><span class="ic">👤</span><span class="lb">Profil</span></button>
