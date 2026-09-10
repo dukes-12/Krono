@@ -153,11 +153,9 @@
     <div class="note" id="duor-regle">—</div>
     <div class="bloc">
       <div class="eyebrow">Manches</div>
-      <div class="seg" id="duor-manches">
-        <button data-v="3" aria-pressed="false">3 manches</button>
-        <button data-v="5" aria-pressed="true">5 manches</button>
-        <button data-v="7" aria-pressed="false">7 manches</button>
-      </div>
+      <!-- reconstruit par construireDuoReglages() : les paliers changent
+           selon le mode (10/20/40/∞ en Classique, 3/5/7 en Duel) -->
+      <div class="seg" id="duor-manches"></div>
     </div>
     <div class="bloc">
       <div class="eyebrow">Difficulté</div>

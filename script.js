@@ -9137,10 +9137,10 @@ const DUO_MODES = [
 const DUO = {
   mode:'classique',
   reglages:{
-    classique:{manches:5, diff:'simple', gor:'bar'},
+    classique:{manches:20, diff:'simple', gor:'bar'},   // même défaut que le vrai Classique solo (CFG.maxTours)
     duel:{manches:5, diff:'simple'}
   },
-  noms:['',''], manchesVisees:5, manche:0, scores:[0, 0],
+  noms:['',''], manchesVisees:20, manche:0, scores:[0, 0],
   gorgees:[0, 0], culs:[0, 0],   // classique uniquement : cumul à boire sur toute la partie
   tourActif:0,   // classique uniquement : qui joue le tour en cours
   total:0,       // classique uniquement : référence cumulée du chrono continu (centièmes),
@@ -9280,6 +9280,11 @@ function construireDuoModes(){
 }
 
 $('duor-retour').onclick = () => { construireDuoModes(); montrer('duo-mode'); };
+// Classique reprend les mêmes paliers que le vrai mode soirée (10/20/40/∞,
+// voir #fi-fin) — cohérent avec un chrono qui, lui aussi, tourne désormais
+// comme en soirée. Duel garde ses propres manches, plus courtes, pensées
+// pour un duel rapide au bar plutôt qu'une partie complète.
+const DUO_MANCHES = {classique:[10, 20, 40, 0], duel:[3, 5, 7]};
 function construireDuoReglages(){
   const m = DUO_MODES.find(x => x.id === DUO.mode), r = DUO.reglages[DUO.mode];
   $('duor-titre').textContent = m.n.toUpperCase();
@@ -9288,6 +9293,13 @@ function construireDuoReglages(){
   $('duor-bloc-gor').style.display = DUO.mode === 'classique' ? 'block' : 'none';
   const majSeg = (id, val) => $(id).querySelectorAll('button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.v === String(val))));
+  // reconstruit à chaque fois : les valeurs (et leurs boutons) changent avec
+  // le mode, pas seulement l'état "pressed" d'un jeu de boutons fixe
+  $('duor-manches').innerHTML = DUO_MANCHES[DUO.mode].map(n =>
+    '<button data-v="' + n + '">' + (n === 0 ? '∞' : n + ' manches') + '</button>').join('');
+  $('duor-manches').querySelectorAll('button').forEach(b => b.onclick = () => {
+    DUO.reglages[DUO.mode].manches = Number(b.dataset.v); construireDuoReglages();
+  });
   majSeg('duor-manches', r.manches);
   majSeg('duor-diff', r.diff);
   if(DUO.mode === 'classique') majSeg('duor-gor', r.gor);
@@ -9295,9 +9307,6 @@ function construireDuoReglages(){
     ? (r.diff === 'hard' ? 'Cible avec décimales, entre 1,00 et 10,00 s.' : 'Cible en secondes rondes, de 1 à 10 s.')
     : (r.diff === 'hard' ? 'Zone sûre resserrée à ± 0,20 s.' : 'Zone sûre à ± 0,35 s.');
 }
-$('duor-manches').querySelectorAll('button').forEach(b => b.onclick = () => {
-  DUO.reglages[DUO.mode].manches = Number(b.dataset.v); construireDuoReglages();
-});
 $('duor-diff').querySelectorAll('button').forEach(b => b.onclick = () => {
   DUO.reglages[DUO.mode].diff = b.dataset.v; construireDuoReglages();
 });
@@ -9325,13 +9334,13 @@ $('duo-quitter').onclick = async () => {
     montrer('reglages');
 };
 
-// Classique et Duel ne réagissent plus au tap de la même façon :
-// - Classique joue à tour de rôle sur UN chrono commun, lancé tout seul dès
-//   la fin du compte à rebours (comme le vrai Classique soirée) — seul le
-//   tap du joueur actif (DUO.tourActif) compte, et il arrête l'unique horloge ;
-// - Duel reste indépendant et à l'aveugle, mais chacun lance désormais SON
-//   propre chrono d'un premier tap, puis l'arrête d'un second, à son rythme —
-//   plus de départ synchronisé imposé par lancerMancheDuo().
+// Classique et Duel réagissent au tap de la même façon, à qui joue près :
+// premier tap = lancer SON chrono, second = l'arrêter — jamais de départ
+// automatique, exactement comme en solo (demarrer()/arreter()).
+// - Classique joue à tour de rôle sur UN chrono commun : seul le tap du
+//   joueur actif (DUO.tourActif) compte, à la fois pour lancer et arrêter ;
+// - Duel reste indépendant et à l'aveugle : chacun lance et arrête SON
+//   propre chrono, à son rythme, sans notion de tour.
 function gererTapDuo(i, ev){
   const t = tempsEvt(ev);
   if(t - DUO.verrou[i] < 120) return;
@@ -9345,6 +9354,10 @@ function gererTapDuo(i, ev){
   if(DUO.phase !== 'jeu') return;
   if(DUO.mode === 'classique'){
     if(i !== DUO.tourActif || DUO.ecarts[i] !== null) return;   // pas son tour, ou déjà joué
+    if(DUO.t0[i] === undefined){   // premier tap du joueur actif : lance le chrono commun
+      DUO.t0[i] = t; vibrer(10); construireDuo(); boucleChronoClassique();
+      return;
+    }
     // la valeur atteinte reprend là où le chrono continu en était (DUO.total),
     // jamais depuis zéro : voir boucleChronoClassique() et lancerMancheDuo()
     DUO.ecarts[i] = DUO.total + enCentiemes(t - DUO.t0[i]) - DUO.cible;
@@ -9360,12 +9373,13 @@ function gererTapDuo(i, ev){
 }
 
 // défilement en direct du chrono commun de Classique — calqué sur
-// boucleChiffres(), mais lu sur DUO.t0[DUO.tourActif] et RÉÉCRIT SUR LES
-// DEUX moitiés (duo-chrono-0 et duo-chrono-1) puisque les deux joueurs
-// doivent voir la même valeur, en miroir. Duel n'affiche jamais le chiffre
-// qui tourne (aveugle, voir corpsJeuDuelDuo) et n'a donc pas besoin de
-// boucle : rien à réécrire en direct. S'arrête d'elle-même dès que l'appui
-// est joué (ecarts[tourActif] posé) ou que la manche change.
+// boucleChiffres(), mais lu sur DUO.t0[DUO.tourActif] (posé par le premier
+// tap du joueur actif, voir gererTapDuo — jamais de départ automatique) et
+// RÉÉCRIT SUR LES DEUX moitiés (duo-chrono-0 et duo-chrono-1) puisque les
+// deux joueurs doivent voir la même valeur, en miroir. Duel n'affiche
+// jamais le chiffre qui tourne (aveugle, voir corpsJeuDuelDuo) et n'a donc
+// pas besoin de boucle : rien à réécrire en direct. S'arrête d'elle-même
+// dès que l'appui est joué (ecarts[tourActif] posé) ou que la manche change.
 function boucleChronoClassique(){
   if(DUO.mode !== 'classique' || DUO.phase !== 'jeu' || DUO.ecarts[DUO.tourActif] !== null) return;
   // le chiffre affiché repart de DUO.total, jamais de 0,00 — le chrono ne
@@ -9391,15 +9405,14 @@ function lancerMancheDuo(){
   DUO.manche++;
   DUO.ecarts = [null, null];
   if(DUO.mode === 'classique'){
-    // à tour de rôle : une manche sur deux pour chacun, chrono unique lancé
-    // tout seul (comme le vrai Classique soirée), l'autre ne fait que voir.
-    // La cible ne se tire jamais au sort ici : elle suit le chrono continu,
-    // toujours la prochaine seconde pleine à partir de DUO.total.
+    // à tour de rôle : une manche sur deux pour chacun, chrono unique que
+    // le joueur actif lance lui-même d'un tap (comme en solo), l'autre ne
+    // fait que voir. La cible ne se tire jamais au sort ici : elle suit le
+    // chrono continu, toujours la prochaine seconde pleine à partir de DUO.total.
     DUO.tourActif = DUO.manche % 2 === 1 ? 0 : 1;
     DUO.cible = cibleSuivanteDuo(DUO.total);
-    DUO.t0 = [undefined, undefined]; DUO.t0[DUO.tourActif] = performance.now();
+    DUO.t0 = [undefined, undefined];   // attend le tap du joueur actif pour démarrer
     DUO.phase = 'jeu'; construireDuo();
-    boucleChronoClassique();
   } else {
     // duel : cible tirée au sort à chaque manche, personne ne part tout
     // seul, chacun lance son propre chrono
@@ -9453,7 +9466,9 @@ function verifierFinMancheDuo(){
   }
   DUO.phase = 'resultat'; construireDuo();
   setTimeout(() => {
-    if(DUO.manche >= DUO.manchesVisees){ DUO.phase = 'fin'; construireDuo(); }
+    // manchesVisees=0 = ∞ (comme CFG.maxTours=0 en solo) : jamais de fin
+    // automatique, seul « Quitter » y met un terme
+    if(DUO.manchesVisees && DUO.manche >= DUO.manchesVisees){ DUO.phase = 'fin'; construireDuo(); }
     else lancerCompteADuo();
   }, 1800);
 }
@@ -9470,9 +9485,11 @@ function resumeGorgeesDuo(i){
 
 // corps de la phase 'jeu' en Classique : chrono UNIQUE, affiché à l'identique
 // des deux côtés (voir boucleChronoClassique) — seul l'état diffère : le
-// joueur actif doit toucher pour arrêter, l'autre ne fait que regarder.
+// joueur actif doit toucher pour lancer puis pour arrêter, l'autre ne fait
+// que regarder (comme en Duel, mais à tour de rôle sur un chrono commun).
 function corpsJeuClassiqueDuo(i){
   const actif = i === DUO.tourActif, gor = DUO.reglages.classique.gor;
+  const lance = DUO.t0[DUO.tourActif] !== undefined;
   // le chiffre part de DUO.total, pas de 0,00 (voir boucleChronoClassique) ;
   // une riposte en cours s'affiche en plus, des deux côtés, pour que
   // l'enjeu du tour soit clair avant même que le résultat tombe
@@ -9480,8 +9497,9 @@ function corpsJeuClassiqueDuo(i){
     ? '<div class="duo-boit">Riposte · ' + culsDuo(DUO.contre, gor) + ' en jeu</div>' : '';
   return '<div class="duo-cible">' + fmt(DUO.cible) + '</div>'
     + '<div class="f-chrono duo-chrono" id="duo-chrono-' + i + '">' + fmt(DUO.total) + '</div>'
-    + '<div class="duo-etat">' + (actif ? 'Touchez pour arrêter'
-        : (esc(DUO.noms[DUO.tourActif] || 'L\'autre') + ' joue…')) + '</div>'
+    + '<div class="duo-etat">' + (actif
+        ? (lance ? 'Touchez pour arrêter' : 'Touchez pour lancer')
+        : (esc(DUO.noms[DUO.tourActif] || 'L\'autre') + (lance ? ' joue…' : ' va jouer…'))) + '</div>'
     + defi;
 }
 // corps de la phase 'jeu' en Duel : chaque moitié suit son propre état —
@@ -9519,8 +9537,10 @@ function renduMoitieDuo(i){
   // Classique n'a pas de points (comme le vrai mode soirée : on ne compte
   // que qui boit quoi) — l'en-tête n'affiche donc que la manche en cours.
   // Duel reste un score classique, le plus proche l'emporte.
-  const manche = Math.min(DUO.manche + (DUO.phase === 'attente' ? 1 : 0), DUO.manchesVisees)
-    + '/' + DUO.manchesVisees;
+  const numero = DUO.manche + (DUO.phase === 'attente' ? 1 : 0);
+  // manchesVisees=0 = ∞ : rien à borner ni à diviser, juste le numéro en cours
+  const manche = DUO.manchesVisees ? Math.min(numero, DUO.manchesVisees) + '/' + DUO.manchesVisees
+                                    : String(numero);
   const enteteMini = '<div class="duo-nom" style="color:' + coulHash(nom) + '">' + esc(nom) + '</div>'
     + '<div class="duo-score-mini">' + (DUO.mode === 'classique'
         ? 'Manche ' + manche
