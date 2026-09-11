@@ -317,6 +317,18 @@
       </div>
     </div>
 
+    <!-- Notifications : masqué par défaut, affiché par majEncartNotifs()
+         seulement si le navigateur les supporte et qu'un compte existe
+         (l'abonnement se rattache à auth.uid()). Voir la section
+         NOTIFICATIONS PUSH de script.js. -->
+    <div id="pr-notifs" style="display:none">
+      <div class="titre-sec">Notifications</div>
+      <div class="note" id="pr-notifs-texte">—</div>
+      <div class="recap-b">
+        <button class="bouton" id="pr-notifs-action" style="display:none">Activer</button>
+      </div>
+    </div>
+
     <div class="titre-sec">Historique des soirées</div>
     <div class="note">Retrouvez les classements de vos 10 dernières parties.</div>
     <div style="margin-top: 10px;">

@@ -7610,8 +7610,111 @@ $('pr-install-fermer').onclick = () => {
   majEncartInstall();
 };
 
+/* ════════ NOTIFICATIONS PUSH ════════
+   Web Push : demandes d'ami, réponses, défis de duel — les seuls signaux
+   qui ont vraiment besoin d'atteindre un joueur app fermée (voir la section
+   AMIS et DUEL À DISTANCE, qui reposaient jusqu'ici sur « repensez à
+   rouvrir l'app »). Clé VAPID publique seulement : la privée ne vit que
+   dans l'edge function notifier-push, jamais côté client.
+   Sur iOS, aucune notification n'est possible tant que l'app n'est pas
+   installée sur l'écran d'accueil (voir dejaInstalle()) : l'encart
+   l'explique plutôt que d'afficher un bouton qui échouerait silencieusement. */
+const VAPID_PUBLIC_KEY = 'BBgfptYyGLEhU_TdZ4MrbhhZAFJD4JFv7bgo4KKcpVdwLpXQDRv-TPUBMpxKYm4yg-cGN8Sze1MFbUfAJoASDO0';
+const estNotifCompatible = () => 'serviceWorker' in navigator && 'PushManager' in window && typeof Notification !== 'undefined';
+
+// applicationServerKey attend un Uint8Array, pas la chaîne base64url brute
+function b64VersUint8(base64){
+  const pad = '='.repeat((4 - base64.length % 4) % 4);
+  const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const brut = atob(b64);
+  const tampon = new Uint8Array(brut.length);
+  for(let i = 0; i < brut.length; i++) tampon[i] = brut.charCodeAt(i);
+  return tampon;
+}
+async function estAbonneNotifs(){
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    return !!(await reg.pushManager.getSubscription());
+  }catch(e){ return false; }
+}
+async function majEncartNotifs(){
+  const bloc = $('pr-notifs');
+  if(!bloc) return;
+  if(!estNotifCompatible()){ bloc.style.display = 'none'; return; }
+  const s = EN_LIGNE() ? await rafraichirSession() : null;
+  if(!s){ bloc.style.display = 'none'; return; }   // l'abonnement se rattache à un compte
+  bloc.style.display = 'block';
+  const B = $('pr-notifs-action');
+  if(estIOS() && !dejaInstalle()){
+    $('pr-notifs-texte').textContent = "Installez d'abord l'app (ci-dessus) : iOS n'autorise les "
+      + 'notifications qu\'une fois ajoutée à l\'écran d\'accueil.';
+    B.style.display = 'none';
+    return;
+  }
+  if(Notification.permission === 'denied'){
+    $('pr-notifs-texte').textContent = 'Bloquées au niveau du navigateur — à réactiver dans ses réglages.';
+    B.style.display = 'none';
+    return;
+  }
+  const abonne = Notification.permission === 'granted' && await estAbonneNotifs();
+  B.style.display = 'block';
+  if(abonne){
+    $('pr-notifs-texte').textContent = "Activées : défis, demandes d'ami et réponses vous alertent même app fermée.";
+    B.textContent = 'Désactiver'; B.className = 'bouton fantome';
+    B.onclick = () => desabonnerNotifs();
+  } else {
+    $('pr-notifs-texte').textContent = "Recevez une alerte quand un ami vous défie ou répond à votre demande.";
+    B.textContent = 'Activer'; B.className = 'bouton';
+    B.onclick = () => abonnerNotifs();
+  }
+}
+async function abonnerNotifs(){
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted') return majEncartNotifs();
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly:true, applicationServerKey:b64VersUint8(VAPID_PUBLIC_KEY)
+    });
+    const s = await rafraichirSession();
+    if(!s) return;
+    const cle = sub.toJSON().keys;
+    await apiAuth('push_abonnements?on_conflict=endpoint', {method:'POST',
+      headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({endpoint:sub.endpoint, joueur:s.id, p256dh:cle.p256dh, auth_cle:cle.auth})});
+    trackEvent('push_subscribed');
+  }catch(e){ choisir('Notifications indisponibles', messageCompte(e), [{label:'Fermer', val:true}]); }
+  majEncartNotifs();
+}
+async function desabonnerNotifs(){
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if(sub){
+      await apiAuth('push_abonnements?endpoint=eq.' + encodeURIComponent(sub.endpoint), {method:'DELETE'}).catch(() => {});
+      await sub.unsubscribe();
+    }
+    trackEvent('push_unsubscribed');
+  }catch(e){ /* silencieux : au pire l'abonnement serveur reste, il sera purgé au premier envoi raté */ }
+  majEncartNotifs();
+}
+// best-effort, jamais bloquant : un échec d'envoi ne doit jamais faire
+// échouer l'action elle-même (créer le duel, envoyer la demande d'ami…)
+async function notifierPush(cible, titre, texte, url){
+  try{
+    const s = await rafraichirSession();
+    if(!s) return;
+    await fetch(SUPABASE_URL + '/functions/v1/notifier-push', {
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY, Authorization:'Bearer ' + s.token, 'Content-Type':'application/json'},
+      body:JSON.stringify({cible, titre, texte, url})
+    });
+  }catch(e){ /* silencieux */ }
+}
+
 async function construireProfil(){
   majEncartInstall();
+  majEncartNotifs();
   const p = monPro();
   const s = EN_LIGNE() ? await rafraichirSession() : null;
   let distant = null;
@@ -8683,6 +8786,9 @@ async function creerDuelSalle(manches, cible){
       if(cible){ corps.adversaire = cible.id; corps.adversaire_pseudo = cible.pseudo; }
       await apiAuth('duels', {method:'POST', body:JSON.stringify(corps)});
       trackEvent('duel_challenge_created', {source:cible ? 'direct' : 'code', manches});
+      // l'adversaire n'est notifié que sur un défi direct : sur un code
+      // partagé, on ne connaît encore personne à prévenir
+      if(cible) notifierPush(cible.id, 'Défi reçu', pseudo + ' vous défie en duel.', './?duel=' + code);
       demarrerDuel(code, true, s.id);
       return code;
     }catch(e){
@@ -9055,6 +9161,7 @@ async function envoyerDemandeAmi(p, moi, bouton){
     await apiAuth('amis', {method:'POST', body:JSON.stringify({demandeur:moi, destinataire:p.id})});
     vibrer(10);
     trackEvent('friend_request_sent');
+    notifierPush(p.id, 'Nouvelle demande d\'ami', monPseudo() + ' veut vous ajouter en ami.', './');
     if(bouton){ bouton.disabled = true; bouton.textContent = 'Envoyée'; }
     if(PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.id === p.id) majBoutonAmi(p.id, moi);
   }catch(e){ choisir('Impossible d\'ajouter', messageCompte(e), [{label:'Fermer', val:true}]); }
@@ -9065,6 +9172,7 @@ async function accepterAmi(demandeurId, moi){
       {method:'PATCH', body:JSON.stringify({statut:'accepte'})});
     vibrer(10);
     trackEvent('friend_request_accepted');
+    notifierPush(demandeurId, 'Demande acceptée', monPseudo() + ' a accepté votre demande d\'ami.', './');
     if($('amis').classList.contains('actif')) chargerAmis();
     if(PROFIL_VS_CIBLE && PROFIL_VS_CIBLE.id === demandeurId) majBoutonAmi(demandeurId, moi);
   }catch(e){ choisir('Impossible d\'accepter', messageCompte(e), [{label:'Fermer', val:true}]); }
