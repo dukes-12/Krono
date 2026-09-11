@@ -3033,9 +3033,9 @@ function montrer(id, sansPile){
     B.classList.toggle('on', porteBarre(id));
     // les écrans sans onglet propre (fiche, boutique, test…) n'allument aucun
     // onglet, mais la barre reste là pour repartir vers une grande section
-    const onglet = id === 'ligue' ? 'ligues'
+    const onglet = id === 'ligue' || id === 'classement-global' ? 'ligues'
       : id === 'amis-classement' ? 'amis'
-      : id === 'profil-vs' ? (PROFIL_VS_RETOUR === 'ligue' ? 'ligues' : 'amis')
+      : id === 'profil-vs' ? (PROFIL_VS_RETOUR === 'ligue' || PROFIL_VS_RETOUR === 'global' ? 'ligues' : 'amis')
       : Object.keys(ONGLETS).find(k => ONGLETS[k] === id);
     B.querySelectorAll('.bb').forEach(b =>
       b.setAttribute('aria-selected', b.id === 'bb-' + onglet));
@@ -8239,7 +8239,8 @@ async function chargerClassementGlobal(){
         : `<span style="color:${coul}">${esc((r.pseudo || '?')[0].toUpperCase())}</span>`;
       const nomAff = `<span style="color:${coul}">${esc(r.pseudo || 'Sans pseudo')}</span>`
         + (r.tag ? `<span class="st" style="display:inline">#${esc(r.tag)}</span>` : '');
-      return `<div class="lg-rang${s && r.joueur === s.id ? ' moi' : ''}">
+      const moi = s && r.joueur === s.id;
+      return `<div class="lg-rang${moi ? ' moi' : ' cliquable'}">
         <span class="p">${i + 1}</span>
         <span class="lg-av" style="border-color:${coul}66">${av}</span>
         <span class="n">${nomAff}</span>
@@ -8247,6 +8248,13 @@ async function chargerClassementGlobal(){
         <span class="st">${st}</span>
       </div>`;
     }).join('');
+    // fiche comparée : même geste que sur le classement d'une ligue ou
+    // entre amis, jamais sur sa propre ligne
+    [...C.children].forEach((el, i) => {
+      const r = rangs[i];
+      if(s && r.joueur === s.id) return;
+      el.onclick = () => ouvrirProfilVs({id:r.joueur, pseudo:r.pseudo, tag:r.tag, photo:r.photo}, 'global');
+    });
   }catch(e){
     $('clg-note').textContent = messageCompte(e);
     C.innerHTML = carteVide('⚠️', messageCompte(e), true);
@@ -9293,10 +9301,11 @@ async function chargerClassementAmis(){
 }
 
 /* ════════ PROFIL COMPARÉ ════════
-   Un seul écran (#profil-vs) pour deux points d'entrée — une ligne de
-   classement de ligue, ou un ami dans l'onglet Amis — chacun renvoyant vers
-   son écran d'origine (PROFIL_VS_RETOUR) plutôt qu'un retour générique. */
-let PROFIL_VS_RETOUR = 'ligue';   // où revenir : 'ligue', 'amis' ou 'amis-classement'
+   Un seul écran (#profil-vs) pour quatre points d'entrée — une ligne de
+   classement de ligue, du classement global, du classement entre amis, ou
+   un ami dans l'onglet Amis — chacun renvoyant vers son écran d'origine
+   (PROFIL_VS_RETOUR) plutôt qu'un retour générique. */
+let PROFIL_VS_RETOUR = 'ligue';   // où revenir : 'ligue', 'global', 'amis' ou 'amis-classement'
 let PROFIL_VS_CIBLE = null;       // {id, pseudo, tag, photo} actuellement affiché
 
 async function ouvrirProfilVs(p, retour){
@@ -9319,10 +9328,11 @@ async function ouvrirProfilVs(p, retour){
   await Promise.all([majBoutonAmi(p.id, s.id), chargerComparaison(p, s.id)]);
 }
 $('pv-retour').onclick = () => {
-  if(PROFIL_VS_RETOUR === 'amis') ouvrirAmis();
-  // amis-classement et ligue gardent tous deux leur liste déjà construite :
-  // un simple montrer() suffit, pas besoin de tout recharger
-  else montrer(PROFIL_VS_RETOUR === 'amis-classement' ? 'amis-classement' : 'ligue');
+  if(PROFIL_VS_RETOUR === 'amis') return ouvrirAmis();
+  // ligue, global et amis-classement gardent tous trois leur liste déjà
+  // construite : un simple montrer() suffit, pas besoin de tout recharger
+  const cible = {ligue:'ligue', global:'classement-global', 'amis-classement':'amis-classement'}[PROFIL_VS_RETOUR] || 'ligue';
+  montrer(cible);
 };
 $('pv-defier').onclick = () => {
   if(PROFIL_VS_CIBLE) parcoursDefierAmi({id:PROFIL_VS_CIBLE.id, pseudo:PROFIL_VS_CIBLE.pseudo});
